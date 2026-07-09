@@ -34,8 +34,24 @@ Alla fine della sessione:
 1. verificare che l'app sia ancora apribile;
 2. eseguire `git status`;
 3. riepilogare i file modificati;
-4. creare un commit se la modifica e' valida;
-5. lasciare istruzioni chiare per il prossimo agente.
+4. creare o aggiornare un file di ripristino markdown progressivo;
+5. creare un commit se la modifica e' valida;
+6. lasciare istruzioni chiare per il prossimo agente.
+
+## File di ripristino obbligatorio
+
+A fine sessione ogni agente deve creare un file markdown di ripristino con nome
+progressivo, per esempio:
+
+`gladiator_Ripristino_V2.md`
+
+Il modello iniziale e':
+
+`gladiator_Ripristino_V1.md`
+
+Il file di ripristino deve contenere data, agente usato, cartella di lavoro,
+stato Git iniziale e finale, tag o commit creati, file modificati, riepilogo
+delle modifiche e istruzioni concrete per tornare indietro.
 
 ## Prompt operativo da usare con ogni agente
 

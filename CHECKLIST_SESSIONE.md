@@ -30,6 +30,18 @@ git add .
 git commit -m "Descrizione breve della modifica"
 ```
 
+Prima del commit finale creare un file di ripristino progressivo, per esempio:
+
+```text
+gladiator_Ripristino_V2.md
+```
+
+Il file deve seguire il modello:
+
+```text
+gladiator_Ripristino_V1.md
+```
+
 ## Ripristino di emergenza
 
 Per tornare al punto iniziale salvato:
