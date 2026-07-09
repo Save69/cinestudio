@@ -1,0 +1,2091 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Total Life Audit Dashboard — ISO 5S</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f1f5f9; color: #0f172a; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Pillar pill active states */
+        .pill-riordino-active { background: #d97706 !important; color: white !important; box-shadow: 0 0 10px rgba(217,119,6,0.4); }
+        .pill-divisione-active { background: #ef4444 !important; color: white !important; box-shadow: 0 0 10px rgba(239,68,68,0.4); }
+        .pill-lavoro-active    { background: #0284c7 !important; color: white !important; box-shadow: 0 0 10px rgba(2,132,199,0.4); }
+        .pill-fisico-active   { background: #7c3aed !important; color: white !important; box-shadow: 0 0 10px rgba(124,58,237,0.4); }
+
+        /* Grid square hover scale */
+        .grid-square { transition: transform 0.15s ease, background-color 0.15s ease; }
+        .grid-square:hover { transform: scale(1.3); z-index: 10; }
+
+        /* Alarm flashing animation */
+        @keyframes alarm-flash {
+            0%, 100% { background-color: #dc2626; color: white; }
+            50% { background-color: #ea580c; color: white; }
+        }
+        .alarm-flashing {
+            animation: alarm-flash 0.5s infinite;
+        }
+
+        /* Scrollbar personalizzata per sidebar e pannelli */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden font-sans">
+
+    <!-- Toast Notification -->
+    <div id="toast-notification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-800 text-sm">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-teal-400 text-base"></i>
+        <span id="toast-message">Registrazione completata!</span>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- SIDEBAR                                                        -->
+    <!-- ============================================================ -->
+    <aside class="w-64 bg-[#0f172a] flex flex-col p-5 justify-between select-none shadow-xl text-slate-300 shrink-0">
+        <div>
+            <!-- Logo -->
+            <div class="flex items-center gap-3 mb-8 px-2 border-b border-slate-800 pb-5">
+                <div class="bg-[#0d9488] text-white p-2.5 rounded-lg text-center font-bold text-xs tracking-wider shadow-sm shadow-teal-500/50">
+                    ISO 5S
+                </div>
+                <div>
+                    <h2 class="font-bold text-sm leading-tight text-white tracking-wide">TOTAL LIFE AUDIT</h2>
+                    <p class="text-[10px] text-teal-400 font-semibold uppercase tracking-wider">4 Pilastri di Disciplina</p>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="space-y-1.5">
+                <p class="text-[9px] uppercase tracking-wider text-slate-500 font-bold px-2 mb-2">Monitoraggio</p>
+                <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all cursor-pointer text-left shadow-lg bg-[#1e293b] text-white border border-slate-700/50">
+                    <i class="fa-solid fa-chart-pie text-teal-400"></i> Dashboard Attività
+                </button>
+            </nav>
+
+            <!-- Sidebar: Per-Pillar Streak Mini-Indicators -->
+            <div class="mt-6 pt-5 border-t border-slate-800">
+                <p class="text-[9px] uppercase tracking-wider text-slate-500 font-bold px-2 mb-3">Serie Attive</p>
+                <div class="space-y-2 px-1">
+                    <div class="flex items-center justify-between px-2 py-1.5 rounded-lg bg-slate-800/50">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-briefcase text-sky-400 text-xs"></i>
+                            <span class="text-xs text-slate-400">Lavoro</span>
+                        </div>
+                        <span id="sidebar-streak-lavoro" class="text-xs font-black text-sky-400 font-mono">0d 🔥</span>
+                    </div>
+                    <div class="flex items-center justify-between px-2 py-1.5 rounded-lg bg-slate-800/50">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-scale-balanced text-red-500 text-xs"></i>
+                            <span class="text-xs text-slate-400">Divisione</span>
+                        </div>
+                        <span id="sidebar-streak-divisione" class="text-xs font-black text-red-500 font-mono">0d 🔥</span>
+                    </div>
+                    <div class="flex items-center justify-between px-2 py-1.5 rounded-lg bg-slate-800/50">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-person-running text-violet-400 text-xs"></i>
+                            <span class="text-xs text-slate-400">Fisico</span>
+                        </div>
+                        <span id="sidebar-streak-fisico" class="text-xs font-black text-violet-400 font-mono">0d 🔥</span>
+                    </div>
+                    <div class="flex items-center justify-between px-2 py-1.5 rounded-lg bg-slate-800/50">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-broom text-amber-400 text-xs"></i>
+                            <span class="text-xs text-slate-400">Riordino</span>
+                        </div>
+                        <span id="sidebar-streak-riordino" class="text-xs font-black text-amber-400 font-mono">0d 🔥</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-xs text-slate-500 border-t border-slate-800 pt-4 px-2 font-mono">
+            TARGET: 30 MIN / DIE · 4 PILASTRI
+        </div>
+    </aside>
+
+    <!-- ============================================================ -->
+    <!-- MAIN CONTENT                                                   -->
+    <!-- ============================================================ -->
+    <main class="flex-1 flex flex-col overflow-y-auto p-8">
+
+        <!-- ========== TAB: DASHBOARD ========== -->
+        <div id="tab-dashboard" class="tab-content active">
+
+            <header class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Total Life Audit Dashboard</h1>
+                    <p class="text-sm text-slate-500 mt-1">Gestisci i 4 Pilastri della disciplina quotidiana — Q3 2026.</p>
+                </div>
+            </header>
+
+            <!-- Info Banner -->
+            <div class="bg-teal-50 border border-teal-200 p-4 rounded-xl mb-6 flex gap-3 items-start text-sm text-teal-900">
+                <i class="fa-solid fa-circle-info text-teal-600 mt-0.5 text-base"></i>
+                <div>
+                    <strong>Come usare:</strong> Seleziona il <strong>Pilastro Attivo</strong> nel timer (Lavoro / Divisione / Fisico / Riordino), imposta la durata e avvia. Il sistema traccia sessioni separate per ciascun pilastro con griglie di costanza dedicate.
+                </div>
+            </div>
+
+            <!-- Timer Card + KPI Cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+
+                <!-- Timer Card -->
+                <div id="timer-card" class="lg:col-span-1 bg-slate-900 text-white p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col justify-between transition-all duration-500">
+                    <div>
+                        <!-- Status Row -->
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-teal-400 font-mono" id="timer-status-label">FASE 1: FOCUS ATTIVO — RIORDINO</span>
+                            <i class="fa-solid fa-circle-dot text-teal-500 animate-pulse" id="timer-status-dot"></i>
+                        </div>
+
+                        <!-- Pillar Selector Pills -->
+                        <div class="flex gap-1 mb-4 bg-slate-800/70 p-1.5 rounded-xl">
+                            <button onclick="setPilastroAttivo('lavoro')" id="pill-lavoro" class="flex-1 flex items-center justify-center gap-1 py-1.5 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all pill-lavoro-active">
+                                <i class="fa-solid fa-briefcase"></i> Lavoro
+                            </button>
+                            <button onclick="setPilastroAttivo('divisione')" id="pill-divisione" class="flex-1 flex items-center justify-center gap-1 py-1.5 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all text-slate-400 hover:text-slate-200">
+                                <i class="fa-solid fa-scale-balanced"></i> Divisione
+                            </button>
+                            <button onclick="setPilastroAttivo('fisico')" id="pill-fisico" class="flex-1 flex items-center justify-center gap-1 py-1.5 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all text-slate-400 hover:text-slate-200">
+                                <i class="fa-solid fa-person-running"></i> Fisico
+                            </button>
+                            <button onclick="setPilastroAttivo('riordino')" id="pill-riordino" class="flex-1 flex items-center justify-center gap-1 py-1.5 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all text-slate-400 hover:text-slate-200">
+                                <i class="fa-solid fa-broom"></i> Riordino
+                            </button>
+                        </div>
+
+                        <!-- Timer Display -->
+                        <div class="text-center my-4">
+                            <span class="text-5xl font-black font-mono tracking-widest" id="timer-display">30:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden my-3">
+                        <div id="timer-progress-bar" class="h-full w-full transition-all duration-1000" style="background-color: #0d9488;"></div>
+                    </div>
+
+                    <!-- Instruction Text -->
+                    <p id="timer-instruction" class="text-center text-[11px] text-slate-400 mb-4 h-8 flex items-center justify-center font-medium">
+                        Seleziona la stanza in basso, avvia il timer e applica il Seiri (Scarto).
+                    </p>
+
+                    <!-- Preset Buttons -->
+                    <div class="grid grid-cols-3 gap-2">
+                        <button id="preset-btn-1" onclick="setPresetTimer(15)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all">15 Min</button>
+                        <button id="preset-btn-2" onclick="setPresetTimer(30)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all">30 Min</button>
+                        <button onclick="resetTimer()" class="bg-slate-800 hover:bg-red-950 hover:text-red-400 text-slate-400 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all">Reset</button>
+                    </div>
+
+                    <!-- Toggle Button -->
+                    <button id="btn-toggle-timer" onclick="toggleTimer()" class="w-full mt-3 text-white py-2.5 rounded-xl font-bold text-sm tracking-wide shadow-md transition-all cursor-pointer flex items-center justify-center gap-2" style="background-color: #0d9488;">
+                        <i id="btn-timer-icon" class="fa-solid fa-play"></i>
+                        <span id="btn-timer-text">Avvia Sessione</span>
+                    </button>
+
+                    <!-- MP3 Settings -->
+                    <div class="mt-4 border-t border-slate-800 pt-3 flex flex-col gap-1 text-[10px] text-slate-400">
+                        <label class="font-bold flex items-center gap-1.5 cursor-pointer text-slate-300">
+                            <input type="checkbox" id="chk-mp3-enable" onchange="salvaImpostazioniMP3()" class="accent-teal-500 rounded"> Suona MP3 alla fine dei fischi
+                        </label>
+                        <input type="text" id="txt-mp3-path" oninput="salvaImpostazioniMP3()" placeholder="Es: traccia.mp3 (su Desktop) o URL" 
+                               class="w-full mt-1 text-[11px] bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-teal-500">
+                    </div>
+                </div>
+
+                <!-- KPI Cards (Uno per ciascuno dei 4 pilastri) -->
+                <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- 1. RIORDINO -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">1. Riordino</p>
+                            <h3 class="text-3xl font-black mt-2 text-slate-800" id="txt-kpi-riordino">0 / 7</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Stanze conformi allo standard 5S (✓)</p>
+                        </div>
+                        <div class="bg-amber-50 p-2.5 rounded-xl text-amber-600"><i class="fa-solid fa-house-circle-check text-lg"></i></div>
+                    </div>
+                    <!-- 2. DIVISIONE -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">2. Divisione</p>
+                            <h3 class="text-3xl font-black mt-2 text-slate-800" id="txt-kpi-divisione">0 / 30</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Giorni completati (almeno 2 ore)</p>
+                        </div>
+                        <div class="bg-red-50 p-2.5 rounded-xl text-red-600"><i class="fa-solid fa-scale-balanced text-lg"></i></div>
+                    </div>
+                    <!-- 3. LAVORO -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">3. Lavoro</p>
+                            <h3 class="text-3xl font-black mt-2 text-slate-800" id="txt-kpi-lavoro">0 / 30</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Giorni con obiettivi completati</p>
+                        </div>
+                        <div class="bg-sky-50 p-2.5 rounded-xl text-sky-600"><i class="fa-solid fa-briefcase text-lg"></i></div>
+                    </div>
+                    <!-- 4. FISICO -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">4. Fisico</p>
+                            <h3 class="text-3xl font-black mt-2 text-slate-800" id="txt-kpi-fisico">0 / 30</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Giorni con allenamento completato</p>
+                        </div>
+                        <div class="bg-violet-50 p-2.5 rounded-xl text-violet-600"><i class="fa-solid fa-person-running text-lg"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- =========================================== -->
+            <!-- GRIGLIE DI COSTANZA — 4 PILASTRI SEPARATI   -->
+            <!-- =========================================== -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-fire text-amber-500"></i> Griglie di Costanza — Per Pilastro
+                    </h3>
+                    <div class="flex items-center gap-4 text-[10px] text-slate-400 font-mono font-bold">
+                        <div class="flex items-center gap-1.5">
+                            <div class="w-3.5 h-3.5 rounded-sm" style="background:#f1f5f9;border:1px solid #e2e8f0;"></div>
+                            <span>Futuro</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <div class="w-3.5 h-3.5 rounded-sm" style="background:#e2e8f0;"></div>
+                            <span>Nessuna sessione</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <div class="w-3.5 h-3.5 rounded-sm" style="background:#f59e0b;"></div>
+                            <span>Completato ✓</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── BANNER MOTIVAZIONALE ── -->
+                <div class="relative overflow-hidden rounded-2xl mb-4 shadow-lg" style="min-height:96px; background: linear-gradient(100deg, #0f172a 55%, #1e1b4b 100%);">
+                    <img id="img-gladiatore" src="gladiatore.jpg" alt="Il Gladiatore" onerror="this.style.display='none'"
+                         class="absolute right-0 top-0 h-full w-36 object-cover object-top opacity-90" style="mask-image:linear-gradient(to left,black 60%,transparent 100%);-webkit-mask-image:linear-gradient(to left,black 60%,transparent 100%);">
+                    <div class="relative z-10 p-5 flex flex-col justify-center h-full">
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-red-500 mb-1">Q3: Obiettivo Principale - Divisione</p>
+                        <p class="text-lg font-black text-white leading-tight">Il gladiatore non aspetta.<br><span class="text-indigo-300">Combatte ogni giorno.</span></p>
+                        <p class="text-[11px] text-slate-400 mt-2 italic">"Disciplina è libertà. Ogni sessione è un passo verso la tua indipendenza."</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+
+                    <!-- ── 1. GRIGLIA LAVORO ── -->
+                    <div class="bg-white rounded-2xl border-2 border-sky-500 shadow-sm">
+                        <div class="p-5 cursor-pointer select-none" onclick="toggleObiettivi()" title="Clicca per gestire gli obiettivi settimanali">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="bg-sky-500 p-2.5 rounded-xl text-white shrink-0 shadow-sm shadow-sky-200"><i class="fa-solid fa-briefcase text-lg"></i></div>
+                                    <div>
+                                        <h4 class="font-bold text-sm text-slate-800">Lavoro — Pomodori &amp; Micro-Obiettivi</h4>
+                                        <p class="text-[10px] text-slate-400">Sessioni da 30 min · clicca per gestire obiettivi settimanali</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Serie</p><div class="flex items-baseline gap-1 justify-end"><span class="text-xl font-black text-slate-800" id="streak-lavoro-attuale">0d</span><i class="fa-solid fa-fire text-amber-500 text-xs"></i></div></div>
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Record</p><span class="text-xl font-black text-slate-600" id="streak-lavoro-max">0d</span></div>
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Giorni</p><span class="text-xl font-black text-sky-500" id="giorni-lavoro">0</span></div>
+                                    <div class="ml-2 text-sky-400"><i id="chevron-obiettivi" class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i></div>
+                                </div>
+                            </div>
+                            <div id="grid-lavoro" class="flex flex-wrap gap-1.5 p-3 bg-sky-50/40 rounded-xl border-2 border-sky-500 select-none"></div>
+                        </div>
+                        <!-- ACCORDION obiettivi settimanali -->
+                        <div id="accordion-obiettivi" class="hidden border-t-2 border-sky-500 px-5 pb-5 pt-4">
+                            <div class="flex items-center gap-2 mb-4">
+                                <i class="fa-solid fa-list-check text-sky-500"></i>
+                                <span class="text-sm font-bold text-slate-700">Obiettivi Settimanali</span>
+                                <span id="label-settimana-lavoro" class="text-[10px] text-slate-400 font-mono ml-auto"></span>
+                            </div>
+                            <div id="container-obiettivi" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- ── 2. GRIGLIA DIVISIONE ── -->
+                    <div class="bg-white rounded-2xl border-2 border-red-500 shadow-sm">
+                        <div class="p-5 cursor-pointer select-none" onclick="toggleObiettiviDivisione()" title="Clicca per gestire gli obiettivi settimanali della divisione">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="bg-red-500 p-2.5 rounded-xl text-white shrink-0 shadow-sm shadow-red-200"><i class="fa-solid fa-scale-balanced text-lg"></i></div>
+                                    <div>
+                                        <h4 class="font-bold text-sm text-slate-800">Divisione — Obiettivo Strategico Q3</h4>
+                                        <p class="text-[10px] text-slate-400">Almeno 4 sessioni da 30 min (2 ore) al giorno · Segna ogni giorno con almeno 2 ore di lavoro</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Serie</p><div class="flex items-baseline gap-1 justify-end"><span class="text-xl font-black text-slate-800" id="streak-divisione-attuale">0d</span><i class="fa-solid fa-fire text-amber-500 text-xs"></i></div></div>
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Record</p><span class="text-xl font-black text-slate-600" id="streak-divisione-max">0d</span></div>
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Giorni</p><span class="text-xl font-black text-red-500" id="giorni-divisione">0</span></div>
+                                    <div class="ml-2 text-red-400"><i id="chevron-obiettivi-divisione" class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i></div>
+                                </div>
+                            </div>
+                            <div id="grid-divisione" class="flex flex-wrap gap-1.5 p-3 bg-red-50/40 rounded-xl border-2 border-red-500 select-none" onclick="event.stopPropagation()"></div>
+                        </div>
+                        <!-- ACCORDION obiettivi divisione -->
+                        <div id="accordion-obiettivi-divisione" class="hidden border-t-2 border-red-500 px-5 pb-5 pt-4">
+                            <div class="flex items-center gap-2 mb-4">
+                                <span class="text-sm font-bold text-slate-700">Obiettivi Settimanali Divisione</span>
+                                <span id="label-settimana-divisione" class="text-xs text-slate-400 font-medium"></span>
+                            </div>
+                            <div id="container-obiettivi-divisione" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- ── 3. GRIGLIA FISICO ── -->
+                    <div class="bg-white rounded-2xl border-2 border-violet-500 shadow-sm">
+                        <div class="p-5 cursor-pointer select-none" onclick="togglePeso()" title="Clicca per registrare il peso">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="bg-violet-500 p-2.5 rounded-xl text-white shrink-0 shadow-sm shadow-violet-200"><i class="fa-solid fa-person-running text-lg"></i></div>
+                                    <div>
+                                        <h4 class="font-bold text-sm text-slate-800">Fisico — Attività &amp; Peso</h4>
+                                        <p class="text-[10px] text-slate-400">Sessioni da 30/45 min · clicca per registrare il peso settimanale</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Serie</p><div class="flex items-baseline gap-1 justify-end"><span class="text-xl font-black text-slate-800" id="streak-fisico-attuale">0d</span><i class="fa-solid fa-fire text-amber-500 text-xs"></i></div></div>
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Record</p><span class="text-xl font-black text-slate-600" id="streak-fisico-max">0d</span></div>
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Giorni</p><span class="text-xl font-black text-violet-500" id="giorni-fisico">0</span></div>
+                                    <div class="ml-2 text-violet-400"><i id="chevron-peso" class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i></div>
+                                </div>
+                            </div>
+                            <div id="grid-fisico" class="flex flex-wrap gap-1.5 p-3 bg-violet-50/40 rounded-xl border-2 border-violet-500 select-none"></div>
+                        </div>
+                        <!-- ACCORDION peso e addome -->
+                        <div id="accordion-peso" class="hidden border-t-2 border-violet-500 px-5 pb-5 pt-4">
+                            <!-- Sezione Programma Allenamento Settimanale -->
+                            <div class="mb-8">
+                                <div class="flex items-center gap-2 mb-4">
+                                    <i class="fa-solid fa-person-running text-violet-500"></i>
+                                    <span class="text-sm font-bold text-slate-700">Programma Allenamento Settimanale</span>
+                                    <span id="label-settimana-fisico" class="text-[10px] text-slate-400 font-mono ml-auto"></span>
+                                </div>
+                                <div id="container-allenamenti" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2"></div>
+                            </div>
+
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 border-t border-slate-100 pt-6">
+                                <!-- Sezione Peso -->
+                                <div>
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fa-solid fa-weight-scale text-violet-500"></i>
+                                            <span class="text-sm font-bold text-slate-700">Andamento Peso</span>
+                                            <span class="text-[10px] bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full font-bold">Target: 73 kg</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <input id="input-peso" type="number" step="0.1" min="40" max="200" placeholder="es. 75.4" class="w-24 text-sm border border-violet-200 rounded-xl px-3 py-1.5 focus:outline-none focus:border-violet-500 bg-violet-50 text-slate-700">
+                                            <button onclick="registraPeso()" class="bg-violet-500 hover:bg-violet-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition-all cursor-pointer">
+                                                <i class="fa-solid fa-plus"></i> Registra
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <canvas id="canvas-peso" style="width:100%;height:160px;display:block;"></canvas>
+                                    <div id="log-peso" class="mt-3 flex flex-wrap gap-2"></div>
+                                </div>
+
+                                <!-- Sezione Circonferenza Addome -->
+                                <div class="border-t lg:border-t-0 lg:border-l border-slate-100 pt-6 lg:pt-0 lg:pl-8">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fa-solid fa-tape text-violet-500"></i>
+                                            <span class="text-sm font-bold text-slate-700">Circonferenza Addome</span>
+                                            <span class="text-[10px] bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full font-bold">Target: 90 cm</span>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <input id="input-addome" type="number" step="0.1" min="50" max="150" placeholder="es. 94.5" class="w-24 text-sm border border-violet-200 rounded-xl px-3 py-1.5 focus:outline-none focus:border-violet-500 bg-violet-50 text-slate-700">
+                                            <button onclick="registraAddome()" class="bg-violet-500 hover:bg-violet-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition-all cursor-pointer">
+                                                <i class="fa-solid fa-plus"></i> Registra
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <canvas id="canvas-addome" style="width:100%;height:160px;display:block;"></canvas>
+                                    <div id="log-addome" class="mt-3 flex flex-wrap gap-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ── 4. GRIGLIA RIORDINO ── -->
+                    <div class="bg-white rounded-2xl border-2 border-amber-400 shadow-sm">
+                        <div class="p-5 cursor-pointer select-none" onclick="toggleStanzeAccordion()" title="Clicca per vedere le aree">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="bg-amber-400 p-2.5 rounded-xl text-white shrink-0 shadow-sm shadow-amber-200"><i class="fa-solid fa-broom text-lg"></i></div>
+                                    <div>
+                                        <h4 class="font-bold text-sm text-slate-800">Riordino — Studio, Casa &amp; Giardino</h4>
+                                        <p class="text-[10px] text-slate-400">Sessioni da 15 o 30 min · clicca per aprire le aree</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Serie</p><div class="flex items-baseline gap-1 justify-end"><span class="text-xl font-black text-slate-800" id="streak-riordino-attuale">0d</span><i class="fa-solid fa-fire text-amber-500 text-xs"></i></div></div>
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Record</p><span class="text-xl font-black text-slate-600" id="streak-riordino-max">0d</span></div>
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Giorni</p><span class="text-xl font-black text-amber-500" id="giorni-riordino">0</span></div>
+                                    <div class="ml-2 text-amber-400"><i id="chevron-stanze" class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i></div>
+                                </div>
+                            </div>
+                            <div id="grid-riordino" class="flex flex-wrap gap-1.5 p-3 bg-amber-50/40 rounded-xl border-2 border-amber-400 select-none"></div>
+                        </div>
+                        <!-- ACCORDION stanze -->
+                        <div id="accordion-stanze" class="hidden border-t-2 border-amber-400">
+                            <!-- Gruppo Studio -->
+                            <div class="px-5 pt-4 pb-2">
+                                <p class="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-3 flex items-center gap-2"><i class="fa-solid fa-building"></i> Gruppo Studio</p>
+                                <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" id="container-stanze"></section>
+                            </div>
+                            <!-- Gruppo Abitazione (placeholder) -->
+                            <div class="px-5 pt-2 pb-2 border-t border-amber-100">
+                                <p class="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fa-solid fa-house"></i> Gruppo Abitazione</p>
+                                <div class="flex items-center gap-3 p-3 bg-amber-50/60 rounded-xl border border-dashed border-amber-300">
+                                    <i class="fa-solid fa-hammer text-amber-300 text-lg"></i>
+                                    <p class="text-xs text-slate-400 italic">Ambienti in definizione — da configurare prossimamente.</p>
+                                </div>
+                            </div>
+                            <!-- Gruppo Giardino (placeholder) -->
+                            <div class="px-5 pt-2 pb-4 border-t border-amber-100">
+                                <p class="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fa-solid fa-seedling"></i> Gruppo Giardino</p>
+                                <div class="flex items-center gap-3 p-3 bg-amber-50/60 rounded-xl border border-dashed border-amber-300">
+                                    <i class="fa-solid fa-hammer text-amber-300 text-lg"></i>
+                                    <p class="text-xs text-slate-400 italic">Zone in definizione — da configurare prossimamente.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+        </div><!-- end tab-dashboard -->
+
+
+        <!-- ========== TAB: PROCEDURA ========== -->
+        <div id="tab-procedura" class="tab-content">
+            <header class="mb-6">
+                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Manuale di Gestione Lineare (5S)</h1>
+                <p class="text-sm text-slate-500 mt-1">Protocollo operativo standardizzato per il controllo degli spazi di lavoro.</p>
+            </header>
+            <div class="bg-teal-50 border border-teal-200 p-4 rounded-xl mb-6 flex gap-3 items-start text-sm text-teal-900">
+                <i class="fa-solid fa-circle-info text-teal-600 mt-0.5 text-base"></i>
+                <div><strong>Manuale Tecnico:</strong> Segui questa precisa sequenza logica per azzerare il sovraccarico cognitivo derivante dal disordine stratificato.</div>
+            </div>
+            <div class="space-y-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex gap-4 items-start">
+                    <div class="bg-teal-600 text-white font-bold w-8 h-8 rounded-lg flex items-center justify-center shrink-0">1</div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800">SEIRI (Cernita / Separazione)</h3>
+                        <p class="text-sm text-slate-500 mt-1 leading-relaxed">Identifica ed elimina l'inutile. Isola solo i materiali necessari all'attività della stanza corrente. Tutto ciò che appartiene a un'altra zona va stoccato temporaneamente nella <em>Scatola di Transito</em> senza abbandonare la stanza.</p>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex gap-4 items-start">
+                    <div class="bg-teal-600 text-white font-bold w-8 h-8 rounded-lg flex items-center justify-center shrink-0">2</div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800">SEITON (Sistemazione Organizzata)</h3>
+                        <p class="text-sm text-slate-500 mt-1 leading-relaxed">Assegna un posto univoco e razionale a ogni elemento superstite. Ottimizza il posizionamento in base alla frequenza d'uso per minimizzare i movimenti inutili.</p>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex gap-4 items-start">
+                    <div class="bg-teal-600 text-white font-bold w-8 h-8 rounded-lg flex items-center justify-center shrink-0">3</div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800">SEISO (Sanificazione e Ispezione dello Stato)</h3>
+                        <p class="text-sm text-slate-500 mt-1 leading-relaxed">Pulisci l'area e le attrezzature. La pulizia funge da ispezione preventiva per rilevare anomalie, usura, cavi danneggiati o documenti scaduti.</p>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex gap-4 items-start">
+                    <div class="bg-teal-600 text-white font-bold w-8 h-8 rounded-lg flex items-center justify-center shrink-0">4</div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800">SEIKETSU (Standardizzazione delle Procedure)</h3>
+                        <p class="text-sm text-slate-500 mt-1 leading-relaxed">Formalizza le regole visive e operative generate. Crea etichette o micro-regole per rendere immediato il mantenimento dell'ordine.</p>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex gap-4 items-start">
+                    <div class="bg-teal-600 text-white font-bold w-8 h-8 rounded-lg flex items-center justify-center shrink-0">5</div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800">SHITSUKE (Mantenimento e Rigore Metodologico)</h3>
+                        <p class="text-sm text-slate-500 mt-1 leading-relaxed">Mantieni la disciplina nel tempo eseguendo l'aggiornamento costante di questa Dashboard di monitoraggio per impedire la regressione al caos.</p>
+                    </div>
+                </div>
+            </div>
+        </div><!-- end tab-procedura -->
+
+        <!-- ========== TAB: SCATOLE ========== -->
+        <div id="tab-scatole" class="tab-content">
+            <header class="mb-6">
+                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Protocollo Scatola di Transito</h1>
+                <p class="text-sm text-slate-500 mt-1">Meccanismo di sbarramento algoritmico contro le interruzioni di focus.</p>
+            </header>
+            <div class="bg-teal-50 border border-teal-200 p-4 rounded-xl mb-6 flex gap-3 items-start text-sm text-teal-900">
+                <i class="fa-solid fa-circle-info text-teal-600 mt-0.5 text-base"></i>
+                <div><strong>Meccanismo di Sicurezza:</strong> Impedisce al cervello di saltare da un compito all'altro (Context-Switching) usando un'area di stoccaggio temporanea.</div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4 text-sm text-slate-600 leading-relaxed">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-teal-600"></i> Controllo delle Deviazioni di Flusso
+                </h3>
+                <p>Quando si opera all'interno di un'unità spaziale (es. <strong>Stanza Archivio</strong>), l'operatore sperimenta un alto tasso di distrazione nel momento in cui intercetta un oggetto appartenente alla <strong>Stanza Boss</strong> o al <strong>Ripostiglio</strong>. Il movimento verso l'altra stanza distrugge la continuità operativa.</p>
+                <div class="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-xs my-4 border-l-4 border-teal-500">
+                    [CRITICAL BOUNDARY RULE]: VIETATO VALICARE IL PERIMETRO DELLA STANZA PRIMA DEI 30 MINUTI.
+                </div>
+                <h4 class="font-bold text-base text-slate-800 mt-4">Sequenza di Contenimento:</h4>
+                <ul class="list-disc pl-5 space-y-2">
+                    <li>Collocare un contenitore fisico vuoto all'interno della stanza prima di avviare il timer.</li>
+                    <li>Ogni elemento "fuori posto" intercettato va depositato nel contenitore senza essere elaborato o portato alla sua destinazione reale.</li>
+                    <li>L'attività prosegue focalizzandosi esclusivamente sulle superfici interne della stanza corrente.</li>
+                    <li><strong>Fase di Freeze (Minuto 25):</strong> Arresto delle attività, sigillatura visiva della scatola e inserimento dei minuti spesi all'interno della Dashboard. Lo smistamento complessivo delle Scatole di Transito avverrà in modo centralizzato solo nell'ultima fase del programma mensile.</li>
+                </ul>
+            </div>
+        </div><!-- end tab-scatole -->
+
+    </main>
+
+    <!-- ============================================================ -->
+    <!-- SCRIPT                                                         -->
+    <!-- ============================================================ -->
+    <script>
+
+        // ============================================================
+        // 1. DATA STRUCTURES & PERSISTENCE
+        // ============================================================
+
+        const stanzeIniziali = {
+            stanza_boss:     { nome: "1. Stanza Boss",     minuti: 0, target: 150, completata: false, pendenze: '' },
+            stanza_archivio: { nome: "2. Stanza Archivio", minuti: 0, target: 180, completata: false, pendenze: '' },
+            stanza_tavoli:   { nome: "3. Stanza Tavoli",   minuti: 0, target: 150, completata: false, pendenze: '' },
+            ripostiglio:     { nome: "4. Ripostiglio",     minuti: 0, target: 120, completata: false, pendenze: '' },
+            stanza_deposito: { nome: "5. Stanza Deposito", minuti: 0, target: 150, completata: false, pendenze: '' },
+            ingresso:        { nome: "6. Ingresso",        minuti: 0, target: 90,  completata: false, pendenze: '' },
+            bagno:           { nome: "7. Bagno",           minuti: 0, target: 60,  completata: false, pendenze: '' },
+            registroDate: [],
+            serieAttuale: 0,
+            serieMassima: 0
+        };
+
+        const datiPilastriDefault = {
+            riordino:  { registroDate: [], serieAttuale: 0, serieMassima: 0 },
+            divisione: { registroDate: [], serieAttuale: 0, serieMassima: 0, obiettivi: {}, minutiGiornalieri: {} },
+            lavoro:    { registroDate: [], serieAttuale: 0, serieMassima: 0, obiettivi: {} },
+            fisico:    { registroDate: [], serieAttuale: 0, serieMassima: 0, pesi: [], misure: [] }
+        };
+
+        let datiStudio   = JSON.parse(localStorage.getItem('datiStudio_5S_v4_streaks')) || stanzeIniziali;
+        let datiPilastri = JSON.parse(localStorage.getItem('datiPilastri_5S_v1'))       || {};
+
+        // Migrazione/inizializzazione: garantisce che tutti e 4 i pilastri esistano
+        (function migraPilastri() {
+            const defaults = {
+                riordino:  { registroDate: [], serieAttuale: 0, serieMassima: 0 },
+                divisione: { registroDate: [], serieAttuale: 0, serieMassima: 0, obiettivi: {}, minutiGiornalieri: {} },
+                lavoro:    { registroDate: [], serieAttuale: 0, serieMassima: 0, obiettivi: {} },
+                fisico:    { registroDate: [], serieAttuale: 0, serieMassima: 0, pesi: [], misure: [] }
+            };
+            Object.keys(defaults).forEach(k => {
+                if (!datiPilastri[k]) datiPilastri[k] = defaults[k];
+                // Campi aggiuntivi per pilastri esistenti
+                if (k === 'divisione' && !datiPilastri.divisione.minutiGiornalieri) datiPilastri.divisione.minutiGiornalieri = {};
+                if (k === 'lavoro'  && !datiPilastri.lavoro.obiettivi)  datiPilastri.lavoro.obiettivi  = {};
+                if (k === 'fisico'  && !datiPilastri.fisico.pesi)       datiPilastri.fisico.pesi        = [];
+                if (k === 'fisico'  && !datiPilastri.fisico.misure)     datiPilastri.fisico.misure      = [];
+            });
+            // Porta storico giardino in riordino
+            if (datiPilastri.giardino && datiPilastri.giardino.registroDate) {
+                datiPilastri.giardino.registroDate.forEach(d => {
+                    if (!datiPilastri.riordino.registroDate.includes(d))
+                        datiPilastri.riordino.registroDate.push(d);
+                });
+                delete datiPilastri.giardino;
+            }
+            // Porta storico datiStudio.registroDate in riordino
+            if (datiStudio.registroDate && datiStudio.registroDate.length > 0
+                && datiPilastri.riordino.registroDate.length === 0) {
+                datiPilastri.riordino.registroDate = [...datiStudio.registroDate];
+            }
+            localStorage.setItem('datiPilastri_5S_v1', JSON.stringify(datiPilastri));
+        })();
+
+        const BUDGET_TOTALE = 900;
+
+        // Migrazione: aggiunge 'pendenze' alle stanze già salvate che non ce l'hanno
+        (function migraPendenze() {
+            const chiavi = ['stanza_boss','stanza_archivio','stanza_tavoli','ripostiglio','stanza_deposito','ingresso','bagno'];
+            let modificato = false;
+            chiavi.forEach(k => {
+                if (datiStudio[k] && datiStudio[k].pendenze === undefined) {
+                    datiStudio[k].pendenze = '';
+                    modificato = true;
+                }
+            });
+            if (modificato) localStorage.setItem('datiStudio_5S_v4_streaks', JSON.stringify(datiStudio));
+        })();
+
+        function salvaLocale() {
+            localStorage.setItem('datiStudio_5S_v4_streaks', JSON.stringify(datiStudio));
+            localStorage.setItem('datiPilastri_5S_v1',       JSON.stringify(datiPilastri));
+        }
+
+        // ============================================================
+        // 2. PILLAR CONFIGURATION
+        // ============================================================
+
+        const PILASTRI_CONFIG = {
+            riordino: {
+                nome:            'Riordino',
+                cardBg:          '#1c0f00',   // dark amber
+                cardBorder:      '#78350f',   // amber-900
+                barColor:        '#f59e0b',   // amber-500
+                labelColor:      '#fbbf24',   // amber-400
+                dotColor:        '#f59e0b',
+                btnBg:           '#d97706',   // amber-600
+                btnHover:        '#b45309',   // amber-700
+                presets:         [15, 30],
+                presetLabels:    ['15 Min', '30 Min'],
+                defaultMinutes:  30,
+                instruction:     'Seleziona la stanza in basso, avvia il timer e applica il Seiri (Scarto).',
+                freezeInstruction: '<strong>STOP RIORDINO!</strong> Metti a posto la Scatola di Transito e prepara i dati.'
+            },
+            divisione: {
+                nome:            'Divisione',
+                cardBg:          '#450a0a',   // red-950
+                cardBorder:      '#7f1d1d',   // red-900
+                barColor:        '#ef4444',   // red-500
+                labelColor:      '#fca5a5',   // red-300
+                dotColor:        '#ef4444',
+                btnBg:           '#ef4444',
+                btnHover:        '#dc2626',
+                presets:         [30, 60],
+                presetLabels:    ['30 Min', '60 Min'],
+                defaultMinutes:  30,
+                instruction:     'Focus su un singolo step della Divisione: documento, chiamata o analisi strategica.',
+                freezeInstruction: '<strong>FREEZE!</strong> Salva i documenti e annota il prossimo step concreto.'
+            },
+            lavoro: {
+                nome:            'Lavoro',
+                cardBg:          '#0c1a2e',
+                cardBorder:      '#075985',   // sky-800
+                barColor:        '#0284c7',   // sky-600
+                labelColor:      '#38bdf8',   // sky-300
+                dotColor:        '#0284c7',
+                btnBg:           '#0284c7',
+                btnHover:        '#0369a1',
+                presets:         [30, 60],
+                presetLabels:    ['30 Min (Pomodoro)', '60 Min (Doppio)'],
+                defaultMinutes:  30,
+                instruction:     'Pomodoro Tecnico: 30 min su un singolo micro-obiettivo. Zero interruzioni.',
+                freezeInstruction: '<strong>FREEZE!</strong> Chiudi il task attivo e prepara il prossimo obiettivo.'
+            },
+            fisico: {
+                nome:            'Fisico',
+                cardBg:          '#2e1065',   // violet-950
+                cardBorder:      '#4c1d95',   // violet-900
+                barColor:        '#7c3aed',   // violet-600
+                labelColor:      '#c4b5fd',   // violet-300
+                dotColor:        '#7c3aed',
+                btnBg:           '#7c3aed',
+                btnHover:        '#6d28d9',
+                presets:         [30, 45],
+                presetLabels:    ['30 Min', '45 Min'],
+                defaultMinutes:  30,
+                instruction:     'Passeggiata veloce o esercizio muscolare. Mantieni la serie di costanza!',
+                freezeInstruction: '<strong>STOP FISICO!</strong> Stai per completare. Preparati a registrare.'
+            }
+        };
+
+        // ============================================================
+        // 3. TIMER STATE
+        // ============================================================
+
+        let timerInterval           = null;
+        let totalSeconds            = 1800;
+        let remainingSeconds        = 1800;
+        let isTimerRunning          = false;
+        let sessioneAutoRegistrata  = false;  // BUG FIX: prevent double registration
+        let pilastriAttivo          = 'lavoro';
+
+        // ============================================================
+        // 4. UTILITY FUNCTIONS
+        // ============================================================
+
+        function showToast(message, type = 'success') {
+            const toast   = document.getElementById('toast-notification');
+            const icon    = document.getElementById('toast-icon');
+            const msgSpan = document.getElementById('toast-message');
+            msgSpan.innerText = message;
+            if (type === 'success') {
+                toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-[#064e3b] text-teal-100 px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-teal-800 text-sm";
+                icon.className  = "fa-solid fa-circle-check text-teal-400 text-base";
+            } else if (type === 'warning') {
+                toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-[#78350f] text-amber-100 px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-amber-800 text-sm";
+                icon.className  = "fa-solid fa-triangle-exclamation text-amber-400 text-base";
+            } else {
+                toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-slate-900 text-slate-100 px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-800 text-sm";
+                icon.className  = "fa-solid fa-circle-info text-slate-400 text-base";
+            }
+            setTimeout(() => {
+                toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-800 text-sm";
+            }, 4000);
+        }
+
+        function switchTab(tabId) {
+            const availableTabs = ['dashboard'];
+            if (!availableTabs.includes(tabId)) tabId = 'dashboard';
+
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            const activeTab = document.getElementById(`tab-${tabId}`);
+            if (activeTab) activeTab.classList.add('active');
+
+            const menuBtns = availableTabs;
+            menuBtns.forEach(id => {
+                const btn = document.getElementById(`btn-tab-${id}`);
+                if (!btn) return;
+                const iconMap = { dashboard: 'fa-chart-pie' };
+                if (id === tabId) {
+                    btn.className = "w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all cursor-pointer text-left shadow-lg bg-[#1e293b] text-white border border-slate-700/50";
+                    btn.querySelector('i').className = `fa-solid ${iconMap[id]} text-teal-400`;
+                } else {
+                    btn.className = "w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all cursor-pointer text-left text-slate-400 hover:bg-slate-800/60 hover:text-white";
+                    btn.querySelector('i').className = `fa-solid ${iconMap[id]}`;
+                }
+            });
+        }
+
+        function formattaData(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        // ============================================================
+        // 5. PILLAR SELECTOR
+        // ============================================================
+
+        function setPilastroAttivo(id) {
+            if (isTimerRunning) {
+                showToast("Sospendi il timer prima di cambiare pilastro.", "warning");
+                return;
+            }
+            pilastriAttivo = id;
+            const cfg = PILASTRI_CONFIG[id];
+
+            // Update pill styles
+            ['riordino', 'divisione', 'lavoro', 'fisico'].forEach(p => {
+                const pill = document.getElementById(`pill-${p}`);
+                if (!pill) return;
+                if (p === id) {
+                    pill.className = `flex-1 flex items-center justify-center gap-1 py-1.5 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all pill-${p}-active`;
+                } else {
+                    pill.className = `flex-1 flex items-center justify-center gap-1 py-1.5 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all text-slate-400 hover:text-slate-200`;
+                }
+            });
+
+            // Update timer card background/border
+            const card = document.getElementById('timer-card');
+            card.style.backgroundColor = cfg.cardBg;
+            card.style.borderColor     = cfg.cardBorder;
+
+            // Update preset buttons
+            const p1 = document.getElementById('preset-btn-1');
+            const p2 = document.getElementById('preset-btn-2');
+            p1.textContent  = cfg.presetLabels[0];
+            p1.onclick      = () => setPresetTimer(cfg.presets[0]);
+            p2.textContent  = cfg.presetLabels[1];
+            p2.onclick      = () => setPresetTimer(cfg.presets[1]);
+
+            // Update toggle button color + hover
+            const btnToggle = document.getElementById('btn-toggle-timer');
+            btnToggle.style.backgroundColor = cfg.btnBg;
+            btnToggle.onmouseenter = () => { btnToggle.style.backgroundColor = cfg.btnHover; };
+            btnToggle.onmouseleave = () => { btnToggle.style.backgroundColor = cfg.btnBg; };
+
+            // Set default timer preset for this pillar
+            setPresetTimer(cfg.defaultMinutes);
+            document.getElementById('timer-instruction').innerHTML = cfg.instruction;
+        }
+
+        // ============================================================
+        // 6. STREAK CALCULATION
+        // ============================================================
+
+        function ricalcolaStreakPilastro(pilastro) {
+            const p = datiPilastri[pilastro];
+            if (!p) return;
+            const dateSet = new Set(p.registroDate);
+
+            if (dateSet.size === 0) { p.serieAttuale = 0; p.serieMassima = 0; return; }
+
+            const oggi = new Date(); oggi.setHours(0,0,0,0);
+            const ieri = new Date(); ieri.setDate(ieri.getDate() - 1); ieri.setHours(0,0,0,0);
+
+            const haOggi = dateSet.has(formattaData(oggi));
+            const haIeri = dateSet.has(formattaData(ieri));
+
+            if (!haOggi && !haIeri) {
+                p.serieAttuale = 0;
+            } else {
+                let streak = 0;
+                let dataCtrl = haOggi ? new Date(oggi) : new Date(ieri);
+                while (dateSet.has(formattaData(dataCtrl))) {
+                    streak++;
+                    dataCtrl.setDate(dataCtrl.getDate() - 1);
+                }
+                p.serieAttuale = streak;
+            }
+
+            // Max streak (all-time)
+            const sorted = Array.from(dateSet).map(d => { const x = new Date(d); x.setHours(0,0,0,0); return x; }).sort((a,b) => a-b);
+            let maxStreak = 0, run = 0, prev = null;
+            for (const d of sorted) {
+                if (!prev) { run = 1; }
+                else { run = (Math.round(Math.abs(d - prev) / 86400000) === 1) ? run + 1 : 1; }
+                if (run > maxStreak) maxStreak = run;
+                prev = d;
+            }
+            p.serieMassima = Math.max(maxStreak, p.serieAttuale);
+        }
+
+        // Global streak = consecutive "perfect days" (all 4 pillars completed)
+        function ricalcolaStreakGlobale() {
+            const rSet = new Set(datiPilastri.riordino.registroDate);
+            const dSet = new Set(datiPilastri.divisione.registroDate);
+            const lSet = new Set(datiPilastri.lavoro.registroDate);
+            const fSet = new Set(datiPilastri.fisico.registroDate);
+
+            const perfectDays = new Set();
+            rSet.forEach(d => {
+                if (dSet.has(d) && lSet.has(d) && fSet.has(d)) perfectDays.add(d);
+            });
+
+            if (perfectDays.size === 0) { datiStudio.serieAttuale = 0; datiStudio.serieMassima = 0; return; }
+
+            const oggi = new Date(); oggi.setHours(0,0,0,0);
+            const ieri = new Date(); ieri.setDate(ieri.getDate() - 1); ieri.setHours(0,0,0,0);
+            const haOggi = perfectDays.has(formattaData(oggi));
+            const haIeri = perfectDays.has(formattaData(ieri));
+
+            if (!haOggi && !haIeri) {
+                datiStudio.serieAttuale = 0;
+            } else {
+                let streak = 0;
+                let dataCtrl = haOggi ? new Date(oggi) : new Date(ieri);
+                while (perfectDays.has(formattaData(dataCtrl))) {
+                    streak++;
+                    dataCtrl.setDate(dataCtrl.getDate() - 1);
+                }
+                datiStudio.serieAttuale = streak;
+            }
+
+            const sorted = Array.from(perfectDays).map(d => { const x = new Date(d); x.setHours(0,0,0,0); return x; }).sort((a,b) => a-b);
+            let maxStreak = 0, run = 0, prev = null;
+            for (const d of sorted) {
+                if (!prev) run = 1;
+                else run = (Math.round(Math.abs(d - prev) / 86400000) === 1) ? run + 1 : 1;
+                if (run > maxStreak) maxStreak = run;
+                prev = d;
+            }
+            datiStudio.serieMassima = Math.max(maxStreak, datiStudio.serieAttuale);
+        }
+
+        // ============================================================
+        // 7. GRIGLIE PER PILASTRO (Luglio–Settembre 2026, trimestre Q3)
+        // ============================================================
+
+        // Trimestre Q3 2026: 6 Luglio (Lunedì) → 30 Settembre = 87 giorni
+        const PROGRAM_START_DATE = new Date('2026-07-06T00:00:00');
+        const PROGRAM_END_DATE   = new Date('2026-09-30T00:00:00');
+        const GRID_DAYS          = Math.round((PROGRAM_END_DATE - PROGRAM_START_DATE) / 86400000) + 1;
+
+        /**
+         * Toggle manuale di un giorno in un pilastro (click diretto sulla griglia).
+         * Permette di registrare sessioni fatte senza usare il timer.
+         */
+        function toggleGiornoInPilastro(pilastro, dateStr, isFuture) {
+            if (isFuture) {
+                showToast("Non puoi registrare sessioni future.", "warning");
+                return;
+            }
+
+            const dates = datiPilastri[pilastro].registroDate;
+            const idx   = dates.indexOf(dateStr);
+
+            if (idx === -1) {
+                // Aggiunge il giorno
+                dates.push(dateStr);
+                if (pilastro === 'riordino' && !datiStudio.registroDate.includes(dateStr)) {
+                    datiStudio.registroDate.push(dateStr);
+                }
+                showToast(`✓ Sessione segnata — ${PILASTRI_CONFIG[pilastro].nome}`, 'success');
+            } else {
+                // Rimuove il giorno
+                dates.splice(idx, 1);
+                if (pilastro === 'riordino') {
+                    const idx2 = datiStudio.registroDate.indexOf(dateStr);
+                    if (idx2 !== -1) datiStudio.registroDate.splice(idx2, 1);
+                }
+                showToast(`Giorno rimosso — ${PILASTRI_CONFIG[pilastro].nome}`, 'info');
+            }
+
+            salvaLocale();
+            renderDashboard();
+        }
+
+        /**
+         * Genera la griglia trimestrale per uno specifico pilastro.
+         * Le caselle passate/oggi sono cliccabili per marcare sessioni manualmente.
+         */
+        function renderGrigliaPerPilastro(pilastro, containerId, activeColor, activeHover, giorniElId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+
+            const dateSet = new Set(datiPilastri[pilastro].registroDate);
+            const mesi    = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+
+            const oggi      = new Date(); oggi.setHours(0,0,0,0);
+            const startDate = new Date(PROGRAM_START_DATE); startDate.setHours(0,0,0,0);
+            const oggiStr   = formattaData(oggi);
+
+            let giorniAttivi = 0;
+            let prevMese     = -1;
+
+            for (let i = 0; i < GRID_DAYS; i++) {
+                const date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                const dateStr  = formattaData(date);
+                const isActive = dateSet.has(dateStr);
+                const isFuture = date > oggi;
+                const isToday  = dateStr === oggiStr;
+                const meseNum  = date.getMonth();
+
+                // Etichetta cambio mese
+                if (meseNum !== prevMese) {
+                    const label = document.createElement('div');
+                    label.style.cssText = `
+                        width: 100%; font-size: 9px; font-weight: 700; color: #94a3b8;
+                        font-family: monospace; letter-spacing: 0.08em; text-transform: uppercase;
+                        padding: 2px 0 1px 1px; margin-top: ${i === 0 ? '0' : '4px'};
+                    `;
+                    label.textContent = mesi[meseNum] + ' ' + date.getFullYear();
+                    container.appendChild(label);
+                    prevMese = meseNum;
+                }
+
+                if (isActive) giorniAttivi++;
+
+                // Colore in base allo stato
+                let bgColor, hoverBg, border;
+                if (isActive) {
+                    bgColor = activeColor;
+                    hoverBg = activeHover;
+                    border  = 'none';
+                } else if (isFuture) {
+                    bgColor = '#f8fafc';
+                    hoverBg = '#f1f5f9';
+                    border  = '1px solid #e2e8f0';
+                } else {
+                    bgColor = '#e2e8f0';
+                    hoverBg = '#cbd5e1';
+                    border  = 'none';
+                }
+
+                const giorno = date.getDate();
+                const azione = isFuture
+                    ? 'In programma'
+                    : isActive
+                        ? 'Sessione ✓ — clicca per rimuovere'
+                        : 'Nessuna sessione — clicca per aggiungere';
+                const labelTooltip = `${giorno} ${mesi[meseNum]}: ${azione}`;
+
+                const square = document.createElement('div');
+                square.className = 'grid-square';
+                square.style.cssText = `
+                    width: 16px; height: 16px; border-radius: 3px;
+                    background-color: ${bgColor};
+                    ${border ? 'border: ' + border + ';' : ''}
+                    ${isToday ? 'outline: 2px solid #f59e0b; outline-offset: 1px;' : ''}
+                    cursor: ${isFuture ? 'not-allowed' : 'pointer'};
+                    position: relative;
+                    ${!isFuture ? 'box-shadow: 0 0 0 0 transparent; transition: box-shadow 0.15s;' : ''}
+                `;
+
+                // Tooltip
+                const tooltip = document.createElement('div');
+                tooltip.style.cssText = `
+                    position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+                    display: none; background: #0f172a; color: white; font-size: 9px;
+                    padding: 4px 8px; border-radius: 6px; white-space: nowrap; z-index: 50;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.4); font-family: sans-serif; font-weight: 600;
+                `;
+                tooltip.textContent = labelTooltip;
+                square.appendChild(tooltip);
+
+                square.addEventListener('mouseenter', () => {
+                    square.style.backgroundColor = hoverBg;
+                    tooltip.style.display = 'block';
+                    if (!isFuture) square.style.boxShadow = `0 0 0 2px ${activeColor}55`;
+                });
+                square.addEventListener('mouseleave', () => {
+                    square.style.backgroundColor = bgColor;
+                    tooltip.style.display = 'none';
+                    square.style.boxShadow = '';
+                });
+
+                // ✅ Click diretto per registrare/cancellare sessione
+                square.addEventListener('click', () => {
+                    toggleGiornoInPilastro(pilastro, dateStr, isFuture);
+                });
+
+                container.appendChild(square);
+            }
+
+            if (giorniElId) {
+                const el = document.getElementById(giorniElId);
+                if (el) el.innerText = giorniAttivi;
+            }
+        }
+
+        function renderTutteLeGriglie() {
+            renderGrigliaPerPilastro('riordino',  'grid-riordino',  '#f59e0b', '#d97706', null);
+            renderGrigliaPerPilastro('divisione', 'grid-divisione', '#ef4444', '#dc2626', null);
+            renderGrigliaPerPilastro('lavoro',    'grid-lavoro',    '#0284c7', '#0369a1', null);
+            renderGrigliaPerPilastro('fisico',    'grid-fisico',    '#7c3aed', '#6d28d9', null);
+        }
+
+        // ============================================================
+        // 7b. LAVORO — OBIETTIVI SETTIMANALI
+        // ============================================================
+
+        const GIORNI_SETTIMANA = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+        const PESO_TARGET = 73;
+
+        function getLunediSettimana(d) {
+            const date = new Date(d); date.setHours(0,0,0,0);
+            const day = date.getDay(); // 0=Dom
+            const diff = (day === 0) ? -6 : 1 - day;
+            date.setDate(date.getDate() + diff);
+            return date;
+        }
+
+        function toggleObiettivi() {
+            const acc = document.getElementById('accordion-obiettivi');
+            const ch  = document.getElementById('chevron-obiettivi');
+            if (!acc) return;
+            const open = !acc.classList.contains('hidden');
+            acc.classList.toggle('hidden');
+            if (ch) ch.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+            if (!open) renderObiettivi();
+        }
+
+        function renderObiettivi() {
+            const cont = document.getElementById('container-obiettivi');
+            const label = document.getElementById('label-settimana-lavoro');
+            if (!cont) return;
+            cont.innerHTML = '';
+
+            const lun = getLunediSettimana(new Date());
+            const mesi = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+            if (label) label.textContent = `Settimana del ${lun.getDate()} ${mesi[lun.getMonth()]}`;
+
+            const oggi = formattaData(new Date());
+
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(lun); d.setDate(lun.getDate() + i);
+                const dateStr = formattaData(d);
+                const isToday = dateStr === oggi;
+                const isPast  = d < new Date(oggi);
+                const obs     = datiPilastri.lavoro.obiettivi[dateStr] || [];
+
+                const col = document.createElement('div');
+                col.className = `rounded-xl border-2 p-2 flex flex-col gap-1 ${isToday ? 'border-sky-400 bg-sky-50/60' : 'border-slate-200 bg-slate-50/50'}`;
+                col.innerHTML = `
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider ${isToday ? 'text-sky-600' : 'text-slate-500'}">${GIORNI_SETTIMANA[i]}</span>
+                        <span class="text-[10px] text-slate-400 font-mono">${d.getDate()}/${d.getMonth()+1}</span>
+                    </div>
+                `;
+
+                // Lista obiettivi
+                obs.forEach((ob, idx) => {
+                    const row = document.createElement('div');
+                    row.className = 'flex items-start gap-1';
+                    row.innerHTML = `
+                        <input type="checkbox" ${ob.fatto ? 'checked' : ''} onchange="toggleObiettivo('${dateStr}',${idx})" class="mt-0.5 shrink-0 w-3.5 h-3.5 accent-sky-500 cursor-pointer">
+                        <span class="text-[11px] leading-tight flex-1 ${ob.fatto ? 'line-through text-slate-400' : 'text-slate-700'}">${ob.testo}</span>
+                        <button onclick="deleteObiettivo('${dateStr}',${idx})" class="text-slate-300 hover:text-red-400 text-[10px] cursor-pointer shrink-0">✕</button>
+                    `;
+                    col.appendChild(row);
+                });
+
+                // Input aggiungi (max 3)
+                if (obs.length < 3) {
+                    const addRow = document.createElement('div');
+                    addRow.className = 'flex items-center gap-1 mt-1';
+                    addRow.innerHTML = `
+                        <input type="text" id="new-ob-${dateStr}" placeholder="Aggiungi…" maxlength="60"
+                            class="flex-1 text-[11px] border border-slate-200 rounded-lg px-2 py-1 focus:outline-none focus:border-sky-400 bg-white"
+                            onkeydown="if(event.key==='Enter') addObiettivo('${dateStr}')">
+                        <button onclick="addObiettivo('${dateStr}')" class="text-sky-500 hover:text-sky-700 text-xs font-bold cursor-pointer">+</button>
+                    `;
+                    col.appendChild(addRow);
+                }
+
+                cont.appendChild(col);
+            }
+        }
+
+        function addObiettivo(dateStr) {
+            const input = document.getElementById(`new-ob-${dateStr}`);
+            if (!input || !input.value.trim()) return;
+            if (!datiPilastri.lavoro.obiettivi[dateStr]) datiPilastri.lavoro.obiettivi[dateStr] = [];
+            datiPilastri.lavoro.obiettivi[dateStr].push({ testo: input.value.trim(), fatto: false });
+            salvaLocale();
+            renderObiettivi();
+        }
+
+        function toggleObiettivo(dateStr, idx) {
+            const ob = datiPilastri.lavoro.obiettivi[dateStr]?.[idx];
+            if (!ob) return;
+            ob.fatto = !ob.fatto;
+            salvaLocale();
+            aggiornaDayLavoro(dateStr);
+            renderObiettivi();
+        }
+
+        function deleteObiettivo(dateStr, idx) {
+            if (!datiPilastri.lavoro.obiettivi[dateStr]) return;
+            datiPilastri.lavoro.obiettivi[dateStr].splice(idx, 1);
+            salvaLocale();
+            aggiornaDayLavoro(dateStr);
+            renderObiettivi();
+        }
+
+        /** Un giorno Lavoro è completato quando TUTTI gli obiettivi del giorno sono spuntati */
+        function aggiornaDayLavoro(dateStr) {
+            const obs = datiPilastri.lavoro.obiettivi[dateStr] || [];
+            const tuttiFiniti = obs.length > 0 && obs.every(o => o.fatto);
+            const dates = datiPilastri.lavoro.registroDate;
+            const idx   = dates.indexOf(dateStr);
+            if (tuttiFiniti && idx === -1) {
+                dates.push(dateStr);
+                showToast('🎯 Tutti gli obiettivi completati — giornata segnata!', 'success');
+            } else if (!tuttiFiniti && idx !== -1) {
+                dates.splice(idx, 1);
+            }
+            salvaLocale();
+            renderDashboard();
+        }
+
+        // ============================================================
+        // 7b2. DIVISIONE — OBIETTIVI SETTIMANALI
+        // ============================================================
+
+        function toggleObiettiviDivisione() {
+            const acc = document.getElementById('accordion-obiettivi-divisione');
+            const ch  = document.getElementById('chevron-obiettivi-divisione');
+            if (!acc) return;
+            const open = !acc.classList.contains('hidden');
+            acc.classList.toggle('hidden');
+            if (ch) ch.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+            if (!open) renderObiettiviDivisione();
+        }
+
+        function renderObiettiviDivisione() {
+            const cont = document.getElementById('container-obiettivi-divisione');
+            const label = document.getElementById('label-settimana-divisione');
+            if (!cont) return;
+            cont.innerHTML = '';
+
+            const lun = getLunediSettimana(new Date());
+            const mesi = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+            if (label) label.textContent = `Settimana del ${lun.getDate()} ${mesi[lun.getMonth()]}`;
+
+            const oggi = formattaData(new Date());
+
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(lun); d.setDate(lun.getDate() + i);
+                const dateStr = formattaData(d);
+                const isToday = dateStr === oggi;
+                
+                if (!datiPilastri.divisione.obiettivi) datiPilastri.divisione.obiettivi = {};
+                const obs = datiPilastri.divisione.obiettivi[dateStr] || [];
+
+                const col = document.createElement('div');
+                col.className = `rounded-xl border-2 p-2 flex flex-col gap-1 ${isToday ? 'border-red-400 bg-red-50/60' : 'border-slate-200 bg-slate-50/50'}`;
+                col.innerHTML = `
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider ${isToday ? 'text-red-600' : 'text-slate-500'}">${GIORNI_SETTIMANA[i]}</span>
+                        <span class="text-[10px] text-slate-400 font-mono">${d.getDate()}/${d.getMonth()+1}</span>
+                    </div>
+                `;
+
+                // Lista obiettivi
+                obs.forEach((ob, idx) => {
+                    const row = document.createElement('div');
+                    row.className = 'flex items-start gap-1';
+                    row.innerHTML = `
+                        <input type="checkbox" ${ob.fatto ? 'checked' : ''} onchange="toggleObiettivoDivisione('${dateStr}',${idx})" class="mt-0.5 shrink-0 w-3.5 h-3.5 accent-red-500 cursor-pointer">
+                        <span class="text-[11px] leading-tight flex-1 ${ob.fatto ? 'line-through text-slate-400' : 'text-slate-700'}">${ob.testo}</span>
+                        <button onclick="deleteObiettivoDivisione('${dateStr}',${idx})" class="text-slate-300 hover:text-red-400 text-[10px] cursor-pointer shrink-0">✕</button>
+                    `;
+                    col.appendChild(row);
+                });
+
+                // Input aggiungi (max 3)
+                if (obs.length < 3) {
+                    const addRow = document.createElement('div');
+                    addRow.className = 'flex items-center gap-1 mt-1';
+                    addRow.innerHTML = `
+                        <input type="text" id="new-ob-div-${dateStr}" placeholder="Aggiungi…" maxlength="60"
+                            class="flex-1 text-[11px] border border-slate-200 rounded-lg px-2 py-1 focus:outline-none focus:border-red-400 bg-white"
+                            onkeydown="if(event.key==='Enter') addObiettivoDivisione('${dateStr}')">
+                        <button onclick="addObiettivoDivisione('${dateStr}')" class="text-red-500 hover:text-red-700 text-xs font-bold cursor-pointer">+</button>
+                    `;
+                    col.appendChild(addRow);
+                }
+
+                cont.appendChild(col);
+            }
+        }
+
+        function addObiettivoDivisione(dateStr) {
+            const input = document.getElementById(`new-ob-div-${dateStr}`);
+            if (!input || !input.value.trim()) return;
+            if (!datiPilastri.divisione.obiettivi) datiPilastri.divisione.obiettivi = {};
+            if (!datiPilastri.divisione.obiettivi[dateStr]) datiPilastri.divisione.obiettivi[dateStr] = [];
+            datiPilastri.divisione.obiettivi[dateStr].push({ testo: input.value.trim(), fatto: false });
+            salvaLocale();
+            renderObiettiviDivisione();
+        }
+
+        function toggleObiettivoDivisione(dateStr, idx) {
+            const ob = datiPilastri.divisione.obiettivi?.[dateStr]?.[idx];
+            if (!ob) return;
+            ob.fatto = !ob.fatto;
+            salvaLocale();
+            renderObiettiviDivisione();
+        }
+
+        function deleteObiettivoDivisione(dateStr, idx) {
+            if (!datiPilastri.divisione.obiettivi || !datiPilastri.divisione.obiettivi[dateStr]) return;
+            datiPilastri.divisione.obiettivi[dateStr].splice(idx, 1);
+            salvaLocale();
+            renderObiettiviDivisione();
+        }
+
+        // ============================================================
+        // 7c. FISICO — PESO, ADDOME E PROGRAMMA ALLENAMENTO SETTIMANALE
+        // ============================================================
+
+        const PROGRAMMA_FISICO_DEFAULTS = {
+            1: [ // Lun
+                { testo: "Camminata (30 min)", fatto: false },
+                { testo: "Add. in 8 minuti", fatto: false }
+            ],
+            2: [ // Mar
+                { testo: "Camminata (30 min)", fatto: false },
+                { testo: "Core & Mobilità", fatto: false }
+            ],
+            3: [ // Mer
+                { testo: "Camminata (30 min)", fatto: false },
+                { testo: "Add. in 8 minuti", fatto: false }
+            ],
+            4: [ // Gio
+                { testo: "Camminata (30 min)", fatto: false },
+                { testo: "Core & Mobilità", fatto: false }
+            ],
+            5: [ // Ven
+                { testo: "Camminata (30 min)", fatto: false },
+                { testo: "Add. in 8 minuti", fatto: false }
+            ],
+            6: [ // Sab
+                { testo: "Camminata (30 min)", fatto: false },
+                { testo: "Core & Mobilità", fatto: false }
+            ],
+            0: [ // Dom
+                { testo: "Solo Camminata", fatto: false }
+            ]
+        };
+
+        function togglePeso() {
+            const acc = document.getElementById('accordion-peso');
+            const ch  = document.getElementById('chevron-peso');
+            if (!acc) return;
+            const open = !acc.classList.contains('hidden');
+            acc.classList.toggle('hidden');
+            if (ch) ch.style.transform = open ? 'rotate(0deg)' : 'rotate(180deg)';
+            if (!open) {
+                renderAllenamenti();
+                renderGraficoFisico();
+            }
+        }
+
+        function renderAllenamenti() {
+            const cont = document.getElementById('container-allenamenti');
+            const label = document.getElementById('label-settimana-fisico');
+            if (!cont) return;
+            cont.innerHTML = '';
+
+            const lun = getLunediSettimana(new Date());
+            const mesi = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+            if (label) label.textContent = `Settimana del ${lun.getDate()} ${mesi[lun.getMonth()]}`;
+
+            const oggi = formattaData(new Date());
+
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(lun); d.setDate(lun.getDate() + i);
+                const dateStr = formattaData(d);
+                const isToday = dateStr === oggi;
+                const dayOfWeek = d.getDay();
+
+                if (!datiPilastri.fisico.allenamenti) datiPilastri.fisico.allenamenti = {};
+
+                // Se non inizializzato o contiene i vecchi circuiti, aggiorna
+                let needsUpdate = !datiPilastri.fisico.allenamenti[dateStr];
+                if (datiPilastri.fisico.allenamenti[dateStr]) {
+                    const hasOld = datiPilastri.fisico.allenamenti[dateStr].some(x => 
+                        x.testo === "Forza Circuito A" || x.testo === "Resistenza Circuito B"
+                    );
+                    if (hasOld) {
+                        needsUpdate = true;
+                    }
+                }
+                if (needsUpdate) {
+                    const defaults = PROGRAMMA_FISICO_DEFAULTS[dayOfWeek] || [];
+                    datiPilastri.fisico.allenamenti[dateStr] = defaults.map(item => ({ ...item }));
+                    salvaLocale();
+                }
+
+                const arr = datiPilastri.fisico.allenamenti[dateStr];
+                const col = document.createElement('div');
+                col.className = `rounded-xl border-2 p-2 flex flex-col gap-1.5 ${isToday ? 'border-violet-400 bg-violet-50/60' : 'border-slate-200 bg-slate-50/50'}`;
+                col.innerHTML = `
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[10px] font-black uppercase tracking-wider ${isToday ? 'text-violet-600' : 'text-slate-500'}">${GIORNI_SETTIMANA[i]}</span>
+                        <span class="text-[10px] text-slate-400 font-mono">${d.getDate()}/${d.getMonth()+1}</span>
+                    </div>
+                `;
+
+                arr.forEach((item, idx) => {
+                    const row = document.createElement('div');
+                    row.className = 'flex items-start gap-1';
+                    row.innerHTML = `
+                        <input type="checkbox" ${item.fatto ? 'checked' : ''} onchange="toggleAllenamento('${dateStr}',${idx})" class="mt-0.5 shrink-0 w-3.5 h-3.5 accent-violet-600 cursor-pointer">
+                        <span class="text-[10px] leading-tight flex-1 ${item.fatto ? 'line-through text-slate-400 font-normal' : 'text-slate-700 font-medium'}">${item.testo}</span>
+                    `;
+                    col.appendChild(row);
+                });
+
+                cont.appendChild(col);
+            }
+        }
+
+        function toggleAllenamento(dateStr, idx) {
+            const arr = datiPilastri.fisico.allenamenti[dateStr];
+            if (!arr || !arr[idx]) return;
+            arr[idx].fatto = !arr[idx].fatto;
+            salvaLocale();
+            aggiornaDayFisico(dateStr);
+            renderAllenamenti();
+        }
+
+        function aggiornaDayFisico(dateStr) {
+            const arr = datiPilastri.fisico.allenamenti[dateStr] || [];
+            const tuttiFiniti = arr.length > 0 && arr.every(x => x.fatto);
+            const dates = datiPilastri.fisico.registroDate;
+            const idx = dates.indexOf(dateStr);
+            if (tuttiFiniti && idx === -1) {
+                dates.push(dateStr);
+                showToast('💪 Allenamento completato — giornata fisica segnata!', 'success');
+            } else if (!tuttiFiniti && idx !== -1) {
+                dates.splice(idx, 1);
+            }
+            salvaLocale();
+            renderDashboard();
+        }
+
+        function registraPeso() {
+            const input = document.getElementById('input-peso');
+            const val   = parseFloat(input.value);
+            if (isNaN(val) || val < 40 || val > 200) {
+                showToast('Inserisci un peso valido (es. 75.4)', 'warning');
+                return;
+            }
+            const oggi = formattaData(new Date());
+            if (!datiPilastri.fisico.pesi) datiPilastri.fisico.pesi = [];
+            const existing = datiPilastri.fisico.pesi.findIndex(p => p.data === oggi);
+            if (existing !== -1) {
+                datiPilastri.fisico.pesi[existing].kg = val;
+            } else {
+                datiPilastri.fisico.pesi.push({ data: oggi, kg: val });
+            }
+            datiPilastri.fisico.pesi.sort((a,b) => a.data.localeCompare(b.data));
+            input.value = '';
+            salvaLocale();
+            renderGraficoFisico();
+            showToast(`⚖ Peso registrato: ${val} kg`, 'success');
+        }
+
+        function registraAddome() {
+            const input = document.getElementById('input-addome');
+            const val   = parseFloat(input.value);
+            if (isNaN(val) || val < 50 || val > 150) {
+                showToast('Inserisci un valore addome valido (es. 94.5)', 'warning');
+                return;
+            }
+            const oggi = formattaData(new Date());
+            if (!datiPilastri.fisico.misure) datiPilastri.fisico.misure = [];
+            const existing = datiPilastri.fisico.misure.findIndex(p => p.data === oggi);
+            if (existing !== -1) {
+                datiPilastri.fisico.misure[existing].cm = val;
+            } else {
+                datiPilastri.fisico.misure.push({ data: oggi, cm: val });
+            }
+            datiPilastri.fisico.misure.sort((a,b) => a.data.localeCompare(b.data));
+            input.value = '';
+            salvaLocale();
+            renderGraficoFisico();
+            showToast(`📏 Circonferenza registrata: ${val} cm`, 'success');
+        }
+
+        function renderSingleChart(canvasId, logId, dataList, targetVal, unit, valKey, deleteFnName) {
+            const canvas  = document.getElementById(canvasId);
+            const logDiv  = document.getElementById(logId);
+            if (!canvas || !logDiv) return;
+
+            const list = dataList || [];
+
+            // --- Log pill tags ---
+            logDiv.innerHTML = '';
+            list.slice().reverse().forEach((p, i) => {
+                const mesi = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+                const d    = new Date(p.data + 'T00:00:00');
+                const label= `${d.getDate()} ${mesi[d.getMonth()]}`;
+                const diff = (p[valKey] - targetVal).toFixed(1);
+                const pill = document.createElement('div');
+                pill.className = `flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold ${p[valKey] <= targetVal ? 'bg-green-50 border-green-300 text-green-700' : 'bg-violet-50 border-violet-300 text-violet-700'}`;
+                pill.innerHTML = `<span>${label}</span><span class="font-black">${p[valKey]} ${unit}</span><span class="font-normal opacity-60">${p[valKey] > targetVal ? '+' : ''}${diff}</span>
+                    <button onclick="${deleteFnName}(${list.length - 1 - i})" class="ml-1 text-slate-300 hover:text-red-400 cursor-pointer">✕</button>`;
+                logDiv.appendChild(pill);
+            });
+
+            if (list.length === 0) {
+                logDiv.innerHTML = `<p class="text-xs text-slate-400 italic">Nessun dato registrato.</p>`;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                return;
+            }
+
+            // --- Canvas Crisp scale (High-DPI retina fix) ---
+            const rect = canvas.getBoundingClientRect();
+            const W    = rect.width || 400;
+            const H    = rect.height || 160;
+            const dpr  = window.devicePixelRatio || 1;
+            canvas.width  = W * dpr;
+            canvas.height = H * dpr;
+
+            const ctx = canvas.getContext('2d');
+            ctx.scale(dpr, dpr);
+            ctx.clearRect(0, 0, W, H);
+
+            const values = list.map(p => p[valKey]);
+            const allVals = [...values, targetVal];
+            const minVal = Math.floor(Math.min(...allVals)) - 1;
+            const maxVal = Math.ceil(Math.max(...allVals))  + 1;
+            const range  = maxVal - minVal;
+
+            const PAD_L = 40, PAD_R = 20, PAD_T = 20, PAD_B = 30;
+            const chartW = W - PAD_L - PAD_R;
+            const chartH = H - PAD_T - PAD_B;
+
+            const toX = idx => PAD_L + (list.length === 1 ? chartW / 2 : (idx / (list.length - 1)) * chartW);
+            const toY = v => PAD_T + chartH - ((v - minVal) / range) * chartH;
+
+            // Griglia orizzontale
+            ctx.strokeStyle = '#f1f5f9'; ctx.lineWidth = 1;
+            for (let v = Math.ceil(minVal); v <= Math.floor(maxVal); v++) {
+                const y = toY(v);
+                ctx.beginPath(); ctx.moveTo(PAD_L, y); ctx.lineTo(W - PAD_R, y); ctx.stroke();
+                ctx.fillStyle = '#94a3b8'; ctx.font = '9px monospace';
+                ctx.fillText(`${v}`, 8, y + 3);
+            }
+
+            // Linea target
+            ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 1.5;
+            ctx.setLineDash([6, 4]);
+            const ty = toY(targetVal);
+            ctx.beginPath(); ctx.moveTo(PAD_L, ty); ctx.lineTo(W - PAD_R, ty); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = '#7c3aed'; ctx.font = 'bold 9px sans-serif';
+            ctx.fillText(`Target ${targetVal}`, W - PAD_R - 55, ty - 4);
+
+            // Area sotto la curva
+            if (list.length > 1) {
+                ctx.beginPath();
+                ctx.moveTo(toX(0), H - PAD_B);
+                list.forEach((p, idx) => ctx.lineTo(toX(idx), toY(p[valKey])));
+                ctx.lineTo(toX(list.length - 1), H - PAD_B);
+                ctx.closePath();
+                ctx.fillStyle = 'rgba(124,58,237,0.06)';
+                ctx.fill();
+            }
+
+            // Linea dati
+            ctx.strokeStyle = '#7c3aed'; ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            list.forEach((p, idx) => {
+                const x = toX(idx), y = toY(p[valKey]);
+                idx === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            // Punti + etichette
+            list.forEach((p, idx) => {
+                const x = toX(idx), y = toY(p[valKey]);
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fillStyle   = p[valKey] <= targetVal ? '#16a34a' : '#7c3aed';
+                ctx.strokeStyle = '#fff'; ctx.lineWidth = 1.5;
+                ctx.fill(); ctx.stroke();
+                // Etichetta valore
+                ctx.fillStyle = '#1e293b'; ctx.font = 'bold 9px sans-serif';
+                ctx.fillText(`${p[valKey]}`, x - 10, y - 8);
+            });
+        }
+
+        function renderGraficoFisico() {
+            renderSingleChart('canvas-peso',   'log-peso',   datiPilastri.fisico.pesi,   PESO_TARGET, 'kg', 'kg', 'eliminalPeso');
+            renderSingleChart('canvas-addome', 'log-addome', datiPilastri.fisico.misure, 90,          'cm', 'cm', 'eliminaAddome');
+        }
+
+        function eliminalPeso(idx) {
+            datiPilastri.fisico.pesi.splice(idx, 1);
+            salvaLocale();
+            renderGraficoFisico();
+        }
+
+        function eliminaAddome(idx) {
+            datiPilastri.fisico.misure.splice(idx, 1);
+            salvaLocale();
+            renderGraficoFisico();
+        }
+
+        // ============================================================
+        // 8. TIMER FUNCTIONS
+        // ============================================================
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(remainingSeconds / 60);
+            const seconds = remainingSeconds % 60;
+            document.getElementById('timer-display').innerText =
+                `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+
+            const progressPct = (remainingSeconds / totalSeconds) * 100;
+            document.getElementById('timer-progress-bar').style.width = `${progressPct}%`;
+
+            const cfg         = PILASTRI_CONFIG[pilastriAttivo];
+            const card        = document.getElementById('timer-card');
+            const label       = document.getElementById('timer-status-label');
+            const dot         = document.getElementById('timer-status-dot');
+            const instruction = document.getElementById('timer-instruction');
+            const bar         = document.getElementById('timer-progress-bar');
+
+            if (remainingSeconds <= 300 && remainingSeconds > 0) {
+                // ⚠️ FREEZE PHASE
+                card.style.backgroundColor = '#431407';
+                card.style.borderColor     = '#92400e';
+                bar.style.backgroundColor  = '#f59e0b';
+                label.innerText            = `FASE 2: FREEZE ATTIVO ⚠️`;
+                label.style.color          = '#fbbf24';
+                dot.className              = "fa-solid fa-triangle-exclamation animate-bounce";
+                dot.style.color            = '#f59e0b';
+                instruction.innerHTML      = cfg.freezeInstruction;
+            } else if (remainingSeconds === 0) {
+                // ✅ COMPLETE PHASE
+                card.style.backgroundColor = '#052e16';
+                card.style.borderColor     = '#14532d';
+                bar.style.backgroundColor  = '#10b981';
+                label.innerText            = `SESSIONE COMPLETATA ✓`;
+                label.style.color          = '#34d399';
+                dot.className              = "fa-solid fa-circle-check";
+                dot.style.color            = '#10b981';
+                instruction.innerText      = "Grande lavoro! Registra subito la sessione nel modulo in basso.";
+            } else {
+                // 🎯 FOCUS PHASE
+                card.style.backgroundColor = cfg.cardBg;
+                card.style.borderColor     = cfg.cardBorder;
+                bar.style.backgroundColor  = cfg.barColor;
+                label.innerText            = `FASE 1: FOCUS ATTIVO — ${cfg.nome.toUpperCase()}`;
+                label.style.color          = cfg.labelColor;
+                dot.className              = "fa-solid fa-circle-dot animate-pulse";
+                dot.style.color            = cfg.dotColor;
+                if (!isTimerRunning) instruction.innerHTML = cfg.instruction;
+            }
+        }
+
+        function setPresetTimer(minutes) {
+            if (isTimerRunning) {
+                showToast("Sessione in corso. Sospendi il timer prima di modificarlo.", "warning");
+                return;
+            }
+            totalSeconds           = minutes * 60;
+            remainingSeconds       = totalSeconds;
+            sessioneAutoRegistrata = false;
+            updateTimerDisplay();
+        }
+
+        function toggleTimer() {
+            if (isTimerRunning) pauseTimer();
+            else startTimer();
+        }
+
+        function startTimer() {
+            // Richiede il permesso per le notifiche desktop all'avvio del timer
+            if (window.Notification && Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+
+            isTimerRunning = true;
+            document.getElementById('btn-timer-icon').className = "fa-solid fa-pause";
+            document.getElementById('btn-timer-text').innerText = "Sospendi";
+            timerInterval = setInterval(() => {
+                if (remainingSeconds > 0) {
+                    remainingSeconds--;
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(timerInterval);
+                    timerComplete();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isTimerRunning = false;
+            clearInterval(timerInterval);
+            document.getElementById('btn-timer-icon').className = "fa-solid fa-play";
+            document.getElementById('btn-timer-text').innerText = "Riprendi";
+        }
+
+        function resetTimer() {
+            isTimerRunning = false;
+            clearInterval(timerInterval);
+            remainingSeconds       = totalSeconds;
+            sessioneAutoRegistrata = false;
+            document.getElementById('btn-timer-icon').className = "fa-solid fa-play";
+            document.getElementById('btn-timer-text').innerText = "Avvia Sessione";
+            updateTimerDisplay();
+        }
+
+        let titleInterval = null;
+        function startTitleFlash() {
+            if (titleInterval) return;
+            let showAlt = false;
+            titleInterval = setInterval(() => {
+                document.title = showAlt ? "🚨 TIMER COMPLETATO! 🚨" : "⏱️ Sessione Finita!";
+                showAlt = !showAlt;
+            }, 500);
+        }
+        function stopTitleFlash() {
+            if (titleInterval) {
+                clearInterval(titleInterval);
+                titleInterval = null;
+            }
+            document.title = "Total Life Audit Dashboard — ISO 5S";
+        }
+
+        let currentAudio = null;
+
+        function salvaImpostazioniMP3() {
+            const enabled = document.getElementById('chk-mp3-enable').checked;
+            const path = document.getElementById('txt-mp3-path').value.trim();
+            localStorage.setItem('timer_mp3_settings', JSON.stringify({ enabled, path }));
+        }
+
+        function caricaImpostazioniMP3() {
+            const settings = JSON.parse(localStorage.getItem('timer_mp3_settings')) || { enabled: false, path: '' };
+            const chk = document.getElementById('chk-mp3-enable');
+            const txt = document.getElementById('txt-mp3-path');
+            if (chk) chk.checked = settings.enabled;
+            if (txt) txt.value = settings.path;
+        }
+
+        function stopAlarm() {
+            document.getElementById('alarm-overlay').classList.add('hidden');
+            stopTitleFlash();
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+        }
+
+        function playBeep() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                const playBlow = (delay, duration) => {
+                    const osc1 = audioCtx.createOscillator();
+                    const osc2 = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+                    
+                    osc1.connect(gainNode);
+                    osc2.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    
+                    // Suono fischietto arbitro: interferenza a 2000Hz e 2030Hz (vibrato realistico a 30Hz)
+                    osc1.type = 'sine';
+                    osc1.frequency.setValueAtTime(2000, audioCtx.currentTime + delay);
+                    
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(2030, audioCtx.currentTime + delay);
+                    
+                    // Inviluppo di volume netto con fade-out rapido
+                    gainNode.gain.setValueAtTime(0, audioCtx.currentTime + delay);
+                    gainNode.gain.linearRampToValueAtTime(0.8, audioCtx.currentTime + delay + 0.03);
+                    gainNode.gain.setValueAtTime(0.8, audioCtx.currentTime + delay + duration - 0.04);
+                    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + delay + duration);
+                    
+                    osc1.start(audioCtx.currentTime + delay);
+                    osc2.start(audioCtx.currentTime + delay);
+                    osc1.stop(audioCtx.currentTime + delay + duration);
+                    osc2.stop(audioCtx.currentTime + delay + duration);
+                };
+
+                // Triplo fischio tipo arbitro (Corto, Corto, Lungo)
+                playBlow(0, 0.25);
+                playBlow(0.35, 0.25);
+                playBlow(0.7, 0.65);
+            } catch(e) { console.log("Audio non supportato."); }
+        }
+
+        function timerComplete() {
+            isTimerRunning = false;
+            document.getElementById('btn-timer-icon').className = "fa-solid fa-play";
+            document.getElementById('btn-timer-text').innerText = "Nuova Sessione";
+            playBeep();
+
+            // Mostra overlay di allarme lampeggiante
+            document.getElementById('alarm-overlay').classList.remove('hidden');
+            startTitleFlash();
+
+            // Avvio MP3 musicale dopo la fine dei 3 fischi (circa 1.5s)
+            setTimeout(() => {
+                const mp3Enabled = document.getElementById('chk-mp3-enable')?.checked;
+                const mp3Path = document.getElementById('txt-mp3-path')?.value.trim();
+                if (mp3Enabled && mp3Path) {
+                    if (currentAudio) {
+                        currentAudio.pause();
+                        currentAudio = null;
+                    }
+                    currentAudio = new Audio(mp3Path);
+                    currentAudio.play().catch(e => {
+                        console.log("Errore riproduzione MP3:", e);
+                        showToast("Impossibile caricare l'MP3. Verifica il percorso del file.", "warning");
+                    });
+                }
+            }, 1500);
+
+            // Invia notifica desktop (se abilitata) per portare all'attenzione in background
+            if (Notification && Notification.permission === 'granted') {
+                const n = new Notification("⏱️ Sessione Completata!", {
+                    body: `Hai completato la sessione per ${PILASTRI_CONFIG[pilastriAttivo].nome}! Clicca qui per fermare l'allarme.`,
+                    tag: 'timer-alert'
+                });
+                n.onclick = function() {
+                    window.focus();
+                    n.close();
+                    stopAlarm();
+                };
+            }
+
+            const minutiFatti = Math.round(totalSeconds / 60);
+            document.getElementById('input-minuti').value = String(minutiFatti);
+
+            // Auto-register the completed session (gestisce i propri Toast internamente)
+            registraSessione(pilastriAttivo, minutiFatti);
+
+            // BUG FIX: flag so aggiungiSessione() won't double-count
+            sessioneAutoRegistrata = true;
+        }
+
+        // ============================================================
+        // 9. SESSION REGISTRATION
+        // ============================================================
+
+        function registraSessione(pilastro, minuti) {
+            const oggiStr = formattaData(new Date());
+
+            if (pilastro === 'divisione') {
+                datiPilastri.divisione.minutiGiornalieri = datiPilastri.divisione.minutiGiornalieri || {};
+                datiPilastri.divisione.minutiGiornalieri[oggiStr] = (datiPilastri.divisione.minutiGiornalieri[oggiStr] || 0) + minuti;
+                
+                const minutiOggi = datiPilastri.divisione.minutiGiornalieri[oggiStr];
+                if (minutiOggi >= 120) {
+                    if (!datiPilastri.divisione.registroDate.includes(oggiStr)) {
+                        datiPilastri.divisione.registroDate.push(oggiStr);
+                        showToast(`🎯 Obiettivo Divisione completato! +${minuti} min (Totale oggi: ${minutiOggi}/120 min) — giornata segnata!`, "success");
+                    } else {
+                        showToast(`+${minuti} min registrati per Divisione (Totale oggi: ${minutiOggi} min)`, "success");
+                    }
+                } else {
+                    // Se non ha ancora raggiunto 120, rimuove la data nel caso fosse presente
+                    const idx = datiPilastri.divisione.registroDate.indexOf(oggiStr);
+                    if (idx !== -1) {
+                        datiPilastri.divisione.registroDate.splice(idx, 1);
+                    }
+                    showToast(`+${minuti} min registrati per Divisione (Totale oggi: ${minutiOggi}/120 min. Mancano ${120 - minutiOggi} min per segnare la giornata)`, "info");
+                }
+            } else {
+                // Per gli altri pilastri, registra direttamente il giorno
+                if (!datiPilastri[pilastro].registroDate.includes(oggiStr)) {
+                    datiPilastri[pilastro].registroDate.push(oggiStr);
+                    showToast(`+${minuti} min registrati — ${PILASTRI_CONFIG[pilastro].nome} ✓`, "success");
+                } else {
+                    showToast(`+${minuti} min registrati — ${PILASTRI_CONFIG[pilastro].nome}`, "success");
+                }
+            }
+
+            // For Riordino: also add minutes to the specific room + sync datiStudio.registroDate
+            if (pilastro === 'riordino') {
+                const stanzaId = document.getElementById('select-stanza').value;
+                datiStudio[stanzaId].minuti += minuti;
+                if (!datiStudio.registroDate.includes(oggiStr)) {
+                    datiStudio.registroDate.push(oggiStr);
+                }
+            }
+
+            // BUG FIX: salvataggio immediato PRIMA del render
+            salvaLocale();
+            renderDashboard();
+        }
+
+        function aggiungiSessione() {
+            // BUG FIX: prevent double registration when timer auto-registers
+            if (sessioneAutoRegistrata) {
+                showToast("Sessione già registrata automaticamente dal timer! Clicca di nuovo per aggiungerne un'altra.", "warning");
+                sessioneAutoRegistrata = false;  // Reset: next click will register
+                return;
+            }
+
+            const minutes = parseInt(document.getElementById('input-minuti').value);
+            registraSessione(pilastriAttivo, minutes);
+        }
+
+        // ============================================================
+        // 10. ROOM CARD INTERACTIONS
+        // ============================================================
+
+        function toggleStanzeAccordion() {
+            const accordion = document.getElementById('accordion-stanze');
+            const chevron   = document.getElementById('chevron-stanze');
+            if (!accordion) return;
+            const isOpen = !accordion.classList.contains('hidden');
+            accordion.classList.toggle('hidden');
+            // Ruota il chevron
+            if (chevron) chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+
+        function toggleStanza(idStanza) {
+            datiStudio[idStanza].completata = !datiStudio[idStanza].completata;
+            salvaLocale();
+            renderDashboard();
+            if (datiStudio[idStanza].completata) {
+                showToast(`Stanza rilasciata con certificazione di conformità!`, "success");
+            }
+        }
+
+        // ============================================================
+        // 10b. PENDENZE PER STANZA
+        // ============================================================
+
+        // Traccia quale pannello pendenze è aperto (sopravvive al re-render)
+        window._pendenzaAperta = null;
+
+        function togglePendenze(key) {
+            // Salva eventuali note prima di riaprire/chiudere
+            salvaPendenze(key);
+            const pannello = document.getElementById(`pannello-pendenze-${key}`);
+            if (!pannello) return;
+            const isOpen = !pannello.classList.contains('hidden');
+            pannello.classList.toggle('hidden');
+            window._pendenzaAperta = isOpen ? null : key;
+            if (!isOpen) {
+                // Focus automatico sulla textarea quando si apre
+                const ta = document.getElementById(`textarea-pendenze-${key}`);
+                if (ta) setTimeout(() => ta.focus(), 50);
+            }
+        }
+
+        function salvaPendenze(key) {
+            const ta = document.getElementById(`textarea-pendenze-${key}`);
+            if (!ta || !datiStudio[key]) return;
+            datiStudio[key].pendenze = ta.value;
+            salvaLocale();
+            // Aggiorna colore bottone senza fare re-render completo
+            const hasPendenze = ta.value.trim().length > 0;
+            const btn = ta.closest('.rounded-2xl')?.querySelector(`button[onclick*="togglePendenze('${key}')"]`);
+            if (btn) {
+                if (hasPendenze) {
+                    btn.className = btn.className
+                        .replace('bg-amber-50 border-amber-200 text-amber-500 hover:bg-amber-100', '')
+                        + ' bg-amber-400 border-amber-500 text-white shadow-sm shadow-amber-200';
+                } else {
+                    btn.className = btn.className
+                        .replace('bg-amber-400 border-amber-500 text-white shadow-sm shadow-amber-200', '')
+                        + ' bg-amber-50 border-amber-200 text-amber-500 hover:bg-amber-100';
+                }
+            }
+        }
+
+        function renderDashboard() {
+            // --- Room Cards (Riordino) ---
+            const container = document.getElementById('container-stanze');
+            if (container) {
+                container.innerHTML = '';
+                let minutiTotaliSpesi       = 0;
+                let stanzeCompletateConteggio = 0;
+
+                for (const key in datiStudio) {
+                    if (['registroDate','serieAttuale','serieMassima'].includes(key)) continue;
+                    const stanza = datiStudio[key];
+                    minutiTotaliSpesi       += stanza.minuti;
+                    if (stanza.completata) stanzeCompletateConteggio++;
+
+                    const pctStanza   = Math.min(Math.round((stanza.minuti / stanza.target) * 100), 100);
+                    const hasPendenze = stanza.pendenze && stanza.pendenze.trim().length > 0;
+                    const card = document.createElement('div');
+                    card.className = `rounded-2xl border transition-all bg-white ${stanza.completata ? 'border-teal-500 bg-teal-50/20 ring-1 ring-teal-500/30' : 'border-slate-200'}`;
+                    card.innerHTML = `
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <h4 class="font-bold text-base text-slate-800">${stanza.nome}</h4>
+                                    <p class="text-xs text-slate-400 mt-0.5">Tempo: <strong>${stanza.minuti}</strong> / ${stanza.target} min</p>
+                                </div>
+                                <div class="flex items-start gap-2">
+                                    <!-- Bottone Pendenze -->
+                                    <div class="text-center">
+                                        <button
+                                            onclick="togglePendenze('${key}')"
+                                            title="Note pendenze"
+                                            class="w-7 h-7 rounded-lg flex items-center justify-center transition-all cursor-pointer border text-xs font-bold
+                                                   ${hasPendenze
+                                                       ? 'bg-amber-400 border-amber-500 text-white shadow-sm shadow-amber-200'
+                                                       : 'bg-amber-50 border-amber-200 text-amber-500 hover:bg-amber-100'}"
+                                        >
+                                            <i class="fa-solid fa-triangle-exclamation"></i>
+                                        </button>
+                                        <p class="text-[9px] text-amber-500 mt-1 font-bold">Pendenze</p>
+                                    </div>
+                                    <!-- Rilascio -->
+                                    <div class="text-center">
+                                        <input type="checkbox" ${stanza.completata ? 'checked' : ''} onchange="toggleStanza('${key}')" class="w-5 h-5 accent-teal-600 cursor-pointer mt-1" title="Rilascia conformità finale">
+                                        <p class="text-[9px] text-slate-400 mt-1">Rilascio</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden mt-4">
+                                <div class="bg-teal-600 h-full rounded-full transition-all duration-500" style="width: ${stanza.completata ? 100 : pctStanza}%"></div>
+                            </div>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-xs font-bold ${stanza.completata ? 'text-teal-600' : 'text-slate-500'}">${stanza.completata ? 'CONFORME ✓' : pctStanza + '% target'}</span>
+                                <span class="text-[10px] uppercase font-mono tracking-wider text-slate-400">${stanza.completata ? 'PASSED' : 'RUNNING'}</span>
+                            </div>
+                        </div>
+
+                        <!-- Pannello Pendenze (nascosto di default) -->
+                        <div id="pannello-pendenze-${key}" class="hidden border-t border-amber-100 bg-amber-50/60 px-5 py-4 rounded-b-2xl">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-triangle-exclamation text-amber-500 text-xs"></i>
+                                <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Cose in sospeso — ${stanza.nome}</span>
+                            </div>
+                            <textarea
+                                id="textarea-pendenze-${key}"
+                                placeholder="Scrivi qui le attività in sospeso\u2026 (es: spostare scatolone, ordinare cavi, portare lampada)"
+                                onblur="salvaPendenze('${key}')"
+                                class="w-full text-sm text-slate-700 bg-white border border-amber-200 rounded-xl p-3 min-h-[80px] focus:outline-none focus:border-amber-400 resize-none placeholder:text-slate-300 leading-relaxed"
+                            >${stanza.pendenze || ''}</textarea>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-[9px] text-slate-400">Salvataggio automatico alla perdita del focus</span>
+                                <button onclick="salvaPendenze('${key}')" class="text-[10px] font-bold text-amber-600 hover:text-amber-800 cursor-pointer flex items-center gap-1">
+                                    <i class="fa-solid fa-floppy-disk"></i> Salva
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                    // Se il pannello era aperto prima del re-render, riaprilo
+                    if (window._pendenzaAperta === key) {
+                        const pannello = document.getElementById(`pannello-pendenze-${key}`);
+                        if (pannello) pannello.classList.remove('hidden');
+                    }
+                }
+
+                // KPI: Uno per ciascuno dei 4 pilastri
+                if (document.getElementById('txt-kpi-riordino')) {
+                    document.getElementById('txt-kpi-riordino').innerText = `${stanzeCompletateConteggio} / 7`;
+                }
+                if (document.getElementById('txt-kpi-divisione')) {
+                    document.getElementById('txt-kpi-divisione').innerText = `${datiPilastri.divisione?.registroDate.length || 0} / 30`;
+                }
+                if (document.getElementById('txt-kpi-lavoro')) {
+                    document.getElementById('txt-kpi-lavoro').innerText = `${datiPilastri.lavoro?.registroDate.length || 0} / 30`;
+                }
+                if (document.getElementById('txt-kpi-fisico')) {
+                    document.getElementById('txt-kpi-fisico').innerText = `${datiPilastri.fisico?.registroDate.length || 0} / 30`;
+                }
+            }
+
+            // --- Per-Pillar Streaks (4 pilastri) ---
+            ['riordino', 'divisione', 'lavoro', 'fisico'].forEach(p => {
+                if (!datiPilastri[p]) return;
+                ricalcolaStreakPilastro(p);
+                const el_a = document.getElementById(`streak-${p}-attuale`);
+                const el_m = document.getElementById(`streak-${p}-max`);
+                const el_s = document.getElementById(`sidebar-streak-${p}`);
+                if (el_a) el_a.innerText = `${datiPilastri[p].serieAttuale}d`;
+                if (el_m) el_m.innerText = `${datiPilastri[p].serieMassima}d`;
+                if (el_s) el_s.innerText = `${datiPilastri[p].serieAttuale}d 🔥`;
+            });
+
+            // --- Giorni elemento per pilastro ---
+            ['riordino','divisione','lavoro','fisico'].forEach(p => {
+                const el = document.getElementById(`giorni-${p}`);
+                if (el && datiPilastri[p]) el.innerText = datiPilastri[p].registroDate.length;
+            });
+
+            // --- 4 Griglie separate per pilastro ---
+            renderTutteLeGriglie();
+        }
+
+        // ============================================================
+        // 12. INIT
+        // ============================================================
+
+        renderDashboard();
+        updateTimerDisplay();
+        setPilastroAttivo('lavoro');
+        caricaImpostazioniMP3();
+
+    </script>
+
+    <!-- Fullscreen Blinking Alarm Overlay -->
+    <div id="alarm-overlay" class="hidden fixed inset-0 z-[9999] flex flex-col items-center justify-center alarm-flashing text-center p-5 select-none">
+        <div class="mb-6"><i class="fa-solid fa-bell text-8xl text-white animate-bounce"></i></div>
+        <h1 class="text-6xl uppercase tracking-wider mb-2 font-black">TIMER COMPLETATO!</h1>
+        <p class="text-xl text-red-100 mb-8 font-semibold">La tua sessione di lavoro/allenamento è completata.</p>
+        <button onclick="stopAlarm()" class="px-10 py-5 bg-white text-red-600 font-extrabold rounded-2xl shadow-2xl hover:scale-105 active:scale-95 transition-all text-2xl cursor-pointer">OK, DISATTIVA ALLARME</button>
+    </div>
+</body>
+</html>
