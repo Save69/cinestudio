@@ -579,7 +579,7 @@
                     <div class="flex flex-wrap justify-between items-center gap-3 mb-3">
                         <h2 id="titolo-scaletta" class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-calendar-week text-amber-600"></i> Scaletta Settimanale</h2>
                         <div class="flex gap-2">
-                            <button onclick="azzeraScaletta()" class="border border-slate-200 hover:bg-slate-50 rounded-lg px-2.5 py-1.5 text-xs font-bold focus:ring-2 focus:ring-amber-500"><i class="fa-solid fa-rotate-left"></i> Azzera</button>
+                            <button id="schedule-reset-btn" onclick="azzeraScaletta()" class="border border-slate-200 hover:bg-slate-50 rounded-lg px-2.5 py-1.5 text-xs font-bold focus:ring-2 focus:ring-amber-500"><i class="fa-solid fa-rotate-left"></i> Azzera</button>
                             <button id="schedule-edit-btn" onclick="toggleModificaScaletta()" class="border border-slate-200 hover:bg-slate-50 rounded-lg px-2.5 py-1.5 text-xs font-bold focus:ring-2 focus:ring-amber-500"><i class="fa-solid fa-pen-to-square"></i> Modifica</button>
                         </div>
                     </div>
@@ -2145,6 +2145,8 @@
         let promemoriaAgenda = leggiJSONSicuro(AGENDA_KEYS.reminders, []);
         let scalettaAgenda = leggiJSONSicuro(AGENDA_KEYS.schedule, null);
         let modificaScalettaAttiva = false;
+        let confermaAzzeraScaletta = false;
+        let timerConfermaAzzera = null;
         let timerSalvataggioNote = null;
         if (!scalettaAgenda || typeof scalettaAgenda !== 'object') {
             scalettaAgenda = {};
@@ -2186,7 +2188,32 @@
         function aggiungiAttivitaScaletta(giorno) { const input = document.getElementById(`new-task-${giorniSettimana.indexOf(giorno)}`); const testo = input.value.trim(); if (!testo) return; scalettaAgenda[giorno].push({ id: nuovoId(), testo, completata: false }); salvaScaletta(); renderScaletta(); }
         function eliminaAttivitaScaletta(giorno, id) { scalettaAgenda[giorno] = scalettaAgenda[giorno].filter(x => x.id !== id); salvaScaletta(); renderScaletta(); }
         function spostaAttivitaScaletta(da, id, a) { if (da === a) return; const i = scalettaAgenda[da].findIndex(x => x.id === id); if (i < 0) return; scalettaAgenda[a].push(scalettaAgenda[da].splice(i, 1)[0]); salvaScaletta(); renderScaletta(); }
-        function azzeraScaletta() { if (!confirm('Vuoi riportare tutte le attività allo stato non completato? I testi personalizzati resteranno invariati.')) return; giorniSettimana.forEach(g => scalettaAgenda[g].forEach(x => x.completata = false)); salvaScaletta(); renderScaletta(); showToast('Scaletta azzerata.', 'success'); }
+        function ripristinaPulsanteAzzera() {
+            confermaAzzeraScaletta = false;
+            clearTimeout(timerConfermaAzzera);
+            const btn = document.getElementById('schedule-reset-btn');
+            if (!btn) return;
+            btn.className = 'border border-slate-200 hover:bg-slate-50 rounded-lg px-2.5 py-1.5 text-xs font-bold focus:ring-2 focus:ring-amber-500';
+            btn.innerHTML = '<i class="fa-solid fa-rotate-left"></i> Azzera';
+        }
+        function azzeraScaletta() {
+            const btn = document.getElementById('schedule-reset-btn');
+            if (!confermaAzzeraScaletta) {
+                confermaAzzeraScaletta = true;
+                if (btn) {
+                    btn.className = 'border border-red-300 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg px-2.5 py-1.5 text-xs font-bold focus:ring-2 focus:ring-red-500';
+                    btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Conferma azzera';
+                }
+                showToast('Premi di nuovo per azzerare le attività completate.', 'warning');
+                timerConfermaAzzera = setTimeout(ripristinaPulsanteAzzera, 10000);
+                return;
+            }
+            giorniSettimana.forEach(g => scalettaAgenda[g].forEach(x => x.completata = false));
+            salvaScaletta();
+            renderScaletta();
+            ripristinaPulsanteAzzera();
+            showToast('Scaletta azzerata.', 'success');
+        }
         function renderScaletta() {
             const box = document.getElementById('weekly-schedule'); if (!box) return;
             const btn = document.getElementById('schedule-edit-btn'); btn.innerHTML = modificaScalettaAttiva ? '<i class="fa-solid fa-check"></i> Fine' : '<i class="fa-solid fa-pen-to-square"></i> Modifica';
