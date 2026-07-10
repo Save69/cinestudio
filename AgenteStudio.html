@@ -58,7 +58,7 @@
     <!-- ============================================================ -->
     <!-- SIDEBAR                                                        -->
     <!-- ============================================================ -->
-    <aside class="w-64 bg-[#0f172a] flex flex-col p-5 justify-between select-none shadow-xl text-slate-300 shrink-0">
+    <aside class="hidden md:flex w-64 bg-[#0f172a] flex-col p-5 justify-between select-none shadow-xl text-slate-300 shrink-0">
         <div>
             <!-- Logo -->
             <div class="flex items-center gap-3 mb-8 px-2 border-b border-slate-800 pb-5">
@@ -76,6 +76,9 @@
                 <p class="text-[9px] uppercase tracking-wider text-slate-500 font-bold px-2 mb-2">Monitoraggio</p>
                 <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all cursor-pointer text-left shadow-lg bg-[#1e293b] text-white border border-slate-700/50">
                     <i class="fa-solid fa-chart-pie text-teal-400"></i> Dashboard Attività
+                </button>
+                <button onclick="switchTab('agenda')" id="btn-tab-agenda" class="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all cursor-pointer text-left text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-calendar-check text-amber-400"></i> Agenda &amp; Note
                 </button>
             </nav>
 
@@ -123,7 +126,12 @@
     <!-- ============================================================ -->
     <!-- MAIN CONTENT                                                   -->
     <!-- ============================================================ -->
-    <main class="flex-1 flex flex-col overflow-y-auto p-8">
+    <main class="flex-1 flex flex-col overflow-y-auto p-4 md:p-8">
+
+        <nav class="md:hidden flex gap-2 mb-4 bg-slate-900 p-2 rounded-xl" aria-label="Navigazione mobile">
+            <button onclick="switchTab('dashboard')" class="flex-1 text-xs font-bold text-white rounded-lg px-3 py-2 hover:bg-slate-700"><i class="fa-solid fa-chart-pie text-teal-400"></i> Dashboard</button>
+            <button onclick="switchTab('agenda')" class="flex-1 text-xs font-bold text-white rounded-lg px-3 py-2 hover:bg-slate-700"><i class="fa-solid fa-calendar-check text-amber-400"></i> Agenda</button>
+        </nav>
 
         <!-- ========== TAB: DASHBOARD ========== -->
         <div id="tab-dashboard" class="tab-content active">
@@ -551,6 +559,41 @@
             </div>
         </div><!-- end tab-scatole -->
 
+        <!-- ========== TAB: AGENDA & NOTE ========== -->
+        <div id="tab-agenda" class="tab-content">
+            <header class="mb-6">
+                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Agenda &amp; Note</h1>
+                <p class="text-sm text-slate-500 mt-1">Gestisci le tue scadenze, cose da fare e appunti personali di lavoro</p>
+            </header>
+            <div class="grid grid-cols-1 xl:grid-cols-[46fr_54fr] gap-6 items-start">
+                <section class="bg-white border border-amber-100 rounded-2xl p-5 shadow-sm" aria-labelledby="titolo-promemoria">
+                    <h2 id="titolo-promemoria" class="font-bold text-slate-900 flex items-center gap-2 mb-4"><i class="fa-solid fa-list-check text-amber-600"></i> Promemoria &amp; Scadenze</h2>
+                    <form id="reminder-form" onsubmit="aggiungiPromemoria(event)" class="space-y-3">
+                        <div><label for="reminder-text" class="block text-xs font-bold text-slate-600 mb-1.5">Nuovo Promemoria</label><input id="reminder-text" required placeholder="Esempio: Inviare candidatura bando CSVnet..." class="w-full border border-amber-100 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"></div>
+                        <div><label for="reminder-date" class="block text-xs font-bold text-slate-600 mb-1.5">Data Scadenza (Opzionale)</label><input id="reminder-date" type="date" class="w-full border border-amber-100 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"></div>
+                        <button class="w-full bg-amber-600 hover:bg-amber-700 focus:ring-2 focus:ring-offset-2 focus:ring-amber-600 text-white rounded-xl py-2.5 text-sm font-bold shadow-sm"><i class="fa-solid fa-plus"></i> Aggiungi Attività</button>
+                    </form>
+                    <div class="border-t border-amber-100 mt-4 pt-4"><div id="reminders-list" class="space-y-2"></div></div>
+                </section>
+                <section class="bg-white border border-amber-100 rounded-2xl p-5 shadow-sm xl:row-span-2" aria-labelledby="titolo-scaletta">
+                    <div class="flex flex-wrap justify-between items-center gap-3 mb-3">
+                        <h2 id="titolo-scaletta" class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-calendar-week text-amber-600"></i> Scaletta Settimanale</h2>
+                        <div class="flex gap-2">
+                            <button onclick="azzeraScaletta()" class="border border-slate-200 hover:bg-slate-50 rounded-lg px-2.5 py-1.5 text-xs font-bold focus:ring-2 focus:ring-amber-500"><i class="fa-solid fa-rotate-left"></i> Azzera</button>
+                            <button id="schedule-edit-btn" onclick="toggleModificaScaletta()" class="border border-slate-200 hover:bg-slate-50 rounded-lg px-2.5 py-1.5 text-xs font-bold focus:ring-2 focus:ring-amber-500"><i class="fa-solid fa-pen-to-square"></i> Modifica</button>
+                        </div>
+                    </div>
+                    <p id="schedule-help" class="hidden text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2 mb-3">Modalità modifica attiva: cambia i testi, sposta o elimina le attività e aggiungine di nuove.</p>
+                    <div id="weekly-schedule" class="max-h-[510px] overflow-y-auto custom-scrollbar pr-2 space-y-4"></div>
+                </section>
+                <section class="bg-white border border-amber-100 rounded-2xl p-5 shadow-sm" aria-labelledby="titolo-note">
+                    <div class="flex justify-between items-center gap-3 mb-3"><h2 id="titolo-note" class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-file-pen text-amber-600"></i> Blocco Note Rapido</h2><span id="notes-status" class="text-[11px] text-slate-400"><i class="fa-solid fa-cloud-arrow-down"></i> Salvato in locale</span></div>
+                    <label for="quick-notes" class="sr-only">Appunti rapidi</label>
+                    <textarea id="quick-notes" oninput="programmaSalvataggioNote()" placeholder="Scrivi qui i tuoi appunti, contatti, bozze di idee o testi da copiare... Si salvano automaticamente ad ogni lettera." class="w-full min-h-[255px] resize-y border border-amber-100 bg-amber-50/20 rounded-xl p-3 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                </section>
+            </div>
+        </div><!-- end tab-agenda -->
+
     </main>
 
     <!-- ============================================================ -->
@@ -740,10 +783,17 @@
         }
 
         function switchTab(tabId) {
-            const availableTabs = ['dashboard'];
+            const availableTabs = ['dashboard', 'agenda'];
             if (!availableTabs.includes(tabId)) tabId = 'dashboard';
 
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            const dashboardRoot = document.getElementById('tab-dashboard');
+            if (dashboardRoot) {
+                Array.from(dashboardRoot.children).forEach(el => {
+                    if (el.id !== 'tab-agenda') el.classList.toggle('hidden', tabId === 'agenda');
+                });
+                dashboardRoot.classList.add('active');
+            }
             const activeTab = document.getElementById(`tab-${tabId}`);
             if (activeTab) activeTab.classList.add('active');
 
@@ -751,10 +801,10 @@
             menuBtns.forEach(id => {
                 const btn = document.getElementById(`btn-tab-${id}`);
                 if (!btn) return;
-                const iconMap = { dashboard: 'fa-chart-pie' };
+                const iconMap = { dashboard: 'fa-chart-pie', agenda: 'fa-calendar-check' };
                 if (id === tabId) {
                     btn.className = "w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all cursor-pointer text-left shadow-lg bg-[#1e293b] text-white border border-slate-700/50";
-                    btn.querySelector('i').className = `fa-solid ${iconMap[id]} text-teal-400`;
+                    btn.querySelector('i').className = `fa-solid ${iconMap[id]} ${id === 'agenda' ? 'text-amber-400' : 'text-teal-400'}`;
                 } else {
                     btn.className = "w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all cursor-pointer text-left text-slate-400 hover:bg-slate-800/60 hover:text-white";
                     btn.querySelector('i').className = `fa-solid ${iconMap[id]}`;
@@ -2070,13 +2120,93 @@
         }
 
         // ============================================================
-        // 12. INIT
+        // 12. AGENDA & NOTE
+        // ============================================================
+        const AGENDA_KEYS = {
+            reminders: 'agente_studio_agenda_reminders_v1',
+            schedule: 'agente_studio_weekly_schedule_v1',
+            notes: 'agente_studio_quick_notes_v1'
+        };
+        const giorniSettimana = ['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
+        const scalettaDefault = {
+            'Lunedì': ['Rivedi le bozze email di matching pronte','Invia le email alle associazioni (Fase 4 Pipeline)','Avvia Scouting & Sincronizzazione Notizie (Fase 1 Pipeline)','Esamina e tagga i nuovi bandi/news raccolti'],
+            'Martedì': ['Seleziona 10-20 associazioni target (Vitalità Alta/Media, Stato Giallo/Rosso)','Usa "Cerca con AI" per verificare e correggere i contatti','Imposta Stato Verifica a Verde per le associazioni bonificate'],
+            'Mercoledì': ['Esegui il Matching Bandi sui 10-20 enti bonificati (Fase 3 Pipeline)','Rivedi, personalizza e salva le bozze email su Google Sheets'],
+            'Giovedì': [], 'Venerdì': [], 'Sabato': [], 'Domenica': []
+        };
+
+        function leggiJSONSicuro(key, fallback) {
+            try { const value = JSON.parse(localStorage.getItem(key)); return value ?? fallback; }
+            catch (_) { return fallback; }
+        }
+        function nuovoId() { return `${Date.now()}-${Math.random().toString(16).slice(2)}`; }
+        function escapeHTML(value) { const el = document.createElement('div'); el.textContent = value ?? ''; return el.innerHTML; }
+
+        let promemoriaAgenda = leggiJSONSicuro(AGENDA_KEYS.reminders, []);
+        let scalettaAgenda = leggiJSONSicuro(AGENDA_KEYS.schedule, null);
+        let modificaScalettaAttiva = false;
+        let timerSalvataggioNote = null;
+        if (!scalettaAgenda || typeof scalettaAgenda !== 'object') {
+            scalettaAgenda = {};
+            giorniSettimana.forEach(g => scalettaAgenda[g] = scalettaDefault[g].map(testo => ({ id: nuovoId(), testo, completata: false })));
+            localStorage.setItem(AGENDA_KEYS.schedule, JSON.stringify(scalettaAgenda));
+        }
+        if (!Array.isArray(scalettaAgenda[giorniSettimana[0]])) {
+            scalettaAgenda = {};
+            giorniSettimana.forEach(g => scalettaAgenda[g] = scalettaDefault[g].map(testo => ({ id: nuovoId(), testo, completata: false })));
+            localStorage.setItem(AGENDA_KEYS.schedule, JSON.stringify(scalettaAgenda));
+        }
+        giorniSettimana.forEach(g => { if (!Array.isArray(scalettaAgenda[g])) scalettaAgenda[g] = []; });
+
+        function salvaPromemoria() { localStorage.setItem(AGENDA_KEYS.reminders, JSON.stringify(promemoriaAgenda)); }
+        function aggiungiPromemoria(event) {
+            event.preventDefault();
+            const testo = document.getElementById('reminder-text').value.trim();
+            if (!testo) return;
+            promemoriaAgenda.push({ id: nuovoId(), testo, data: document.getElementById('reminder-date').value, completata: false });
+            salvaPromemoria(); event.target.reset(); renderPromemoria(); showToast('Promemoria aggiunto.', 'success');
+        }
+        function togglePromemoria(id) { const item = promemoriaAgenda.find(x => x.id === id); if (item) item.completata = !item.completata; salvaPromemoria(); renderPromemoria(); }
+        function modificaPromemoria(id) {
+            const item = promemoriaAgenda.find(x => x.id === id); if (!item) return;
+            const testo = prompt('Modifica il promemoria:', item.testo);
+            if (testo !== null && testo.trim()) { item.testo = testo.trim(); salvaPromemoria(); renderPromemoria(); }
+        }
+        function eliminaPromemoria(id) { if (!confirm('Eliminare questo promemoria?')) return; promemoriaAgenda = promemoriaAgenda.filter(x => x.id !== id); salvaPromemoria(); renderPromemoria(); }
+        function renderPromemoria() {
+            const box = document.getElementById('reminders-list'); if (!box) return;
+            if (!promemoriaAgenda.length) { box.innerHTML = '<div class="text-center py-8 text-slate-400"><i class="fa-solid fa-list-check text-4xl text-amber-200 mb-3"></i><p class="text-sm font-bold text-slate-700">Nessun promemoria salvato</p><p class="text-xs mt-1">Aggiungi un promemoria per scadenze o cose da fare.</p></div>'; return; }
+            box.innerHTML = promemoriaAgenda.map(x => `<div class="flex items-start gap-2 border border-slate-100 rounded-xl p-3 group"><input type="checkbox" ${x.completata ? 'checked' : ''} onchange="togglePromemoria('${x.id}')" aria-label="Completa promemoria" class="mt-1 accent-amber-600"><div class="min-w-0 flex-1"><p class="text-sm break-words ${x.completata ? 'line-through text-slate-400' : 'text-slate-700'}">${escapeHTML(x.testo)}</p>${x.data ? `<p class="text-[11px] text-amber-700 mt-1"><i class="fa-regular fa-calendar"></i> ${escapeHTML(x.data.split('-').reverse().join('/'))}</p>` : ''}</div><button onclick="modificaPromemoria('${x.id}')" aria-label="Modifica promemoria" class="p-1.5 text-slate-400 hover:text-amber-700"><i class="fa-solid fa-pen"></i></button><button onclick="eliminaPromemoria('${x.id}')" aria-label="Elimina promemoria" class="p-1.5 text-slate-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button></div>`).join('');
+        }
+
+        function salvaScaletta() { localStorage.setItem(AGENDA_KEYS.schedule, JSON.stringify(scalettaAgenda)); }
+        function toggleModificaScaletta() { modificaScalettaAttiva = !modificaScalettaAttiva; document.getElementById('schedule-help').classList.toggle('hidden', !modificaScalettaAttiva); renderScaletta(); }
+        function toggleAttivitaScaletta(giorno, id) { const x = scalettaAgenda[giorno].find(a => a.id === id); if (x) x.completata = !x.completata; salvaScaletta(); renderScaletta(); }
+        function aggiornaTestoScaletta(giorno, id, testo) { const x = scalettaAgenda[giorno].find(a => a.id === id); if (x && testo.trim()) x.testo = testo.trim(); salvaScaletta(); }
+        function aggiungiAttivitaScaletta(giorno) { const input = document.getElementById(`new-task-${giorniSettimana.indexOf(giorno)}`); const testo = input.value.trim(); if (!testo) return; scalettaAgenda[giorno].push({ id: nuovoId(), testo, completata: false }); salvaScaletta(); renderScaletta(); }
+        function eliminaAttivitaScaletta(giorno, id) { scalettaAgenda[giorno] = scalettaAgenda[giorno].filter(x => x.id !== id); salvaScaletta(); renderScaletta(); }
+        function spostaAttivitaScaletta(da, id, a) { if (da === a) return; const i = scalettaAgenda[da].findIndex(x => x.id === id); if (i < 0) return; scalettaAgenda[a].push(scalettaAgenda[da].splice(i, 1)[0]); salvaScaletta(); renderScaletta(); }
+        function azzeraScaletta() { if (!confirm('Vuoi riportare tutte le attività allo stato non completato? I testi personalizzati resteranno invariati.')) return; giorniSettimana.forEach(g => scalettaAgenda[g].forEach(x => x.completata = false)); salvaScaletta(); renderScaletta(); showToast('Scaletta azzerata.', 'success'); }
+        function renderScaletta() {
+            const box = document.getElementById('weekly-schedule'); if (!box) return;
+            const btn = document.getElementById('schedule-edit-btn'); btn.innerHTML = modificaScalettaAttiva ? '<i class="fa-solid fa-check"></i> Fine' : '<i class="fa-solid fa-pen-to-square"></i> Modifica';
+            box.innerHTML = giorniSettimana.map((giorno, indice) => `<div class="border border-amber-100 rounded-xl p-3"><h3 class="text-xs font-bold text-slate-800 border-b border-dashed border-amber-100 pb-2 mb-2"><i class="fa-regular fa-calendar text-amber-600 mr-1"></i> ${giorno}</h3><div class="space-y-2">${scalettaAgenda[giorno].length ? scalettaAgenda[giorno].map(x => modificaScalettaAttiva ? `<div class="flex flex-wrap sm:flex-nowrap items-center gap-2"><input value="${escapeHTML(x.testo)}" onchange="aggiornaTestoScaletta('${giorno}','${x.id}',this.value)" aria-label="Testo attivitÃ " class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-amber-500"><select onchange="spostaAttivitaScaletta('${giorno}','${x.id}',this.value)" aria-label="Sposta attivitÃ " class="border border-slate-200 rounded-lg px-1 py-1.5 text-[11px]">${giorniSettimana.map(g => `<option ${g === giorno ? 'selected' : ''}>${g}</option>`).join('')}</select><button onclick="eliminaAttivitaScaletta('${giorno}','${x.id}')" aria-label="Elimina attivitÃ " class="text-slate-400 hover:text-red-600 p-1"><i class="fa-solid fa-trash"></i></button></div>` : `<label class="flex items-start gap-2 text-xs text-slate-700 cursor-pointer"><input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaScaletta('${giorno}','${x.id}')" class="mt-0.5 accent-amber-600"><span class="${x.completata ? 'line-through text-slate-400' : ''}">${escapeHTML(x.testo)}</span></label>`).join('') : `<p class="text-xs italic text-slate-400">Nessuna attivitÃ </p>`}</div>${modificaScalettaAttiva ? `<div class="flex gap-2 mt-3"><input id="new-task-${indice}" onkeydown="if(event.key==='Enter'){event.preventDefault();aggiungiAttivitaScaletta('${giorno}')}" placeholder="Nuova attivitÃ  per ${giorno}" class="min-w-0 flex-1 border border-amber-100 rounded-lg px-2 py-1.5 text-xs"><button onclick="aggiungiAttivitaScaletta('${giorno}')" aria-label="Aggiungi attivitÃ  a ${giorno}" class="bg-amber-600 text-white rounded-lg px-2.5"><i class="fa-solid fa-plus"></i></button></div>` : ''}</div>`).join('');
+            box.innerHTML = box.innerHTML.replaceAll('attivit\u00c3\u00a0', 'attività');
+        }
+
+        function programmaSalvataggioNote() { const status = document.getElementById('notes-status'); status.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvataggio...'; clearTimeout(timerSalvataggioNote); timerSalvataggioNote = setTimeout(() => { try { localStorage.setItem(AGENDA_KEYS.notes, document.getElementById('quick-notes').value); status.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> Salvato in locale'; } catch (_) { status.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Errore di salvataggio'; status.className = 'text-[11px] text-red-600'; } }, 400); }
+
+        // ============================================================
+        // 13. INIT
         // ============================================================
 
         renderDashboard();
         updateTimerDisplay();
         setPilastroAttivo('lavoro');
         caricaImpostazioniMP3();
+        renderPromemoria();
+        renderScaletta();
+        document.getElementById('quick-notes').value = localStorage.getItem(AGENDA_KEYS.notes) || '';
 
     </script>
 
