@@ -1034,12 +1034,37 @@
 
                 if (isActive) giorniAttivi++;
 
+                const giorno = date.getDate();
+                const dayOfWeek = date.getDay(); // 0: Dom, 1: Lun...
+                const dayLettersTooltips = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
+                const letter = dayLettersTooltips[dayOfWeek];
+                const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+                const dayLetterHtml = isWeekend 
+                    ? `<span class="text-red-500 font-bold">${letter}</span>` 
+                    : letter;
+                const azione = isFuture
+                    ? 'In programma'
+                    : isActive
+                        ? 'Sessione ✓ — clicca per rimuovere'
+                        : 'Nessuna sessione — clicca per aggiungere';
+                const labelTooltip = `(${dayLetterHtml}) ${giorno} ${mesi[meseNum]}: ${azione}`;
+
                 // Colore in base allo stato
                 let bgColor, hoverBg, border;
                 if (isActive) {
                     bgColor = activeColor;
                     hoverBg = activeHover;
                     border  = 'none';
+                } else if (isWeekend) {
+                    if (isFuture) {
+                        bgColor = '#fef2f2'; // Rosso molto chiaro per weekend futuri
+                        hoverBg = '#fee2e2';
+                        border  = '1px solid #fca5a5';
+                    } else {
+                        bgColor = '#fee2e2'; // Rosso chiaro per weekend passati
+                        hoverBg = '#fcd5d5';
+                        border  = 'none';
+                    }
                 } else if (isFuture) {
                     bgColor = '#f8fafc';
                     hoverBg = '#f1f5f9';
@@ -1050,16 +1075,9 @@
                     border  = 'none';
                 }
 
-                const giorno = date.getDate();
-                const azione = isFuture
-                    ? 'In programma'
-                    : isActive
-                        ? 'Sessione ✓ — clicca per rimuovere'
-                        : 'Nessuna sessione — clicca per aggiungere';
-                const labelTooltip = `${giorno} ${mesi[meseNum]}: ${azione}`;
-
                 const square = document.createElement('div');
                 square.className = 'grid-square';
+                square.textContent = letter;
                 square.style.cssText = `
                     width: 16px; height: 16px; border-radius: 3px;
                     background-color: ${bgColor};
@@ -1068,6 +1086,10 @@
                     cursor: ${isFuture ? 'not-allowed' : 'pointer'};
                     position: relative;
                     ${!isFuture ? 'box-shadow: 0 0 0 0 transparent; transition: box-shadow 0.15s;' : ''}
+                    display: flex; align-items: center; justify-content: center;
+                    font-size: 8.5px; font-weight: 800;
+                    color: ${isActive ? '#ffffff' : (isWeekend ? '#dc2626' : '#64748b')};
+                    user-select: none;
                 `;
 
                 // Tooltip
@@ -1078,7 +1100,7 @@
                     padding: 4px 8px; border-radius: 6px; white-space: nowrap; z-index: 50;
                     box-shadow: 0 4px 12px rgba(0,0,0,0.4); font-family: sans-serif; font-weight: 600;
                 `;
-                tooltip.textContent = labelTooltip;
+                tooltip.innerHTML = labelTooltip;
                 square.appendChild(tooltip);
 
                 square.addEventListener('mouseenter', () => {
@@ -1157,12 +1179,23 @@
                 const isPast  = d < new Date(oggi);
                 const obs     = datiPilastri.lavoro.obiettivi[dateStr] || [];
 
+                const dayLetters = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
+                const isWeekend = (i === 5 || i === 6);
+                const dayColor = isToday 
+                    ? 'text-sky-600 font-black' 
+                    : (isWeekend ? 'text-red-500 font-bold' : 'text-slate-500');
+                const dateColor = isWeekend ? 'text-red-400 font-semibold' : 'text-slate-400';
+
                 const col = document.createElement('div');
-                col.className = `rounded-xl border-2 p-2 flex flex-col gap-1 ${isToday ? 'border-sky-400 bg-sky-50/60' : 'border-slate-200 bg-slate-50/50'}`;
+                col.className = `rounded-xl border-2 p-2 flex flex-col gap-1 ${
+                    isToday 
+                        ? 'border-sky-400 bg-sky-50/60' 
+                        : (isWeekend ? 'border-red-200 bg-red-50/30' : 'border-slate-200 bg-slate-50/50')
+                }`;
                 col.innerHTML = `
                     <div class="flex items-center justify-between mb-1">
-                        <span class="text-[10px] font-black uppercase tracking-wider ${isToday ? 'text-sky-600' : 'text-slate-500'}">${GIORNI_SETTIMANA[i]}</span>
-                        <span class="text-[10px] text-slate-400 font-mono">${d.getDate()}/${d.getMonth()+1}</span>
+                        <span class="text-[10px] font-black uppercase tracking-wider ${dayColor}">${dayLetters[i]}</span>
+                        <span class="text-[10px] font-mono ${dateColor}">${d.getDate()}/${d.getMonth()+1}</span>
                     </div>
                 `;
 
@@ -1271,12 +1304,23 @@
                 if (!datiPilastri.divisione.obiettivi) datiPilastri.divisione.obiettivi = {};
                 const obs = datiPilastri.divisione.obiettivi[dateStr] || [];
 
+                const dayLetters = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
+                const isWeekend = (i === 5 || i === 6);
+                const dayColor = isToday 
+                    ? 'text-red-600 font-black' 
+                    : (isWeekend ? 'text-red-500 font-bold' : 'text-slate-500');
+                const dateColor = isWeekend ? 'text-red-400 font-semibold' : 'text-slate-400';
+
                 const col = document.createElement('div');
-                col.className = `rounded-xl border-2 p-2 flex flex-col gap-1 ${isToday ? 'border-red-400 bg-red-50/60' : 'border-slate-200 bg-slate-50/50'}`;
+                col.className = `rounded-xl border-2 p-2 flex flex-col gap-1 ${
+                    isToday 
+                        ? 'border-red-400 bg-red-50/60' 
+                        : (isWeekend ? 'border-red-200 bg-red-50/30' : 'border-slate-200 bg-slate-50/50')
+                }`;
                 col.innerHTML = `
                     <div class="flex items-center justify-between mb-1">
-                        <span class="text-[10px] font-black uppercase tracking-wider ${isToday ? 'text-red-600' : 'text-slate-500'}">${GIORNI_SETTIMANA[i]}</span>
-                        <span class="text-[10px] text-slate-400 font-mono">${d.getDate()}/${d.getMonth()+1}</span>
+                        <span class="text-[10px] font-black uppercase tracking-wider ${dayColor}">${dayLetters[i]}</span>
+                        <span class="text-[10px] font-mono ${dateColor}">${d.getDate()}/${d.getMonth()+1}</span>
                     </div>
                 `;
 
@@ -1418,12 +1462,23 @@
                 }
 
                 const arr = datiPilastri.fisico.allenamenti[dateStr];
+                const dayLetters = ['L', 'M', 'M', 'G', 'V', 'S', 'D'];
+                const isWeekend = (i === 5 || i === 6);
+                const dayColor = isToday 
+                    ? 'text-violet-600 font-black' 
+                    : (isWeekend ? 'text-red-500 font-bold' : 'text-slate-500');
+                const dateColor = isWeekend ? 'text-red-400 font-semibold' : 'text-slate-400';
+
                 const col = document.createElement('div');
-                col.className = `rounded-xl border-2 p-2 flex flex-col gap-1.5 ${isToday ? 'border-violet-400 bg-violet-50/60' : 'border-slate-200 bg-slate-50/50'}`;
+                col.className = `rounded-xl border-2 p-2 flex flex-col gap-1.5 ${
+                    isToday 
+                        ? 'border-violet-400 bg-violet-50/60' 
+                        : (isWeekend ? 'border-red-200 bg-red-50/30' : 'border-slate-200 bg-slate-50/50')
+                }`;
                 col.innerHTML = `
                     <div class="flex items-center justify-between mb-1">
-                        <span class="text-[10px] font-black uppercase tracking-wider ${isToday ? 'text-violet-600' : 'text-slate-500'}">${GIORNI_SETTIMANA[i]}</span>
-                        <span class="text-[10px] text-slate-400 font-mono">${d.getDate()}/${d.getMonth()+1}</span>
+                        <span class="text-[10px] font-black uppercase tracking-wider ${dayColor}">${dayLetters[i]}</span>
+                        <span class="text-[10px] font-mono ${dateColor}">${d.getDate()}/${d.getMonth()+1}</span>
                     </div>
                 `;
 
@@ -2175,7 +2230,21 @@
         function renderPromemoria() {
             const box = document.getElementById('reminders-list'); if (!box) return;
             if (!promemoriaAgenda.length) { box.innerHTML = '<div class="text-center py-8 text-slate-400"><i class="fa-solid fa-list-check text-4xl text-amber-200 mb-3"></i><p class="text-sm font-bold text-slate-700">Nessun promemoria salvato</p><p class="text-xs mt-1">Aggiungi un promemoria per scadenze o cose da fare.</p></div>'; return; }
-            box.innerHTML = promemoriaAgenda.map(x => `<div class="flex items-start gap-2 border border-slate-100 rounded-xl p-3 group"><input type="checkbox" ${x.completata ? 'checked' : ''} onchange="togglePromemoria('${x.id}')" aria-label="Completa promemoria" class="mt-1 accent-amber-600"><div class="min-w-0 flex-1"><p class="text-sm break-words ${x.completata ? 'line-through text-slate-400' : 'text-slate-700'}">${escapeHTML(x.testo)}</p>${x.data ? `<p class="text-[11px] text-amber-700 mt-1"><i class="fa-regular fa-calendar"></i> ${escapeHTML(x.data.split('-').reverse().join('/'))}</p>` : ''}</div><button onclick="modificaPromemoria('${x.id}')" aria-label="Modifica promemoria" class="p-1.5 text-slate-400 hover:text-amber-700"><i class="fa-solid fa-pen"></i></button><button onclick="eliminaPromemoria('${x.id}')" aria-label="Elimina promemoria" class="p-1.5 text-slate-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button></div>`).join('');
+            box.innerHTML = promemoriaAgenda.map(x => {
+                let dayLetterHtml = '';
+                if (x.data) {
+                    const dObj = new Date(x.data + 'T00:00:00');
+                    if (!isNaN(dObj.getTime())) {
+                        const dayOfWeek = dObj.getDay();
+                        const letter = ['D', 'L', 'M', 'M', 'G', 'V', 'S'][dayOfWeek];
+                        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+                        dayLetterHtml = isWeekend 
+                            ? `<span class="text-red-500 font-bold">${letter}</span> ` 
+                            : `${letter} `;
+                    }
+                }
+                return `<div class="flex items-start gap-2 border border-slate-100 rounded-xl p-3 group"><input type="checkbox" ${x.completata ? 'checked' : ''} onchange="togglePromemoria('${x.id}')" aria-label="Completa promemoria" class="mt-1 accent-amber-600"><div class="min-w-0 flex-1"><p class="text-sm break-words ${x.completata ? 'line-through text-slate-400' : 'text-slate-700'}">${escapeHTML(x.testo)}</p>${x.data ? `<p class="text-[11px] text-amber-700 mt-1"><i class="fa-regular fa-calendar"></i> ${dayLetterHtml}${escapeHTML(x.data.split('-').reverse().join('/'))}</p>` : ''}</div><button onclick="modificaPromemoria('${x.id}')" aria-label="Modifica promemoria" class="p-1.5 text-slate-400 hover:text-amber-700"><i class="fa-solid fa-pen"></i></button><button onclick="eliminaPromemoria('${x.id}')" aria-label="Elimina promemoria" class="p-1.5 text-slate-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button></div>`;
+            }).join('');
         }
 
         function salvaScaletta() { localStorage.setItem(AGENDA_KEYS.schedule, JSON.stringify(scalettaAgenda)); }
@@ -2188,7 +2257,11 @@
         function renderScaletta() {
             const box = document.getElementById('weekly-schedule'); if (!box) return;
             const btn = document.getElementById('schedule-edit-btn'); btn.innerHTML = modificaScalettaAttiva ? '<i class="fa-solid fa-check"></i> Fine' : '<i class="fa-solid fa-pen-to-square"></i> Modifica';
-            box.innerHTML = giorniSettimana.map((giorno, indice) => `<div class="border border-amber-100 rounded-xl p-3"><h3 class="text-xs font-bold text-slate-800 border-b border-dashed border-amber-100 pb-2 mb-2"><i class="fa-regular fa-calendar text-amber-600 mr-1"></i> ${giorno}</h3><div class="space-y-2">${scalettaAgenda[giorno].length ? scalettaAgenda[giorno].map(x => modificaScalettaAttiva ? `<div class="flex flex-wrap sm:flex-nowrap items-center gap-2"><input value="${escapeHTML(x.testo)}" onchange="aggiornaTestoScaletta('${giorno}','${x.id}',this.value)" aria-label="Testo attivitÃ " class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-amber-500"><select onchange="spostaAttivitaScaletta('${giorno}','${x.id}',this.value)" aria-label="Sposta attivitÃ " class="border border-slate-200 rounded-lg px-1 py-1.5 text-[11px]">${giorniSettimana.map(g => `<option ${g === giorno ? 'selected' : ''}>${g}</option>`).join('')}</select><button onclick="eliminaAttivitaScaletta('${giorno}','${x.id}')" aria-label="Elimina attivitÃ " class="text-slate-400 hover:text-red-600 p-1"><i class="fa-solid fa-trash"></i></button></div>` : `<label class="flex items-start gap-2 text-xs text-slate-700 cursor-pointer"><input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaScaletta('${giorno}','${x.id}')" class="mt-0.5 accent-amber-600"><span class="${x.completata ? 'line-through text-slate-400' : ''}">${escapeHTML(x.testo)}</span></label>`).join('') : `<p class="text-xs italic text-slate-400">Nessuna attivitÃ </p>`}</div>${modificaScalettaAttiva ? `<div class="flex gap-2 mt-3"><input id="new-task-${indice}" onkeydown="if(event.key==='Enter'){event.preventDefault();aggiungiAttivitaScaletta('${giorno}')}" placeholder="Nuova attivitÃ  per ${giorno}" class="min-w-0 flex-1 border border-amber-100 rounded-lg px-2 py-1.5 text-xs"><button onclick="aggiungiAttivitaScaletta('${giorno}')" aria-label="Aggiungi attivitÃ  a ${giorno}" class="bg-amber-600 text-white rounded-lg px-2.5"><i class="fa-solid fa-plus"></i></button></div>` : ''}</div>`).join('');
+            box.innerHTML = giorniSettimana.map((giorno, indice) => {
+                const isWeekend = (giorno === 'Sabato' || giorno === 'Domenica');
+                const titleColor = isWeekend ? 'text-red-600 font-bold' : 'text-slate-800';
+                return `<div class="border border-amber-100 rounded-xl p-3"><h3 class="text-xs font-bold ${titleColor} border-b border-dashed border-amber-100 pb-2 mb-2"><i class="fa-regular fa-calendar text-amber-600 mr-1"></i> ${giorno}</h3><div class="space-y-2">${scalettaAgenda[giorno].length ? scalettaAgenda[giorno].map(x => modificaScalettaAttiva ? `<div class="flex flex-wrap sm:flex-nowrap items-center gap-2"><input value="${escapeHTML(x.testo)}" onchange="aggiornaTestoScaletta('${giorno}','${x.id}',this.value)" aria-label="Testo attivitÃ " class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-amber-500"><select onchange="spostaAttivitaScaletta('${giorno}','${x.id}',this.value)" aria-label="Sposta attivitÃ " class="border border-slate-200 rounded-lg px-1 py-1.5 text-[11px]">${giorniSettimana.map(g => `<option ${g === giorno ? 'selected' : ''}>${g}</option>`).join('')}</select><button onclick="eliminaAttivitaScaletta('${giorno}','${x.id}')" aria-label="Elimina attivitÃ " class="text-slate-400 hover:text-red-600 p-1"><i class="fa-solid fa-trash"></i></button></div>` : `<label class="flex items-start gap-2 text-xs text-slate-700 cursor-pointer"><input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaScaletta('${giorno}','${x.id}')" class="mt-0.5 accent-amber-600"><span class="${x.completata ? 'line-through text-slate-400' : ''}">${escapeHTML(x.testo)}</span></label>`).join('') : `<p class="text-xs italic text-slate-400">Nessuna attivitÃ </p>`}</div>${modificaScalettaAttiva ? `<div class="flex gap-2 mt-3"><input id="new-task-${indice}" onkeydown="if(event.key==='Enter'){event.preventDefault();aggiungiAttivitaScaletta('${giorno}')}" placeholder="Nuova attivitÃ  per ${giorno}" class="min-w-0 flex-1 border border-amber-100 rounded-lg px-2 py-1.5 text-xs"><button onclick="aggiungiAttivitaScaletta('${giorno}')" aria-label="Aggiungi attivitÃ  a ${giorno}" class="bg-amber-600 text-white rounded-lg px-2.5"><i class="fa-solid fa-plus"></i></button></div>` : ''}</div>`;
+            }).join('');
             box.innerHTML = box.innerHTML.replaceAll('attivit\u00c3\u00a0', 'attivit\u00e0');
             const parolaAttivita = `attivit${String.fromCharCode(224)}`;
             box.querySelectorAll('p.text-xs.italic').forEach(el => { el.textContent = `Nessuna ${parolaAttivita}`; });
