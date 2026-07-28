@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Total Life Audit Dashboard — ISO 5S</title>
+    <title>Agente Studio</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -66,7 +66,7 @@
                     ISO 5S
                 </div>
                 <div>
-                    <h2 class="font-bold text-sm leading-tight text-white tracking-wide">TOTAL LIFE AUDIT</h2>
+                    <h2 class="font-bold text-sm leading-tight text-white tracking-wide">AGENTE STUDIO</h2>
                     <p class="text-[10px] text-teal-400 font-semibold uppercase tracking-wider">4 Pilastri di Disciplina</p>
                 </div>
             </div>
@@ -74,11 +74,11 @@
             <!-- Navigation -->
             <nav class="space-y-1.5">
                 <p class="text-[9px] uppercase tracking-wider text-slate-500 font-bold px-2 mb-2">Monitoraggio</p>
-                <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all cursor-pointer text-left shadow-lg bg-[#1e293b] text-white border border-slate-700/50">
-                    <i class="fa-solid fa-chart-pie text-teal-400"></i> Dashboard Attività
+                <button onclick="switchTab('agenda')" id="btn-tab-agenda" class="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all cursor-pointer text-left shadow-lg bg-[#1e293b] text-white border border-slate-700/50">
+                    <i class="fa-solid fa-calendar-check text-blue-400"></i> Agenda &amp; Note
                 </button>
-                <button onclick="switchTab('agenda')" id="btn-tab-agenda" class="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all cursor-pointer text-left text-slate-400 hover:bg-slate-800 hover:text-white">
-                    <i class="fa-solid fa-calendar-check text-amber-400"></i> Agenda &amp; Note
+                <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all cursor-pointer text-left text-slate-400 hover:bg-slate-800 hover:text-white">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard Attività
                 </button>
             </nav>
 
@@ -109,10 +109,10 @@
                     </div>
                     <div class="flex items-center justify-between px-2 py-1.5 rounded-lg bg-slate-800/50">
                         <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-broom text-amber-400 text-xs"></i>
+                            <i class="fa-solid fa-broom text-blue-400 text-xs"></i>
                             <span class="text-xs text-slate-400">Riordino</span>
                         </div>
-                        <span id="sidebar-streak-riordino" class="text-xs font-black text-amber-400 font-mono">0d 🔥</span>
+                        <span id="sidebar-streak-riordino" class="text-xs font-black text-blue-400 font-mono">0d 🔥</span>
                     </div>
                 </div>
             </div>
@@ -130,7 +130,7 @@
 
         <nav class="md:hidden flex gap-2 mb-4 bg-slate-900 p-2 rounded-xl" aria-label="Navigazione mobile">
             <button onclick="switchTab('dashboard')" class="flex-1 text-xs font-bold text-white rounded-lg px-3 py-2 hover:bg-slate-700"><i class="fa-solid fa-chart-pie text-teal-400"></i> Dashboard</button>
-            <button onclick="switchTab('agenda')" class="flex-1 text-xs font-bold text-white rounded-lg px-3 py-2 hover:bg-slate-700"><i class="fa-solid fa-calendar-check text-amber-400"></i> Agenda</button>
+            <button onclick="switchTab('agenda')" class="flex-1 text-xs font-bold text-white rounded-lg px-3 py-2 hover:bg-slate-700"><i class="fa-solid fa-calendar-check text-blue-400"></i> Agenda</button>
         </nav>
 
         <!-- ========== TAB: DASHBOARD ========== -->
@@ -138,7 +138,7 @@
 
             <header class="flex justify-between items-center mb-6">
                 <div>
-                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Total Life Audit Dashboard</h1>
+                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Agente Studio</h1>
                     <p class="text-sm text-slate-500 mt-1">Gestisci i 4 Pilastri della disciplina quotidiana — Q3 2026.</p>
                 </div>
             </header>
@@ -227,7 +227,7 @@
                             <h3 class="text-3xl font-black mt-2 text-slate-800" id="txt-kpi-riordino">0 / 7</h3>
                             <p class="text-[10px] text-slate-400 mt-1">Stanze conformi allo standard 5S (✓)</p>
                         </div>
-                        <div class="bg-amber-50 p-2.5 rounded-xl text-amber-600"><i class="fa-solid fa-house-circle-check text-lg"></i></div>
+                        <div class="bg-blue-50 p-2.5 rounded-xl text-blue-600"><i class="fa-solid fa-house-circle-check text-lg"></i></div>
                     </div>
                     <!-- 2. DIVISIONE -->
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex justify-between items-start">
@@ -265,7 +265,7 @@
             <div class="mb-8">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-fire text-amber-500"></i> Griglie di Costanza — Per Pilastro
+                        <i class="fa-solid fa-fire text-blue-500"></i> Griglie di Costanza — Per Pilastro
                     </h3>
                     <div class="flex items-center gap-4 text-[10px] text-slate-400 font-mono font-bold">
                         <div class="flex items-center gap-1.5">
@@ -283,16 +283,6 @@
                     </div>
                 </div>
 
-                <!-- ── BANNER MOTIVAZIONALE ── -->
-                <div class="relative overflow-hidden rounded-2xl mb-4 shadow-lg" style="min-height:96px; background: linear-gradient(100deg, #0f172a 55%, #1e1b4b 100%);">
-                    <img id="img-gladiatore" src="gladiatore.jpg" alt="Il Gladiatore" onerror="this.style.display='none'"
-                         class="absolute right-0 top-0 h-full w-36 object-cover object-top opacity-90" style="mask-image:linear-gradient(to left,black 60%,transparent 100%);-webkit-mask-image:linear-gradient(to left,black 60%,transparent 100%);">
-                    <div class="relative z-10 p-5 flex flex-col justify-center h-full">
-                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-red-500 mb-1">Q3: Obiettivo Principale - Divisione</p>
-                        <p class="text-lg font-black text-white leading-tight">Il gladiatore non aspetta.<br><span class="text-indigo-300">Combatte ogni giorno.</span></p>
-                        <p class="text-[11px] text-slate-400 mt-2 italic">"Disciplina è libertà. Ogni sessione è un passo verso la tua indipendenza."</p>
-                    </div>
-                </div>
 
                 <div class="space-y-4">
 
@@ -308,13 +298,61 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4">
-                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Serie</p><div class="flex items-baseline gap-1 justify-end"><span class="text-xl font-black text-slate-800" id="streak-lavoro-attuale">0d</span><i class="fa-solid fa-fire text-amber-500 text-xs"></i></div></div>
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Serie</p><div class="flex items-baseline gap-1 justify-end"><span class="text-xl font-black text-slate-800" id="streak-lavoro-attuale">0d</span><i class="fa-solid fa-fire text-blue-500 text-xs"></i></div></div>
                                     <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Record</p><span class="text-xl font-black text-slate-600" id="streak-lavoro-max">0d</span></div>
                                     <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Giorni</p><span class="text-xl font-black text-sky-500" id="giorni-lavoro">0</span></div>
                                     <div class="ml-2 text-sky-400"><i id="chevron-obiettivi" class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i></div>
                                 </div>
                             </div>
-                            <div id="grid-lavoro" class="flex flex-wrap gap-1.5 p-3 bg-sky-50/40 rounded-xl border-2 border-sky-500 select-none"></div>
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 bg-sky-50/40 rounded-xl border-2 border-sky-500 select-none">
+                                <!-- Griglia Calendario (Q3) -->
+                                <div id="grid-lavoro" class="lg:col-span-5 flex flex-wrap gap-1.5 align-content-start" onclick="event.stopPropagation()"></div>
+
+                                <!-- Riquadri Obiettivi (Mensili PRIMA, Trimestre DOPO) -->
+                                <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3" onclick="event.stopPropagation()">
+                                    <!-- 1. Obiettivi Mensili -->
+                                    <div class="bg-white/95 rounded-xl p-3 border border-sky-200 shadow-sm flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center justify-between pb-2 mb-2 border-b border-sky-100">
+                                                <div class="flex items-center gap-2">
+                                                    <i class="fa-solid fa-calendar-check text-sky-500 text-sm"></i>
+                                                    <h5 class="font-bold text-xs text-slate-800 uppercase tracking-wider">Obiettivi Mensili</h5>
+                                                </div>
+                                                <div class="flex items-center gap-1" id="tabs-mesi-lavoro">
+                                                    <!-- Dynamic Month Tabs (Lug, Ago, Set) -->
+                                                </div>
+                                            </div>
+                                            <div id="list-obiettivi-mensili-lavoro" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+                                        </div>
+                                        <div class="mt-2 pt-2 border-t border-slate-100 flex gap-1.5">
+                                            <input type="text" id="input-ob-mensili-lavoro" placeholder="Nuovo obiettivo mensile..."
+                                                   class="flex-1 text-[11px] border border-slate-200 rounded-lg px-2.5 py-1 focus:outline-none focus:border-sky-400 bg-white"
+                                                   onkeydown="if(event.key==='Enter') addObiettivoMensilePilastro('lavoro')">
+                                            <button onclick="addObiettivoMensilePilastro('lavoro')" class="bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold px-2.5 py-1 rounded-lg transition-colors" title="Aggiungi">+</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- 2. Obiettivi del Trimestre (Q3) -->
+                                    <div class="bg-white/95 rounded-xl p-3 border border-sky-200 shadow-sm flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center justify-between pb-2 mb-2 border-b border-sky-100">
+                                                <div class="flex items-center gap-2">
+                                                    <i class="fa-solid fa-bullseye text-sky-500 text-sm"></i>
+                                                    <h5 class="font-bold text-xs text-slate-800 uppercase tracking-wider">Obiettivi Trimestre (Q3)</h5>
+                                                </div>
+                                                <span id="badge-trimestre-count-lavoro" class="text-[10px] font-bold text-sky-600 bg-sky-100 px-2 py-0.5 rounded-full">0/0</span>
+                                            </div>
+                                            <div id="list-obiettivi-trimestre-lavoro" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+                                        </div>
+                                        <div class="mt-2 pt-2 border-t border-slate-100 flex gap-1.5">
+                                            <input type="text" id="input-ob-trimestre-lavoro" placeholder="Nuovo obiettivo Q3..."
+                                                   class="flex-1 text-[11px] border border-slate-200 rounded-lg px-2.5 py-1 focus:outline-none focus:border-sky-400 bg-white"
+                                                   onkeydown="if(event.key==='Enter') addObiettivoTrimestrePilastro('lavoro')">
+                                            <button onclick="addObiettivoTrimestrePilastro('lavoro')" class="bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold px-2.5 py-1 rounded-lg transition-colors" title="Aggiungi">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <!-- ACCORDION obiettivi settimanali -->
                         <div id="accordion-obiettivi" class="hidden border-t-2 border-sky-500 px-5 pb-5 pt-4">
@@ -339,13 +377,59 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4">
-                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Serie</p><div class="flex items-baseline gap-1 justify-end"><span class="text-xl font-black text-slate-800" id="streak-divisione-attuale">0d</span><i class="fa-solid fa-fire text-amber-500 text-xs"></i></div></div>
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Serie</p><div class="flex items-baseline gap-1 justify-end"><span class="text-xl font-black text-slate-800" id="streak-divisione-attuale">0d</span><i class="fa-solid fa-fire text-blue-500 text-xs"></i></div></div>
                                     <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Record</p><span class="text-xl font-black text-slate-600" id="streak-divisione-max">0d</span></div>
                                     <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Giorni</p><span class="text-xl font-black text-red-500" id="giorni-divisione">0</span></div>
                                     <div class="ml-2 text-red-400"><i id="chevron-obiettivi-divisione" class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i></div>
                                 </div>
                             </div>
-                            <div id="grid-divisione" class="flex flex-wrap gap-1.5 p-3 bg-red-50/40 rounded-xl border-2 border-red-500 select-none" onclick="event.stopPropagation()"></div>
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 bg-red-50/40 rounded-xl border-2 border-red-500 select-none">
+                                <!-- Griglia Calendario (Q3) -->
+                                <div id="grid-divisione" class="lg:col-span-5 flex flex-wrap gap-1.5 align-content-start" onclick="event.stopPropagation()"></div>
+
+                                <!-- Riquadri Obiettivi (Mensili PRIMA, Trimestre DOPO) -->
+                                <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3" onclick="event.stopPropagation()">
+                                    <!-- 1. Obiettivi Mensili -->
+                                    <div class="bg-white/95 rounded-xl p-3 border border-red-200 shadow-sm flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center justify-between pb-2 mb-2 border-b border-red-100">
+                                                <div class="flex items-center gap-2">
+                                                    <i class="fa-solid fa-calendar-check text-red-500 text-sm"></i>
+                                                    <h5 class="font-bold text-xs text-slate-800 uppercase tracking-wider">Obiettivi Mensili</h5>
+                                                </div>
+                                                <div class="flex items-center gap-1" id="tabs-mesi-divisione"></div>
+                                            </div>
+                                            <div id="list-obiettivi-mensili-divisione" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+                                        </div>
+                                        <div class="mt-2 pt-2 border-t border-slate-100 flex gap-1.5">
+                                            <input type="text" id="input-ob-mensili-divisione" placeholder="Nuovo obiettivo mensile..."
+                                                   class="flex-1 text-[11px] border border-slate-200 rounded-lg px-2.5 py-1 focus:outline-none focus:border-red-400 bg-white"
+                                                   onkeydown="if(event.key==='Enter') addObiettivoMensilePilastro('divisione')">
+                                            <button onclick="addObiettivoMensilePilastro('divisione')" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-lg transition-colors" title="Aggiungi">+</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- 2. Obiettivi del Trimestre (Q3) -->
+                                    <div class="bg-white/95 rounded-xl p-3 border border-red-200 shadow-sm flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center justify-between pb-2 mb-2 border-b border-red-100">
+                                                <div class="flex items-center gap-2">
+                                                    <i class="fa-solid fa-bullseye text-red-500 text-sm"></i>
+                                                    <h5 class="font-bold text-xs text-slate-800 uppercase tracking-wider">Obiettivi Trimestre (Q3)</h5>
+                                                </div>
+                                                <span id="badge-trimestre-count-divisione" class="text-[10px] font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded-full">0/0</span>
+                                            </div>
+                                            <div id="list-obiettivi-trimestre-divisione" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+                                        </div>
+                                        <div class="mt-2 pt-2 border-t border-slate-100 flex gap-1.5">
+                                            <input type="text" id="input-ob-trimestre-divisione" placeholder="Nuovo obiettivo Q3..."
+                                                   class="flex-1 text-[11px] border border-slate-200 rounded-lg px-2.5 py-1 focus:outline-none focus:border-red-400 bg-white"
+                                                   onkeydown="if(event.key==='Enter') addObiettivoTrimestrePilastro('divisione')">
+                                            <button onclick="addObiettivoTrimestrePilastro('divisione')" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-lg transition-colors" title="Aggiungi">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <!-- ACCORDION obiettivi divisione -->
                         <div id="accordion-obiettivi-divisione" class="hidden border-t-2 border-red-500 px-5 pb-5 pt-4">
@@ -369,13 +453,59 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4">
-                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Serie</p><div class="flex items-baseline gap-1 justify-end"><span class="text-xl font-black text-slate-800" id="streak-fisico-attuale">0d</span><i class="fa-solid fa-fire text-amber-500 text-xs"></i></div></div>
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Serie</p><div class="flex items-baseline gap-1 justify-end"><span class="text-xl font-black text-slate-800" id="streak-fisico-attuale">0d</span><i class="fa-solid fa-fire text-blue-500 text-xs"></i></div></div>
                                     <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Record</p><span class="text-xl font-black text-slate-600" id="streak-fisico-max">0d</span></div>
                                     <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Giorni</p><span class="text-xl font-black text-violet-500" id="giorni-fisico">0</span></div>
                                     <div class="ml-2 text-violet-400"><i id="chevron-peso" class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i></div>
                                 </div>
                             </div>
-                            <div id="grid-fisico" class="flex flex-wrap gap-1.5 p-3 bg-violet-50/40 rounded-xl border-2 border-violet-500 select-none"></div>
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 bg-violet-50/40 rounded-xl border-2 border-violet-500 select-none">
+                                <!-- Griglia Calendario (Q3) -->
+                                <div id="grid-fisico" class="lg:col-span-5 flex flex-wrap gap-1.5 align-content-start" onclick="event.stopPropagation()"></div>
+
+                                <!-- Riquadri Obiettivi (Mensili PRIMA, Trimestre DOPO) -->
+                                <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3" onclick="event.stopPropagation()">
+                                    <!-- 1. Obiettivi Mensili -->
+                                    <div class="bg-white/95 rounded-xl p-3 border border-violet-200 shadow-sm flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center justify-between pb-2 mb-2 border-b border-violet-100">
+                                                <div class="flex items-center gap-2">
+                                                    <i class="fa-solid fa-calendar-check text-violet-500 text-sm"></i>
+                                                    <h5 class="font-bold text-xs text-slate-800 uppercase tracking-wider">Obiettivi Mensili</h5>
+                                                </div>
+                                                <div class="flex items-center gap-1" id="tabs-mesi-fisico"></div>
+                                            </div>
+                                            <div id="list-obiettivi-mensili-fisico" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+                                        </div>
+                                        <div class="mt-2 pt-2 border-t border-slate-100 flex gap-1.5">
+                                            <input type="text" id="input-ob-mensili-fisico" placeholder="Nuovo obiettivo mensile..."
+                                                   class="flex-1 text-[11px] border border-slate-200 rounded-lg px-2.5 py-1 focus:outline-none focus:border-violet-400 bg-white"
+                                                   onkeydown="if(event.key==='Enter') addObiettivoMensilePilastro('fisico')">
+                                            <button onclick="addObiettivoMensilePilastro('fisico')" class="bg-violet-500 hover:bg-violet-600 text-white text-xs font-bold px-2.5 py-1 rounded-lg transition-colors" title="Aggiungi">+</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- 2. Obiettivi del Trimestre (Q3) -->
+                                    <div class="bg-white/95 rounded-xl p-3 border border-violet-200 shadow-sm flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center justify-between pb-2 mb-2 border-b border-violet-100">
+                                                <div class="flex items-center gap-2">
+                                                    <i class="fa-solid fa-bullseye text-violet-500 text-sm"></i>
+                                                    <h5 class="font-bold text-xs text-slate-800 uppercase tracking-wider">Obiettivi Trimestre (Q3)</h5>
+                                                </div>
+                                                <span id="badge-trimestre-count-fisico" class="text-[10px] font-bold text-violet-600 bg-violet-100 px-2 py-0.5 rounded-full">0/0</span>
+                                            </div>
+                                            <div id="list-obiettivi-trimestre-fisico" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+                                        </div>
+                                        <div class="mt-2 pt-2 border-t border-slate-100 flex gap-1.5">
+                                            <input type="text" id="input-ob-trimestre-fisico" placeholder="Nuovo obiettivo Q3..."
+                                                   class="flex-1 text-[11px] border border-slate-200 rounded-lg px-2.5 py-1 focus:outline-none focus:border-violet-400 bg-white"
+                                                   onkeydown="if(event.key==='Enter') addObiettivoTrimestrePilastro('fisico')">
+                                            <button onclick="addObiettivoTrimestrePilastro('fisico')" class="bg-violet-500 hover:bg-violet-600 text-white text-xs font-bold px-2.5 py-1 rounded-lg transition-colors" title="Aggiungi">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <!-- ACCORDION peso e addome -->
                         <div id="accordion-peso" class="hidden border-t-2 border-violet-500 px-5 pb-5 pt-4">
@@ -432,45 +562,91 @@
                     </div>
 
                     <!-- ── 4. GRIGLIA RIORDINO ── -->
-                    <div class="bg-white rounded-2xl border-2 border-amber-400 shadow-sm">
+                    <div class="bg-white rounded-2xl border-2 border-blue-400 shadow-sm">
                         <div class="p-5 cursor-pointer select-none" onclick="toggleStanzeAccordion()" title="Clicca per vedere le aree">
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center gap-3">
-                                    <div class="bg-amber-400 p-2.5 rounded-xl text-white shrink-0 shadow-sm shadow-amber-200"><i class="fa-solid fa-broom text-lg"></i></div>
+                                    <div class="bg-blue-400 p-2.5 rounded-xl text-white shrink-0 shadow-sm shadow-blue-200"><i class="fa-solid fa-broom text-lg"></i></div>
                                     <div>
                                         <h4 class="font-bold text-sm text-slate-800">Riordino — Studio, Casa &amp; Giardino</h4>
                                         <p class="text-[10px] text-slate-400">Sessioni da 15 o 30 min · clicca per aprire le aree</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4">
-                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Serie</p><div class="flex items-baseline gap-1 justify-end"><span class="text-xl font-black text-slate-800" id="streak-riordino-attuale">0d</span><i class="fa-solid fa-fire text-amber-500 text-xs"></i></div></div>
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Serie</p><div class="flex items-baseline gap-1 justify-end"><span class="text-xl font-black text-slate-800" id="streak-riordino-attuale">0d</span><i class="fa-solid fa-fire text-blue-500 text-xs"></i></div></div>
                                     <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Record</p><span class="text-xl font-black text-slate-600" id="streak-riordino-max">0d</span></div>
-                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Giorni</p><span class="text-xl font-black text-amber-500" id="giorni-riordino">0</span></div>
-                                    <div class="ml-2 text-amber-400"><i id="chevron-stanze" class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i></div>
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Giorni</p><span class="text-xl font-black text-blue-500" id="giorni-riordino">0</span></div>
+                                    <div class="ml-2 text-blue-400"><i id="chevron-stanze" class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i></div>
                                 </div>
                             </div>
-                            <div id="grid-riordino" class="flex flex-wrap gap-1.5 p-3 bg-amber-50/40 rounded-xl border-2 border-amber-400 select-none"></div>
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 bg-blue-50/40 rounded-xl border-2 border-blue-400 select-none">
+                                <!-- Griglia Calendario (Q3) -->
+                                <div id="grid-riordino" class="lg:col-span-5 flex flex-wrap gap-1.5 align-content-start" onclick="event.stopPropagation()"></div>
+
+                                <!-- Riquadri Obiettivi (Mensili PRIMA, Trimestre DOPO) -->
+                                <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3" onclick="event.stopPropagation()">
+                                    <!-- 1. Obiettivi Mensili -->
+                                    <div class="bg-white/95 rounded-xl p-3 border border-blue-200 shadow-sm flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center justify-between pb-2 mb-2 border-b border-blue-100">
+                                                <div class="flex items-center gap-2">
+                                                    <i class="fa-solid fa-calendar-check text-blue-500 text-sm"></i>
+                                                    <h5 class="font-bold text-xs text-slate-800 uppercase tracking-wider">Obiettivi Mensili</h5>
+                                                </div>
+                                                <div class="flex items-center gap-1" id="tabs-mesi-riordino"></div>
+                                            </div>
+                                            <div id="list-obiettivi-mensili-riordino" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+                                        </div>
+                                        <div class="mt-2 pt-2 border-t border-slate-100 flex gap-1.5">
+                                            <input type="text" id="input-ob-mensili-riordino" placeholder="Nuovo obiettivo mensile..."
+                                                   class="flex-1 text-[11px] border border-slate-200 rounded-lg px-2.5 py-1 focus:outline-none focus:border-blue-400 bg-white"
+                                                   onkeydown="if(event.key==='Enter') addObiettivoMensilePilastro('riordino')">
+                                            <button onclick="addObiettivoMensilePilastro('riordino')" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded-lg transition-colors" title="Aggiungi">+</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- 2. Obiettivi del Trimestre (Q3) -->
+                                    <div class="bg-white/95 rounded-xl p-3 border border-blue-200 shadow-sm flex flex-col justify-between">
+                                        <div>
+                                            <div class="flex items-center justify-between pb-2 mb-2 border-b border-blue-100">
+                                                <div class="flex items-center gap-2">
+                                                    <i class="fa-solid fa-bullseye text-blue-500 text-sm"></i>
+                                                    <h5 class="font-bold text-xs text-slate-800 uppercase tracking-wider">Obiettivi Trimestre (Q3)</h5>
+                                                </div>
+                                                <span id="badge-trimestre-count-riordino" class="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">0/0</span>
+                                            </div>
+                                            <div id="list-obiettivi-trimestre-riordino" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+                                        </div>
+                                        <div class="mt-2 pt-2 border-t border-slate-100 flex gap-1.5">
+                                            <input type="text" id="input-ob-trimestre-riordino" placeholder="Nuovo obiettivo Q3..."
+                                                   class="flex-1 text-[11px] border border-slate-200 rounded-lg px-2.5 py-1 focus:outline-none focus:border-blue-400 bg-white"
+                                                   onkeydown="if(event.key==='Enter') addObiettivoTrimestrePilastro('riordino')">
+                                            <button onclick="addObiettivoTrimestrePilastro('riordino')" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded-lg transition-colors" title="Aggiungi">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <!-- ACCORDION stanze -->
-                        <div id="accordion-stanze" class="hidden border-t-2 border-amber-400">
+                        <div id="accordion-stanze" class="hidden border-t-2 border-blue-400">
                             <!-- Gruppo Studio -->
                             <div class="px-5 pt-4 pb-2">
-                                <p class="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-3 flex items-center gap-2"><i class="fa-solid fa-building"></i> Gruppo Studio</p>
+                                <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-3 flex items-center gap-2"><i class="fa-solid fa-building"></i> Gruppo Studio</p>
                                 <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" id="container-stanze"></section>
                             </div>
                             <!-- Gruppo Abitazione (placeholder) -->
-                            <div class="px-5 pt-2 pb-2 border-t border-amber-100">
-                                <p class="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fa-solid fa-house"></i> Gruppo Abitazione</p>
-                                <div class="flex items-center gap-3 p-3 bg-amber-50/60 rounded-xl border border-dashed border-amber-300">
-                                    <i class="fa-solid fa-hammer text-amber-300 text-lg"></i>
+                            <div class="px-5 pt-2 pb-2 border-t border-blue-100">
+                                <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fa-solid fa-house"></i> Gruppo Abitazione</p>
+                                <div class="flex items-center gap-3 p-3 bg-blue-50/60 rounded-xl border border-dashed border-blue-300">
+                                    <i class="fa-solid fa-hammer text-blue-300 text-lg"></i>
                                     <p class="text-xs text-slate-400 italic">Ambienti in definizione — da configurare prossimamente.</p>
                                 </div>
                             </div>
                             <!-- Gruppo Giardino (placeholder) -->
-                            <div class="px-5 pt-2 pb-4 border-t border-amber-100">
-                                <p class="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fa-solid fa-seedling"></i> Gruppo Giardino</p>
-                                <div class="flex items-center gap-3 p-3 bg-amber-50/60 rounded-xl border border-dashed border-amber-300">
-                                    <i class="fa-solid fa-hammer text-amber-300 text-lg"></i>
+                            <div class="px-5 pt-2 pb-4 border-t border-blue-100">
+                                <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fa-solid fa-seedling"></i> Gruppo Giardino</p>
+                                <div class="flex items-center gap-3 p-3 bg-blue-50/60 rounded-xl border border-dashed border-blue-300">
+                                    <i class="fa-solid fa-hammer text-blue-300 text-lg"></i>
                                     <p class="text-xs text-slate-400 italic">Zone in definizione — da configurare prossimamente.</p>
                                 </div>
                             </div>
@@ -565,30 +741,187 @@
                 <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Agenda &amp; Note</h1>
                 <p class="text-sm text-slate-500 mt-1">Gestisci le tue scadenze, cose da fare e appunti personali di lavoro</p>
             </header>
+
+            <!-- Control Bar with Eisenhower Toggle -->
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-6 bg-blue-50/50 border border-blue-100 rounded-xl p-3">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-user-tie text-blue-600 text-lg"></i>
+                    <div>
+                        <p class="text-xs font-bold text-slate-700">Segretario Agenda &amp; Matrice</p>
+                        <p class="text-[10px] text-slate-400">Classifica automaticamente le note ed elimina l'indecisione.</p>
+                    </div>
+                </div>
+                <button onclick="toggleMatriceVisiva()" class="bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition-all cursor-pointer">
+                    <i class="fa-solid fa-shapes mr-1"></i> <span id="toggle-matrice-text">Mostra Matrice Eisenhower</span>
+                </button>
+            </div>
+
+            <!-- Collapsible Eisenhower Matrix -->
+            <div id="matrice-eisenhower-container" class="hidden mb-6 bg-white border border-blue-100 rounded-2xl p-5 shadow-sm">
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-blue-100">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-shapes text-blue-600"></i>
+                        <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider">Matrice Decisionale di Eisenhower</h3>
+                    </div>
+                    <span class="text-[10px] text-slate-400 italic">Aggiornata in tempo reale in base alle attività pianificate</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Q1 -->
+                    <div class="border border-red-200 bg-red-50/5 rounded-xl p-3.5 flex flex-col min-h-[140px]">
+                        <h4 class="text-xs font-bold text-red-600 flex items-center gap-1.5 uppercase tracking-wide mb-2">
+                            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Q1: Importante &amp; Urgente (Fai Subito)
+                        </h4>
+                        <div id="matrice-q1-list" class="space-y-1 text-xs text-slate-600 max-h-28 overflow-y-auto pr-1"></div>
+                    </div>
+                    <!-- Q2 -->
+                    <div class="border border-blue-200 bg-blue-50/5 rounded-xl p-3.5 flex flex-col min-h-[140px]">
+                        <h4 class="text-xs font-bold text-blue-600 flex items-center gap-1.5 uppercase tracking-wide mb-2">
+                            <span class="w-2 h-2 rounded-full bg-blue-500"></span> Q2: Importante &amp; Non Urgente (Pianifica)
+                        </h4>
+                        <div id="matrice-q2-list" class="space-y-1 text-xs text-slate-600 max-h-28 overflow-y-auto pr-1"></div>
+                    </div>
+                    <!-- Q3 -->
+                    <div class="border border-emerald-200 bg-emerald-50/5 rounded-xl p-3.5 flex flex-col min-h-[140px]">
+                        <h4 class="text-xs font-bold text-emerald-600 flex items-center gap-1.5 uppercase tracking-wide mb-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Q3: Urgente &amp; Non Importante (Delega/Esegui)
+                        </h4>
+                        <div id="matrice-q3-list" class="space-y-1 text-xs text-slate-600 max-h-28 overflow-y-auto pr-1"></div>
+                    </div>
+                    <!-- Q4 -->
+                    <div class="border border-slate-200 bg-slate-50/5 rounded-xl p-3.5 flex flex-col min-h-[140px]">
+                        <h4 class="text-xs font-bold text-slate-500 flex items-center gap-1.5 uppercase tracking-wide mb-2">
+                            <span class="w-2 h-2 rounded-full bg-slate-400"></span> Q4: Non Importante &amp; Non Urgente (Parcheggia)
+                        </h4>
+                        <div id="matrice-q4-list" class="space-y-1 text-xs text-slate-600 max-h-28 overflow-y-auto pr-1"></div>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 xl:grid-cols-[46fr_54fr] gap-6 items-start">
-                <section class="bg-white border border-amber-100 rounded-2xl p-5 shadow-sm" aria-labelledby="titolo-promemoria">
-                    <h2 id="titolo-promemoria" class="font-bold text-slate-900 flex items-center gap-2 mb-4"><i class="fa-solid fa-list-check text-amber-600"></i> Promemoria &amp; Scadenze</h2>
-                    <form id="reminder-form" onsubmit="aggiungiPromemoria(event)" class="space-y-3">
-                        <div><label for="reminder-text" class="block text-xs font-bold text-slate-600 mb-1.5">Nuovo Promemoria</label><input id="reminder-text" required placeholder="Esempio: Inviare candidatura bando CSVnet..." class="w-full border border-amber-100 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"></div>
-                        <div><label for="reminder-date" class="block text-xs font-bold text-slate-600 mb-1.5">Data Scadenza (Opzionale)</label><input id="reminder-date" type="date" class="w-full border border-amber-100 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"></div>
-                        <button class="w-full bg-amber-600 hover:bg-amber-700 focus:ring-2 focus:ring-offset-2 focus:ring-amber-600 text-white rounded-xl py-2.5 text-sm font-bold shadow-sm"><i class="fa-solid fa-plus"></i> Aggiungi Attività</button>
-                    </form>
-                    <div class="border-t border-amber-100 mt-4 pt-4"><div id="reminders-list" class="space-y-2"></div></div>
-                </section>
-                <section class="bg-white border border-amber-100 rounded-2xl p-5 shadow-sm xl:row-span-2" aria-labelledby="titolo-scaletta">
-                    <div class="flex flex-wrap justify-between items-center gap-3 mb-3">
-                        <h2 id="titolo-scaletta" class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-calendar-week text-amber-600"></i> Scaletta Settimanale</h2>
-                        <div class="flex gap-2">
-                            <button id="schedule-edit-btn" onclick="toggleModificaScaletta()" class="border border-slate-200 hover:bg-slate-50 rounded-lg px-2.5 py-1.5 text-xs font-bold focus:ring-2 focus:ring-amber-500"><i class="fa-solid fa-pen-to-square"></i> Modifica</button>
+                <!-- 1. Blocco Note Rapido -->
+                <section class="bg-white border border-blue-100 rounded-2xl p-5 shadow-sm" aria-labelledby="titolo-note">
+                    <div class="flex justify-between items-center gap-3 mb-3">
+                        <h2 id="titolo-note" class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-file-pen text-blue-600"></i> Blocco Note Rapido</h2>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button onclick="avviaSegretario()" class="bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg shadow-sm transition-colors cursor-pointer flex items-center gap-1">
+                                <i class="fa-solid fa-user-tie"></i> Chiedi al Segretario
+                            </button>
+                            <span id="notes-status" class="text-[11px] text-slate-400"><i class="fa-solid fa-cloud-arrow-down"></i> Salvato in locale</span>
                         </div>
                     </div>
-                    <p id="schedule-help" class="hidden text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2 mb-3">Modalità modifica attiva: cambia i testi, sposta o elimina le attività e aggiungine di nuove.</p>
-                    <div id="weekly-schedule" class="max-h-[510px] overflow-y-auto custom-scrollbar pr-2 space-y-4"></div>
-                </section>
-                <section class="bg-white border border-amber-100 rounded-2xl p-5 shadow-sm" aria-labelledby="titolo-note">
-                    <div class="flex justify-between items-center gap-3 mb-3"><h2 id="titolo-note" class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-file-pen text-amber-600"></i> Blocco Note Rapido</h2><span id="notes-status" class="text-[11px] text-slate-400"><i class="fa-solid fa-cloud-arrow-down"></i> Salvato in locale</span></div>
+
+                    <!-- Secretary Wizard Panel -->
+                    <div id="secretary-panel" class="hidden bg-blue-50/70 border border-blue-200 rounded-xl p-3.5 mb-3 flex flex-col gap-3 transition-all select-none">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2 text-xs font-bold text-blue-800">
+                                <i class="fa-solid fa-bell-concierge text-blue-600 animate-pulse"></i>
+                                <span>Il Segretario propone la pianificazione:</span>
+                            </div>
+                            <button onclick="chiudiSegretario()" class="text-slate-400 hover:text-slate-600 text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i> Chiudi</button>
+                        </div>
+                        <div class="bg-white rounded-lg p-2.5 border border-blue-100 shadow-sm min-h-[44px] flex items-center justify-between gap-3">
+                            <p id="secretary-current-task" class="text-xs font-bold text-slate-700 leading-tight"></p>
+                            <span id="secretary-suggestion" class="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full shrink-0"></span>
+                        </div>
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button onclick="applicaPianificazioneConsigliata()" class="bg-yellow-500 hover:bg-yellow-600 text-slate-900 text-xs font-black px-4 py-1.5 rounded-lg shadow-md transition-all cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-check"></i> Ok (Consigliato)</button>
+                                <span class="h-5 w-[1px] bg-slate-200 block"></span>
+                                <div class="flex flex-wrap gap-1">
+                                    <button onclick="applicaPianificazione('q1')" title="Forza a Q1: Fai Subito" class="bg-red-500 hover:bg-red-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🔴 Q1</button>
+                                    <button onclick="applicaPianificazione('q2')" title="Forza a Q2: Pianifica" class="bg-blue-500 hover:bg-blue-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🔵 Q2</button>
+                                    <button onclick="applicaPianificazione('q3')" title="Forza a Q3: Delega" class="bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🟢 Q3</button>
+                                    <button onclick="applicaPianificazione('q4')" title="Forza a Q4: Parcheggia" class="bg-slate-500 hover:bg-slate-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">⚪ Q4</button>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5 border border-blue-200 bg-white rounded-lg p-1 shrink-0">
+                                <span class="text-[10px] font-bold text-slate-500">Giorno:</span>
+                                <select id="secretary-day-select" class="text-[10px] font-bold bg-white text-slate-700 focus:outline-none cursor-pointer">
+                                    <option value="Lunedì">Lunedì</option>
+                                    <option value="Martedì">Martedì</option>
+                                    <option value="Mercoledì">Mercoledì</option>
+                                    <option value="Giovedì">Giovedì</option>
+                                    <option value="Venerdì">Venerdì</option>
+                                    <option value="Sabato">Sabato</option>
+                                    <option value="Domenica">Domenica</option>
+                                    <option value="Promemoria">Promemoria</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center text-[10px] text-slate-400 mt-1 border-t border-blue-100 pt-2">
+                            <span id="secretary-progress">Attività 1 di 1</span>
+                            <button onclick="elaboraTutteLeNoteInBlocco()" class="text-blue-700 hover:text-blue-900 font-bold flex items-center gap-1 cursor-pointer">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> 🧙‍♂️ Pianifica tutto in blocco
+                            </button>
+                        </div>
+                    </div>
+
                     <label for="quick-notes" class="sr-only">Appunti rapidi</label>
-                    <textarea id="quick-notes" oninput="programmaSalvataggioNote()" placeholder="Scrivi qui i tuoi appunti, contatti, bozze di idee o testi da copiare... Si salvano automaticamente ad ogni lettera." class="w-full min-h-[255px] resize-y border border-amber-100 bg-amber-50/20 rounded-xl p-3 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                    <textarea id="quick-notes" oninput="programmaSalvataggioNote()" placeholder="Scrivi qui i tuoi appunti, contatti, bozze di idee o testi da copiare... Si salvano automaticamente ad ogni lettera." class="w-full min-h-[255px] resize-y border border-blue-100 bg-blue-50/20 rounded-xl p-3 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </section>
+
+                <!-- 2. Scaletta Settimanale -->
+                <section class="bg-white border border-blue-100 rounded-2xl p-5 shadow-sm xl:row-span-2" aria-labelledby="titolo-scaletta">
+                    <div class="flex flex-wrap justify-between items-center gap-3 mb-3">
+                        <h2 id="titolo-scaletta" class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-calendar-week text-blue-600"></i> Scaletta Settimanale</h2>
+                        <div class="flex gap-2">
+                            <button id="schedule-edit-btn" onclick="toggleModificaScaletta()" class="border border-slate-200 hover:bg-slate-50 rounded-lg px-2.5 py-1.5 text-xs font-bold focus:ring-2 focus:ring-blue-500 cursor-pointer"><i class="fa-solid fa-pen-to-square"></i> Modifica</button>
+                        </div>
+                    </div>
+                    <p id="schedule-help" class="hidden text-xs text-blue-700 bg-blue-50 rounded-lg px-3 py-2 mb-3">Modalità modifica attiva: cambia i testi, sposta o elimina le attività e aggiungine di nuove.</p>
+                    <div id="weekly-schedule" class="space-y-4 pr-2"></div>
+                </section>
+
+                <!-- 3. Focus Obiettivi Mese & Trimestre -->
+                <section class="bg-white border border-blue-100 rounded-2xl p-5 shadow-sm" aria-labelledby="titolo-focus-obiettivi">
+                    <div class="flex items-center justify-between gap-3 mb-4">
+                        <h2 id="titolo-focus-obiettivi" class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-bullseye text-blue-600"></i> Obiettivi Mese &amp; Trimestre</h2>
+                    </div>
+
+                    <!-- Tabs Pilastri -->
+                    <div class="grid grid-cols-4 gap-1 p-1 bg-slate-100 rounded-xl mb-4 text-center">
+                        <button onclick="setObiettiviAgendaTab('lavoro')" id="btn-ob-tab-lavoro" class="py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer bg-blue-600 text-white shadow-sm">Lavoro</button>
+                        <button onclick="setObiettiviAgendaTab('divisione')" id="btn-ob-tab-divisione" class="py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:bg-slate-200">Divisione</button>
+                        <button onclick="setObiettiviAgendaTab('fisico')" id="btn-ob-tab-fisico" class="py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:bg-slate-200">Fisico</button>
+                        <button onclick="setObiettiviAgendaTab('riordino')" id="btn-ob-tab-riordino" class="py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:bg-slate-200">Riordino</button>
+                    </div>
+
+                    <!-- Riquadro Obiettivi Mensili -->
+                    <div class="border border-blue-50 bg-blue-50/10 rounded-xl p-3.5 mb-3 flex flex-col gap-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-blue-100">
+                            <span class="text-[13px] font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5"><i class="fa-regular fa-calendar-check text-blue-600 text-sm"></i> Obiettivi Mensili</span>
+                            <span id="ob-agenda-mensili-progress" class="text-[10px] font-extrabold text-blue-800 bg-blue-100 px-2 py-0.5 rounded-full">0/0</span>
+                        </div>
+                        
+                        <!-- Mini Tabs Mesi (Lug, Ago, Set) -->
+                        <div id="ob-agenda-mesi-tabs" class="flex gap-1.5 overflow-x-auto pb-1"></div>
+
+                        <!-- Lista Obiettivi Mensili -->
+                        <div id="ob-agenda-mensili-list" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+
+                        <!-- Input Aggiungi Obiettivo Mensile -->
+                        <div class="flex gap-1.5 mt-1">
+                            <input id="ob-agenda-mensile-input" onkeydown="if(event.key==='Enter') aggiungiObiettivoMensileAgenda()" placeholder="Nuovo obiettivo mensile..." class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
+                            <button onclick="aggiungiObiettivoMensileAgenda()" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-2.5 cursor-pointer"><i class="fa-solid fa-plus text-xs"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Riquadro Obiettivi Trimestre -->
+                    <div class="border border-blue-50 bg-blue-50/10 rounded-xl p-3.5 flex flex-col gap-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-blue-100">
+                            <span class="text-[13px] font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-bullseye text-blue-600 text-sm"></i> Obiettivi Trimestre (Q3)</span>
+                            <span id="ob-agenda-trimestre-progress" class="text-[10px] font-extrabold text-blue-800 bg-blue-100 px-2 py-0.5 rounded-full">0/0</span>
+                        </div>
+
+                        <!-- Lista Obiettivi Trimestre -->
+                        <div id="ob-agenda-trimestre-list" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+
+                        <!-- Input Aggiungi Obiettivo Trimestre -->
+                        <div class="flex gap-1.5 mt-1">
+                            <input id="ob-agenda-trimestre-input" onkeydown="if(event.key==='Enter') aggiungiObiettivoTrimestreAgenda()" placeholder="Nuovo obiettivo trimestre..." class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
+                            <button onclick="aggiungiObiettivoTrimestreAgenda()" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-2.5 cursor-pointer"><i class="fa-solid fa-plus text-xs"></i></button>
+                        </div>
+                    </div>
                 </section>
             </div>
         </div><!-- end tab-agenda -->
@@ -620,8 +953,10 @@
         const datiPilastriDefault = {
             riordino:  { registroDate: [], serieAttuale: 0, serieMassima: 0 },
             divisione: { registroDate: [], serieAttuale: 0, serieMassima: 0, obiettivi: {}, minutiGiornalieri: {} },
-            lavoro:    { registroDate: [], serieAttuale: 0, serieMassima: 0, obiettivi: {} },
-            fisico:    { registroDate: [], serieAttuale: 0, serieMassima: 0, pesi: [], misure: [] }
+            riordino:  { registroDate: [], serieAttuale: 0, serieMassima: 0, obiettiviTrimestre: [], obiettiviMensili: {} },
+            divisione: { registroDate: [], serieAttuale: 0, serieMassima: 0, obiettivi: {}, minutiGiornalieri: {}, obiettiviTrimestre: [], obiettiviMensili: {} },
+            lavoro:    { registroDate: [], serieAttuale: 0, serieMassima: 0, obiettivi: {}, obiettiviTrimestre: [], obiettiviMensili: {} },
+            fisico:    { registroDate: [], serieAttuale: 0, serieMassima: 0, pesi: [], misure: [], obiettiviTrimestre: [], obiettiviMensili: {} }
         };
 
         let datiStudio   = JSON.parse(localStorage.getItem('datiStudio_5S_v4_streaks')) || stanzeIniziali;
@@ -630,13 +965,15 @@
         // Migrazione/inizializzazione: garantisce che tutti e 4 i pilastri esistano
         (function migraPilastri() {
             const defaults = {
-                riordino:  { registroDate: [], serieAttuale: 0, serieMassima: 0 },
-                divisione: { registroDate: [], serieAttuale: 0, serieMassima: 0, obiettivi: {}, minutiGiornalieri: {} },
-                lavoro:    { registroDate: [], serieAttuale: 0, serieMassima: 0, obiettivi: {} },
-                fisico:    { registroDate: [], serieAttuale: 0, serieMassima: 0, pesi: [], misure: [] }
+                riordino:  { registroDate: [], serieAttuale: 0, serieMassima: 0, obiettiviTrimestre: [], obiettiviMensili: {} },
+                divisione: { registroDate: [], serieAttuale: 0, serieMassima: 0, obiettivi: {}, minutiGiornalieri: {}, obiettiviTrimestre: [], obiettiviMensili: {} },
+                lavoro:    { registroDate: [], serieAttuale: 0, serieMassima: 0, obiettivi: {}, obiettiviTrimestre: [], obiettiviMensili: {} },
+                fisico:    { registroDate: [], serieAttuale: 0, serieMassima: 0, pesi: [], misure: [], obiettiviTrimestre: [], obiettiviMensili: {} }
             };
             Object.keys(defaults).forEach(k => {
                 if (!datiPilastri[k]) datiPilastri[k] = defaults[k];
+                if (!datiPilastri[k].obiettiviTrimestre) datiPilastri[k].obiettiviTrimestre = [];
+                if (!datiPilastri[k].obiettiviMensili) datiPilastri[k].obiettiviMensili = {};
                 // Campi aggiuntivi per pilastri esistenti
                 if (k === 'divisione' && !datiPilastri.divisione.minutiGiornalieri) datiPilastri.divisione.minutiGiornalieri = {};
                 if (k === 'lavoro'  && !datiPilastri.lavoro.obiettivi)  datiPilastri.lavoro.obiettivi  = {};
@@ -686,13 +1023,13 @@
         const PILASTRI_CONFIG = {
             riordino: {
                 nome:            'Riordino',
-                cardBg:          '#1c0f00',   // dark amber
-                cardBorder:      '#78350f',   // amber-900
-                barColor:        '#f59e0b',   // amber-500
-                labelColor:      '#fbbf24',   // amber-400
+                cardBg:          '#1c0f00',   // dark blue
+                cardBorder:      '#78350f',   // blue-900
+                barColor:        '#f59e0b',   // blue-500
+                labelColor:      '#fbbf24',   // blue-400
                 dotColor:        '#f59e0b',
-                btnBg:           '#d97706',   // amber-600
-                btnHover:        '#b45309',   // amber-700
+                btnBg:           '#d97706',   // blue-600
+                btnHover:        '#b45309',   // blue-700
                 presets:         [15, 30],
                 presetLabels:    ['15 Min', '30 Min'],
                 defaultMinutes:  30,
@@ -770,8 +1107,8 @@
                 toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-[#064e3b] text-teal-100 px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-teal-800 text-sm";
                 icon.className  = "fa-solid fa-circle-check text-teal-400 text-base";
             } else if (type === 'warning') {
-                toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-[#78350f] text-amber-100 px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-amber-800 text-sm";
-                icon.className  = "fa-solid fa-triangle-exclamation text-amber-400 text-base";
+                toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-[#78350f] text-blue-100 px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-blue-800 text-sm";
+                icon.className  = "fa-solid fa-triangle-exclamation text-blue-400 text-base";
             } else {
                 toast.className = "fixed bottom-5 right-5 z-50 transform translate-y-0 opacity-100 transition-all duration-300 bg-slate-900 text-slate-100 px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-800 text-sm";
                 icon.className  = "fa-solid fa-circle-info text-slate-400 text-base";
@@ -803,7 +1140,7 @@
                 const iconMap = { dashboard: 'fa-chart-pie', agenda: 'fa-calendar-check' };
                 if (id === tabId) {
                     btn.className = "w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all cursor-pointer text-left shadow-lg bg-[#1e293b] text-white border border-slate-700/50";
-                    btn.querySelector('i').className = `fa-solid ${iconMap[id]} ${id === 'agenda' ? 'text-amber-400' : 'text-teal-400'}`;
+                    btn.querySelector('i').className = `fa-solid ${iconMap[id]} ${id === 'agenda' ? 'text-blue-400' : 'text-teal-400'}`;
                 } else {
                     btn.className = "w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all cursor-pointer text-left text-slate-400 hover:bg-slate-800/60 hover:text-white";
                     btn.querySelector('i').className = `fa-solid ${iconMap[id]}`;
@@ -1133,7 +1470,395 @@
             renderGrigliaPerPilastro('divisione', 'grid-divisione', '#ef4444', '#dc2626', null);
             renderGrigliaPerPilastro('lavoro',    'grid-lavoro',    '#0284c7', '#0369a1', null);
             renderGrigliaPerPilastro('fisico',    'grid-fisico',    '#7c3aed', '#6d28d9', null);
+            renderTuttiGliObiettiviPilastri();
         }
+
+        // ============================================================
+        // 7b. OBIETTIVI TRIMESTRALI E MENSILI PER TUTTI I PILASTRI
+        // ============================================================
+        const MESI_Q3 = [
+            { key: '2026-07', label: 'Lug' },
+            { key: '2026-08', label: 'Ago' },
+            { key: '2026-09', label: 'Set' }
+        ];
+
+        const CONFIG_PILASTRI = {
+            lavoro:    { color: 'sky' },
+            divisione: { color: 'red' },
+            fisico:    { color: 'violet' },
+            riordino:  { color: 'blue' }
+        };
+
+        let selectedMesePilastro = {
+            lavoro:    '2026-07',
+            divisione: '2026-07',
+            fisico:    '2026-07',
+            riordino:  '2026-07'
+        };
+
+        function renderObiettiviTrimestrePilastro(p) {
+            const container = document.getElementById(`list-obiettivi-trimestre-${p}`);
+            const badge     = document.getElementById(`badge-trimestre-count-${p}`);
+            if (!container) return;
+
+            const list  = datiPilastri[p]?.obiettiviTrimestre || [];
+            const fatti = list.filter(x => x.fatto).length;
+            if (badge) badge.innerText = `${fatti}/${list.length}`;
+
+            if (list.length === 0) {
+                container.innerHTML = `
+                    <div class="text-[11px] text-slate-400 italic py-3 text-center bg-slate-50/50 rounded-lg border border-dashed border-slate-200">
+                        Nessun obiettivo Q3 inserito
+                    </div>
+                `;
+                return;
+            }
+
+            const c = CONFIG_PILASTRI[p]?.color || 'sky';
+
+            container.innerHTML = list.map((ob, idx) => `
+                <div class="flex items-center justify-between gap-2 p-1.5 rounded-lg ${ob.fatto ? `bg-${c}-50/40 border-${c}-100` : 'bg-slate-50/70 border-slate-100'} border transition-colors group">
+                    <label class="flex items-center gap-2 min-w-0 flex-1 cursor-pointer select-none">
+                        <input type="checkbox" ${ob.fatto ? 'checked' : ''} onchange="toggleObiettivoTrimestrePilastro('${p}', ${idx})" class="w-3.5 h-3.5 accent-${c}-500 rounded cursor-pointer shrink-0">
+                        <span class="text-[12px] font-bold leading-tight break-words ${ob.fatto ? 'line-through text-slate-400' : 'text-slate-700'}">${escapeHTML(ob.testo)}</span>
+                    </label>
+                    <button onclick="deleteObiettivoTrimestrePilastro('${p}', ${idx})" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 text-xs transition-opacity p-0.5 shrink-0" title="Elimina">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            `).join('');
+            if (typeof renderObiettiviAgenda === 'function') renderObiettiviAgenda();
+        }
+
+        function addObiettivoTrimestrePilastro(p) {
+            const input = document.getElementById(`input-ob-trimestre-${p}`);
+            if (!input || !input.value.trim()) return;
+            if (!datiPilastri[p].obiettiviTrimestre) datiPilastri[p].obiettiviTrimestre = [];
+            datiPilastri[p].obiettiviTrimestre.push({ testo: input.value.trim(), fatto: false });
+            input.value = '';
+            salvaLocale();
+            renderObiettiviTrimestrePilastro(p);
+        }
+
+        function toggleObiettivoTrimestrePilastro(p, idx) {
+            const list = datiPilastri[p]?.obiettiviTrimestre;
+            if (!list || !list[idx]) return;
+            list[idx].fatto = !list[idx].fatto;
+            salvaLocale();
+            renderObiettiviTrimestrePilastro(p);
+        }
+
+        function deleteObiettivoTrimestrePilastro(p, idx) {
+            const list = datiPilastri[p]?.obiettiviTrimestre;
+            if (!list || !list[idx]) return;
+            list.splice(idx, 1);
+            salvaLocale();
+            renderObiettiviTrimestrePilastro(p);
+        }
+
+        function renderTabsMesiPilastro(p) {
+            const cont = document.getElementById(`tabs-mesi-${p}`);
+            if (!cont) return;
+            const c   = CONFIG_PILASTRI[p]?.color || 'sky';
+            const sel = selectedMesePilastro[p] || '2026-07';
+
+            cont.innerHTML = MESI_Q3.map(m => {
+                const isActive = (m.key === sel);
+                const obs = datiPilastri[p]?.obiettiviMensili?.[m.key] || [];
+                const countDone = obs.filter(o => o.fatto).length;
+                const countText = obs.length > 0 ? ` (${countDone}/${obs.length})` : '';
+                return `
+                    <button onclick="selectMesePilastro('${p}', '${m.key}')" class="px-1.5 py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer ${
+                        isActive 
+                            ? `bg-${c}-500 text-white shadow-sm shadow-${c}-200` 
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }">
+                        ${m.label}${countText}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectMesePilastro(p, key) {
+            selectedMesePilastro[p] = key;
+            renderObiettiviMensiliPilastro(p);
+        }
+
+        function renderObiettiviMensiliPilastro(p) {
+            renderTabsMesiPilastro(p);
+            const container = document.getElementById(`list-obiettivi-mensili-${p}`);
+            if (!container) return;
+
+            const sel  = selectedMesePilastro[p] || '2026-07';
+            const list = datiPilastri[p]?.obiettiviMensili?.[sel] || [];
+            const c    = CONFIG_PILASTRI[p]?.color || 'sky';
+
+            if (list.length === 0) {
+                const nomeMese = MESI_Q3.find(m => m.key === sel)?.label || 'questo mese';
+                container.innerHTML = `
+                    <div class="text-[11px] text-slate-400 italic py-3 text-center bg-slate-50/50 rounded-lg border border-dashed border-slate-200">
+                        Nessun obiettivo per ${nomeMese}
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = list.map((ob, idx) => `
+                <div class="flex items-center justify-between gap-2 p-1.5 rounded-lg ${ob.fatto ? `bg-${c}-50/40 border-${c}-100` : 'bg-slate-50/70 border-slate-100'} border transition-colors group">
+                    <label class="flex items-center gap-2 min-w-0 flex-1 cursor-pointer select-none">
+                        <input type="checkbox" ${ob.fatto ? 'checked' : ''} onchange="toggleObiettivoMensilePilastro('${p}', ${idx})" class="w-3.5 h-3.5 accent-${c}-500 rounded cursor-pointer shrink-0">
+                        <span class="text-[12px] font-bold leading-tight break-words ${ob.fatto ? 'line-through text-slate-400' : 'text-slate-700'}">${escapeHTML(ob.testo)}</span>
+                    </label>
+                    <button onclick="deleteObiettivoMensilePilastro('${p}', ${idx})" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 text-xs transition-opacity p-0.5 shrink-0" title="Elimina">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            `).join('');
+            if (typeof renderObiettiviAgenda === 'function') renderObiettiviAgenda();
+        }
+
+        function addObiettivoMensilePilastro(p) {
+            const input = document.getElementById(`input-ob-mensili-${p}`);
+            if (!input || !input.value.trim()) return;
+            const sel = selectedMesePilastro[p] || '2026-07';
+            if (!datiPilastri[p].obiettiviMensili) datiPilastri[p].obiettiviMensili = {};
+            if (!datiPilastri[p].obiettiviMensili[sel]) {
+                datiPilastri[p].obiettiviMensili[sel] = [];
+            }
+            datiPilastri[p].obiettiviMensili[sel].push({ testo: input.value.trim(), fatto: false });
+            input.value = '';
+            salvaLocale();
+            renderObiettiviMensiliPilastro(p);
+        }
+
+        function toggleObiettivoMensilePilastro(p, idx) {
+            const sel  = selectedMesePilastro[p] || '2026-07';
+            const list = datiPilastri[p]?.obiettiviMensili?.[sel];
+            if (!list || !list[idx]) return;
+            list[idx].fatto = !list[idx].fatto;
+            salvaLocale();
+            renderObiettiviMensiliPilastro(p);
+        }
+
+        function deleteObiettivoMensilePilastro(p, idx) {
+            const sel  = selectedMesePilastro[p] || '2026-07';
+            const list = datiPilastri[p]?.obiettiviMensili?.[sel];
+            if (!list || !list[idx]) return;
+            list.splice(idx, 1);
+            salvaLocale();
+            renderObiettiviMensiliPilastro(p);
+        }
+
+        function renderTuttiGliObiettiviPilastri() {
+            ['lavoro','divisione','fisico','riordino'].forEach(p => {
+                renderObiettiviTrimestrePilastro(p);
+                renderObiettiviMensiliPilastro(p);
+            });
+        }
+
+        let activeObiettiviAgendaTab = 'lavoro';
+
+        function setObiettiviAgendaTab(p) {
+            activeObiettiviAgendaTab = p;
+            const tabs = ['lavoro', 'divisione', 'fisico', 'riordino'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`btn-ob-tab-${t}`);
+                if (btn) {
+                    if (t === p) {
+                        btn.className = "py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer bg-blue-600 text-white shadow-sm";
+                    } else {
+                        btn.className = "py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:bg-slate-200";
+                    }
+                }
+            });
+            renderObiettiviAgenda();
+        }
+
+        function renderObiettiviAgenda() {
+            const p = activeObiettiviAgendaTab;
+            
+            // 1. Mesi Tabs for monthly goals
+            const mesiTabs = document.getElementById('ob-agenda-mesi-tabs');
+            if (mesiTabs) {
+                const sel = selectedMesePilastro[p] || '2026-07';
+                mesiTabs.innerHTML = MESI_Q3.map(m => {
+                    const isActive = (m.key === sel);
+                    const obs = datiPilastri[p]?.obiettiviMensili?.[m.key] || [];
+                    const countDone = obs.filter(o => o.fatto).length;
+                    const countText = obs.length > 0 ? ` (${countDone}/${obs.length})` : '';
+                    return `
+                        <button onclick="selectMesePilastroAgenda('${m.key}')" class="px-1.5 py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer shrink-0 ${
+                            isActive 
+                                ? 'bg-blue-100 text-blue-700 border border-blue-300' 
+                                : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-transparent'
+                        }">
+                            ${m.label}${countText}
+                        </button>
+                    `;
+                }).join('');
+            }
+
+            // 2. Render Monthly list
+            const selMese = selectedMesePilastro[p] || '2026-07';
+            const listMensili = datiPilastri[p]?.obiettiviMensili?.[selMese] || [];
+            const containerMensili = document.getElementById('ob-agenda-mensili-list');
+            const progressMensili = document.getElementById('ob-agenda-mensili-progress');
+            
+            if (progressMensili) {
+                const done = listMensili.filter(o => o.fatto).length;
+                progressMensili.textContent = `${done}/${listMensili.length}`;
+            }
+
+            if (containerMensili) {
+                if (listMensili.length === 0) {
+                    const nomeMese = MESI_Q3.find(m => m.key === selMese)?.label || 'questo mese';
+                    containerMensili.innerHTML = `
+                        <div class="text-[11px] text-slate-400 italic py-3 text-center bg-slate-50/50 rounded-lg border border-dashed border-slate-200">
+                            Nessun obiettivo per ${nomeMese}
+                        </div>
+                    `;
+                } else {
+                    containerMensili.innerHTML = listMensili.map((x, idx) => `
+                        <div class="flex items-start justify-between gap-2 p-1.5 hover:bg-slate-50 rounded-lg group text-sm border border-transparent hover:border-slate-100">
+                            <label class="flex items-start gap-2 cursor-pointer flex-1 min-w-0 select-none">
+                                <input type="checkbox" ${x.fatto ? 'checked' : ''} onchange="toggleObiettivoMensileAgenda(${idx})" class="mt-0.5 accent-blue-600 shrink-0 cursor-pointer">
+                                <span class="break-words ${x.fatto ? 'line-through text-slate-400 font-bold' : 'text-slate-700 font-bold'}">${escapeHTML(x.testo)}</span>
+                            </label>
+                            <button onclick="eliminaObiettivoMensileAgenda(${idx})" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity p-0.5 shrink-0 cursor-pointer">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            // 3. Render Quarterly list
+            const listTrimestre = datiPilastri[p]?.obiettiviTrimestre || [];
+            const containerTrimestre = document.getElementById('ob-agenda-trimestre-list');
+            const progressTrimestre = document.getElementById('ob-agenda-trimestre-progress');
+
+            if (progressTrimestre) {
+                const done = listTrimestre.filter(o => o.fatto).length;
+                progressTrimestre.textContent = `${done}/${listTrimestre.length}`;
+            }
+
+            if (containerTrimestre) {
+                if (listTrimestre.length === 0) {
+                    containerTrimestre.innerHTML = `
+                        <div class="text-[11px] text-slate-400 italic py-3 text-center bg-slate-50/50 rounded-lg border border-dashed border-slate-200">
+                            Nessun obiettivo per Q3
+                        </div>
+                    `;
+                } else {
+                    containerTrimestre.innerHTML = listTrimestre.map((x, idx) => `
+                        <div class="flex items-start justify-between gap-2 p-1.5 hover:bg-slate-50 rounded-lg group text-sm border border-transparent hover:border-slate-100">
+                            <label class="flex items-start gap-2 cursor-pointer flex-1 min-w-0 select-none">
+                                <input type="checkbox" ${x.fatto ? 'checked' : ''} onchange="toggleObiettivoTrimestreAgenda(${idx})" class="mt-0.5 accent-blue-600 shrink-0 cursor-pointer">
+                                <span class="break-words ${x.fatto ? 'line-through text-slate-400 font-bold' : 'text-slate-700 font-bold'}">${escapeHTML(x.testo)}</span>
+                            </label>
+                            <button onclick="eliminaObiettivoTrimestreAgenda(${idx})" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity p-0.5 shrink-0 cursor-pointer">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    `).join('');
+                }
+            }
+        }
+
+        function selectMesePilastroAgenda(key) {
+            const p = activeObiettiviAgendaTab;
+            selectedMesePilastro[p] = key;
+            renderObiettiviAgenda();
+            renderObiettiviMensiliPilastro(p); // sync dashboard
+        }
+
+        function toggleObiettivoMensileAgenda(idx) {
+            const p = activeObiettiviAgendaTab;
+            const selMese = selectedMesePilastro[p] || '2026-07';
+            const list = datiPilastri[p]?.obiettiviMensili?.[selMese];
+            if (list && list[idx]) {
+                list[idx].fatto = !list[idx].fatto;
+                salvaLocale();
+                renderObiettiviAgenda();
+                renderObiettiviMensiliPilastro(p); // sync dashboard
+            }
+        }
+
+        function eliminaObiettivoMensileAgenda(idx) {
+            if (!confirm('Eliminare questo obiettivo mensile?')) return;
+            const p = activeObiettiviAgendaTab;
+            const selMese = selectedMesePilastro[p] || '2026-07';
+            const list = datiPilastri[p]?.obiettiviMensili?.[selMese];
+            if (list && list[idx]) {
+                list.splice(idx, 1);
+                salvaLocale();
+                renderObiettiviAgenda();
+                renderObiettiviMensiliPilastro(p); // sync dashboard
+            }
+        }
+
+        function aggiungiObiettivoMensileAgenda() {
+            const p = activeObiettiviAgendaTab;
+            const input = document.getElementById('ob-agenda-mensile-input');
+            if (!input || !input.value.trim()) return;
+            const selMese = selectedMesePilastro[p] || '2026-07';
+
+            if (!datiPilastri[p].obiettiviMensili) datiPilastri[p].obiettiviMensili = {};
+            if (!datiPilastri[p].obiettiviMensili[selMese]) {
+                datiPilastri[p].obiettiviMensili[selMese] = [];
+            }
+            datiPilastri[p].obiettiviMensili[selMese].push({ testo: input.value.trim(), fatto: false });
+            input.value = '';
+            salvaLocale();
+            renderObiettiviAgenda();
+            renderObiettiviMensiliPilastro(p); // sync dashboard
+        }
+
+        function toggleObiettivoTrimestreAgenda(idx) {
+            const p = activeObiettiviAgendaTab;
+            const list = datiPilastri[p]?.obiettiviTrimestre;
+            if (list && list[idx]) {
+                list[idx].fatto = !list[idx].fatto;
+                salvaLocale();
+                renderObiettiviAgenda();
+                renderObiettiviTrimestrePilastro(p); // sync dashboard
+            }
+        }
+
+        function eliminaObiettivoTrimestreAgenda(idx) {
+            if (!confirm('Eliminare questo obiettivo trimestrale?')) return;
+            const p = activeObiettiviAgendaTab;
+            const list = datiPilastri[p]?.obiettiviTrimestre;
+            if (list && list[idx]) {
+                list.splice(idx, 1);
+                salvaLocale();
+                renderObiettiviAgenda();
+                renderObiettiviTrimestrePilastro(p); // sync dashboard
+            }
+        }
+
+        function aggiungiObiettivoTrimestreAgenda() {
+            const p = activeObiettiviAgendaTab;
+            const input = document.getElementById('ob-agenda-trimestre-input');
+            if (!input || !input.value.trim()) return;
+
+            if (!datiPilastri[p].obiettiviTrimestre) datiPilastri[p].obiettiviTrimestre = [];
+            datiPilastri[p].obiettiviTrimestre.push({ testo: input.value.trim(), fatto: false });
+            input.value = '';
+            salvaLocale();
+            renderObiettiviAgenda();
+            renderObiettiviTrimestrePilastro(p); // sync dashboard
+        }
+
+        // Aliases di retrocompatibilità
+        function renderObiettiviTrimestre() { renderObiettiviTrimestrePilastro('lavoro'); }
+        function addObiettivoTrimestre() { addObiettivoTrimestrePilastro('lavoro'); }
+        function toggleObiettivoTrimestre(idx) { toggleObiettivoTrimestrePilastro('lavoro', idx); }
+        function deleteObiettivoTrimestre(idx) { deleteObiettivoTrimestrePilastro('lavoro', idx); }
+        function renderObiettiviMensili() { renderObiettiviMensiliPilastro('lavoro'); }
+        function addObiettivoMensile() { addObiettivoMensilePilastro('lavoro'); }
+        function toggleObiettivoMensile(idx) { toggleObiettivoMensilePilastro('lavoro', idx); }
+        function deleteObiettivoMensile(idx) { deleteObiettivoMensilePilastro('lavoro', idx); }
 
         // ============================================================
         // 7b. LAVORO — OBIETTIVI SETTIMANALI
@@ -1806,7 +2531,7 @@
                 clearInterval(titleInterval);
                 titleInterval = null;
             }
-            document.title = "Total Life Audit Dashboard — ISO 5S";
+            document.title = "Agente Studio";
         }
 
         let currentAudio = null;
@@ -2042,12 +2767,12 @@
             if (btn) {
                 if (hasPendenze) {
                     btn.className = btn.className
-                        .replace('bg-amber-50 border-amber-200 text-amber-500 hover:bg-amber-100', '')
-                        + ' bg-amber-400 border-amber-500 text-white shadow-sm shadow-amber-200';
+                        .replace('bg-blue-50 border-blue-200 text-blue-500 hover:bg-blue-100', '')
+                        + ' bg-blue-400 border-blue-500 text-white shadow-sm shadow-blue-200';
                 } else {
                     btn.className = btn.className
-                        .replace('bg-amber-400 border-amber-500 text-white shadow-sm shadow-amber-200', '')
-                        + ' bg-amber-50 border-amber-200 text-amber-500 hover:bg-amber-100';
+                        .replace('bg-blue-400 border-blue-500 text-white shadow-sm shadow-blue-200', '')
+                        + ' bg-blue-50 border-blue-200 text-blue-500 hover:bg-blue-100';
                 }
             }
         }
@@ -2085,12 +2810,12 @@
                                             title="Note pendenze"
                                             class="w-7 h-7 rounded-lg flex items-center justify-center transition-all cursor-pointer border text-xs font-bold
                                                    ${hasPendenze
-                                                       ? 'bg-amber-400 border-amber-500 text-white shadow-sm shadow-amber-200'
-                                                       : 'bg-amber-50 border-amber-200 text-amber-500 hover:bg-amber-100'}"
+                                                       ? 'bg-blue-400 border-blue-500 text-white shadow-sm shadow-blue-200'
+                                                       : 'bg-blue-50 border-blue-200 text-blue-500 hover:bg-blue-100'}"
                                         >
                                             <i class="fa-solid fa-triangle-exclamation"></i>
                                         </button>
-                                        <p class="text-[9px] text-amber-500 mt-1 font-bold">Pendenze</p>
+                                        <p class="text-[9px] text-blue-500 mt-1 font-bold">Pendenze</p>
                                     </div>
                                     <!-- Rilascio -->
                                     <div class="text-center">
@@ -2109,20 +2834,20 @@
                         </div>
 
                         <!-- Pannello Pendenze (nascosto di default) -->
-                        <div id="pannello-pendenze-${key}" class="hidden border-t border-amber-100 bg-amber-50/60 px-5 py-4 rounded-b-2xl">
+                        <div id="pannello-pendenze-${key}" class="hidden border-t border-blue-100 bg-blue-50/60 px-5 py-4 rounded-b-2xl">
                             <div class="flex items-center gap-2 mb-2">
-                                <i class="fa-solid fa-triangle-exclamation text-amber-500 text-xs"></i>
-                                <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Cose in sospeso — ${stanza.nome}</span>
+                                <i class="fa-solid fa-triangle-exclamation text-blue-500 text-xs"></i>
+                                <span class="text-[10px] font-bold text-blue-700 uppercase tracking-wider">Cose in sospeso — ${stanza.nome}</span>
                             </div>
                             <textarea
                                 id="textarea-pendenze-${key}"
                                 placeholder="Scrivi qui le attività in sospeso\u2026 (es: spostare scatolone, ordinare cavi, portare lampada)"
                                 onblur="salvaPendenze('${key}')"
-                                class="w-full text-sm text-slate-700 bg-white border border-amber-200 rounded-xl p-3 min-h-[80px] focus:outline-none focus:border-amber-400 resize-none placeholder:text-slate-300 leading-relaxed"
+                                class="w-full text-sm text-slate-700 bg-white border border-blue-200 rounded-xl p-3 min-h-[80px] focus:outline-none focus:border-blue-400 resize-none placeholder:text-slate-300 leading-relaxed"
                             >${stanza.pendenze || ''}</textarea>
                             <div class="flex justify-between items-center mt-2">
                                 <span class="text-[9px] text-slate-400">Salvataggio automatico alla perdita del focus</span>
-                                <button onclick="salvaPendenze('${key}')" class="text-[10px] font-bold text-amber-600 hover:text-amber-800 cursor-pointer flex items-center gap-1">
+                                <button onclick="salvaPendenze('${key}')" class="text-[10px] font-bold text-blue-600 hover:text-blue-800 cursor-pointer flex items-center gap-1">
                                     <i class="fa-solid fa-floppy-disk"></i> Salva
                                 </button>
                             </div>
@@ -2200,6 +2925,7 @@
         let scalettaAgenda = leggiJSONSicuro(AGENDA_KEYS.schedule, null);
         let modificaScalettaAttiva = false;
         let timerSalvataggioNote = null;
+        
         if (!scalettaAgenda || typeof scalettaAgenda !== 'object') {
             scalettaAgenda = {};
             giorniSettimana.forEach(g => scalettaAgenda[g] = scalettaDefault[g].map(testo => ({ id: nuovoId(), testo, completata: false })));
@@ -2213,10 +2939,57 @@
         giorniSettimana.forEach(g => { if (!Array.isArray(scalettaAgenda[g])) scalettaAgenda[g] = []; });
 
         function salvaPromemoria() { localStorage.setItem(AGENDA_KEYS.reminders, JSON.stringify(promemoriaAgenda)); }
+        function correggiOrtografia(testo) {
+            if (!testo) return testo;
+            let parole = testo.split(/\s+/);
+            const dizionarioCorrezioni = {
+                'prezioni': 'prezzi',
+                'settiamale': 'settimanale',
+                'segretatio': 'segretario',
+                'siutazione': 'situazione',
+                'attivita': 'attività',
+                'attivitá': 'attività',
+                'attivitã': 'attività',
+                'condomino': 'condominio',
+                'prggetto': 'progetto',
+                'proggetto': 'progetto',
+                'giorni': 'giorni',
+                'giovedi': 'giovedì',
+                'martedi': 'martedì',
+                'mercoledi': 'mercoledì',
+                'lunedi': 'lunedì',
+                'venerdi': 'venerdì',
+                'sabato': 'sabato',
+                'domenica': 'domenica'
+            };
+            
+            parole = parole.map(p => {
+                const matchPunteggiatura = p.match(/^([.,:;!?"'\-(]*)(.*?)([.,:;!?"'\-)]*)$/);
+                if (!matchPunteggiatura) return p;
+                
+                const prefisso = matchPunteggiatura[1];
+                const parolaPulita = matchPunteggiatura[2];
+                const suffisso = matchPunteggiatura[3];
+                
+                const parolaMinuscola = parolaPulita.toLowerCase();
+                if (dizionarioCorrezioni[parolaMinuscola]) {
+                    const corretta = dizionarioCorrezioni[parolaMinuscola];
+                    if (parolaPulita[0] === parolaPulita[0].toUpperCase()) {
+                        return prefisso + corretta.charAt(0).toUpperCase() + corretta.slice(1) + suffisso;
+                    }
+                    return prefisso + corretta + suffisso;
+                }
+                return p;
+            });
+            
+            return parole.join(' ');
+        }
+
         function aggiungiPromemoria(event) {
             event.preventDefault();
-            const testo = document.getElementById('reminder-text').value.trim();
+            let testo = document.getElementById('reminder-text').value.trim();
             if (!testo) return;
+            testo = correggiOrtografia(testo);
             promemoriaAgenda.push({ id: nuovoId(), testo, data: document.getElementById('reminder-date').value, completata: false });
             salvaPromemoria(); event.target.reset(); renderPromemoria(); showToast('Promemoria aggiunto.', 'success');
         }
@@ -2227,9 +3000,10 @@
             if (testo !== null && testo.trim()) { item.testo = testo.trim(); salvaPromemoria(); renderPromemoria(); }
         }
         function eliminaPromemoria(id) { if (!confirm('Eliminare questo promemoria?')) return; promemoriaAgenda = promemoriaAgenda.filter(x => x.id !== id); salvaPromemoria(); renderPromemoria(); }
+        
         function renderPromemoria() {
             const box = document.getElementById('reminders-list'); if (!box) return;
-            if (!promemoriaAgenda.length) { box.innerHTML = '<div class="text-center py-8 text-slate-400"><i class="fa-solid fa-list-check text-4xl text-amber-200 mb-3"></i><p class="text-sm font-bold text-slate-700">Nessun promemoria salvato</p><p class="text-xs mt-1">Aggiungi un promemoria per scadenze o cose da fare.</p></div>'; return; }
+            if (!promemoriaAgenda.length) { box.innerHTML = '<div class="text-center py-8 text-slate-400"><i class="fa-solid fa-list-check text-4xl text-blue-200 mb-3"></i><p class="text-sm font-bold text-slate-700">Nessun promemoria salvato</p><p class="text-xs mt-1">Aggiungi un promemoria per scadenze o cose da fare.</p></div>'; return; }
             box.innerHTML = promemoriaAgenda.map(x => {
                 let dayLetterHtml = '';
                 if (x.data) {
@@ -2243,32 +3017,561 @@
                             : `${letter} `;
                     }
                 }
-                return `<div class="flex items-start gap-2 border border-slate-100 rounded-xl p-3 group"><input type="checkbox" ${x.completata ? 'checked' : ''} onchange="togglePromemoria('${x.id}')" aria-label="Completa promemoria" class="mt-1 accent-amber-600"><div class="min-w-0 flex-1"><p class="text-sm break-words ${x.completata ? 'line-through text-slate-400' : 'text-slate-700'}">${escapeHTML(x.testo)}</p>${x.data ? `<p class="text-[11px] text-amber-700 mt-1"><i class="fa-regular fa-calendar"></i> ${dayLetterHtml}${escapeHTML(x.data.split('-').reverse().join('/'))}</p>` : ''}</div><button onclick="modificaPromemoria('${x.id}')" aria-label="Modifica promemoria" class="p-1.5 text-slate-400 hover:text-amber-700"><i class="fa-solid fa-pen"></i></button><button onclick="eliminaPromemoria('${x.id}')" aria-label="Elimina promemoria" class="p-1.5 text-slate-400 hover:text-red-600"><i class="fa-solid fa-trash"></i></button></div>`;
+                const pallinoColor = { q1: 'bg-red-500', q2: 'bg-blue-500', q3: 'bg-emerald-500', q4: 'bg-slate-400' }[x.quadrante || ''] || '';
+                const dotHtml = pallinoColor ? `<span class="inline-block w-2 h-2 rounded-full ${pallinoColor} shrink-0 mt-1.5" title="Priorità Eisenhower"></span>` : '';
+
+                return `<div class="flex items-start gap-2 border border-slate-100 rounded-xl p-3 group">
+                    <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="togglePromemoria('${x.id}')" aria-label="Completa promemoria" class="mt-1 accent-blue-600 shrink-0">
+                    ${dotHtml}
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm break-words ${x.completata ? 'line-through text-slate-400' : 'text-slate-700'}">${escapeHTML(x.testo)}</p>
+                        ${x.data ? `<p class="text-[11px] text-blue-700 mt-1"><i class="fa-regular fa-calendar"></i> ${dayLetterHtml}${escapeHTML(x.data.split('-').reverse().join('/'))}</p>` : ''}
+                    </div>
+                    <button onclick="rimandaPromemoriaAlBloccoNote('${x.id}')" title="Rimetti nel Blocco Note" class="p-1.5 text-slate-400 hover:text-blue-700 cursor-pointer"><i class="fa-solid fa-arrow-rotate-left"></i></button>
+                    <button onclick="modificaPromemoria('${x.id}')" aria-label="Modifica promemoria" class="p-1.5 text-slate-400 hover:text-blue-700 cursor-pointer"><i class="fa-solid fa-pen"></i></button>
+                    <button onclick="eliminaPromemoria('${x.id}')" aria-label="Elimina promemoria" class="p-1.5 text-slate-400 hover:text-red-600 cursor-pointer"><i class="fa-solid fa-trash"></i></button>
+                </div>`;
             }).join('');
+            renderMatriceEisenhower();
         }
 
         function salvaScaletta() { localStorage.setItem(AGENDA_KEYS.schedule, JSON.stringify(scalettaAgenda)); }
         function toggleModificaScaletta() { modificaScalettaAttiva = !modificaScalettaAttiva; document.getElementById('schedule-help').classList.toggle('hidden', !modificaScalettaAttiva); renderScaletta(); }
         function toggleAttivitaScaletta(giorno, id) { const x = scalettaAgenda[giorno].find(a => a.id === id); if (x) x.completata = !x.completata; salvaScaletta(); renderScaletta(); }
         function aggiornaTestoScaletta(giorno, id, testo) { const x = scalettaAgenda[giorno].find(a => a.id === id); if (x && testo.trim()) x.testo = testo.trim(); salvaScaletta(); }
-        function aggiungiAttivitaScaletta(giorno) { const input = document.getElementById(`new-task-${giorniSettimana.indexOf(giorno)}`); const testo = input.value.trim(); if (!testo) return; scalettaAgenda[giorno].push({ id: nuovoId(), testo, completata: false }); salvaScaletta(); renderScaletta(); }
+        function aggiungiAttivitaScaletta(giorno) { const input = document.getElementById(`new-task-${giorniSettimana.indexOf(giorno)}`); let testo = input.value.trim(); if (!testo) return; testo = correggiOrtografia(testo); scalettaAgenda[giorno].push({ id: nuovoId(), testo, completata: false }); salvaScaletta(); renderScaletta(); }
         function eliminaAttivitaScaletta(giorno, id) { scalettaAgenda[giorno] = scalettaAgenda[giorno].filter(x => x.id !== id); salvaScaletta(); renderScaletta(); }
         function spostaAttivitaScaletta(da, id, a) { if (da === a) return; const i = scalettaAgenda[da].findIndex(x => x.id === id); if (i < 0) return; scalettaAgenda[a].push(scalettaAgenda[da].splice(i, 1)[0]); salvaScaletta(); renderScaletta(); }
+        
+        function getDataGiornoSettimana(indiceGiorno) {
+            const oggi = new Date();
+            const day = oggi.getDay(); // 0=Dom, 1=Lun
+            const diff = (day === 0) ? -6 : 1 - day; // diff to Monday
+            const lunedi = new Date(oggi);
+            lunedi.setDate(oggi.getDate() + diff);
+            
+            const target = new Date(lunedi);
+            target.setDate(lunedi.getDate() + indiceGiorno);
+            
+            const giornoMese = target.getDate();
+            const mesiAbbreviati = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+            const mese = mesiAbbreviati[target.getMonth()];
+            
+            return `${giornoMese} ${mese}`;
+        }
+
+        function dragStart(event, giorno, id) {
+            event.dataTransfer.setData("text/plain", JSON.stringify({ giorno, id }));
+            event.currentTarget.classList.add("opacity-40");
+        }
+
+        function dragEnd(event) {
+            event.currentTarget.classList.remove("opacity-40");
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function dragEnter(event) {
+            const container = event.currentTarget;
+            if (container) {
+                container.classList.remove('border-blue-100');
+                container.classList.add('border-blue-500', 'bg-blue-50/20');
+            }
+        }
+
+        function dragLeave(event) {
+            const container = event.currentTarget;
+            if (container) {
+                container.classList.remove('border-blue-500', 'bg-blue-50/20');
+                container.classList.add('border-blue-100');
+            }
+        }
+
+        function dropElement(event, destinazione) {
+            event.preventDefault();
+            const container = event.currentTarget;
+            if (container) {
+                container.classList.remove('border-blue-500', 'bg-blue-50/20');
+                container.classList.add('border-blue-100');
+            }
+            try {
+                const data = JSON.parse(event.dataTransfer.getData("text/plain"));
+                const { giorno: origine, id } = data;
+                if (origine === destinazione) return;
+
+                const idx = scalettaAgenda[origine].findIndex(x => x.id === id);
+                if (idx !== -1) {
+                    const [item] = scalettaAgenda[origine].splice(idx, 1);
+                    scalettaAgenda[destinazione].push(item);
+                    salvaScaletta();
+                    renderScaletta();
+                    showToast(`Attività spostata a ${destinazione}`, 'success');
+                }
+            } catch (e) {
+                console.error("Drag and drop error:", e);
+            }
+        }
+
         function renderScaletta() {
             const box = document.getElementById('weekly-schedule'); if (!box) return;
             const btn = document.getElementById('schedule-edit-btn'); btn.innerHTML = modificaScalettaAttiva ? '<i class="fa-solid fa-check"></i> Fine' : '<i class="fa-solid fa-pen-to-square"></i> Modifica';
             box.innerHTML = giorniSettimana.map((giorno, indice) => {
                 const isWeekend = (giorno === 'Sabato' || giorno === 'Domenica');
                 const titleColor = isWeekend ? 'text-red-600 font-bold' : 'text-slate-800';
-                return `<div class="border border-amber-100 rounded-xl p-3"><h3 class="text-xs font-bold ${titleColor} border-b border-dashed border-amber-100 pb-2 mb-2"><i class="fa-regular fa-calendar text-amber-600 mr-1"></i> ${giorno}</h3><div class="space-y-2">${scalettaAgenda[giorno].length ? scalettaAgenda[giorno].map(x => modificaScalettaAttiva ? `<div class="flex flex-wrap sm:flex-nowrap items-center gap-2"><input value="${escapeHTML(x.testo)}" onchange="aggiornaTestoScaletta('${giorno}','${x.id}',this.value)" aria-label="Testo attivitÃ " class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-amber-500"><select onchange="spostaAttivitaScaletta('${giorno}','${x.id}',this.value)" aria-label="Sposta attivitÃ " class="border border-slate-200 rounded-lg px-1 py-1.5 text-[11px]">${giorniSettimana.map(g => `<option ${g === giorno ? 'selected' : ''}>${g}</option>`).join('')}</select><button onclick="eliminaAttivitaScaletta('${giorno}','${x.id}')" aria-label="Elimina attivitÃ " class="text-slate-400 hover:text-red-600 p-1"><i class="fa-solid fa-trash"></i></button></div>` : `<label class="flex items-start gap-2 text-xs text-slate-700 cursor-pointer"><input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaScaletta('${giorno}','${x.id}')" class="mt-0.5 accent-amber-600"><span class="${x.completata ? 'line-through text-slate-400' : ''}">${escapeHTML(x.testo)}</span></label>`).join('') : `<p class="text-xs italic text-slate-400">Nessuna attivitÃ </p>`}</div>${modificaScalettaAttiva ? `<div class="flex gap-2 mt-3"><input id="new-task-${indice}" onkeydown="if(event.key==='Enter'){event.preventDefault();aggiungiAttivitaScaletta('${giorno}')}" placeholder="Nuova attivitÃ  per ${giorno}" class="min-w-0 flex-1 border border-amber-100 rounded-lg px-2 py-1.5 text-xs"><button onclick="aggiungiAttivitaScaletta('${giorno}')" aria-label="Aggiungi attivitÃ  a ${giorno}" class="bg-amber-600 text-white rounded-lg px-2.5"><i class="fa-solid fa-plus"></i></button></div>` : ''}</div>`;
+                return `<div class="border border-blue-100 bg-white rounded-xl p-3.5 transition-all duration-200" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" ondrop="dropElement(event, '${giorno}')">
+                    <h3 class="text-sm font-bold ${titleColor} border-b border-dashed border-blue-100 pb-2.5 mb-2.5"><i class="fa-regular fa-calendar text-blue-600 mr-1"></i> ${giorno} ${getDataGiornoSettimana(indice)}</h3>
+                    <div class="space-y-2">
+                        ${scalettaAgenda[giorno].length ? scalettaAgenda[giorno].map((x, idx2, arr) => {
+                            const pallinoColor = { q1: 'bg-red-500', q2: 'bg-blue-500', q3: 'bg-emerald-500', q4: 'bg-slate-400' }[x.quadrante || ''] || '';
+                            const dotHtml = pallinoColor ? `<span class="inline-block w-2.5 h-2.5 rounded-full ${pallinoColor} shrink-0 mt-1" title="Priorità Eisenhower"></span>` : '';
+                            
+                            return modificaScalettaAttiva 
+                                ? `<div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
+                                    <input value="${escapeHTML(x.testo)}" onchange="aggiornaTestoScaletta('${giorno}','${x.id}',this.value)" aria-label="Testo attività" class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                                    
+                                    <!-- Su / Giù Ordinamento -->
+                                    <div class="flex items-center gap-0.5 shrink-0">
+                                        <button onclick="spostaElementoScaletta('${giorno}', ${idx2}, -1)" ${idx2 === 0 ? 'disabled class="text-slate-200 p-0.5 cursor-not-allowed"' : 'class="text-slate-400 hover:text-blue-700 p-0.5 cursor-pointer"'} title="Sposta su"><i class="fa-solid fa-chevron-up text-[10px]"></i></button>
+                                        <button onclick="spostaElementoScaletta('${giorno}', ${idx2}, 1)" ${idx2 === arr.length - 1 ? 'disabled class="text-slate-200 p-0.5 cursor-not-allowed"' : 'class="text-slate-400 hover:text-blue-700 p-0.5 cursor-pointer"'} title="Sposta giù"><i class="fa-solid fa-chevron-down text-[10px]"></i></button>
+                                    </div>
+
+                                    <select onchange="cambiaQuadranteScaletta('${giorno}','${x.id}',this.value)" aria-label="Matrice Eisenhower" class="border border-slate-200 rounded-lg p-1 text-[11px] bg-white cursor-pointer font-medium">
+                                        <option value="" ${!x.quadrante ? 'selected' : ''}>Nessuna priorità</option>
+                                        <option value="q1" ${x.quadrante === 'q1' ? 'selected' : ''}>🔴 Q1: Fai Subito</option>
+                                        <option value="q2" ${x.quadrante === 'q2' ? 'selected' : ''}>🔵 Q2: Pianifica</option>
+                                        <option value="q3" ${x.quadrante === 'q3' ? 'selected' : ''}>🟢 Q3: Delega</option>
+                                        <option value="q4" ${x.quadrante === 'q4' ? 'selected' : ''}>⚪ Q4: Parcheggia</option>
+                                    </select>
+                                    <select onchange="spostaAttivitaScaletta('${giorno}','${x.id}',this.value)" aria-label="Sposta attività" class="border border-slate-200 rounded-lg px-1 py-1.5 text-[11px] bg-white cursor-pointer">${giorniSettimana.map(g => `<option ${g === giorno ? 'selected' : ''}>${g}</option>`).join('')}</select>
+                                    <button onclick="rimandaAlBloccoNote('${giorno}','${x.id}')" title="Rimetti nel Blocco Note" class="text-slate-400 hover:text-blue-700 p-1 cursor-pointer"><i class="fa-solid fa-arrow-rotate-left"></i></button>
+                                    <button onclick="eliminaAttivitaScaletta('${giorno}','${x.id}')" aria-label="Elimina attività" class="text-slate-400 hover:text-red-600 p-1 cursor-pointer"><i class="fa-solid fa-trash"></i></button>
+                                   </div>`
+                                : `<div class="flex items-start gap-1 text-sm text-slate-700 hover:bg-slate-50/50 p-1 rounded-lg transition-colors group/item" draggable="true" ondragstart="dragStart(event, '${giorno}', '${x.id}')" ondragend="dragEnd(event)">
+                                    <i class="fa-solid fa-grip-vertical text-slate-300 hover:text-slate-500 cursor-grab shrink-0 mt-1 mr-1.5" title="Trascina in un altro giorno"></i>
+                                    <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaScaletta('${giorno}','${x.id}')" class="mt-1 accent-blue-600 shrink-0 cursor-pointer">
+                                    ${dotHtml}
+                                    <span class="flex-1 min-w-0 ${x.completata ? 'line-through text-slate-400' : ''} cursor-default select-none">${escapeHTML(x.testo)}</span>
+                                   </div>`;
+                        }).join('') : `<p class="text-sm italic text-slate-400">Nessuna attività</p>`}
+                    </div>
+                    ${modificaScalettaAttiva ? `<div class="flex gap-2 mt-3"><input id="new-task-${indice}" onkeydown="if(event.key==='Enter'){event.preventDefault();aggiungiAttivitaScaletta('${giorno}')}" placeholder="Nuova attività per ${giorno}" class="min-w-0 flex-1 border border-blue-100 rounded-lg px-2 py-1.5 text-sm"><button onclick="aggiungiAttivitaScaletta('${giorno}')" aria-label="Aggiungi attività a ${giorno}" class="bg-blue-600 text-white rounded-lg px-2.5 cursor-pointer"><i class="fa-solid fa-plus"></i></button></div>` : ''}
+                </div>`;
             }).join('');
             box.innerHTML = box.innerHTML.replaceAll('attivit\u00c3\u00a0', 'attivit\u00e0');
             const parolaAttivita = `attivit${String.fromCharCode(224)}`;
-            box.querySelectorAll('p.text-xs.italic').forEach(el => { el.textContent = `Nessuna ${parolaAttivita}`; });
+            box.querySelectorAll('p.text-sm.italic').forEach(el => { el.textContent = `Nessuna ${parolaAttivita}`; });
             box.querySelectorAll('input[id^="new-task-"]').forEach((el, indice) => { el.placeholder = `Nuova ${parolaAttivita} per ${giorniSettimana[indice]}`; });
+            renderMatriceEisenhower();
+        }
+
+        function cambiaQuadranteScaletta(giorno, id, nuovoQuadrante) {
+            const x = scalettaAgenda[giorno].find(a => a.id === id);
+            if (x) {
+                x.quadrante = nuovoQuadrante || undefined;
+                salvaScaletta();
+                renderScaletta();
+            }
+        }
+
+        function spostaElementoScaletta(giorno, indice, direzione) {
+            const arr = scalettaAgenda[giorno];
+            const target = indice + direzione;
+            if (target < 0 || target >= arr.length) return;
+            const temp = arr[indice];
+            arr[indice] = arr[target];
+            arr[target] = temp;
+            salvaScaletta();
+            renderScaletta();
+        }
+
+        function rimandaAlBloccoNote(giorno, id) {
+            const list = scalettaAgenda[giorno];
+            const idx = list.findIndex(x => x.id === id);
+            if (idx === -1) return;
+
+            const item = list.splice(idx, 1)[0];
+            const cleanText = item.testo.replace(/\s*\(\d+\/\d+\)$/, ''); // Rimuove il suffisso (1/3) etc.
+
+            const textarea = document.getElementById('quick-notes');
+            if (textarea) {
+                const currentText = textarea.value.trim();
+                textarea.value = (currentText ? currentText + '\n' : '') + `- ${cleanText}`;
+                localStorage.setItem(AGENDA_KEYS.notes, textarea.value);
+                programmaSalvataggioNote();
+            }
+
+            salvaScaletta();
+            renderScaletta();
+            showToast('Attività rimessa nel Blocco Note per la rielaborazione.', 'info');
+        }
+
+        function rimandaPromemoriaAlBloccoNote(id) {
+            const idx = promemoriaAgenda.findIndex(x => x.id === id);
+            if (idx === -1) return;
+
+            const item = promemoriaAgenda.splice(idx, 1)[0];
+
+            const textarea = document.getElementById('quick-notes');
+            if (textarea) {
+                const currentText = textarea.value.trim();
+                textarea.value = (currentText ? currentText + '\n' : '') + `- ${item.testo}`;
+                localStorage.setItem(AGENDA_KEYS.notes, textarea.value);
+                programmaSalvataggioNote();
+            }
+
+            salvaPromemoria();
+            renderPromemoria();
+            showToast('Promemoria rimesso nel Blocco Note per la rielaborazione.', 'info');
         }
 
         function programmaSalvataggioNote() { const status = document.getElementById('notes-status'); status.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvataggio...'; clearTimeout(timerSalvataggioNote); timerSalvataggioNote = setTimeout(() => { try { localStorage.setItem(AGENDA_KEYS.notes, document.getElementById('quick-notes').value); status.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> Salvato in locale'; } catch (_) { status.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Errore di salvataggio'; status.className = 'text-[11px] text-red-600'; } }, 400); }
+
+          function getGiornoSuccessivo(giorno) {
+            const idx = giorniSettimana.indexOf(giorno);
+            if (idx === -1 || giorno === 'Promemoria') return 'Promemoria';
+            return giorniSettimana[(idx + 1) % giorniSettimana.length];
+        }
+
+        function classificaTaskConHeuristic(testo) {
+            const t = testo.toLowerCase();
+            
+            // 1. Check for explicit Quadrant override tags (standalone q1-q4, #q1, [q1], etc.)
+            const regexQ1 = /(?:^|\s|[#\[])q1(?:$|\s|[\]])/i;
+            const regexQ2 = /(?:^|\s|[#\[])q2(?:$|\s|[\]])/i;
+            const regexQ3 = /(?:^|\s|[#\[])q3(?:$|\s|[\]])/i;
+            const regexQ4 = /(?:^|\s|[#\[])q4(?:$|\s|[\]])/i;
+
+            let quadrante = null;
+            if (regexQ1.test(t)) quadrante = 'q1';
+            else if (regexQ2.test(t)) quadrante = 'q2';
+            else if (regexQ3.test(t)) quadrante = 'q3';
+            else if (regexQ4.test(t)) quadrante = 'q4';
+
+            // 2. Check for explicit Day overrides
+            let giorno = null;
+            if (t.includes('lunedì') || t.includes('lunedi') || t.includes(' lun ')) giorno = 'Lunedì';
+            else if (t.includes('martedì') || t.includes('martedi') || t.includes(' mar ')) giorno = 'Martedì';
+            else if (t.includes('mercoledì') || t.includes('mercoledi') || t.includes(' mer ')) giorno = 'Mercoledì';
+            else if (t.includes('giovedì') || t.includes('giovedi') || t.includes(' gio ')) giorno = 'Giovedì';
+            else if (t.includes('venerdì') || t.includes('venerdi') || t.includes(' ven ')) giorno = 'Venerdì';
+            else if (t.includes('sabato') || t.includes(' sab ')) giorno = 'Sabato';
+            else if (t.includes('domenica') || t.includes(' dom ')) giorno = 'Domenica';
+            else if (t.includes('weekend') || t.includes('week end') || t.includes('week-end')) giorno = 'Sabato';
+            else if (t.includes('promemoria') || t.includes('parcheggi') || t.includes('idea')) giorno = 'Promemoria';
+
+            // 3. Detect number of days to spread (e.g. "2-3 giorni", "3 gg", "due giorni")
+            let numGiorni = 1;
+            const matchRange = t.match(/(\d+)\s*-\s*(\d+)\s*giorn/i);
+            const matchSingle = t.match(/(\d+)\s*giorn/i);
+            const matchGG = t.match(/(\d+)\s*gg/i);
+
+            if (matchRange) {
+                numGiorni = parseInt(matchRange[2], 10);
+            } else if (matchSingle) {
+                numGiorni = parseInt(matchSingle[1], 10);
+            } else if (matchGG) {
+                numGiorni = parseInt(matchGG[1], 10);
+            } else if (t.includes('due giorni') || t.includes('2 giorni') || t.includes('2 gg')) {
+                numGiorni = 2;
+            } else if (t.includes('tre giorni') || t.includes('3 giorni') || t.includes('3 gg')) {
+                numGiorni = 3;
+            }
+
+            // 4. Keyword matching for Quadrant if not explicitly tagged
+            if (!quadrante) {
+                // High Urgency / High Importance keywords (Q1)
+                const keywordsQ1 = [
+                    'fattur', 'trinchese', 'bpm', 'puc', 'osservazioni', 'bando', 'urgente', 'scadenza',
+                    'subito', 'entro oggi', 'entro domani', 'tassativ', 'pagare', 'pagamento', 'inviare',
+                    'firmare', 'spedire', 'contratto', 'consegnare', 'scade'
+                ];
+                // High Importance / Low Urgency (Q2)
+                const keywordsQ2 = [
+                    'progetto', 'studio', 'archivio', 'piano', 'analisi', 'scouting', 'notebook', 'ricerca',
+                    'progettare', 'scrivere', 'studiare', 'pianificare', 'creare', 'sviluppare', 'strutturare',
+                    'sincronizzare', 'vitalità', 'matching', 'bonifica'
+                ];
+                // Low Importance / High Urgency (Q3)
+                const keywordsQ3 = [
+                    'condominio', 'chiamare', 'telefonare', 'regolamento', 'alto calore', 'peppino', 'comprare',
+                    'spesa', 'sistemare', 'pulire', 'riordinare', 'riunione', 'appuntamento'
+                ];
+
+                if (keywordsQ1.some(k => t.includes(k))) {
+                    quadrante = 'q1';
+                } else if (keywordsQ2.some(k => t.includes(k))) {
+                    quadrante = 'q2';
+                } else if (keywordsQ3.some(k => t.includes(k))) {
+                    quadrante = 'q3';
+                } else {
+                    quadrante = 'q4'; // Default
+                }
+            }
+
+            // 5. Day suggestions based on Quadrant if no explicit day was found
+            if (!giorno) {
+                if (quadrante === 'q1') {
+                    giorno = (new Date().getDay() === 2) ? 'Martedì' : 'Lunedì';
+                } else if (quadrante === 'q2') {
+                    giorno = 'Mercoledì';
+                } else if (quadrante === 'q3') {
+                    giorno = 'Venerdì';
+                } else {
+                    giorno = 'Promemoria';
+                }
+            }
+
+            const labelMap = {
+                q1: '🔴 Q1 (Fai Subito)',
+                q2: '🔵 Q2 (Pianifica)',
+                q3: '🟢 Q3 (Delega)',
+                q4: '⚪ Q4 (Parcheggia)'
+            };
+            
+            let label = `Consiglio: ${labelMap[quadrante]} ➔ ${giorno}`;
+            if (numGiorni > 1) {
+                label += ` (Spalmato su ${numGiorni} gg)`;
+            }
+
+            return { quadrante, giorno, label, numGiorni };
+        }
+
+        function avviaSegretario() {
+            const text = document.getElementById('quick-notes').value;
+            const lines = text.split('\n').map(l => l.trim()).filter(l => {
+                if (!l) return false;
+                let clean = l.replace(/^[-*•\d.+]\s*/, '').trim();
+                return clean.length > 2;
+            });
+
+            if (lines.length === 0) {
+                showToast('Nessuna riga di testo valida nel Blocco Note da elaborare.', 'info');
+                return;
+            }
+
+            activeSecretaryTasks = lines.map(line => {
+                let clean = line.replace(/^[-*•\d.+]\s*/, '').trim();
+                clean = correggiOrtografia(clean);
+                const reco = classificaTaskConHeuristic(clean);
+                return {
+                    originalLine: line,
+                    cleanText: clean,
+                    quadrante: reco.quadrante,
+                    giorno: reco.giorno,
+                    label: reco.label,
+                    numGiorni: reco.numGiorni
+                };
+            });
+
+            activeSecretaryIndex = 0;
+            document.getElementById('secretary-panel').classList.remove('hidden');
+            caricaTaskSegretarioCorrente();
+        }
+
+        function caricaTaskSegretarioCorrente() {
+            if (activeSecretaryIndex >= activeSecretaryTasks.length) {
+                chiudiSegretario();
+                showToast('Tutte le note sono state pianificate con successo!', 'success');
+                return;
+            }
+
+            const task = activeSecretaryTasks[activeSecretaryIndex];
+            document.getElementById('secretary-current-task').textContent = task.cleanText;
+            document.getElementById('secretary-suggestion').textContent = task.label;
+            
+            const select = document.getElementById('secretary-day-select');
+            select.value = task.giorno;
+
+            document.getElementById('secretary-progress').textContent = `Attività ${activeSecretaryIndex + 1} di ${activeSecretaryTasks.length}`;
+        }
+
+        function applicaPianificazione(quadrante) {
+            if (activeSecretaryIndex >= activeSecretaryTasks.length) return;
+            const task = activeSecretaryTasks[activeSecretaryIndex];
+            const giornoSelezionato = document.getElementById('secretary-day-select').value;
+            const numGiorni = task.numGiorni || 1;
+
+            if (giornoSelezionato === 'Promemoria') {
+                promemoriaAgenda.push({
+                    id: nuovoId(),
+                    testo: task.cleanText,
+                    data: '',
+                    completata: false,
+                    quadrante: quadrante
+                });
+                salvaPromemoria();
+                renderPromemoria();
+            } else {
+                let currentDay = giornoSelezionato;
+                for (let i = 1; i <= numGiorni; i++) {
+                    const suffix = numGiorni > 1 ? ` (${i}/${numGiorni})` : '';
+                    scalettaAgenda[currentDay].push({
+                        id: nuovoId(),
+                        testo: task.cleanText + suffix,
+                        completata: false,
+                        quadrante: quadrante
+                    });
+                    if (numGiorni > 1) {
+                        currentDay = getGiornoSuccessiveOrWrap(currentDay);
+                    }
+                }
+                salvaScaletta();
+                renderScaletta();
+            }
+
+            rimuoviRigaDaBloccoNote(task.originalLine);
+
+            activeSecretaryIndex++;
+            caricaTaskSegretarioCorrente();
+        }
+
+        function applicaPianificazioneConsigliata() {
+            if (activeSecretaryIndex >= activeSecretaryTasks.length) return;
+            const task = activeSecretaryTasks[activeSecretaryIndex];
+            applicaPianificazione(task.quadrante);
+        }
+
+        function getGiornoSuccessiveOrWrap(giorno) {
+            const idx = giorniSettimana.indexOf(giorno);
+            if (idx === -1 || giorno === 'Promemoria') return 'Promemoria';
+            return giorniSettimana[(idx + 1) % giorniSettimana.length];
+        }
+
+        function rimuoviRigaDaBloccoNote(lineText) {
+            const textarea = document.getElementById('quick-notes');
+            if (!textarea) return;
+            const lines = textarea.value.split('\n');
+            const idx = lines.findIndex(l => l.trim() === lineText.trim());
+            if (idx !== -1) {
+                lines.splice(idx, 1);
+            }
+            textarea.value = lines.join('\n');
+            localStorage.setItem(AGENDA_KEYS.notes, textarea.value);
+            
+            // Trigger visual save status indicator
+            const status = document.getElementById('notes-status');
+            status.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> Salvato in locale';
+        }
+
+        function chiudiSegretario() {
+            document.getElementById('secretary-panel').classList.add('hidden');
+            activeSecretaryTasks = [];
+            activeSecretaryIndex = 0;
+        }
+
+        function elaboraTutteLeNoteInBlocco() {
+            if (activeSecretaryTasks.length === 0) return;
+            if (!confirm('Il Segretario pianificherà tutte le note rimaste in base ai consigli automatici. Procedere?')) return;
+
+            while (activeSecretaryIndex < activeSecretaryTasks.length) {
+                const task = activeSecretaryTasks[activeSecretaryIndex];
+                const giornoSelezionato = task.giorno;
+                const quadrante = task.quadrante;
+                const numGiorni = task.numGiorni || 1;
+
+                if (giornoSelezionato === 'Promemoria') {
+                    promemoriaAgenda.push({
+                        id: nuovoId(),
+                        testo: task.cleanText,
+                        data: '',
+                        completata: false,
+                        quadrante: quadrante
+                    });
+                } else {
+                    let currentDay = giornoSelezionato;
+                    for (let i = 1; i <= numGiorni; i++) {
+                        const suffix = numGiorni > 1 ? ` (${i}/${numGiorni})` : '';
+                        scalettaAgenda[currentDay].push({
+                            id: nuovoId(),
+                            testo: task.cleanText + suffix,
+                            completata: false,
+                            quadrante: quadrante
+                        });
+                        if (numGiorni > 1) {
+                            currentDay = getGiornoSuccessiveOrWrap(currentDay);
+                        }
+                    }
+                }
+
+                rimuoviRigaDaBloccoNote(task.originalLine);
+                activeSecretaryIndex++;
+            }
+
+            salvaScaletta();
+            salvaPromemoria();
+            renderScaletta();
+            renderPromemoria();
+            chiudiSegretario();
+            showToast('Tutte le note sono state pianificate automaticamente!', 'success');
+        }
+
+        function toggleMatriceVisiva() {
+            const container = document.getElementById('matrice-eisenhower-container');
+            const text = document.getElementById('toggle-matrice-text');
+            if (!container) return;
+            const hidden = container.classList.contains('hidden');
+            if (hidden) {
+                container.classList.remove('hidden');
+                text.textContent = 'Nascondi Matrice Eisenhower';
+                renderMatriceEisenhower();
+            } else {
+                container.classList.add('hidden');
+                text.textContent = 'Mostra Matrice Eisenhower';
+            }
+        }
+
+        function renderMatriceEisenhower() {
+            const containerCheck = document.getElementById('matrice-eisenhower-container');
+            if (!containerCheck || containerCheck.classList.contains('hidden')) return;
+
+            const lists = { q1: [], q2: [], q3: [], q4: [] };
+            const uniqueKeys = { q1: new Set(), q2: new Set(), q3: new Set(), q4: new Set() };
+
+            giorniSettimana.forEach(g => {
+                scalettaAgenda[g].forEach(x => {
+                    if (x.quadrante && lists[x.quadrante]) {
+                        const cleanText = x.testo.replace(/\s*\(\d+\/\d+\)$/, '');
+                        if (!uniqueKeys[x.quadrante].has(cleanText)) {
+                            uniqueKeys[x.quadrante].add(cleanText);
+                            lists[x.quadrante].push({ ...x, testo: cleanText, provenienza: g });
+                        }
+                    }
+                });
+            });
+
+            promemoriaAgenda.forEach(x => {
+                if (x.quadrante && lists[x.quadrante]) {
+                    const cleanText = x.testo.replace(/\s*\(\d+\/\d+\)$/, '');
+                    if (!uniqueKeys[x.quadrante].has(cleanText)) {
+                        uniqueKeys[x.quadrante].add(cleanText);
+                        lists[x.quadrante].push({ ...x, testo: cleanText, provenienza: 'Promemoria' });
+                    }
+                }
+            });
+
+            ['q1', 'q2', 'q3', 'q4'].forEach(q => {
+                const container = document.getElementById(`matrice-${q}-list`);
+                if (!container) return;
+
+                const arr = lists[q];
+                if (arr.length === 0) {
+                    container.innerHTML = `<p class="text-[10px] text-slate-400 italic">Nessuna attività</p>`;
+                    return;
+                }
+
+                container.innerHTML = arr.map(x => {
+                    const checkClass = x.completata ? 'line-through text-slate-400' : 'text-slate-700';
+                    return `
+                        <div class="flex items-center justify-between gap-2 py-1 px-1.5 rounded-md hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors text-sm">
+                            <span class="truncate font-medium flex-1 ${checkClass}" title="${escapeHTML(x.testo)}">${escapeHTML(x.testo)}</span>
+                            <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded shrink-0">${x.provenienza}</span>
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
 
         // ============================================================
         // 13. INIT
@@ -2278,9 +3581,39 @@
         updateTimerDisplay();
         setPilastroAttivo('lavoro');
         caricaImpostazioniMP3();
+
+        // Correzione ortografica retroattiva sui dati salvati in locale
+        let cambiataScaletta = false;
+        giorniSettimana.forEach(g => {
+            if (scalettaAgenda[g]) {
+                scalettaAgenda[g].forEach(x => {
+                    const corretto = correggiOrtografia(x.testo);
+                    if (x.testo !== corretto) {
+                        x.testo = corretto;
+                        cambiataScaletta = true;
+                    }
+                });
+            }
+        });
+        if (cambiataScaletta) salvaScaletta();
+
+        let cambiatiPromemoria = false;
+        if (promemoriaAgenda) {
+            promemoriaAgenda.forEach(x => {
+                const corretto = correggiOrtografia(x.testo);
+                if (x.testo !== corretto) {
+                    x.testo = corretto;
+                    cambiatiPromemoria = true;
+                }
+            });
+        }
+        if (cambiatiPromemoria) salvaPromemoria();
+
         renderPromemoria();
         renderScaletta();
+        renderObiettiviAgenda();
         document.getElementById('quick-notes').value = localStorage.getItem(AGENDA_KEYS.notes) || '';
+        switchTab('agenda');
 
     </script>
 
