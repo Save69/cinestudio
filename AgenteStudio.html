@@ -900,7 +900,7 @@
                     <!-- Riquadro Obiettivi Mensili -->
                     <div class="border border-slate-200 bg-slate-50/20 rounded-xl p-3.5 mb-3 flex flex-col gap-3">
                         <div class="flex items-center justify-between pb-2 border-b border-slate-200">
-                            <span class="text-[13px] font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5"><i class="fa-regular fa-calendar-check text-blue-600 text-sm"></i> Obiettivi Mensili</span>
+                            <span class="text-[13px] font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5"><i id="ob-agenda-mensili-icon" class="fa-regular fa-calendar-check text-blue-600 text-sm"></i> Obiettivi Mensili</span>
                             <span id="ob-agenda-mensili-progress" class="text-[10px] font-extrabold text-blue-800 bg-blue-100 px-2 py-0.5 rounded-full">0/0</span>
                         </div>
                         
@@ -913,14 +913,14 @@
                         <!-- Input Aggiungi Obiettivo Mensile -->
                         <div class="flex gap-1.5 mt-1">
                             <input id="ob-agenda-mensile-input" onkeydown="if(event.key==='Enter') aggiungiObiettivoMensileAgenda()" placeholder="Nuovo obiettivo mensile..." class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
-                            <button onclick="aggiungiObiettivoMensileAgenda()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-lg px-2.5 cursor-pointer transition-colors"><i class="fa-solid fa-plus text-xs"></i></button>
+                            <button id="ob-agenda-mensile-add-btn" onclick="aggiungiObiettivoMensileAgenda()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-lg px-2.5 cursor-pointer transition-colors"><i class="fa-solid fa-plus text-xs"></i></button>
                         </div>
                     </div>
 
                     <!-- Riquadro Obiettivi Trimestre -->
                     <div class="border border-slate-200 bg-slate-50/20 rounded-xl p-3.5 flex flex-col gap-3">
                         <div class="flex items-center justify-between pb-2 border-b border-slate-200">
-                            <span class="text-[13px] font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-bullseye text-blue-600 text-sm"></i> Obiettivi Trimestre (Q3)</span>
+                            <span class="text-[13px] font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5"><i id="ob-agenda-trimestre-icon" class="fa-solid fa-bullseye text-blue-600 text-sm"></i> Obiettivi Trimestre (Q3)</span>
                             <span id="ob-agenda-trimestre-progress" class="text-[10px] font-extrabold text-blue-800 bg-blue-100 px-2 py-0.5 rounded-full">0/0</span>
                         </div>
 
@@ -930,7 +930,7 @@
                         <!-- Input Aggiungi Obiettivo Trimestre -->
                         <div class="flex gap-1.5 mt-1">
                             <input id="ob-agenda-trimestre-input" onkeydown="if(event.key==='Enter') aggiungiObiettivoTrimestreAgenda()" placeholder="Nuovo obiettivo trimestre..." class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
-                            <button onclick="aggiungiObiettivoTrimestreAgenda()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-lg px-2.5 cursor-pointer transition-colors"><i class="fa-solid fa-plus text-xs"></i></button>
+                            <button id="ob-agenda-trimestre-add-btn" onclick="aggiungiObiettivoTrimestreAgenda()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-lg px-2.5 cursor-pointer transition-colors"><i class="fa-solid fa-plus text-xs"></i></button>
                         </div>
                     </div>
                 </section>
@@ -1667,6 +1667,45 @@
             });
         }
 
+        const PILLAR_COLOR_MAP = {
+            lavoro: {
+                bgActive: 'bg-sky-50 text-sky-700 border-sky-200 shadow-sm',
+                text: 'text-sky-600',
+                textDark: 'text-sky-800',
+                bgLight: 'bg-sky-100',
+                border: 'border-sky-300',
+                btnBg: 'bg-sky-50 hover:bg-sky-100 border-sky-200 text-sky-700',
+                accent: 'accent-sky-600'
+            },
+            divisione: {
+                bgActive: 'bg-red-50 text-red-700 border-red-200 shadow-sm',
+                text: 'text-red-600',
+                textDark: 'text-red-800',
+                bgLight: 'bg-red-100',
+                border: 'border-red-300',
+                btnBg: 'bg-red-50 hover:bg-red-100 border-red-200 text-red-700',
+                accent: 'accent-red-600'
+            },
+            fisico: {
+                bgActive: 'bg-violet-50 text-violet-700 border-violet-200 shadow-sm',
+                text: 'text-violet-600',
+                textDark: 'text-violet-800',
+                bgLight: 'bg-violet-100',
+                border: 'border-violet-300',
+                btnBg: 'bg-violet-50 hover:bg-violet-100 border-violet-200 text-violet-700',
+                accent: 'accent-violet-600'
+            },
+            riordino: {
+                bgActive: 'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm',
+                text: 'text-emerald-600',
+                textDark: 'text-emerald-800',
+                bgLight: 'bg-emerald-100',
+                border: 'border-emerald-300',
+                btnBg: 'bg-emerald-50 hover:bg-emerald-100 border-emerald-200 text-emerald-700',
+                accent: 'accent-emerald-600'
+            }
+        };
+
         let activeObiettiviAgendaTab = 'lavoro';
 
         function setObiettiviAgendaTab(p) {
@@ -1676,7 +1715,7 @@
                 const btn = document.getElementById(`btn-ob-tab-${t}`);
                 if (btn) {
                     if (t === p) {
-                        btn.className = "py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer bg-blue-50 text-blue-700 border border-blue-200 shadow-sm";
+                        btn.className = `py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer ${PILLAR_COLOR_MAP[t].bgActive}`;
                     } else {
                         btn.className = "py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:bg-slate-200 border border-transparent";
                     }
@@ -1688,6 +1727,24 @@
         function renderObiettiviAgenda() {
             const p = activeObiettiviAgendaTab;
             
+            // Aggiorna icone ed elementi statici a tema
+            const iconMensili = document.getElementById('ob-agenda-mensili-icon');
+            if (iconMensili) {
+                iconMensili.className = `fa-regular fa-calendar-check ${PILLAR_COLOR_MAP[p].text} text-sm`;
+            }
+            const iconTrimestre = document.getElementById('ob-agenda-trimestre-icon');
+            if (iconTrimestre) {
+                iconTrimestre.className = `fa-solid fa-bullseye ${PILLAR_COLOR_MAP[p].text} text-sm`;
+            }
+            const btnAddMensile = document.getElementById('ob-agenda-mensile-add-btn');
+            if (btnAddMensile) {
+                btnAddMensile.className = `${PILLAR_COLOR_MAP[p].btnBg} rounded-lg px-2.5 cursor-pointer transition-colors`;
+            }
+            const btnAddTrimestre = document.getElementById('ob-agenda-trimestre-add-btn');
+            if (btnAddTrimestre) {
+                btnAddTrimestre.className = `${PILLAR_COLOR_MAP[p].btnBg} rounded-lg px-2.5 cursor-pointer transition-colors`;
+            }
+
             // 1. Mesi Tabs for monthly goals
             const mesiTabs = document.getElementById('ob-agenda-mesi-tabs');
             if (mesiTabs) {
@@ -1700,7 +1757,7 @@
                     return `
                         <button onclick="selectMesePilastroAgenda('${m.key}')" class="px-1.5 py-0.5 text-[10px] font-bold rounded-md transition-all cursor-pointer shrink-0 ${
                             isActive 
-                                ? 'bg-blue-100 text-blue-700 border border-blue-300' 
+                                ? `${PILLAR_COLOR_MAP[p].bgLight} ${PILLAR_COLOR_MAP[p].text} border ${PILLAR_COLOR_MAP[p].border}` 
                                 : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-transparent'
                         }">
                             ${m.label}${countText}
@@ -1718,6 +1775,7 @@
             if (progressMensili) {
                 const done = listMensili.filter(o => o.fatto).length;
                 progressMensili.textContent = `${done}/${listMensili.length}`;
+                progressMensili.className = `text-[10px] font-extrabold px-2 py-0.5 rounded-full ${PILLAR_COLOR_MAP[p].textDark} ${PILLAR_COLOR_MAP[p].bgLight}`;
             }
 
             if (containerMensili) {
@@ -1732,7 +1790,7 @@
                     containerMensili.innerHTML = listMensili.map((x, idx) => `
                         <div class="flex items-start justify-between gap-2 p-1.5 hover:bg-slate-50 rounded-lg group text-sm border border-transparent hover:border-slate-100">
                             <label class="flex items-start gap-2 cursor-pointer flex-1 min-w-0 select-none">
-                                <input type="checkbox" ${x.fatto ? 'checked' : ''} onchange="toggleObiettivoMensileAgenda(${idx})" class="mt-0.5 accent-emerald-600 shrink-0 cursor-pointer">
+                                <input type="checkbox" ${x.fatto ? 'checked' : ''} onchange="toggleObiettivoMensileAgenda(${idx})" class="mt-0.5 ${PILLAR_COLOR_MAP[p].accent} shrink-0 cursor-pointer">
                                 <span class="break-words ${x.fatto ? 'line-through text-slate-400 font-bold' : 'text-slate-700 font-bold'}">${escapeHTML(x.testo)}</span>
                             </label>
                             <button onclick="eliminaObiettivoMensileAgenda(${idx})" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity p-0.5 shrink-0 cursor-pointer">
@@ -1751,6 +1809,7 @@
             if (progressTrimestre) {
                 const done = listTrimestre.filter(o => o.fatto).length;
                 progressTrimestre.textContent = `${done}/${listTrimestre.length}`;
+                progressTrimestre.className = `text-[10px] font-extrabold px-2 py-0.5 rounded-full ${PILLAR_COLOR_MAP[p].textDark} ${PILLAR_COLOR_MAP[p].bgLight}`;
             }
 
             if (containerTrimestre) {
@@ -1764,7 +1823,7 @@
                     containerTrimestre.innerHTML = listTrimestre.map((x, idx) => `
                         <div class="flex items-start justify-between gap-2 p-1.5 hover:bg-slate-50 rounded-lg group text-sm border border-transparent hover:border-slate-100">
                             <label class="flex items-start gap-2 cursor-pointer flex-1 min-w-0 select-none">
-                                <input type="checkbox" ${x.fatto ? 'checked' : ''} onchange="toggleObiettivoTrimestreAgenda(${idx})" class="mt-0.5 accent-emerald-600 shrink-0 cursor-pointer">
+                                <input type="checkbox" ${x.fatto ? 'checked' : ''} onchange="toggleObiettivoTrimestreAgenda(${idx})" class="mt-0.5 ${PILLAR_COLOR_MAP[p].accent} shrink-0 cursor-pointer">
                                 <span class="break-words ${x.fatto ? 'line-through text-slate-400 font-bold' : 'text-slate-700 font-bold'}">${escapeHTML(x.testo)}</span>
                             </label>
                             <button onclick="eliminaObiettivoTrimestreAgenda(${idx})" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity p-0.5 shrink-0 cursor-pointer">
