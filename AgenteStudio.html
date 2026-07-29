@@ -865,9 +865,9 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-slate-100 pb-3">
                         <h2 id="titolo-scaletta" class="font-black text-slate-900 flex items-center gap-2 text-base shrink-0"><i class="fa-solid fa-calendar-week text-blue-600 text-lg"></i> Scaletta Settimanale</h2>
                         <div class="flex flex-wrap gap-1.5 justify-center sm:justify-start">
-                            <button id="btn-week-0" onclick="cambiaSettimana(0)" ondragover="allowDrop(event)" ondrop="dropElementOnWeek(event, 0)" class="px-3.5 py-1.5 text-xs font-black rounded-xl bg-blue-600 text-white shadow-md shadow-blue-100 transition-all cursor-pointer">Settimana Corrente</button>
-                            <button id="btn-week-1" onclick="cambiaSettimana(1)" ondragover="allowDrop(event)" ondrop="dropElementOnWeek(event, 1)" class="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer">Prossima Settimana (+1)</button>
-                            <button id="btn-week-2" onclick="cambiaSettimana(2)" ondragover="allowDrop(event)" ondrop="dropElementOnWeek(event, 2)" class="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer">Settimana Successiva (+2)</button>
+                            <button id="btn-week-0" onclick="cambiaSettimana(0)" ondragover="allowDrop(event)" ondragenter="startWeekSwitchTimer(0)" ondragleave="clearWeekSwitchTimer()" ondrop="dropElementOnWeek(event, 0); clearWeekSwitchTimer();" class="px-3.5 py-1.5 text-xs font-black rounded-xl bg-blue-600 text-white shadow-md shadow-blue-100 transition-all cursor-pointer">Settimana Corrente</button>
+                            <button id="btn-week-1" onclick="cambiaSettimana(1)" ondragover="allowDrop(event)" ondragenter="startWeekSwitchTimer(1)" ondragleave="clearWeekSwitchTimer()" ondrop="dropElementOnWeek(event, 1); clearWeekSwitchTimer();" class="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer">Prossima Settimana (+1)</button>
+                            <button id="btn-week-2" onclick="cambiaSettimana(2)" ondragover="allowDrop(event)" ondragenter="startWeekSwitchTimer(2)" ondragleave="clearWeekSwitchTimer()" ondrop="dropElementOnWeek(event, 2); clearWeekSwitchTimer();" class="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer">Settimana Successiva (+2)</button>
                         </div>
                         <div class="flex gap-2 justify-end">
                             <button id="schedule-edit-btn" onclick="toggleModificaScaletta()" class="border border-slate-200 hover:bg-slate-50 rounded-xl px-3 py-1.5 text-xs font-bold focus:ring-2 focus:ring-blue-500 cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-pen-to-square"></i> Modifica</button>
@@ -2932,6 +2932,54 @@
         let selectedWeekOffset = 0;
         let modificaScalettaAttiva = false;
         let timerSalvataggioNote = null;
+        let weekSwitchTimeout = null;
+
+        const weekThemes = {
+            0: {
+                primary: 'blue-600',
+                primaryHover: 'blue-700',
+                textDark: 'text-blue-700',
+                borderLight: 'border-blue-100',
+                bgLight: 'bg-blue-50/15',
+                ring: 'ring-blue-500/20',
+                borderFocus: 'focus:ring-blue-500 focus:border-blue-500',
+                btnClassActive: 'px-3.5 py-1.5 text-xs font-black rounded-xl bg-blue-600 text-white shadow-md shadow-blue-100 transition-all cursor-pointer',
+                shadowColor: 'shadow-blue-100'
+            },
+            1: {
+                primary: 'teal-600',
+                primaryHover: 'teal-700',
+                textDark: 'text-teal-700',
+                borderLight: 'border-teal-100',
+                bgLight: 'bg-teal-50/15',
+                ring: 'ring-teal-500/20',
+                borderFocus: 'focus:ring-teal-500 focus:border-teal-500',
+                btnClassActive: 'px-3.5 py-1.5 text-xs font-black rounded-xl bg-teal-600 text-white shadow-md shadow-teal-100 transition-all cursor-pointer',
+                shadowColor: 'shadow-teal-100'
+            },
+            2: {
+                primary: 'indigo-600',
+                primaryHover: 'indigo-700',
+                textDark: 'text-indigo-700',
+                borderLight: 'border-indigo-100',
+                bgLight: 'bg-indigo-50/15',
+                ring: 'ring-indigo-500/20',
+                borderFocus: 'focus:ring-indigo-500 focus:border-indigo-500',
+                btnClassActive: 'px-3.5 py-1.5 text-xs font-black rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-100 transition-all cursor-pointer',
+                shadowColor: 'shadow-indigo-100'
+            }
+        };
+
+        function startWeekSwitchTimer(offset) {
+            clearTimeout(weekSwitchTimeout);
+            weekSwitchTimeout = setTimeout(() => {
+                cambiaSettimana(offset);
+            }, 300);
+        }
+
+        function clearWeekSwitchTimer() {
+            clearTimeout(weekSwitchTimeout);
+        }
 
         function getWeekKey(offset = 0) {
             const oggi = new Date();
@@ -3369,7 +3417,8 @@
                 const btn = document.getElementById(`btn-week-${i}`);
                 if (btn) {
                     if (i === offset) {
-                        btn.className = "px-3.5 py-1.5 text-xs font-black rounded-xl bg-blue-600 text-white shadow-md shadow-blue-100 transition-all cursor-pointer";
+                        const theme = weekThemes[i];
+                        btn.className = theme.btnClassActive;
                     } else {
                         btn.className = "px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer";
                     }
@@ -3416,6 +3465,7 @@
             const btn = document.getElementById('schedule-edit-btn'); btn.innerHTML = modificaScalettaAttiva ? '<i class="fa-solid fa-check"></i> Fine' : '<i class="fa-solid fa-pen-to-square"></i> Modifica';
             
             const weekSchedule = getWeekSchedule(selectedWeekOffset);
+            const theme = weekThemes[selectedWeekOffset] || weekThemes[0];
 
             box.innerHTML = giorniSettimana.map((giorno, indice) => {
                 const isWeekend = (giorno === 'Sabato' || giorno === 'Domenica');
@@ -3423,10 +3473,10 @@
                 const titleColor = oggi ? 'text-blue-700 font-extrabold' : (isWeekend ? 'text-red-600 font-bold' : 'text-slate-800');
                 const borderBgClass = oggi 
                     ? 'border-2 border-blue-500 bg-blue-50/15 shadow-md shadow-blue-100/50 ring-2 ring-blue-500/20' 
-                    : 'border border-blue-100 bg-white shadow-sm';
+                    : `border ${theme.borderLight} bg-white shadow-sm`;
                 const badgeOggi = oggi ? `<span class="ml-2 bg-blue-600 text-white text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md shadow-sm">Oggi</span>` : '';
                 return `<div class="${borderBgClass} rounded-xl p-3.5 transition-all duration-200" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" ondrop="dropElement(event, '${giorno}')">
-                    <h3 class="text-sm font-bold ${titleColor} border-b border-dashed border-blue-100 pb-2.5 mb-2.5 flex items-center justify-between"><span class="flex items-center gap-1"><i class="fa-regular fa-calendar text-blue-600 mr-1"></i> ${giorno} ${getDataGiornoSettimana(indice)}</span>${badgeOggi}</h3>
+                    <h3 class="text-sm font-bold ${titleColor} border-b border-dashed ${theme.borderLight} pb-2.5 mb-2.5 flex items-center justify-between"><span class="flex items-center gap-1"><i class="fa-regular fa-calendar text-${theme.primary} mr-1"></i> ${giorno} ${getDataGiornoSettimana(indice)}</span>${badgeOggi}</h3>
                     <div class="space-y-2">
                         ${weekSchedule[giorno].length ? weekSchedule[giorno].map((x, idx2, arr) => {
                             const pallinoColor = { q1: 'bg-red-500', q2: 'bg-blue-500', q3: 'bg-emerald-500', q4: 'bg-slate-400' }[x.quadrante || ''] || '';
@@ -3445,7 +3495,7 @@
 
                             return modificaScalettaAttiva 
                                 ? `<div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
-                                    <input value="${escapeHTML(x.testo)}" onchange="aggiornaTestoScaletta('${giorno}','${x.id}',this.value)" aria-label="Testo attività" class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                                    <input value="${escapeHTML(x.testo)}" onchange="aggiornaTestoScaletta('${giorno}','${x.id}',this.value)" aria-label="Testo attività" class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-${theme.primary}">
                                     
                                     <!-- Su / Giù Ordinamento -->
                                     <div class="flex items-center gap-0.5 shrink-0">
@@ -3472,7 +3522,7 @@
                                    </div>`;
                         }).join('') : `<p class="text-sm italic text-slate-400">Nessuna attività</p>`}
                     </div>
-                    ${modificaScalettaAttiva ? `<div class="flex gap-2 mt-3"><input id="new-task-${indice}" onkeydown="if(event.key==='Enter'){event.preventDefault();aggiungiAttivitaScaletta('${giorno}')}" placeholder="Nuova attività per ${giorno}" class="min-w-0 flex-1 border border-blue-100 rounded-lg px-2 py-1.5 text-sm"><button onclick="aggiungiAttivitaScaletta('${giorno}')" aria-label="Aggiungi attività a ${giorno}" class="bg-blue-600 text-white rounded-lg px-2.5 cursor-pointer"><i class="fa-solid fa-plus"></i></button></div>` : ''}
+                    ${modificaScalettaAttiva ? `<div class="flex gap-2 mt-3"><input id="new-task-${indice}" onkeydown="if(event.key==='Enter'){event.preventDefault();aggiungiAttivitaScaletta('${giorno}')}" placeholder="Nuova attività per ${giorno}" class="min-w-0 flex-1 border ${theme.borderLight} rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-${theme.primary} focus:border-${theme.primary} focus:outline-none"><button onclick="aggiungiAttivitaScaletta('${giorno}')" aria-label="Aggiungi attività a ${giorno}" class="bg-${theme.primary} hover:bg-${theme.primaryHover} text-white rounded-lg px-2.5 cursor-pointer transition-colors"><i class="fa-solid fa-plus"></i></button></div>` : ''}
                 </div>`;
             }).join('');
             box.innerHTML = box.innerHTML.replaceAll('attivit\u00c3\u00a0', 'attivit\u00e0');
