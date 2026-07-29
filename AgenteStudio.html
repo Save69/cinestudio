@@ -12,7 +12,7 @@
         .tab-content.active { display: block; }
 
         /* Pillar pill active states */
-        .pill-riordino-active { background: #d97706 !important; color: white !important; box-shadow: 0 0 10px rgba(217,119,6,0.4); }
+        .pill-riordino-active { background: #10b981 !important; color: white !important; box-shadow: 0 0 10px rgba(16,185,129,0.4); }
         .pill-divisione-active { background: #ef4444 !important; color: white !important; box-shadow: 0 0 10px rgba(239,68,68,0.4); }
         .pill-lavoro-active    { background: #0284c7 !important; color: white !important; box-shadow: 0 0 10px rgba(2,132,199,0.4); }
         .pill-fisico-active   { background: #7c3aed !important; color: white !important; box-shadow: 0 0 10px rgba(124,58,237,0.4); }
@@ -109,10 +109,10 @@
                     </div>
                     <div class="flex items-center justify-between px-2 py-1.5 rounded-lg bg-slate-800/50">
                         <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-broom text-blue-400 text-xs"></i>
+                            <i class="fa-solid fa-broom text-emerald-400 text-xs"></i>
                             <span class="text-xs text-slate-400">Riordino</span>
                         </div>
-                        <span id="sidebar-streak-riordino" class="text-xs font-black text-blue-400 font-mono">0d 🔥</span>
+                        <span id="sidebar-streak-riordino" class="text-xs font-black text-emerald-400 font-mono">0d 🔥</span>
                     </div>
                 </div>
             </div>
@@ -562,35 +562,35 @@
                     </div>
 
                     <!-- ── 4. GRIGLIA RIORDINO ── -->
-                    <div class="bg-white rounded-2xl border-2 border-blue-400 shadow-sm">
+                    <div class="bg-white rounded-2xl border-2 border-emerald-400 shadow-sm">
                         <div class="p-5 cursor-pointer select-none" onclick="toggleStanzeAccordion()" title="Clicca per vedere le aree">
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center gap-3">
-                                    <div class="bg-blue-400 p-2.5 rounded-xl text-white shrink-0 shadow-sm shadow-blue-200"><i class="fa-solid fa-broom text-lg"></i></div>
+                                    <div class="bg-emerald-500 p-2.5 rounded-xl text-white shrink-0 shadow-sm shadow-emerald-100"><i class="fa-solid fa-broom text-lg"></i></div>
                                     <div>
                                         <h4 class="font-bold text-sm text-slate-800">Riordino — Studio, Casa &amp; Giardino</h4>
                                         <p class="text-[10px] text-slate-400">Sessioni da 15 o 30 min · clicca per aprire le aree</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-4">
-                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Serie</p><div class="flex items-baseline gap-1 justify-end"><span class="text-xl font-black text-slate-800" id="streak-riordino-attuale">0d</span><i class="fa-solid fa-fire text-blue-500 text-xs"></i></div></div>
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Serie</p><div class="flex items-baseline gap-1 justify-end"><span class="text-xl font-black text-slate-800" id="streak-riordino-attuale">0d</span><i class="fa-solid fa-fire text-emerald-500 text-xs"></i></div></div>
                                     <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Record</p><span class="text-xl font-black text-slate-600" id="streak-riordino-max">0d</span></div>
-                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Giorni</p><span class="text-xl font-black text-blue-500" id="giorni-riordino">0</span></div>
-                                    <div class="ml-2 text-blue-400"><i id="chevron-stanze" class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i></div>
+                                    <div class="text-right"><p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Giorni</p><span class="text-xl font-black text-emerald-500" id="giorni-riordino">0</span></div>
+                                    <div class="ml-2 text-emerald-400"><i id="chevron-stanze" class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i></div>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 bg-blue-50/40 rounded-xl border-2 border-blue-400 select-none">
+                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 bg-emerald-50/20 rounded-xl border-2 border-emerald-400 select-none">
                                 <!-- Griglia Calendario (Q3) -->
                                 <div id="grid-riordino" class="lg:col-span-5 flex flex-wrap gap-1.5 align-content-start" onclick="event.stopPropagation()"></div>
 
                                 <!-- Riquadri Obiettivi (Mensili PRIMA, Trimestre DOPO) -->
                                 <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3" onclick="event.stopPropagation()">
                                     <!-- 1. Obiettivi Mensili -->
-                                    <div class="bg-white/95 rounded-xl p-3 border border-blue-200 shadow-sm flex flex-col justify-between">
+                                    <div class="bg-white/95 rounded-xl p-3 border border-emerald-200 shadow-sm flex flex-col justify-between">
                                         <div>
-                                            <div class="flex items-center justify-between pb-2 mb-2 border-b border-blue-100">
+                                            <div class="flex items-center justify-between pb-2 mb-2 border-b border-emerald-100">
                                                 <div class="flex items-center gap-2">
-                                                    <i class="fa-solid fa-calendar-check text-blue-500 text-sm"></i>
+                                                    <i class="fa-solid fa-calendar-check text-emerald-500 text-sm"></i>
                                                     <h5 class="font-bold text-xs text-slate-800 uppercase tracking-wider">Obiettivi Mensili</h5>
                                                 </div>
                                                 <div class="flex items-center gap-1" id="tabs-mesi-riordino"></div>
@@ -599,54 +599,54 @@
                                         </div>
                                         <div class="mt-2 pt-2 border-t border-slate-100 flex gap-1.5">
                                             <input type="text" id="input-ob-mensili-riordino" placeholder="Nuovo obiettivo mensile..."
-                                                   class="flex-1 text-[11px] border border-slate-200 rounded-lg px-2.5 py-1 focus:outline-none focus:border-blue-400 bg-white"
+                                                   class="flex-1 text-[11px] border border-slate-200 rounded-lg px-2.5 py-1 focus:outline-none focus:border-emerald-400 bg-white"
                                                    onkeydown="if(event.key==='Enter') addObiettivoMensilePilastro('riordino')">
-                                            <button onclick="addObiettivoMensilePilastro('riordino')" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded-lg transition-colors" title="Aggiungi">+</button>
+                                            <button onclick="addObiettivoMensilePilastro('riordino')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold px-2.5 py-1 rounded-lg transition-colors" title="Aggiungi">+</button>
                                         </div>
                                     </div>
 
                                     <!-- 2. Obiettivi del Trimestre (Q3) -->
-                                    <div class="bg-white/95 rounded-xl p-3 border border-blue-200 shadow-sm flex flex-col justify-between">
+                                    <div class="bg-white/95 rounded-xl p-3 border border-emerald-200 shadow-sm flex flex-col justify-between">
                                         <div>
-                                            <div class="flex items-center justify-between pb-2 mb-2 border-b border-blue-100">
+                                            <div class="flex items-center justify-between pb-2 mb-2 border-b border-emerald-100">
                                                 <div class="flex items-center gap-2">
-                                                    <i class="fa-solid fa-bullseye text-blue-500 text-sm"></i>
+                                                    <i class="fa-solid fa-bullseye text-emerald-500 text-sm"></i>
                                                     <h5 class="font-bold text-xs text-slate-800 uppercase tracking-wider">Obiettivi Trimestre (Q3)</h5>
                                                 </div>
-                                                <span id="badge-trimestre-count-riordino" class="text-[10px] font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">0/0</span>
+                                                <span id="badge-trimestre-count-riordino" class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">0/0</span>
                                             </div>
                                             <div id="list-obiettivi-trimestre-riordino" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
                                         </div>
                                         <div class="mt-2 pt-2 border-t border-slate-100 flex gap-1.5">
                                             <input type="text" id="input-ob-trimestre-riordino" placeholder="Nuovo obiettivo Q3..."
-                                                   class="flex-1 text-[11px] border border-slate-200 rounded-lg px-2.5 py-1 focus:outline-none focus:border-blue-400 bg-white"
+                                                   class="flex-1 text-[11px] border border-slate-200 rounded-lg px-2.5 py-1 focus:outline-none focus:border-emerald-400 bg-white"
                                                    onkeydown="if(event.key==='Enter') addObiettivoTrimestrePilastro('riordino')">
-                                            <button onclick="addObiettivoTrimestrePilastro('riordino')" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded-lg transition-colors" title="Aggiungi">+</button>
+                                            <button onclick="addObiettivoTrimestrePilastro('riordino')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold px-2.5 py-1 rounded-lg transition-colors" title="Aggiungi">+</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <!-- ACCORDION stanze -->
-                        <div id="accordion-stanze" class="hidden border-t-2 border-blue-400">
+                        <div id="accordion-stanze" class="hidden border-t-2 border-emerald-400">
                             <!-- Gruppo Studio -->
                             <div class="px-5 pt-4 pb-2">
-                                <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-3 flex items-center gap-2"><i class="fa-solid fa-building"></i> Gruppo Studio</p>
+                                <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-3 flex items-center gap-2"><i class="fa-solid fa-building"></i> Gruppo Studio</p>
                                 <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" id="container-stanze"></section>
                             </div>
                             <!-- Gruppo Abitazione (placeholder) -->
-                            <div class="px-5 pt-2 pb-2 border-t border-blue-100">
-                                <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fa-solid fa-house"></i> Gruppo Abitazione</p>
-                                <div class="flex items-center gap-3 p-3 bg-blue-50/60 rounded-xl border border-dashed border-blue-300">
-                                    <i class="fa-solid fa-hammer text-blue-300 text-lg"></i>
+                            <div class="px-5 pt-2 pb-2 border-t border-emerald-100">
+                                <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fa-solid fa-house"></i> Gruppo Abitazione</p>
+                                <div class="flex items-center gap-3 p-3 bg-emerald-50/30 rounded-xl border border-dashed border-emerald-200">
+                                    <i class="fa-solid fa-hammer text-emerald-400 text-lg"></i>
                                     <p class="text-xs text-slate-400 italic">Ambienti in definizione — da configurare prossimamente.</p>
                                 </div>
                             </div>
                             <!-- Gruppo Giardino (placeholder) -->
-                            <div class="px-5 pt-2 pb-4 border-t border-blue-100">
-                                <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fa-solid fa-seedling"></i> Gruppo Giardino</p>
-                                <div class="flex items-center gap-3 p-3 bg-blue-50/60 rounded-xl border border-dashed border-blue-300">
-                                    <i class="fa-solid fa-hammer text-blue-300 text-lg"></i>
+                            <div class="px-5 pt-2 pb-4 border-t border-emerald-100">
+                                <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fa-solid fa-seedling"></i> Gruppo Giardino</p>
+                                <div class="flex items-center gap-3 p-3 bg-emerald-50/30 rounded-xl border border-dashed border-emerald-200">
+                                    <i class="fa-solid fa-hammer text-emerald-400 text-lg"></i>
                                     <p class="text-xs text-slate-400 italic">Zone in definizione — da configurare prossimamente.</p>
                                 </div>
                             </div>
@@ -1034,13 +1034,13 @@
         const PILASTRI_CONFIG = {
             riordino: {
                 nome:            'Riordino',
-                cardBg:          '#1c0f00',   // dark blue
-                cardBorder:      '#78350f',   // blue-900
-                barColor:        '#f59e0b',   // blue-500
-                labelColor:      '#fbbf24',   // blue-400
-                dotColor:        '#f59e0b',
-                btnBg:           '#d97706',   // blue-600
-                btnHover:        '#b45309',   // blue-700
+                cardBg:          '#022c22',   // dark emerald-950
+                cardBorder:      '#065f46',   // emerald-800
+                barColor:        '#10b981',   // emerald-500
+                labelColor:      '#6ee7b7',   // emerald-300
+                dotColor:        '#10b981',
+                btnBg:           '#059669',   // emerald-600
+                btnHover:        '#047857',   // emerald-700
                 presets:         [15, 30],
                 presetLabels:    ['15 Min', '30 Min'],
                 defaultMinutes:  30,
@@ -1477,7 +1477,7 @@
         }
 
         function renderTutteLeGriglie() {
-            renderGrigliaPerPilastro('riordino',  'grid-riordino',  '#f59e0b', '#d97706', null);
+            renderGrigliaPerPilastro('riordino',  'grid-riordino',  '#10b981', '#059669', null);
             renderGrigliaPerPilastro('divisione', 'grid-divisione', '#ef4444', '#dc2626', null);
             renderGrigliaPerPilastro('lavoro',    'grid-lavoro',    '#0284c7', '#0369a1', null);
             renderGrigliaPerPilastro('fisico',    'grid-fisico',    '#7c3aed', '#6d28d9', null);
