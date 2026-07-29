@@ -862,10 +862,15 @@
 
                 <!-- 2. Scaletta Settimanale -->
                 <section class="bg-white border border-blue-100 rounded-2xl p-5 shadow-sm xl:row-span-2" aria-labelledby="titolo-scaletta">
-                    <div class="flex flex-wrap justify-between items-center gap-3 mb-3">
-                        <h2 id="titolo-scaletta" class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-calendar-week text-blue-600"></i> Scaletta Settimanale</h2>
-                        <div class="flex gap-2">
-                            <button id="schedule-edit-btn" onclick="toggleModificaScaletta()" class="border border-slate-200 hover:bg-slate-50 rounded-lg px-2.5 py-1.5 text-xs font-bold focus:ring-2 focus:ring-blue-500 cursor-pointer"><i class="fa-solid fa-pen-to-square"></i> Modifica</button>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-slate-100 pb-3">
+                        <h2 id="titolo-scaletta" class="font-black text-slate-900 flex items-center gap-2 text-base shrink-0"><i class="fa-solid fa-calendar-week text-blue-600 text-lg"></i> Scaletta Settimanale</h2>
+                        <div class="flex flex-wrap gap-1.5 justify-center sm:justify-start">
+                            <button id="btn-week-0" onclick="cambiaSettimana(0)" ondragover="allowDrop(event)" ondrop="dropElementOnWeek(event, 0)" class="px-3.5 py-1.5 text-xs font-black rounded-xl bg-blue-600 text-white shadow-md shadow-blue-100 transition-all cursor-pointer">Settimana Corrente</button>
+                            <button id="btn-week-1" onclick="cambiaSettimana(1)" ondragover="allowDrop(event)" ondrop="dropElementOnWeek(event, 1)" class="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer">Prossima Settimana (+1)</button>
+                            <button id="btn-week-2" onclick="cambiaSettimana(2)" ondragover="allowDrop(event)" ondrop="dropElementOnWeek(event, 2)" class="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer">Settimana Successiva (+2)</button>
+                        </div>
+                        <div class="flex gap-2 justify-end">
+                            <button id="schedule-edit-btn" onclick="toggleModificaScaletta()" class="border border-slate-200 hover:bg-slate-50 rounded-xl px-3 py-1.5 text-xs font-bold focus:ring-2 focus:ring-blue-500 cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-pen-to-square"></i> Modifica</button>
                         </div>
                     </div>
                     <p id="schedule-help" class="hidden text-xs text-blue-700 bg-blue-50 rounded-lg px-3 py-2 mb-3">Modalità modifica attiva: cambia i testi, sposta o elimina le attività e aggiungine di nuove.</p>
@@ -2922,21 +2927,67 @@
         function escapeHTML(value) { const el = document.createElement('div'); el.textContent = value ?? ''; return el.innerHTML; }
 
         let promemoriaAgenda = leggiJSONSicuro(AGENDA_KEYS.reminders, []);
-        let scalettaAgenda = leggiJSONSicuro(AGENDA_KEYS.schedule, null);
+        let rawScaletta = leggiJSONSicuro(AGENDA_KEYS.schedule, null);
+        let scalettaAgenda = {};
+        let selectedWeekOffset = 0;
         let modificaScalettaAttiva = false;
         let timerSalvataggioNote = null;
-        
-        if (!scalettaAgenda || typeof scalettaAgenda !== 'object') {
-            scalettaAgenda = {};
-            giorniSettimana.forEach(g => scalettaAgenda[g] = scalettaDefault[g].map(testo => ({ id: nuovoId(), testo, completata: false })));
+
+        function getWeekKey(offset = 0) {
+            const oggi = new Date();
+            const day = oggi.getDay();
+            const diff = (day === 0) ? -6 : 1 - day;
+            const currentMonday = new Date(oggi);
+            currentMonday.setDate(oggi.getDate() + diff);
+            
+            const targetMonday = new Date(currentMonday);
+            targetMonday.setDate(currentMonday.getDate() + (offset * 7));
+            
+            const yyyy = targetMonday.getFullYear();
+            const mm = String(targetMonday.getMonth() + 1).padStart(2, '0');
+            const dd = String(targetMonday.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function getWeekSchedule(offset) {
+            const key = getWeekKey(offset);
+            if (!scalettaAgenda[key]) {
+                scalettaAgenda[key] = {};
+                if (offset === 0) {
+                    giorniSettimana.forEach(g => {
+                        scalettaAgenda[key][g] = scalettaDefault[g].map(testo => ({ id: nuovoId(), testo, completata: false }));
+                    });
+                } else {
+                    giorniSettimana.forEach(g => {
+                        scalettaAgenda[key][g] = [];
+                    });
+                }
+            }
+            giorniSettimana.forEach(g => {
+                if (!Array.isArray(scalettaAgenda[key][g])) {
+                    scalettaAgenda[key][g] = [];
+                }
+            });
+            return scalettaAgenda[key];
+        }
+
+        // Migrazione dati
+        if (rawScaletta && typeof rawScaletta === 'object') {
+            if (rawScaletta['Lunedì'] && Array.isArray(rawScaletta['Lunedì'])) {
+                const currentMonday = getWeekKey(0);
+                scalettaAgenda[currentMonday] = rawScaletta;
+                localStorage.setItem(AGENDA_KEYS.schedule, JSON.stringify(scalettaAgenda));
+            } else {
+                scalettaAgenda = rawScaletta;
+            }
+        } else {
+            const currentMonday = getWeekKey(0);
+            scalettaAgenda[currentMonday] = {};
+            giorniSettimana.forEach(g => {
+                scalettaAgenda[currentMonday][g] = scalettaDefault[g].map(testo => ({ id: nuovoId(), testo, completata: false }));
+            });
             localStorage.setItem(AGENDA_KEYS.schedule, JSON.stringify(scalettaAgenda));
         }
-        if (!Array.isArray(scalettaAgenda[giorniSettimana[0]])) {
-            scalettaAgenda = {};
-            giorniSettimana.forEach(g => scalettaAgenda[g] = scalettaDefault[g].map(testo => ({ id: nuovoId(), testo, completata: false })));
-            localStorage.setItem(AGENDA_KEYS.schedule, JSON.stringify(scalettaAgenda));
-        }
-        giorniSettimana.forEach(g => { if (!Array.isArray(scalettaAgenda[g])) scalettaAgenda[g] = []; });
 
         function salvaPromemoria() { localStorage.setItem(AGENDA_KEYS.reminders, JSON.stringify(promemoriaAgenda)); }
         function correggiOrtografia(testo) {
@@ -3037,33 +3088,83 @@
 
         function salvaScaletta() { localStorage.setItem(AGENDA_KEYS.schedule, JSON.stringify(scalettaAgenda)); }
         function toggleModificaScaletta() { modificaScalettaAttiva = !modificaScalettaAttiva; document.getElementById('schedule-help').classList.toggle('hidden', !modificaScalettaAttiva); renderScaletta(); }
-        function toggleAttivitaScaletta(giorno, id) { const x = scalettaAgenda[giorno].find(a => a.id === id); if (x) x.completata = !x.completata; salvaScaletta(); renderScaletta(); }
-        function aggiornaTestoScaletta(giorno, id, testo) { const x = scalettaAgenda[giorno].find(a => a.id === id); if (x && testo.trim()) x.testo = testo.trim(); salvaScaletta(); }
-        function aggiungiAttivitaScaletta(giorno) { const input = document.getElementById(`new-task-${giorniSettimana.indexOf(giorno)}`); let testo = input.value.trim(); if (!testo) return; testo = correggiOrtografia(testo); scalettaAgenda[giorno].push({ id: nuovoId(), testo, completata: false }); salvaScaletta(); renderScaletta(); }
-        function eliminaAttivitaScaletta(giorno, id) { scalettaAgenda[giorno] = scalettaAgenda[giorno].filter(x => x.id !== id); salvaScaletta(); renderScaletta(); }
-        function ordinaAttivitaGiorno(giorno) {
-            if (!scalettaAgenda[giorno]) return;
+
+        function toggleAttivitaScaletta(giorno, id) {
+            const weekSchedule = getWeekSchedule(selectedWeekOffset);
+            const x = weekSchedule[giorno].find(a => a.id === id);
+            if (x) x.completata = !x.completata;
+            salvaScaletta();
+            renderScaletta();
+        }
+
+        function aggiornaTestoScaletta(giorno, id, testo) {
+            const weekSchedule = getWeekSchedule(selectedWeekOffset);
+            const x = weekSchedule[giorno].find(a => a.id === id);
+            if (x && testo.trim()) x.testo = testo.trim();
+            salvaScaletta();
+        }
+
+        function aggiungiAttivitaScaletta(giorno) {
+            const input = document.getElementById(`new-task-${giorniSettimana.indexOf(giorno)}`);
+            let testo = input.value.trim();
+            if (!testo) return;
+            testo = correggiOrtografia(testo);
+            const weekSchedule = getWeekSchedule(selectedWeekOffset);
+            weekSchedule[giorno].push({ id: nuovoId(), testo, completata: false });
+            ordinaAttivitaGiorno(giorno);
+            salvaScaletta();
+            renderScaletta();
+        }
+
+        function eliminaAttivitaScaletta(giorno, id) {
+            const weekSchedule = getWeekSchedule(selectedWeekOffset);
+            weekSchedule[giorno] = weekSchedule[giorno].filter(x => x.id !== id);
+            salvaScaletta();
+            renderScaletta();
+        }
+
+        function ordinaAttivitaGiorno(giorno, offset = selectedWeekOffset) {
+            const weekSchedule = getWeekSchedule(offset);
+            if (!weekSchedule[giorno]) return;
             const quadOrder = { q1: 1, q2: 2, q3: 3, q4: 4 };
-            scalettaAgenda[giorno].sort((a, b) => {
+            weekSchedule[giorno].sort((a, b) => {
                 const qa = quadOrder[a.quadrante] || 5;
                 const qb = quadOrder[b.quadrante] || 5;
                 return qa - qb;
             });
         }
 
-        function spostaAttivitaScaletta(da, id, a) {
-            if (da === a) return;
-            const i = scalettaAgenda[da].findIndex(x => x.id === id);
+        function spostaAttivitaScaletta(da, id, targetString) {
+            let targetGiorno = targetString;
+            let targetOffset = selectedWeekOffset;
+
+            const match = targetString.match(/^(.*?)\s*\(\+(\d+)\)$/);
+            if (match) {
+                targetGiorno = match[1].trim();
+                targetOffset = parseInt(match[2], 10);
+            }
+
+            const srcWeekKey = getWeekKey(selectedWeekOffset);
+            const destWeekKey = getWeekKey(targetOffset);
+
+            const srcList = scalettaAgenda[srcWeekKey]?.[da];
+            if (!srcList) return;
+
+            const i = srcList.findIndex(x => x.id === id);
             if (i < 0) return;
-            const item = scalettaAgenda[da].splice(i, 1)[0];
-            scalettaAgenda[a].push(item);
-            gestisciCascataAttivitaSpalmata(item.testo, a);
-            ordinaAttivitaGiorno(a);
+
+            const item = srcList.splice(i, 1)[0];
+            const destWeekSchedule = getWeekSchedule(targetOffset);
+            destWeekSchedule[targetGiorno].push(item);
+
+            gestisciCascataAttivitaSpalmata(item.testo, targetGiorno, targetOffset);
+            ordinaAttivitaGiorno(targetGiorno, targetOffset);
+
             salvaScaletta();
             renderScaletta();
         }
-        
-        function gestisciCascataAttivitaSpalmata(testoAttivita, giornoIniziale) {
+
+        function gestisciCascataAttivitaSpalmata(testoAttivita, giornoIniziale, offset = selectedWeekOffset) {
             const match = testoAttivita.match(/^(.*?)\s*\(1\/(\d+)\)$/);
             if (!match) return;
 
@@ -3072,35 +3173,60 @@
             if (isNaN(totalParts) || totalParts <= 1) return;
 
             let currentDay = giornoIniziale;
+            let currentOffset = offset;
+
             for (let k = 2; k <= totalParts; k++) {
-                currentDay = getGiornoSuccessiveOrWrap(currentDay);
+                if (currentDay === 'Domenica') {
+                    currentDay = 'Lunedì';
+                    currentOffset++;
+                } else {
+                    currentDay = getGiornoSuccessiveOrWrap(currentDay);
+                }
+
                 const targetText = `${baseName} (${k}/${totalParts})`;
 
                 let foundItem = null;
+                let foundWeekKey = null;
                 let foundDay = null;
                 let foundIndex = -1;
+                let foundOffset = 0;
 
-                for (const g of giorniSettimana) {
-                    const idx = scalettaAgenda[g].findIndex(x => x.testo === targetText && !x.completata);
-                    if (idx !== -1) {
-                        foundItem = scalettaAgenda[g][idx];
-                        foundDay = g;
-                        foundIndex = idx;
-                        break;
+                for (let o = 0; o <= 2; o++) {
+                    const wKey = getWeekKey(o);
+                    const wSchedule = getWeekSchedule(o);
+                    for (const g of giorniSettimana) {
+                        const idx = wSchedule[g].findIndex(x => x.testo === targetText && !x.completata);
+                        if (idx !== -1) {
+                            foundItem = wSchedule[g][idx];
+                            foundWeekKey = wKey;
+                            foundDay = g;
+                            foundIndex = idx;
+                            foundOffset = o;
+                            break;
+                        }
                     }
+                    if (foundItem) break;
                 }
 
                 if (foundItem) {
-                    if (foundDay !== currentDay) {
-                        scalettaAgenda[foundDay].splice(foundIndex, 1);
-                        scalettaAgenda[currentDay].push(foundItem);
-                        ordinaAttivitaGiorno(currentDay);
+                    const destWeekKey = getWeekKey(currentOffset);
+                    if (foundWeekKey !== destWeekKey || foundDay !== currentDay) {
+                        scalettaAgenda[foundWeekKey][foundDay].splice(foundIndex, 1);
+                        const destSchedule = getWeekSchedule(currentOffset);
+                        destSchedule[currentDay].push(foundItem);
+                        ordinaAttivitaGiorno(currentDay, currentOffset);
                     }
                 }
             }
         }
 
+        function getGiornoSuccessiveOrWrap(giorno) {
+            const idx = giorniSettimana.indexOf(giorno);
+            return idx === giorniSettimana.length - 1 ? giorniSettimana[0] : giorniSettimana[idx + 1];
+        }
+
         function isOggi(indiceGiorno) {
+            if (selectedWeekOffset !== 0) return false;
             const oggi = new Date();
             const day = oggi.getDay(); // 0=Dom, 1=Lun
             const diff = (day === 0) ? -6 : 1 - day; // diff to Monday
@@ -3123,7 +3249,7 @@
             lunedi.setDate(oggi.getDate() + diff);
             
             const target = new Date(lunedi);
-            target.setDate(lunedi.getDate() + indiceGiorno);
+            target.setDate(lunedi.getDate() + indiceGiorno + (selectedWeekOffset * 7));
             
             const giornoMese = target.getDate();
             const mesiAbbreviati = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
@@ -3172,10 +3298,15 @@
                 const data = JSON.parse(event.dataTransfer.getData("text/plain"));
                 const { giorno: origine, id } = data;
 
-                const idx = scalettaAgenda[origine].findIndex(x => x.id === id);
+                const weekKey = getWeekKey(selectedWeekOffset);
+                const list = scalettaAgenda[weekKey]?.[origine];
+                if (!list) return;
+
+                const idx = list.findIndex(x => x.id === id);
                 if (idx !== -1) {
-                    const [item] = scalettaAgenda[origine].splice(idx, 1);
-                    scalettaAgenda[destinazione].push(item);
+                    const [item] = list.splice(idx, 1);
+                    const destWeekSchedule = getWeekSchedule(selectedWeekOffset);
+                    destWeekSchedule[destinazione].push(item);
                     
                     if (origine !== destinazione) {
                         gestisciCascataAttivitaSpalmata(item.testo, destinazione);
@@ -3195,7 +3326,6 @@
             event.preventDefault();
             event.stopPropagation();
             
-            // Rimuove gli aloni grafici di drag over dai contenitori padri
             const container = event.currentTarget.closest('[ondrop^="dropElement"]');
             if (container) {
                 container.classList.remove('border-blue-500', 'bg-blue-50/20');
@@ -3206,16 +3336,19 @@
                 const data = JSON.parse(event.dataTransfer.getData("text/plain"));
                 const { giorno: origine, id } = data;
                 
-                const idxOrigine = scalettaAgenda[origine].findIndex(x => x.id === id);
+                const weekKey = getWeekKey(selectedWeekOffset);
+                const srcList = scalettaAgenda[weekKey]?.[origine];
+                const destList = scalettaAgenda[weekKey]?.[destinazioneGiorno];
+                if (!srcList || !destList) return;
+                
+                const idxOrigine = srcList.findIndex(x => x.id === id);
                 if (idxOrigine === -1) return;
                 
-                const idxDestinazione = scalettaAgenda[destinazioneGiorno].findIndex(x => x.id === destinazioneId);
+                const idxDestinazione = destList.findIndex(x => x.id === destinazioneId);
                 if (idxDestinazione === -1) return;
 
-                const [item] = scalettaAgenda[origine].splice(idxOrigine, 1);
-                
-                // Inserisce esattamente alla posizione dell'elemento di destinazione
-                scalettaAgenda[destinazioneGiorno].splice(idxDestinazione, 0, item);
+                const [item] = srcList.splice(idxOrigine, 1);
+                destList.splice(idxDestinazione, 0, item);
                 
                 if (origine !== destinazioneGiorno) {
                     gestisciCascataAttivitaSpalmata(item.testo, destinazioneGiorno);
@@ -3230,9 +3363,60 @@
             }
         }
 
+        function cambiaSettimana(offset) {
+            selectedWeekOffset = offset;
+            for (let i = 0; i <= 2; i++) {
+                const btn = document.getElementById(`btn-week-${i}`);
+                if (btn) {
+                    if (i === offset) {
+                        btn.className = "px-3.5 py-1.5 text-xs font-black rounded-xl bg-blue-600 text-white shadow-md shadow-blue-100 transition-all cursor-pointer";
+                    } else {
+                        btn.className = "px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer";
+                    }
+                }
+            }
+            renderScaletta();
+        }
+
+        function dropElementOnWeek(event, destOffset) {
+            event.preventDefault();
+            event.stopPropagation();
+            try {
+                const data = JSON.parse(event.dataTransfer.getData("text/plain"));
+                const { giorno: origineGiorno, id } = data;
+                
+                const srcWeekKey = getWeekKey(selectedWeekOffset);
+                const destWeekKey = getWeekKey(destOffset);
+                if (srcWeekKey === destWeekKey) return;
+                
+                const srcList = scalettaAgenda[srcWeekKey]?.[origineGiorno];
+                if (!srcList) return;
+                
+                const idx = srcList.findIndex(x => x.id === id);
+                if (idx === -1) return;
+                
+                const [item] = srcList.splice(idx, 1);
+                
+                const destWeekSchedule = getWeekSchedule(destOffset);
+                destWeekSchedule[origineGiorno].push(item);
+                
+                gestisciCascataAttivitaSpalmata(item.testo, origineGiorno, destOffset);
+                ordinaAttivitaGiorno(origineGiorno, destOffset);
+                
+                salvaScaletta();
+                renderScaletta();
+                showToast(`Attività spostata alla settimana selezionata`, 'success');
+            } catch (e) {
+                console.error("Drop on week error:", e);
+            }
+        }
+
         function renderScaletta() {
             const box = document.getElementById('weekly-schedule'); if (!box) return;
             const btn = document.getElementById('schedule-edit-btn'); btn.innerHTML = modificaScalettaAttiva ? '<i class="fa-solid fa-check"></i> Fine' : '<i class="fa-solid fa-pen-to-square"></i> Modifica';
+            
+            const weekSchedule = getWeekSchedule(selectedWeekOffset);
+
             box.innerHTML = giorniSettimana.map((giorno, indice) => {
                 const isWeekend = (giorno === 'Sabato' || giorno === 'Domenica');
                 const oggi = isOggi(indice);
@@ -3244,10 +3428,21 @@
                 return `<div class="${borderBgClass} rounded-xl p-3.5 transition-all duration-200" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" ondrop="dropElement(event, '${giorno}')">
                     <h3 class="text-sm font-bold ${titleColor} border-b border-dashed border-blue-100 pb-2.5 mb-2.5 flex items-center justify-between"><span class="flex items-center gap-1"><i class="fa-regular fa-calendar text-blue-600 mr-1"></i> ${giorno} ${getDataGiornoSettimana(indice)}</span>${badgeOggi}</h3>
                     <div class="space-y-2">
-                        ${scalettaAgenda[giorno].length ? scalettaAgenda[giorno].map((x, idx2, arr) => {
+                        ${weekSchedule[giorno].length ? weekSchedule[giorno].map((x, idx2, arr) => {
                             const pallinoColor = { q1: 'bg-red-500', q2: 'bg-blue-500', q3: 'bg-emerald-500', q4: 'bg-slate-400' }[x.quadrante || ''] || '';
                             const dotHtml = pallinoColor ? `<span class="inline-block w-2.5 h-2.5 rounded-full ${pallinoColor} shrink-0 mt-1" title="Priorità Eisenhower"></span>` : '';
                             
+                            const targetOptions = [];
+                            giorniSettimana.forEach(g => {
+                                targetOptions.push(`<option value="${g}" ${selectedWeekOffset === 0 && g === giorno ? 'selected' : ''}>${g} (Corrente)</option>`);
+                            });
+                            giorniSettimana.forEach(g => {
+                                targetOptions.push(`<option value="${g} (+1)" ${selectedWeekOffset === 1 && g === giorno ? 'selected' : ''}>${g} (+1 Sett.)</option>`);
+                            });
+                            giorniSettimana.forEach(g => {
+                                targetOptions.push(`<option value="${g} (+2)" ${selectedWeekOffset === 2 && g === giorno ? 'selected' : ''}>${g} (+2 Sett.)</option>`);
+                            });
+
                             return modificaScalettaAttiva 
                                 ? `<div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
                                     <input value="${escapeHTML(x.testo)}" onchange="aggiornaTestoScaletta('${giorno}','${x.id}',this.value)" aria-label="Testo attività" class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
@@ -3265,7 +3460,7 @@
                                         <option value="q3" ${x.quadrante === 'q3' ? 'selected' : ''}>🟢 Q3: Delega</option>
                                         <option value="q4" ${x.quadrante === 'q4' ? 'selected' : ''}>⚪ Q4: Parcheggia</option>
                                     </select>
-                                    <select onchange="spostaAttivitaScaletta('${giorno}','${x.id}',this.value)" aria-label="Sposta attività" class="border border-slate-200 rounded-lg px-1 py-1.5 text-[11px] bg-white cursor-pointer">${giorniSettimana.map(g => `<option ${g === giorno ? 'selected' : ''}>${g}</option>`).join('')}</select>
+                                    <select onchange="spostaAttivitaScaletta('${giorno}','${x.id}',this.value)" aria-label="Sposta attività" class="border border-slate-200 rounded-lg px-1 py-1.5 text-[11px] bg-white cursor-pointer">${targetOptions.join('')}</select>
                                     <button onclick="rimandaAlBloccoNote('${giorno}','${x.id}')" title="Rimetti nel Blocco Note" class="text-slate-400 hover:text-blue-700 p-1 cursor-pointer"><i class="fa-solid fa-arrow-rotate-left"></i></button>
                                     <button onclick="eliminaAttivitaScaletta('${giorno}','${x.id}')" aria-label="Elimina attività" class="text-slate-400 hover:text-red-600 p-1 cursor-pointer"><i class="fa-solid fa-trash"></i></button>
                                    </div>`
@@ -3288,7 +3483,8 @@
         }
 
         function cambiaQuadranteScaletta(giorno, id, nuovoQuadrante) {
-            const x = scalettaAgenda[giorno].find(a => a.id === id);
+            const weekSchedule = getWeekSchedule(selectedWeekOffset);
+            const x = weekSchedule[giorno].find(a => a.id === id);
             if (x) {
                 x.quadrante = nuovoQuadrante || undefined;
                 ordinaAttivitaGiorno(giorno);
@@ -3298,7 +3494,8 @@
         }
 
         function spostaElementoScaletta(giorno, indice, direzione) {
-            const arr = scalettaAgenda[giorno];
+            const weekSchedule = getWeekSchedule(selectedWeekOffset);
+            const arr = weekSchedule[giorno];
             const target = indice + direzione;
             if (target < 0 || target >= arr.length) return;
             const temp = arr[indice];
@@ -3527,15 +3724,20 @@
                 renderPromemoria();
             } else {
                 let currentDay = giornoSelezionato;
+                let currentOffset = selectedWeekOffset;
                 for (let i = 1; i <= numGiorni; i++) {
                     const suffix = numGiorni > 1 ? ` (${i}/${numGiorni})` : '';
-                    scalettaAgenda[currentDay].push({
+                    if (i > 1 && currentDay === 'Lunedì') {
+                        currentOffset++;
+                    }
+                    const targetWeekSchedule = getWeekSchedule(currentOffset);
+                    targetWeekSchedule[currentDay].push({
                         id: nuovoId(),
                         testo: task.cleanText + suffix,
                         completata: false,
                         quadrante: quadrante
                     });
-                    ordinaAttivitaGiorno(currentDay);
+                    ordinaAttivitaGiorno(currentDay, currentOffset);
                     if (numGiorni > 1) {
                         currentDay = getGiornoSuccessiveOrWrap(currentDay);
                     }
@@ -3604,14 +3806,20 @@
                     });
                 } else {
                     let currentDay = giornoSelezionato;
+                    let currentOffset = selectedWeekOffset;
                     for (let i = 1; i <= numGiorni; i++) {
                         const suffix = numGiorni > 1 ? ` (${i}/${numGiorni})` : '';
-                        scalettaAgenda[currentDay].push({
+                        if (i > 1 && currentDay === 'Lunedì') {
+                            currentOffset++;
+                        }
+                        const targetWeekSchedule = getWeekSchedule(currentOffset);
+                        targetWeekSchedule[currentDay].push({
                             id: nuovoId(),
                             testo: task.cleanText + suffix,
                             completata: false,
                             quadrante: quadrante
                         });
+                        ordinaAttivitaGiorno(currentDay, currentOffset);
                         if (numGiorni > 1) {
                             currentDay = getGiornoSuccessiveOrWrap(currentDay);
                         }
@@ -3652,8 +3860,9 @@
             const lists = { q1: [], q2: [], q3: [], q4: [] };
             const uniqueKeys = { q1: new Set(), q2: new Set(), q3: new Set(), q4: new Set() };
 
+            const weekSchedule = getWeekSchedule(selectedWeekOffset);
             giorniSettimana.forEach(g => {
-                scalettaAgenda[g].forEach(x => {
+                weekSchedule[g].forEach(x => {
                     if (x.quadrante && lists[x.quadrante]) {
                         const cleanText = x.testo.replace(/\s*\(\d+\/\d+\)$/, '');
                         if (!uniqueKeys[x.quadrante].has(cleanText)) {
@@ -3705,18 +3914,21 @@
         setPilastroAttivo('lavoro');
         caricaImpostazioniMP3();
 
-        // Correzione ortografica retroattiva sui dati salvati in locale
+        // Correzione ortografica retroattiva sui dati salvati in locale in tutte le settimane
         let cambiataScaletta = false;
-        giorniSettimana.forEach(g => {
-            if (scalettaAgenda[g]) {
-                scalettaAgenda[g].forEach(x => {
-                    const corretto = correggiOrtografia(x.testo);
-                    if (x.testo !== corretto) {
-                        x.testo = corretto;
-                        cambiataScaletta = true;
-                    }
-                });
-            }
+        Object.keys(scalettaAgenda).forEach(wKey => {
+            const wSchedule = scalettaAgenda[wKey];
+            giorniSettimana.forEach(g => {
+                if (wSchedule[g]) {
+                    wSchedule[g].forEach(x => {
+                        const corretto = correggiOrtografia(x.testo);
+                        if (x.testo !== corretto) {
+                            x.testo = corretto;
+                            cambiataScaletta = true;
+                        }
+                    });
+                }
+            });
         });
         if (cambiataScaletta) salvaScaletta();
 
@@ -3732,8 +3944,20 @@
         }
         if (cambiatiPromemoria) salvaPromemoria();
 
-        // Riordina retroattivamente tutte le attività già inserite per priorità Q1->Q2->Q3->Q4
-        giorniSettimana.forEach(g => ordinaAttivitaGiorno(g));
+        // Riordina retroattivamente tutte le attività già inserite per priorità Q1->Q2->Q3->Q4 in tutte le settimane
+        Object.keys(scalettaAgenda).forEach(wKey => {
+            const wSchedule = scalettaAgenda[wKey];
+            const quadOrder = { q1: 1, q2: 2, q3: 3, q4: 4 };
+            giorniSettimana.forEach(g => {
+                if (Array.isArray(wSchedule[g])) {
+                    wSchedule[g].sort((a, b) => {
+                        const qa = quadOrder[a.quadrante] || 5;
+                        const qb = quadOrder[b.quadrante] || 5;
+                        return qa - qb;
+                    });
+                }
+            });
+        });
         salvaScaletta();
 
         renderPromemoria();
