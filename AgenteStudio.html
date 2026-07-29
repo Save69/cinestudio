@@ -3041,8 +3041,53 @@
         function aggiornaTestoScaletta(giorno, id, testo) { const x = scalettaAgenda[giorno].find(a => a.id === id); if (x && testo.trim()) x.testo = testo.trim(); salvaScaletta(); }
         function aggiungiAttivitaScaletta(giorno) { const input = document.getElementById(`new-task-${giorniSettimana.indexOf(giorno)}`); let testo = input.value.trim(); if (!testo) return; testo = correggiOrtografia(testo); scalettaAgenda[giorno].push({ id: nuovoId(), testo, completata: false }); salvaScaletta(); renderScaletta(); }
         function eliminaAttivitaScaletta(giorno, id) { scalettaAgenda[giorno] = scalettaAgenda[giorno].filter(x => x.id !== id); salvaScaletta(); renderScaletta(); }
-        function spostaAttivitaScaletta(da, id, a) { if (da === a) return; const i = scalettaAgenda[da].findIndex(x => x.id === id); if (i < 0) return; scalettaAgenda[a].push(scalettaAgenda[da].splice(i, 1)[0]); salvaScaletta(); renderScaletta(); }
+        function spostaAttivitaScaletta(da, id, a) {
+            if (da === a) return;
+            const i = scalettaAgenda[da].findIndex(x => x.id === id);
+            if (i < 0) return;
+            const item = scalettaAgenda[da].splice(i, 1)[0];
+            scalettaAgenda[a].push(item);
+            gestisciCascataAttivitaSpalmata(item.testo, a);
+            salvaScaletta();
+            renderScaletta();
+        }
         
+        function gestisciCascataAttivitaSpalmata(testoAttivita, giornoIniziale) {
+            const match = testoAttivita.match(/^(.*?)\s*\(1\/(\d+)\)$/);
+            if (!match) return;
+
+            const baseName = match[1].trim();
+            const totalParts = parseInt(match[2], 10);
+            if (isNaN(totalParts) || totalParts <= 1) return;
+
+            let currentDay = giornoIniziale;
+            for (let k = 2; k <= totalParts; k++) {
+                currentDay = getGiornoSuccessiveOrWrap(currentDay);
+                const targetText = `${baseName} (${k}/${totalParts})`;
+
+                let foundItem = null;
+                let foundDay = null;
+                let foundIndex = -1;
+
+                for (const g of giorniSettimana) {
+                    const idx = scalettaAgenda[g].findIndex(x => x.testo === targetText && !x.completata);
+                    if (idx !== -1) {
+                        foundItem = scalettaAgenda[g][idx];
+                        foundDay = g;
+                        foundIndex = idx;
+                        break;
+                    }
+                }
+
+                if (foundItem) {
+                    if (foundDay !== currentDay) {
+                        scalettaAgenda[foundDay].splice(foundIndex, 1);
+                        scalettaAgenda[currentDay].push(foundItem);
+                    }
+                }
+            }
+        }
+
         function isOggi(indiceGiorno) {
             const oggi = new Date();
             const day = oggi.getDay(); // 0=Dom, 1=Lun
@@ -3120,6 +3165,7 @@
                 if (idx !== -1) {
                     const [item] = scalettaAgenda[origine].splice(idx, 1);
                     scalettaAgenda[destinazione].push(item);
+                    gestisciCascataAttivitaSpalmata(item.testo, destinazione);
                     salvaScaletta();
                     renderScaletta();
                     showToast(`Attività spostata a ${destinazione}`, 'success');
