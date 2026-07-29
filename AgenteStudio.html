@@ -767,28 +767,28 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Q1 -->
-                    <div class="border border-red-200 bg-red-50/5 rounded-xl p-3.5 flex flex-col min-h-[140px]">
+                    <div ondragover="allowDrop(event)" ondrop="dropElementOnMatrix(event, 'q1')" class="border border-red-200 bg-red-50/5 rounded-xl p-3.5 flex flex-col min-h-[140px]">
                         <h4 class="text-xs font-bold text-red-600 flex items-center gap-1.5 uppercase tracking-wide mb-2">
                             <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Q1: Importante &amp; Urgente (Fai Subito)
                         </h4>
                         <div id="matrice-q1-list" class="space-y-1 text-xs text-slate-600 max-h-28 overflow-y-auto pr-1"></div>
                     </div>
                     <!-- Q2 -->
-                    <div class="border border-blue-200 bg-blue-50/5 rounded-xl p-3.5 flex flex-col min-h-[140px]">
+                    <div ondragover="allowDrop(event)" ondrop="dropElementOnMatrix(event, 'q2')" class="border border-blue-200 bg-blue-50/5 rounded-xl p-3.5 flex flex-col min-h-[140px]">
                         <h4 class="text-xs font-bold text-blue-600 flex items-center gap-1.5 uppercase tracking-wide mb-2">
                             <span class="w-2 h-2 rounded-full bg-blue-500"></span> Q2: Importante &amp; Non Urgente (Pianifica)
                         </h4>
                         <div id="matrice-q2-list" class="space-y-1 text-xs text-slate-600 max-h-28 overflow-y-auto pr-1"></div>
                     </div>
                     <!-- Q3 -->
-                    <div class="border border-emerald-200 bg-emerald-50/5 rounded-xl p-3.5 flex flex-col min-h-[140px]">
+                    <div ondragover="allowDrop(event)" ondrop="dropElementOnMatrix(event, 'q3')" class="border border-emerald-200 bg-emerald-50/5 rounded-xl p-3.5 flex flex-col min-h-[140px]">
                         <h4 class="text-xs font-bold text-emerald-600 flex items-center gap-1.5 uppercase tracking-wide mb-2">
                             <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Q3: Urgente &amp; Non Importante (Delega/Esegui)
                         </h4>
                         <div id="matrice-q3-list" class="space-y-1 text-xs text-slate-600 max-h-28 overflow-y-auto pr-1"></div>
                     </div>
                     <!-- Q4 -->
-                    <div class="border border-slate-200 bg-slate-50/5 rounded-xl p-3.5 flex flex-col min-h-[140px]">
+                    <div ondragover="allowDrop(event)" ondrop="dropElementOnMatrix(event, 'q4')" class="border border-slate-200 bg-slate-50/5 rounded-xl p-3.5 flex flex-col min-h-[140px]">
                         <h4 class="text-xs font-bold text-slate-500 flex items-center gap-1.5 uppercase tracking-wide mb-2">
                             <span class="w-2 h-2 rounded-full bg-slate-400"></span> Q4: Non Importante &amp; Non Urgente (Parcheggia)
                         </h4>
@@ -3400,6 +3400,27 @@
                 const data = JSON.parse(event.dataTransfer.getData("text/plain"));
                 const { giorno: origine, id } = data;
 
+                if (origine === 'Promemoria') {
+                    const idx = promemoriaAgenda.findIndex(x => x.id === id);
+                    if (idx !== -1) {
+                        const [item] = promemoriaAgenda.splice(idx, 1);
+                        localStorage.setItem(AGENDA_KEYS.reminders, JSON.stringify(promemoriaAgenda));
+                        if (typeof aggiornaDashboard === 'function') aggiornaDashboard();
+                        
+                        const destWeekSchedule = getWeekSchedule(selectedWeekOffset);
+                        destWeekSchedule[destinazione].push(item);
+                        
+                        gestisciCascataAttivitaSpalmata(item.testo, destinazione);
+                        ordinaAttivitaGiorno(destinazione);
+                        
+                        salvaScaletta();
+                        renderScaletta();
+                        renderMatriceEisenhower();
+                        showToast(`Attività spostata a ${destinazione}`, 'success');
+                    }
+                    return;
+                }
+
                 const weekKey = getWeekKey(selectedWeekOffset);
                 const list = scalettaAgenda[weekKey]?.[origine];
                 if (!list) return;
@@ -3439,7 +3460,8 @@
                 const { giorno: origine, id } = data;
                 
                 const weekKey = getWeekKey(selectedWeekOffset);
-                const srcList = scalettaAgenda[weekKey]?.[origine];
+                const isPromemoria = (origine === 'Promemoria');
+                const srcList = isPromemoria ? promemoriaAgenda : scalettaAgenda[weekKey]?.[origine];
                 const destList = scalettaAgenda[weekKey]?.[destinazioneGiorno];
                 if (!srcList || !destList) return;
                 
@@ -3452,6 +3474,11 @@
                 const [item] = srcList.splice(idxOrigine, 1);
                 destList.splice(idxDestinazione, 0, item);
                 
+                if (isPromemoria) {
+                    localStorage.setItem(AGENDA_KEYS.reminders, JSON.stringify(promemoriaAgenda));
+                    if (typeof aggiornaDashboard === 'function') aggiornaDashboard();
+                }
+                
                 if (origine !== destinazioneGiorno) {
                     gestisciCascataAttivitaSpalmata(item.testo, destinazioneGiorno);
                     ordinaAttivitaGiorno(destinazioneGiorno);
@@ -3459,6 +3486,7 @@
                 
                 salvaScaletta();
                 renderScaletta();
+                renderMatriceEisenhower();
                 showToast(`Attività riposizionata`, 'success');
             } catch (e) {
                 console.error("Drop on item error:", e);
@@ -4093,15 +4121,114 @@
                 }
 
                 container.innerHTML = arr.map(x => {
-                    const checkClass = x.completata ? 'line-through text-slate-400' : 'text-slate-700';
+                    const checkClass = x.completata ? 'line-through text-slate-400 font-normal' : 'text-slate-700 font-medium';
                     return `
-                        <div class="flex items-center justify-between gap-2 py-1 px-1.5 rounded-md hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors text-sm">
-                            <span class="truncate font-medium flex-1 ${checkClass}" title="${escapeHTML(x.testo)}">${escapeHTML(x.testo)}</span>
-                            <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded shrink-0">${x.provenienza}</span>
+                        <div class="flex items-center justify-between gap-2 py-1 px-1.5 rounded-md hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors text-sm group" draggable="true" ondragstart="dragStart(event, '${x.provenienza}', '${x.id}')" ondragend="dragEnd(event)">
+                            <div class="flex items-center min-w-0 flex-1 font-medium">
+                                <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaMatrice('${x.provenienza}', '${x.id}')" class="mr-2 cursor-pointer accent-blue-600 shrink-0">
+                                <span class="truncate ${checkClass}" title="${escapeHTML(x.testo)}">${escapeHTML(x.testo)}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span class="text-[9px] font-bold text-slate-400 bg-slate-100 px-1 py-0.5 rounded">${x.provenienza}</span>
+                                <button onclick="modificaTestoMatrice('${x.provenienza}', '${x.id}')" class="text-slate-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs" title="Modifica"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="eliminaAttivitaMatrice('${x.provenienza}', '${x.id}')" class="text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs" title="Elimina"><i class="fa-solid fa-trash"></i></button>
+                            </div>
                         </div>
                     `;
                 }).join('');
             });
+        }
+
+        function toggleAttivitaMatrice(provenienza, id) {
+            if (provenienza === 'Promemoria') {
+                const item = promemoriaAgenda.find(x => x.id === id);
+                if (item) {
+                    item.completata = !item.completata;
+                    localStorage.setItem(AGENDA_KEYS.reminders, JSON.stringify(promemoriaAgenda));
+                    if (typeof aggiornaDashboard === 'function') aggiornaDashboard();
+                }
+            } else {
+                toggleAttivitaScaletta(provenienza, id);
+            }
+            renderMatriceEisenhower();
+        }
+
+        function modificaTestoMatrice(provenienza, id) {
+            let itemText = '';
+            if (provenienza === 'Promemoria') {
+                const item = promemoriaAgenda.find(x => x.id === id);
+                if (item) itemText = item.testo;
+            } else {
+                const weekSchedule = getWeekSchedule(selectedWeekOffset);
+                const item = weekSchedule[provenienza]?.find(x => x.id === id);
+                if (item) itemText = item.testo;
+            }
+
+            if (!itemText) return;
+
+            const nuovoTesto = prompt("Modifica testo attività:", itemText);
+            if (nuovoTesto === null) return;
+            const valore = nuovoTesto.trim();
+            if (!valore) return;
+
+            if (provenienza === 'Promemoria') {
+                const item = promemoriaAgenda.find(x => x.id === id);
+                if (item) {
+                    item.testo = valore;
+                    localStorage.setItem(AGENDA_KEYS.reminders, JSON.stringify(promemoriaAgenda));
+                    if (typeof aggiornaDashboard === 'function') aggiornaDashboard();
+                }
+            } else {
+                aggiornaTestoScaletta(provenienza, id, valore);
+            }
+            renderMatriceEisenhower();
+        }
+
+        function eliminaAttivitaMatrice(provenienza, id) {
+            if (!confirm("Sei sicuro di voler eliminare questa attività?")) return;
+
+            if (provenienza === 'Promemoria') {
+                const idx = promemoriaAgenda.findIndex(x => x.id === id);
+                if (idx !== -1) {
+                    promemoriaAgenda.splice(idx, 1);
+                    localStorage.setItem(AGENDA_KEYS.reminders, JSON.stringify(promemoriaAgenda));
+                    if (typeof aggiornaDashboard === 'function') aggiornaDashboard();
+                }
+            } else {
+                eliminaAttivitaScaletta(provenienza, id);
+            }
+            renderMatriceEisenhower();
+        }
+
+        function dropElementOnMatrix(event, nuovoQuadrante) {
+            event.preventDefault();
+            event.stopPropagation();
+            try {
+                const data = JSON.parse(event.dataTransfer.getData("text/plain"));
+                const { giorno: origineGiorno, id } = data;
+                
+                if (origineGiorno === 'Promemoria') {
+                    const item = promemoriaAgenda.find(x => x.id === id);
+                    if (item) {
+                        item.quadrante = nuovoQuadrante;
+                        localStorage.setItem(AGENDA_KEYS.reminders, JSON.stringify(promemoriaAgenda));
+                    }
+                } else {
+                    const weekSchedule = getWeekSchedule(selectedWeekOffset);
+                    const item = weekSchedule[origineGiorno]?.find(x => x.id === id);
+                    if (item) {
+                        item.quadrante = nuovoQuadrante;
+                        ordinaAttivitaGiorno(origineGiorno);
+                    }
+                }
+                
+                salvaScaletta();
+                renderScaletta();
+                renderMatriceEisenhower();
+                showToast(`Attività spostata nel quadrante ${nuovoQuadrante.toUpperCase()}`, 'success');
+            } catch (e) {
+                console.error("Drop on matrix error:", e);
+            }
         }
 
         // ============================================================
