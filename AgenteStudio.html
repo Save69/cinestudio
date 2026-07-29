@@ -864,10 +864,16 @@
                 <section class="bg-white border border-blue-100 rounded-2xl p-5 shadow-sm xl:row-span-2" aria-labelledby="titolo-scaletta">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-slate-100 pb-3">
                         <h2 id="titolo-scaletta" class="font-black text-slate-900 flex items-center gap-2 text-base shrink-0"><i class="fa-solid fa-calendar-week text-blue-600 text-lg"></i> Scaletta Settimanale</h2>
-                        <div class="flex flex-wrap gap-1.5 justify-center sm:justify-start">
-                            <button id="btn-week-0" onclick="cambiaSettimana(0)" ondragover="allowDrop(event)" ondragenter="startWeekSwitchTimer(0)" ondragleave="clearWeekSwitchTimer()" ondrop="dropElementOnWeek(event, 0); clearWeekSwitchTimer();" class="px-3.5 py-1.5 text-xs font-black rounded-xl bg-blue-600 text-white shadow-md shadow-blue-100 transition-all cursor-pointer">Settimana Corrente</button>
+                        <div class="flex flex-wrap gap-1.5 justify-center sm:justify-start items-center">
+                            <button id="btn-week-0" onclick="cambiaSettimana(0)" ondragover="allowDrop(event)" ondragenter="startWeekSwitchTimer(0)" ondragleave="clearWeekSwitchTimer()" ondrop="dropElementOnWeek(event, 0); clearWeekSwitchTimer();" class="px-3.5 py-1.5 text-xs font-black rounded-xl bg-red-600 text-white shadow-md shadow-red-100 transition-all cursor-pointer">Settimana Corrente</button>
                             <button id="btn-week-1" onclick="cambiaSettimana(1)" ondragover="allowDrop(event)" ondragenter="startWeekSwitchTimer(1)" ondragleave="clearWeekSwitchTimer()" ondrop="dropElementOnWeek(event, 1); clearWeekSwitchTimer();" class="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer">Prossima Settimana (+1)</button>
                             <button id="btn-week-2" onclick="cambiaSettimana(2)" ondragover="allowDrop(event)" ondragenter="startWeekSwitchTimer(2)" ondragleave="clearWeekSwitchTimer()" ondrop="dropElementOnWeek(event, 2); clearWeekSwitchTimer();" class="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer">Settimana Successiva (+2)</button>
+                            
+                            <!-- Dropdown Archivio -->
+                            <div class="relative inline-block text-left" id="archive-dropdown-container">
+                                <button onclick="toggleArchiveDropdown()" id="btn-archive-trigger" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-box-archive"></i> Archivio</button>
+                                <div id="archive-dropdown-menu" class="hidden absolute right-0 mt-2 w-56 rounded-xl bg-white border border-slate-200 shadow-lg z-50 py-1.5 max-h-60 overflow-y-auto"></div>
+                            </div>
                         </div>
                         <div class="flex gap-2 justify-end">
                             <button id="schedule-edit-btn" onclick="toggleModificaScaletta()" class="border border-slate-200 hover:bg-slate-50 rounded-xl px-3 py-1.5 text-xs font-bold focus:ring-2 focus:ring-blue-500 cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-pen-to-square"></i> Modifica</button>
@@ -2930,44 +2936,57 @@
         let rawScaletta = leggiJSONSicuro(AGENDA_KEYS.schedule, null);
         let scalettaAgenda = {};
         let selectedWeekOffset = 0;
+        let selectedArchiveWeekKey = null;
         let modificaScalettaAttiva = false;
         let timerSalvataggioNote = null;
         let weekSwitchTimeout = null;
 
         const weekThemes = {
             0: {
-                primary: 'blue-600',
-                primaryHover: 'blue-700',
-                textDark: 'text-blue-700',
-                borderLight: 'border-blue-100',
-                bgLight: 'bg-blue-50/15',
-                ring: 'ring-blue-500/20',
-                borderFocus: 'focus:ring-blue-500 focus:border-blue-500',
-                btnClassActive: 'px-3.5 py-1.5 text-xs font-black rounded-xl bg-blue-600 text-white shadow-md shadow-blue-100 transition-all cursor-pointer',
-                shadowColor: 'shadow-blue-100'
+                primary: 'red-600',
+                primaryHover: 'red-700',
+                textDark: 'text-red-700',
+                borderLight: 'border-red-100',
+                bgLight: 'bg-red-50/15',
+                ring: 'ring-red-500/20',
+                borderFocus: 'focus:ring-red-500 focus:border-red-500',
+                btnClassActive: 'px-3.5 py-1.5 text-xs font-black rounded-xl bg-red-600 text-white shadow-md shadow-red-100 transition-all cursor-pointer',
+                shadowColor: 'shadow-red-100'
             },
             1: {
-                primary: 'teal-600',
-                primaryHover: 'teal-700',
-                textDark: 'text-teal-700',
-                borderLight: 'border-teal-100',
-                bgLight: 'bg-teal-50/15',
-                ring: 'ring-teal-500/20',
-                borderFocus: 'focus:ring-teal-500 focus:border-teal-500',
-                btnClassActive: 'px-3.5 py-1.5 text-xs font-black rounded-xl bg-teal-600 text-white shadow-md shadow-teal-100 transition-all cursor-pointer',
-                shadowColor: 'shadow-teal-100'
+                primary: 'amber-500',
+                primaryHover: 'amber-600',
+                textDark: 'text-amber-700',
+                borderLight: 'border-amber-100',
+                bgLight: 'bg-amber-50/15',
+                ring: 'ring-amber-500/20',
+                borderFocus: 'focus:ring-amber-500 focus:border-amber-500',
+                btnClassActive: 'px-3.5 py-1.5 text-xs font-black rounded-xl bg-amber-500 text-white shadow-md shadow-amber-100 transition-all cursor-pointer',
+                shadowColor: 'shadow-amber-100'
             },
             2: {
-                primary: 'indigo-600',
-                primaryHover: 'indigo-700',
-                textDark: 'text-indigo-700',
-                borderLight: 'border-indigo-100',
-                bgLight: 'bg-indigo-50/15',
-                ring: 'ring-indigo-500/20',
-                borderFocus: 'focus:ring-indigo-500 focus:border-indigo-500',
-                btnClassActive: 'px-3.5 py-1.5 text-xs font-black rounded-xl bg-indigo-600 text-white shadow-md shadow-indigo-100 transition-all cursor-pointer',
-                shadowColor: 'shadow-indigo-100'
+                primary: 'emerald-600',
+                primaryHover: 'emerald-700',
+                textDark: 'text-emerald-700',
+                borderLight: 'border-emerald-100',
+                bgLight: 'bg-emerald-50/15',
+                ring: 'ring-emerald-500/20',
+                borderFocus: 'focus:ring-emerald-500 focus:border-emerald-500',
+                btnClassActive: 'px-3.5 py-1.5 text-xs font-black rounded-xl bg-emerald-600 text-white shadow-md shadow-emerald-100 transition-all cursor-pointer',
+                shadowColor: 'shadow-emerald-100'
             }
+        };
+
+        const archiveTheme = {
+            primary: 'slate-600',
+            primaryHover: 'slate-700',
+            textDark: 'text-slate-700',
+            borderLight: 'border-slate-200',
+            bgLight: 'bg-slate-50/15',
+            ring: 'ring-slate-500/20',
+            borderFocus: 'focus:ring-slate-500 focus:border-slate-500',
+            btnClassActive: 'px-3.5 py-1.5 text-xs font-black rounded-xl bg-slate-600 text-white shadow-md shadow-slate-100 transition-all cursor-pointer',
+            shadowColor: 'shadow-slate-100'
         };
 
         function startWeekSwitchTimer(offset) {
@@ -2982,6 +3001,9 @@
         }
 
         function getWeekKey(offset = 0) {
+            if (selectedArchiveWeekKey !== null && offset === selectedWeekOffset) {
+                return selectedArchiveWeekKey;
+            }
             const oggi = new Date();
             const day = oggi.getDay();
             const diff = (day === 0) ? -6 : 1 - day;
@@ -2998,6 +3020,17 @@
         }
 
         function getWeekSchedule(offset) {
+            if (selectedArchiveWeekKey !== null && offset === selectedWeekOffset) {
+                if (!scalettaAgenda[selectedArchiveWeekKey]) {
+                    scalettaAgenda[selectedArchiveWeekKey] = {};
+                }
+                giorniSettimana.forEach(g => {
+                    if (!Array.isArray(scalettaAgenda[selectedArchiveWeekKey][g])) {
+                        scalettaAgenda[selectedArchiveWeekKey][g] = [];
+                    }
+                });
+                return scalettaAgenda[selectedArchiveWeekKey];
+            }
             const key = getWeekKey(offset);
             if (!scalettaAgenda[key]) {
                 scalettaAgenda[key] = {};
@@ -3274,7 +3307,7 @@
         }
 
         function isOggi(indiceGiorno) {
-            if (selectedWeekOffset !== 0) return false;
+            if (selectedArchiveWeekKey !== null || selectedWeekOffset !== 0) return false;
             const oggi = new Date();
             const day = oggi.getDay(); // 0=Dom, 1=Lun
             const diff = (day === 0) ? -6 : 1 - day; // diff to Monday
@@ -3290,14 +3323,20 @@
         }
 
         function getDataGiornoSettimana(indiceGiorno) {
-            const oggi = new Date();
-            const day = oggi.getDay(); // 0=Dom, 1=Lun
-            const diff = (day === 0) ? -6 : 1 - day; // diff to Monday
-            const lunedi = new Date(oggi);
-            lunedi.setDate(oggi.getDate() + diff);
+            let baseMonday = null;
+            if (selectedArchiveWeekKey !== null) {
+                baseMonday = new Date(selectedArchiveWeekKey + 'T00:00:00');
+            } else {
+                const oggi = new Date();
+                const day = oggi.getDay();
+                const diff = (day === 0) ? -6 : 1 - day;
+                baseMonday = new Date(oggi);
+                baseMonday.setDate(oggi.getDate() + diff);
+                baseMonday.setDate(baseMonday.getDate() + (selectedWeekOffset * 7));
+            }
             
-            const target = new Date(lunedi);
-            target.setDate(lunedi.getDate() + indiceGiorno + (selectedWeekOffset * 7));
+            const target = new Date(baseMonday);
+            target.setDate(baseMonday.getDate() + indiceGiorno);
             
             const giornoMese = target.getDate();
             const mesiAbbreviati = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
@@ -3412,6 +3451,7 @@
         }
 
         function cambiaSettimana(offset) {
+            selectedArchiveWeekKey = null;
             selectedWeekOffset = offset;
             for (let i = 0; i <= 2; i++) {
                 const btn = document.getElementById(`btn-week-${i}`);
@@ -3425,6 +3465,70 @@
                 }
             }
             renderScaletta();
+        }
+
+        function getPastWeeksList() {
+            const currentMondayKey = getWeekKey(0);
+            return Object.keys(scalettaAgenda)
+                .filter(wKey => wKey < currentMondayKey)
+                .sort()
+                .reverse();
+        }
+
+        function formatWeekRange(weekKey) {
+            const monday = new Date(weekKey + 'T00:00:00');
+            const sunday = new Date(monday);
+            sunday.setDate(monday.getDate() + 6);
+            
+            const ddMon = monday.getDate();
+            const ddSun = sunday.getDate();
+            const mesiAbbreviati = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+            
+            return `${ddMon} ${mesiAbbreviati[monday.getMonth()]} - ${ddSun} ${mesiAbbreviati[sunday.getMonth()]} ${monday.getFullYear()}`;
+        }
+
+        function mostraSettimanaArchivio(weekKey) {
+            selectedArchiveWeekKey = weekKey;
+            for (let i = 0; i <= 2; i++) {
+                const btn = document.getElementById(`btn-week-${i}`);
+                if (btn) {
+                    btn.className = "px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer";
+                }
+            }
+            renderScaletta();
+        }
+
+        function chiudiArchivio() {
+            selectedArchiveWeekKey = null;
+            cambiaSettimana(0);
+        }
+
+        function toggleArchiveDropdown() {
+            const menu = document.getElementById('archive-dropdown-menu');
+            if (!menu) return;
+            const hidden = menu.classList.contains('hidden');
+            if (hidden) {
+                const pastWeeks = getPastWeeksList();
+                if (pastWeeks.length === 0) {
+                    menu.innerHTML = `<div class="px-4 py-3 text-xs italic text-slate-400 text-center">Nessuna settimana passata in archivio</div>`;
+                } else {
+                    menu.innerHTML = pastWeeks.map(wKey => {
+                        const active = selectedArchiveWeekKey === wKey ? 'bg-slate-100 font-bold text-slate-900' : 'text-slate-700 hover:bg-slate-50';
+                        return `<button onclick="mostraSettimanaArchivio('${wKey}'); toggleArchiveDropdown();" class="w-full text-left px-4 py-2 text-xs transition-colors cursor-pointer ${active}">${formatWeekRange(wKey)}</button>`;
+                    }).join('');
+                }
+                menu.classList.remove('hidden');
+                
+                const closeHandler = (e) => {
+                    if (!e.target.closest('#archive-dropdown-container')) {
+                        menu.classList.add('hidden');
+                        document.removeEventListener('click', closeHandler);
+                    }
+                };
+                setTimeout(() => document.addEventListener('click', closeHandler), 10);
+            } else {
+                menu.classList.add('hidden');
+            }
         }
 
         function dropElementOnWeek(event, destOffset) {
@@ -3465,9 +3569,22 @@
             const btn = document.getElementById('schedule-edit-btn'); btn.innerHTML = modificaScalettaAttiva ? '<i class="fa-solid fa-check"></i> Fine' : '<i class="fa-solid fa-pen-to-square"></i> Modifica';
             
             const weekSchedule = getWeekSchedule(selectedWeekOffset);
-            const theme = weekThemes[selectedWeekOffset] || weekThemes[0];
+            const theme = selectedArchiveWeekKey !== null ? archiveTheme : (weekThemes[selectedWeekOffset] || weekThemes[0]);
 
-            box.innerHTML = giorniSettimana.map((giorno, indice) => {
+            let bannerHtml = '';
+            if (selectedArchiveWeekKey !== null) {
+                bannerHtml = `
+                    <div class="mb-3 flex items-center justify-between gap-3 bg-slate-100 border border-slate-200 rounded-xl p-3 text-slate-800 shadow-sm animate-fade-in">
+                        <div class="flex items-center gap-2 text-sm font-bold">
+                            <i class="fa-solid fa-box-archive text-slate-600 text-lg"></i>
+                            <span>Visualizzazione Archivio: Settimana dal ${formatWeekRange(selectedArchiveWeekKey)}</span>
+                        </div>
+                        <button onclick="chiudiArchivio()" class="px-3 py-1 text-xs font-black bg-slate-600 hover:bg-slate-700 text-white rounded-lg transition-colors cursor-pointer flex items-center gap-1"><i class="fa-solid fa-arrow-left"></i> Torna all'Agenda Attiva</button>
+                    </div>
+                `;
+            }
+
+            box.innerHTML = bannerHtml + giorniSettimana.map((giorno, indice) => {
                 const isWeekend = (giorno === 'Sabato' || giorno === 'Domenica');
                 const oggi = isOggi(indice);
                 const titleColor = oggi ? 'text-blue-700 font-extrabold' : (isWeekend ? 'text-red-600 font-bold' : 'text-slate-800');
@@ -3556,7 +3673,9 @@
         }
 
         function rimandaAlBloccoNote(giorno, id) {
-            const list = scalettaAgenda[giorno];
+            const weekSchedule = getWeekSchedule(selectedWeekOffset);
+            const list = weekSchedule[giorno];
+            if (!list) return;
             const idx = list.findIndex(x => x.id === id);
             if (idx === -1) return;
 
