@@ -865,7 +865,7 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-slate-100 pb-3">
                         <h2 id="titolo-scaletta" class="font-black text-slate-900 flex items-center gap-2 text-base shrink-0"><i class="fa-solid fa-calendar-week text-blue-600 text-lg"></i> Scaletta Settimanale</h2>
                         <div class="flex flex-wrap gap-1.5 justify-center sm:justify-start items-center">
-                            <button id="btn-week-0" onclick="cambiaSettimana(0)" ondragover="allowDrop(event)" ondragenter="startWeekSwitchTimer(0)" ondragleave="clearWeekSwitchTimer()" ondrop="dropElementOnWeek(event, 0); clearWeekSwitchTimer();" class="px-3.5 py-1.5 text-xs font-black rounded-xl bg-red-600 text-white shadow-md shadow-red-100 transition-all cursor-pointer">Settimana Corrente</button>
+                            <button id="btn-week-0" onclick="cambiaSettimana(0)" ondragover="allowDrop(event)" ondragenter="startWeekSwitchTimer(0)" ondragleave="clearWeekSwitchTimer()" ondrop="dropElementOnWeek(event, 0); clearWeekSwitchTimer();" class="px-3.5 py-1.5 text-xs font-black rounded-xl bg-red-50 text-red-600 border border-red-200 shadow-sm transition-all cursor-pointer">Settimana Corrente</button>
                             <button id="btn-week-1" onclick="cambiaSettimana(1)" ondragover="allowDrop(event)" ondragenter="startWeekSwitchTimer(1)" ondragleave="clearWeekSwitchTimer()" ondrop="dropElementOnWeek(event, 1); clearWeekSwitchTimer();" class="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer">Prossima Settimana (+1)</button>
                             <button id="btn-week-2" onclick="cambiaSettimana(2)" ondragover="allowDrop(event)" ondragenter="startWeekSwitchTimer(2)" ondragleave="clearWeekSwitchTimer()" ondrop="dropElementOnWeek(event, 2); clearWeekSwitchTimer();" class="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer">Settimana Successiva (+2)</button>
                             
@@ -891,7 +891,7 @@
 
                     <!-- Tabs Pilastri -->
                     <div class="grid grid-cols-4 gap-1 p-1 bg-slate-100 rounded-xl mb-4 text-center">
-                        <button onclick="setObiettiviAgendaTab('lavoro')" id="btn-ob-tab-lavoro" class="py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer bg-blue-600 text-white shadow-sm">Lavoro</button>
+                        <button onclick="setObiettiviAgendaTab('lavoro')" id="btn-ob-tab-lavoro" class="py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer bg-sky-50 text-sky-700 border border-sky-200 shadow-sm">Lavoro</button>
                         <button onclick="setObiettiviAgendaTab('divisione')" id="btn-ob-tab-divisione" class="py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:bg-slate-200">Divisione</button>
                         <button onclick="setObiettiviAgendaTab('fisico')" id="btn-ob-tab-fisico" class="py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:bg-slate-200">Fisico</button>
                         <button onclick="setObiettiviAgendaTab('riordino')" id="btn-ob-tab-riordino" class="py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:bg-slate-200">Riordino</button>
