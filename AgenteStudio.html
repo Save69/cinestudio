@@ -803,7 +803,7 @@
                     <div class="flex justify-between items-center gap-3 mb-3">
                         <h2 id="titolo-note" class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-file-pen text-blue-600"></i> Blocco Note Rapido</h2>
                         <div class="flex items-center gap-2 shrink-0">
-                            <button onclick="avviaSegretario()" class="bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg shadow-sm transition-colors cursor-pointer flex items-center gap-1">
+                            <button onclick="avviaSegretario()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-[11px] font-bold px-2.5 py-1.5 rounded-lg shadow-sm transition-colors cursor-pointer flex items-center gap-1">
                                 <i class="fa-solid fa-user-tie"></i> Chiedi al Segretario
                             </button>
                             <span id="notes-status" class="text-[11px] text-slate-400"><i class="fa-solid fa-cloud-arrow-down"></i> Salvato in locale</span>
@@ -825,13 +825,13 @@
                         </div>
                         <div class="flex flex-wrap items-center justify-between gap-3">
                             <div class="flex flex-wrap items-center gap-2">
-                                <button onclick="applicaPianificazioneConsigliata()" class="bg-yellow-500 hover:bg-yellow-600 text-slate-900 text-xs font-black px-4 py-1.5 rounded-lg shadow-md transition-all cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-check"></i> Ok (Consigliato)</button>
+                                <button onclick="applicaPianificazioneConsigliata()" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-xs font-black px-4 py-1.5 rounded-lg shadow-sm transition-all cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-check"></i> Ok (Consigliato)</button>
                                 <span class="h-5 w-[1px] bg-slate-200 block"></span>
                                 <div class="flex flex-wrap gap-1">
-                                    <button onclick="applicaPianificazione('q1')" title="Forza a Q1: Fai Subito" class="bg-red-500 hover:bg-red-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🔴 Q1</button>
-                                    <button onclick="applicaPianificazione('q2')" title="Forza a Q2: Pianifica" class="bg-purple-600 hover:bg-purple-700 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🟣 Q2</button>
-                                    <button onclick="applicaPianificazione('q3')" title="Forza a Q3: Delega" class="bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🟢 Q3</button>
-                                    <button onclick="applicaPianificazione('q4')" title="Forza a Q4: Parcheggia" class="bg-slate-500 hover:bg-slate-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">⚪ Q4</button>
+                                    <button onclick="applicaPianificazione('q1')" title="Forza a Q1: Fai Subito" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🔴 Q1</button>
+                                    <button onclick="applicaPianificazione('q2')" title="Forza a Q2: Pianifica" class="bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🟣 Q2</button>
+                                    <button onclick="applicaPianificazione('q3')" title="Forza a Q3: Delega" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🟢 Q3</button>
+                                    <button onclick="applicaPianificazione('q4')" title="Forza a Q4: Parcheggia" class="bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">⚪ Q4</button>
                                 </div>
                             </div>
                             <div class="flex items-center gap-1.5 border border-blue-200 bg-white rounded-lg p-1 shrink-0">
@@ -913,7 +913,7 @@
                         <!-- Input Aggiungi Obiettivo Mensile -->
                         <div class="flex gap-1.5 mt-1">
                             <input id="ob-agenda-mensile-input" onkeydown="if(event.key==='Enter') aggiungiObiettivoMensileAgenda()" placeholder="Nuovo obiettivo mensile..." class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
-                            <button onclick="aggiungiObiettivoMensileAgenda()" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-2.5 cursor-pointer"><i class="fa-solid fa-plus text-xs"></i></button>
+                            <button onclick="aggiungiObiettivoMensileAgenda()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-lg px-2.5 cursor-pointer transition-colors"><i class="fa-solid fa-plus text-xs"></i></button>
                         </div>
                     </div>
 
@@ -930,7 +930,7 @@
                         <!-- Input Aggiungi Obiettivo Trimestre -->
                         <div class="flex gap-1.5 mt-1">
                             <input id="ob-agenda-trimestre-input" onkeydown="if(event.key==='Enter') aggiungiObiettivoTrimestreAgenda()" placeholder="Nuovo obiettivo trimestre..." class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
-                            <button onclick="aggiungiObiettivoTrimestreAgenda()" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-2.5 cursor-pointer"><i class="fa-solid fa-plus text-xs"></i></button>
+                            <button onclick="aggiungiObiettivoTrimestreAgenda()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-lg px-2.5 cursor-pointer transition-colors"><i class="fa-solid fa-plus text-xs"></i></button>
                         </div>
                     </div>
                 </section>
@@ -1676,9 +1676,9 @@
                 const btn = document.getElementById(`btn-ob-tab-${t}`);
                 if (btn) {
                     if (t === p) {
-                        btn.className = "py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer bg-blue-600 text-white shadow-sm";
+                        btn.className = "py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer bg-blue-50 text-blue-700 border border-blue-200 shadow-sm";
                     } else {
-                        btn.className = "py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:bg-slate-200";
+                        btn.className = "py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:bg-slate-200 border border-transparent";
                     }
                 }
             });
@@ -1732,7 +1732,7 @@
                     containerMensili.innerHTML = listMensili.map((x, idx) => `
                         <div class="flex items-start justify-between gap-2 p-1.5 hover:bg-slate-50 rounded-lg group text-sm border border-transparent hover:border-slate-100">
                             <label class="flex items-start gap-2 cursor-pointer flex-1 min-w-0 select-none">
-                                <input type="checkbox" ${x.fatto ? 'checked' : ''} onchange="toggleObiettivoMensileAgenda(${idx})" class="mt-0.5 accent-blue-600 shrink-0 cursor-pointer">
+                                <input type="checkbox" ${x.fatto ? 'checked' : ''} onchange="toggleObiettivoMensileAgenda(${idx})" class="mt-0.5 accent-emerald-600 shrink-0 cursor-pointer">
                                 <span class="break-words ${x.fatto ? 'line-through text-slate-400 font-bold' : 'text-slate-700 font-bold'}">${escapeHTML(x.testo)}</span>
                             </label>
                             <button onclick="eliminaObiettivoMensileAgenda(${idx})" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity p-0.5 shrink-0 cursor-pointer">
@@ -1764,7 +1764,7 @@
                     containerTrimestre.innerHTML = listTrimestre.map((x, idx) => `
                         <div class="flex items-start justify-between gap-2 p-1.5 hover:bg-slate-50 rounded-lg group text-sm border border-transparent hover:border-slate-100">
                             <label class="flex items-start gap-2 cursor-pointer flex-1 min-w-0 select-none">
-                                <input type="checkbox" ${x.fatto ? 'checked' : ''} onchange="toggleObiettivoTrimestreAgenda(${idx})" class="mt-0.5 accent-blue-600 shrink-0 cursor-pointer">
+                                <input type="checkbox" ${x.fatto ? 'checked' : ''} onchange="toggleObiettivoTrimestreAgenda(${idx})" class="mt-0.5 accent-emerald-600 shrink-0 cursor-pointer">
                                 <span class="break-words ${x.fatto ? 'line-through text-slate-400 font-bold' : 'text-slate-700 font-bold'}">${escapeHTML(x.testo)}</span>
                             </label>
                             <button onclick="eliminaObiettivoTrimestreAgenda(${idx})" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity p-0.5 shrink-0 cursor-pointer">
@@ -3153,7 +3153,7 @@
                 const dotHtml = pallinoColor ? `<span class="inline-block w-2 h-2 rounded-full ${pallinoColor} shrink-0 mt-1.5" title="Priorità Eisenhower"></span>` : '';
 
                 return `<div class="flex items-start gap-2 border border-slate-100 rounded-xl p-3 group">
-                    <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="togglePromemoria('${x.id}')" aria-label="Completa promemoria" class="mt-1 accent-blue-600 shrink-0">
+                    <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="togglePromemoria('${x.id}')" aria-label="Completa promemoria" class="mt-1 accent-emerald-600 shrink-0">
                     ${dotHtml}
                     <div class="min-w-0 flex-1">
                         <p class="text-sm break-words ${x.completata ? 'line-through text-slate-400' : 'text-slate-700'}">${escapeHTML(x.testo)}</p>
@@ -3687,7 +3687,7 @@
                                    </div>`
                                 : `<div class="flex items-start gap-1 text-sm text-slate-700 hover:bg-slate-50/50 p-1 rounded-lg transition-colors group/item" draggable="true" ondragstart="dragStart(event, '${giorno}', '${x.id}')" ondragend="dragEnd(event)" ondragover="allowDrop(event)" ondrop="dropElementOnItem(event, '${giorno}', '${x.id}')">
                                     <i class="fa-solid fa-grip-vertical text-slate-300 hover:text-slate-500 cursor-grab shrink-0 mt-1 mr-1.5" title="Trascina in un altro giorno"></i>
-                                    <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaScaletta('${giorno}','${x.id}')" class="mt-1 accent-blue-600 shrink-0 cursor-pointer">
+                                    <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaScaletta('${giorno}','${x.id}')" class="mt-1 accent-emerald-600 shrink-0 cursor-pointer">
                                     ${dotHtml}
                                     <span class="flex-1 min-w-0 ${x.completata ? 'line-through text-slate-400' : ''} cursor-default select-none">${escapeHTML(x.testo)}</span>
                                    </div>`;
@@ -4121,7 +4121,7 @@
                     return `
                         <div class="flex items-center justify-between gap-2 py-1 px-1.5 rounded-md hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors text-sm group" draggable="true" ondragstart="dragStart(event, '${x.provenienza}', '${x.id}')" ondragend="dragEnd(event)">
                             <div class="flex items-center min-w-0 flex-1 font-medium">
-                                <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaMatrice('${x.provenienza}', '${x.id}')" class="mr-2 cursor-pointer accent-blue-600 shrink-0">
+                                <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaMatrice('${x.provenienza}', '${x.id}')" class="mr-2 cursor-pointer accent-emerald-600 shrink-0">
                                 <span class="truncate ${checkClass}" title="${escapeHTML(x.testo)}">${escapeHTML(x.testo)}</span>
                             </div>
                             <div class="flex items-center gap-1.5 shrink-0">
