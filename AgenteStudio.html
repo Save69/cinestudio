@@ -3041,6 +3041,16 @@
         function aggiornaTestoScaletta(giorno, id, testo) { const x = scalettaAgenda[giorno].find(a => a.id === id); if (x && testo.trim()) x.testo = testo.trim(); salvaScaletta(); }
         function aggiungiAttivitaScaletta(giorno) { const input = document.getElementById(`new-task-${giorniSettimana.indexOf(giorno)}`); let testo = input.value.trim(); if (!testo) return; testo = correggiOrtografia(testo); scalettaAgenda[giorno].push({ id: nuovoId(), testo, completata: false }); salvaScaletta(); renderScaletta(); }
         function eliminaAttivitaScaletta(giorno, id) { scalettaAgenda[giorno] = scalettaAgenda[giorno].filter(x => x.id !== id); salvaScaletta(); renderScaletta(); }
+        function ordinaAttivitaGiorno(giorno) {
+            if (!scalettaAgenda[giorno]) return;
+            const quadOrder = { q1: 1, q2: 2, q3: 3, q4: 4 };
+            scalettaAgenda[giorno].sort((a, b) => {
+                const qa = quadOrder[a.quadrante] || 5;
+                const qb = quadOrder[b.quadrante] || 5;
+                return qa - qb;
+            });
+        }
+
         function spostaAttivitaScaletta(da, id, a) {
             if (da === a) return;
             const i = scalettaAgenda[da].findIndex(x => x.id === id);
@@ -3048,6 +3058,7 @@
             const item = scalettaAgenda[da].splice(i, 1)[0];
             scalettaAgenda[a].push(item);
             gestisciCascataAttivitaSpalmata(item.testo, a);
+            ordinaAttivitaGiorno(a);
             salvaScaletta();
             renderScaletta();
         }
@@ -3083,6 +3094,7 @@
                     if (foundDay !== currentDay) {
                         scalettaAgenda[foundDay].splice(foundIndex, 1);
                         scalettaAgenda[currentDay].push(foundItem);
+                        ordinaAttivitaGiorno(currentDay);
                     }
                 }
             }
@@ -3159,19 +3171,62 @@
             try {
                 const data = JSON.parse(event.dataTransfer.getData("text/plain"));
                 const { giorno: origine, id } = data;
-                if (origine === destinazione) return;
 
                 const idx = scalettaAgenda[origine].findIndex(x => x.id === id);
                 if (idx !== -1) {
                     const [item] = scalettaAgenda[origine].splice(idx, 1);
                     scalettaAgenda[destinazione].push(item);
-                    gestisciCascataAttivitaSpalmata(item.testo, destinazione);
+                    
+                    if (origine !== destinazione) {
+                        gestisciCascataAttivitaSpalmata(item.testo, destinazione);
+                        ordinaAttivitaGiorno(destinazione);
+                    }
+                    
                     salvaScaletta();
                     renderScaletta();
                     showToast(`Attività spostata a ${destinazione}`, 'success');
                 }
             } catch (e) {
                 console.error("Drag and drop error:", e);
+            }
+        }
+
+        function dropElementOnItem(event, destinazioneGiorno, destinazioneId) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Rimuove gli aloni grafici di drag over dai contenitori padri
+            const container = event.currentTarget.closest('[ondrop^="dropElement"]');
+            if (container) {
+                container.classList.remove('border-blue-500', 'bg-blue-50/20');
+                container.classList.add('border-blue-100');
+            }
+            
+            try {
+                const data = JSON.parse(event.dataTransfer.getData("text/plain"));
+                const { giorno: origine, id } = data;
+                
+                const idxOrigine = scalettaAgenda[origine].findIndex(x => x.id === id);
+                if (idxOrigine === -1) return;
+                
+                const idxDestinazione = scalettaAgenda[destinazioneGiorno].findIndex(x => x.id === destinazioneId);
+                if (idxDestinazione === -1) return;
+
+                const [item] = scalettaAgenda[origine].splice(idxOrigine, 1);
+                
+                // Inserisce esattamente alla posizione dell'elemento di destinazione
+                scalettaAgenda[destinazioneGiorno].splice(idxDestinazione, 0, item);
+                
+                if (origine !== destinazioneGiorno) {
+                    gestisciCascataAttivitaSpalmata(item.testo, destinazioneGiorno);
+                    ordinaAttivitaGiorno(destinazioneGiorno);
+                }
+                
+                salvaScaletta();
+                renderScaletta();
+                showToast(`Attività riposizionata`, 'success');
+            } catch (e) {
+                console.error("Drop on item error:", e);
             }
         }
 
@@ -3214,7 +3269,7 @@
                                     <button onclick="rimandaAlBloccoNote('${giorno}','${x.id}')" title="Rimetti nel Blocco Note" class="text-slate-400 hover:text-blue-700 p-1 cursor-pointer"><i class="fa-solid fa-arrow-rotate-left"></i></button>
                                     <button onclick="eliminaAttivitaScaletta('${giorno}','${x.id}')" aria-label="Elimina attività" class="text-slate-400 hover:text-red-600 p-1 cursor-pointer"><i class="fa-solid fa-trash"></i></button>
                                    </div>`
-                                : `<div class="flex items-start gap-1 text-sm text-slate-700 hover:bg-slate-50/50 p-1 rounded-lg transition-colors group/item" draggable="true" ondragstart="dragStart(event, '${giorno}', '${x.id}')" ondragend="dragEnd(event)">
+                                : `<div class="flex items-start gap-1 text-sm text-slate-700 hover:bg-slate-50/50 p-1 rounded-lg transition-colors group/item" draggable="true" ondragstart="dragStart(event, '${giorno}', '${x.id}')" ondragend="dragEnd(event)" ondragover="allowDrop(event)" ondrop="dropElementOnItem(event, '${giorno}', '${x.id}')">
                                     <i class="fa-solid fa-grip-vertical text-slate-300 hover:text-slate-500 cursor-grab shrink-0 mt-1 mr-1.5" title="Trascina in un altro giorno"></i>
                                     <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaScaletta('${giorno}','${x.id}')" class="mt-1 accent-blue-600 shrink-0 cursor-pointer">
                                     ${dotHtml}
@@ -3236,6 +3291,7 @@
             const x = scalettaAgenda[giorno].find(a => a.id === id);
             if (x) {
                 x.quadrante = nuovoQuadrante || undefined;
+                ordinaAttivitaGiorno(giorno);
                 salvaScaletta();
                 renderScaletta();
             }
@@ -3479,6 +3535,7 @@
                         completata: false,
                         quadrante: quadrante
                     });
+                    ordinaAttivitaGiorno(currentDay);
                     if (numGiorni > 1) {
                         currentDay = getGiornoSuccessiveOrWrap(currentDay);
                     }
@@ -3674,6 +3731,10 @@
             });
         }
         if (cambiatiPromemoria) salvaPromemoria();
+
+        // Riordina retroattivamente tutte le attività già inserite per priorità Q1->Q2->Q3->Q4
+        giorniSettimana.forEach(g => ordinaAttivitaGiorno(g));
+        salvaScaletta();
 
         renderPromemoria();
         renderScaletta();
