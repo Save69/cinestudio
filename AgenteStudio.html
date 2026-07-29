@@ -3306,6 +3306,21 @@
             return idx === giorniSettimana.length - 1 ? giorniSettimana[0] : giorniSettimana[idx + 1];
         }
 
+        function isGiornoTrascorso(indiceGiorno, offset = selectedWeekOffset) {
+            if (selectedArchiveWeekKey !== null) return true;
+            const oggi = new Date();
+            oggi.setHours(0, 0, 0, 0);
+            
+            const day = oggi.getDay();
+            const diff = (day === 0) ? -6 : 1 - day;
+            const lunedi = new Date(oggi);
+            lunedi.setDate(oggi.getDate() + diff);
+            lunedi.setDate(lunedi.getDate() + (offset * 7) + indiceGiorno);
+            lunedi.setHours(0, 0, 0, 0);
+            
+            return lunedi < oggi;
+        }
+
         function isOggi(indiceGiorno) {
             if (selectedArchiveWeekKey !== null || selectedWeekOffset !== 0) return false;
             const oggi = new Date();
@@ -3587,13 +3602,28 @@
             box.innerHTML = bannerHtml + giorniSettimana.map((giorno, indice) => {
                 const isWeekend = (giorno === 'Sabato' || giorno === 'Domenica');
                 const oggi = isOggi(indice);
+                const trascorso = selectedArchiveWeekKey === null && isGiornoTrascorso(indice, selectedWeekOffset);
+                
                 const titleColor = oggi ? 'text-blue-700 font-extrabold' : (isWeekend ? 'text-red-600 font-bold' : 'text-slate-800');
-                const borderBgClass = oggi 
-                    ? 'border-2 border-blue-500 bg-blue-50/15 shadow-md shadow-blue-100/50 ring-2 ring-blue-500/20' 
-                    : `border ${theme.borderLight} bg-white shadow-sm`;
+                
+                let borderBgClass = '';
+                let calendarIconColor = theme.primary;
+                let cardBorderBColor = theme.borderLight;
+                
+                if (oggi) {
+                    borderBgClass = 'border-2 border-blue-500 bg-blue-50/15 shadow-md shadow-blue-100/50 ring-2 ring-blue-500/20';
+                    calendarIconColor = 'blue-600';
+                } else if (trascorso) {
+                    borderBgClass = 'border border-emerald-100 bg-emerald-50/15 shadow-sm';
+                    calendarIconColor = 'emerald-600';
+                    cardBorderBColor = 'border-emerald-100';
+                } else {
+                    borderBgClass = `border ${theme.borderLight} bg-white shadow-sm`;
+                }
+                
                 const badgeOggi = oggi ? `<span class="ml-2 bg-blue-600 text-white text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md shadow-sm">Oggi</span>` : '';
                 return `<div class="${borderBgClass} rounded-xl p-3.5 transition-all duration-200" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" ondrop="dropElement(event, '${giorno}')">
-                    <h3 class="text-sm font-bold ${titleColor} border-b border-dashed ${theme.borderLight} pb-2.5 mb-2.5 flex items-center justify-between"><span class="flex items-center gap-1"><i class="fa-regular fa-calendar text-${theme.primary} mr-1"></i> ${giorno} ${getDataGiornoSettimana(indice)}</span>${badgeOggi}</h3>
+                    <h3 class="text-sm font-bold ${titleColor} border-b border-dashed ${cardBorderBColor} pb-2.5 mb-2.5 flex items-center justify-between"><span class="flex items-center gap-1"><i class="fa-regular fa-calendar text-${calendarIconColor} mr-1"></i> ${giorno} ${getDataGiornoSettimana(indice)}</span>${badgeOggi}</h3>
                     <div class="space-y-2">
                         ${weekSchedule[giorno].length ? weekSchedule[giorno].map((x, idx2, arr) => {
                             const pallinoColor = { q1: 'bg-red-500', q2: 'bg-blue-500', q3: 'bg-emerald-500', q4: 'bg-slate-400' }[x.quadrante || ''] || '';
