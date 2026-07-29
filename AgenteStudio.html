@@ -3043,6 +3043,21 @@
         function eliminaAttivitaScaletta(giorno, id) { scalettaAgenda[giorno] = scalettaAgenda[giorno].filter(x => x.id !== id); salvaScaletta(); renderScaletta(); }
         function spostaAttivitaScaletta(da, id, a) { if (da === a) return; const i = scalettaAgenda[da].findIndex(x => x.id === id); if (i < 0) return; scalettaAgenda[a].push(scalettaAgenda[da].splice(i, 1)[0]); salvaScaletta(); renderScaletta(); }
         
+        function isOggi(indiceGiorno) {
+            const oggi = new Date();
+            const day = oggi.getDay(); // 0=Dom, 1=Lun
+            const diff = (day === 0) ? -6 : 1 - day; // diff to Monday
+            const lunedi = new Date(oggi);
+            lunedi.setDate(oggi.getDate() + diff);
+            
+            const target = new Date(lunedi);
+            target.setDate(lunedi.getDate() + indiceGiorno);
+            
+            return oggi.getDate() === target.getDate() && 
+                   oggi.getMonth() === target.getMonth() && 
+                   oggi.getFullYear() === target.getFullYear();
+        }
+
         function getDataGiornoSettimana(indiceGiorno) {
             const oggi = new Date();
             const day = oggi.getDay(); // 0=Dom, 1=Lun
@@ -3119,9 +3134,14 @@
             const btn = document.getElementById('schedule-edit-btn'); btn.innerHTML = modificaScalettaAttiva ? '<i class="fa-solid fa-check"></i> Fine' : '<i class="fa-solid fa-pen-to-square"></i> Modifica';
             box.innerHTML = giorniSettimana.map((giorno, indice) => {
                 const isWeekend = (giorno === 'Sabato' || giorno === 'Domenica');
-                const titleColor = isWeekend ? 'text-red-600 font-bold' : 'text-slate-800';
-                return `<div class="border border-blue-100 bg-white rounded-xl p-3.5 transition-all duration-200" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" ondrop="dropElement(event, '${giorno}')">
-                    <h3 class="text-sm font-bold ${titleColor} border-b border-dashed border-blue-100 pb-2.5 mb-2.5"><i class="fa-regular fa-calendar text-blue-600 mr-1"></i> ${giorno} ${getDataGiornoSettimana(indice)}</h3>
+                const oggi = isOggi(indice);
+                const titleColor = oggi ? 'text-blue-700 font-extrabold' : (isWeekend ? 'text-red-600 font-bold' : 'text-slate-800');
+                const borderBgClass = oggi 
+                    ? 'border-2 border-blue-500 bg-blue-50/15 shadow-md shadow-blue-100/50 ring-2 ring-blue-500/20' 
+                    : 'border border-blue-100 bg-white shadow-sm';
+                const badgeOggi = oggi ? `<span class="ml-2 bg-blue-600 text-white text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md shadow-sm">Oggi</span>` : '';
+                return `<div class="${borderBgClass} rounded-xl p-3.5 transition-all duration-200" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" ondrop="dropElement(event, '${giorno}')">
+                    <h3 class="text-sm font-bold ${titleColor} border-b border-dashed border-blue-100 pb-2.5 mb-2.5 flex items-center justify-between"><span class="flex items-center gap-1"><i class="fa-regular fa-calendar text-blue-600 mr-1"></i> ${giorno} ${getDataGiornoSettimana(indice)}</span>${badgeOggi}</h3>
                     <div class="space-y-2">
                         ${scalettaAgenda[giorno].length ? scalettaAgenda[giorno].map((x, idx2, arr) => {
                             const pallinoColor = { q1: 'bg-red-500', q2: 'bg-blue-500', q3: 'bg-emerald-500', q4: 'bg-slate-400' }[x.quadrante || ''] || '';
