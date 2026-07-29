@@ -743,7 +743,7 @@
             </header>
 
             <!-- Control Bar with Eisenhower Toggle -->
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-6 bg-blue-50/50 border border-blue-100 rounded-xl p-3">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-6 bg-slate-50/50 border border-slate-200 rounded-xl p-3">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-user-tie text-blue-600 text-lg"></i>
                     <div>
@@ -757,8 +757,8 @@
             </div>
 
             <!-- Collapsible Eisenhower Matrix -->
-            <div id="matrice-eisenhower-container" class="hidden mb-6 bg-white border border-blue-100 rounded-2xl p-5 shadow-sm">
-                <div class="flex items-center justify-between pb-3 mb-4 border-b border-blue-100">
+            <div id="matrice-eisenhower-container" class="hidden mb-6 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-shapes text-blue-600"></i>
                         <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider">Matrice Decisionale di Eisenhower</h3>
@@ -799,7 +799,7 @@
 
             <div class="grid grid-cols-1 xl:grid-cols-[46fr_54fr] gap-6 items-start">
                 <!-- 1. Blocco Note Rapido -->
-                <section class="bg-white border border-blue-100 rounded-2xl p-5 shadow-sm" aria-labelledby="titolo-note">
+                <section class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm" aria-labelledby="titolo-note">
                     <div class="flex justify-between items-center gap-3 mb-3">
                         <h2 id="titolo-note" class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-file-pen text-blue-600"></i> Blocco Note Rapido</h2>
                         <div class="flex items-center gap-2 shrink-0">
@@ -819,7 +819,7 @@
                             </div>
                             <button onclick="chiudiSegretario()" class="text-slate-400 hover:text-slate-600 text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i> Chiudi</button>
                         </div>
-                        <div class="bg-white rounded-lg p-2.5 border border-blue-100 shadow-sm min-h-[44px] flex items-center justify-between gap-3">
+                        <div class="bg-white rounded-lg p-2.5 border border-slate-200 shadow-sm min-h-[44px] flex items-center justify-between gap-3">
                             <p id="secretary-current-task" class="text-xs font-bold text-slate-700 leading-tight"></p>
                             <span id="secretary-suggestion" class="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full shrink-0"></span>
                         </div>
@@ -829,7 +829,7 @@
                                 <span class="h-5 w-[1px] bg-slate-200 block"></span>
                                 <div class="flex flex-wrap gap-1">
                                     <button onclick="applicaPianificazione('q1')" title="Forza a Q1: Fai Subito" class="bg-red-500 hover:bg-red-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🔴 Q1</button>
-                                    <button onclick="applicaPianificazione('q2')" title="Forza a Q2: Pianifica" class="bg-blue-500 hover:bg-blue-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🔵 Q2</button>
+                                    <button onclick="applicaPianificazione('q2')" title="Forza a Q2: Pianifica" class="bg-purple-600 hover:bg-purple-700 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🟣 Q2</button>
                                     <button onclick="applicaPianificazione('q3')" title="Forza a Q3: Delega" class="bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🟢 Q3</button>
                                     <button onclick="applicaPianificazione('q4')" title="Forza a Q4: Parcheggia" class="bg-slate-500 hover:bg-slate-600 text-white text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">⚪ Q4</button>
                                 </div>
@@ -848,7 +848,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="flex justify-between items-center text-[10px] text-slate-400 mt-1 border-t border-blue-100 pt-2">
+                        <div class="flex justify-between items-center text-[10px] text-slate-400 mt-1 border-t border-slate-200 pt-2">
                             <span id="secretary-progress">Attività 1 di 1</span>
                             <button onclick="elaboraTutteLeNoteInBlocco()" class="text-blue-700 hover:text-blue-900 font-bold flex items-center gap-1 cursor-pointer">
                                 <i class="fa-solid fa-wand-magic-sparkles"></i> 🧙‍♂️ Pianifica tutto in blocco
@@ -857,11 +857,11 @@
                     </div>
 
                     <label for="quick-notes" class="sr-only">Appunti rapidi</label>
-                    <textarea id="quick-notes" oninput="programmaSalvataggioNote()" placeholder="Scrivi qui i tuoi appunti, contatti, bozze di idee o testi da copiare... Si salvano automaticamente ad ogni lettera." class="w-full min-h-[255px] resize-y border border-blue-100 bg-blue-50/20 rounded-xl p-3 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    <textarea id="quick-notes" oninput="programmaSalvataggioNote()" placeholder="Scrivi qui i tuoi appunti, contatti, bozze di idee o testi da copiare... Si salvano automaticamente ad ogni lettera." class="w-full min-h-[255px] resize-y border border-slate-200 bg-slate-50/40 rounded-xl p-3 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                 </section>
 
                 <!-- 2. Scaletta Settimanale -->
-                <section class="bg-white border border-blue-100 rounded-2xl p-5 shadow-sm xl:row-span-2" aria-labelledby="titolo-scaletta">
+                <section class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm xl:row-span-2" aria-labelledby="titolo-scaletta">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-slate-100 pb-3">
                         <h2 id="titolo-scaletta" class="font-black text-slate-900 flex items-center gap-2 text-base shrink-0"><i class="fa-solid fa-calendar-week text-blue-600 text-lg"></i> Scaletta Settimanale</h2>
                         <div class="flex flex-wrap gap-1.5 justify-center sm:justify-start items-center">
@@ -884,7 +884,7 @@
                 </section>
 
                 <!-- 3. Focus Obiettivi Mese & Trimestre -->
-                <section class="bg-white border border-blue-100 rounded-2xl p-5 shadow-sm" aria-labelledby="titolo-focus-obiettivi">
+                <section class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm" aria-labelledby="titolo-focus-obiettivi">
                     <div class="flex items-center justify-between gap-3 mb-4">
                         <h2 id="titolo-focus-obiettivi" class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-bullseye text-blue-600"></i> Obiettivi Mese &amp; Trimestre</h2>
                     </div>
@@ -898,8 +898,8 @@
                     </div>
 
                     <!-- Riquadro Obiettivi Mensili -->
-                    <div class="border border-blue-50 bg-blue-50/10 rounded-xl p-3.5 mb-3 flex flex-col gap-3">
-                        <div class="flex items-center justify-between pb-2 border-b border-blue-100">
+                    <div class="border border-slate-200 bg-slate-50/20 rounded-xl p-3.5 mb-3 flex flex-col gap-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-200">
                             <span class="text-[13px] font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5"><i class="fa-regular fa-calendar-check text-blue-600 text-sm"></i> Obiettivi Mensili</span>
                             <span id="ob-agenda-mensili-progress" class="text-[10px] font-extrabold text-blue-800 bg-blue-100 px-2 py-0.5 rounded-full">0/0</span>
                         </div>
@@ -918,8 +918,8 @@
                     </div>
 
                     <!-- Riquadro Obiettivi Trimestre -->
-                    <div class="border border-blue-50 bg-blue-50/10 rounded-xl p-3.5 flex flex-col gap-3">
-                        <div class="flex items-center justify-between pb-2 border-b border-blue-100">
+                    <div class="border border-slate-200 bg-slate-50/20 rounded-xl p-3.5 flex flex-col gap-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-200">
                             <span class="text-[13px] font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-bullseye text-blue-600 text-sm"></i> Obiettivi Trimestre (Q3)</span>
                             <span id="ob-agenda-trimestre-progress" class="text-[10px] font-extrabold text-blue-800 bg-blue-100 px-2 py-0.5 rounded-full">0/0</span>
                         </div>
@@ -2950,8 +2950,8 @@
                 bgLight: 'bg-red-50/15',
                 ring: 'ring-red-500/20',
                 borderFocus: 'focus:ring-red-500 focus:border-red-500',
-                btnClassActive: 'px-3.5 py-1.5 text-xs font-black rounded-xl bg-red-600 text-white shadow-md shadow-red-100 transition-all cursor-pointer',
-                shadowColor: 'shadow-red-100'
+                btnClassActive: 'px-3.5 py-1.5 text-xs font-black rounded-xl bg-red-50 text-red-600 border border-red-200 shadow-sm transition-all cursor-pointer',
+                shadowColor: 'shadow-red-50'
             },
             1: {
                 primary: 'amber-500',
@@ -2961,8 +2961,8 @@
                 bgLight: 'bg-amber-50/15',
                 ring: 'ring-amber-500/20',
                 borderFocus: 'focus:ring-amber-500 focus:border-amber-500',
-                btnClassActive: 'px-3.5 py-1.5 text-xs font-black rounded-xl bg-amber-500 text-white shadow-md shadow-amber-100 transition-all cursor-pointer',
-                shadowColor: 'shadow-amber-100'
+                btnClassActive: 'px-3.5 py-1.5 text-xs font-black rounded-xl bg-amber-50 text-amber-600 border border-amber-200 shadow-sm transition-all cursor-pointer',
+                shadowColor: 'shadow-amber-50'
             },
             2: {
                 primary: 'emerald-600',
@@ -2972,8 +2972,8 @@
                 bgLight: 'bg-emerald-50/15',
                 ring: 'ring-emerald-500/20',
                 borderFocus: 'focus:ring-emerald-500 focus:border-emerald-500',
-                btnClassActive: 'px-3.5 py-1.5 text-xs font-black rounded-xl bg-emerald-600 text-white shadow-md shadow-emerald-100 transition-all cursor-pointer',
-                shadowColor: 'shadow-emerald-100'
+                btnClassActive: 'px-3.5 py-1.5 text-xs font-black rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-sm transition-all cursor-pointer',
+                shadowColor: 'shadow-emerald-50'
             }
         };
 
@@ -2985,8 +2985,8 @@
             bgLight: 'bg-slate-50/15',
             ring: 'ring-slate-500/20',
             borderFocus: 'focus:ring-slate-500 focus:border-slate-500',
-            btnClassActive: 'px-3.5 py-1.5 text-xs font-black rounded-xl bg-slate-600 text-white shadow-md shadow-slate-100 transition-all cursor-pointer',
-            shadowColor: 'shadow-slate-100'
+            btnClassActive: 'px-3.5 py-1.5 text-xs font-black rounded-xl bg-slate-50 text-slate-600 border border-slate-200 shadow-sm transition-all cursor-pointer',
+            shadowColor: 'shadow-slate-50'
         };
 
         function startWeekSwitchTimer(offset) {
@@ -3149,7 +3149,7 @@
                             : `${letter} `;
                     }
                 }
-                const pallinoColor = { q1: 'bg-red-500', q2: 'bg-blue-500', q3: 'bg-emerald-500', q4: 'bg-slate-400' }[x.quadrante || ''] || '';
+                const pallinoColor = { q1: 'bg-red-500', q2: 'bg-purple-500', q3: 'bg-emerald-500', q4: 'bg-slate-400' }[x.quadrante || ''] || '';
                 const dotHtml = pallinoColor ? `<span class="inline-block w-2 h-2 rounded-full ${pallinoColor} shrink-0 mt-1.5" title="Priorità Eisenhower"></span>` : '';
 
                 return `<div class="flex items-start gap-2 border border-slate-100 rounded-xl p-3 group">
@@ -3376,7 +3376,6 @@
         function dragEnter(event) {
             const container = event.currentTarget;
             if (container) {
-                container.classList.remove('border-blue-100');
                 container.classList.add('border-blue-500', 'bg-blue-50/20');
             }
         }
@@ -3385,7 +3384,6 @@
             const container = event.currentTarget;
             if (container) {
                 container.classList.remove('border-blue-500', 'bg-blue-50/20');
-                container.classList.add('border-blue-100');
             }
         }
 
@@ -3394,7 +3392,6 @@
             const container = event.currentTarget;
             if (container) {
                 container.classList.remove('border-blue-500', 'bg-blue-50/20');
-                container.classList.add('border-blue-100');
             }
             try {
                 const data = JSON.parse(event.dataTransfer.getData("text/plain"));
@@ -3452,7 +3449,6 @@
             const container = event.currentTarget.closest('[ondrop^="dropElement"]');
             if (container) {
                 container.classList.remove('border-blue-500', 'bg-blue-50/20');
-                container.classList.add('border-blue-100');
             }
             
             try {
@@ -3654,7 +3650,7 @@
                     <h3 class="text-sm font-bold ${titleColor} border-b border-dashed ${cardBorderBColor} pb-2.5 mb-2.5 flex items-center justify-between"><span class="flex items-center gap-1"><i class="fa-regular fa-calendar text-${calendarIconColor} mr-1"></i> ${giorno} ${getDataGiornoSettimana(indice)}</span>${badgeOggi}</h3>
                     <div class="space-y-2">
                         ${weekSchedule[giorno].length ? weekSchedule[giorno].map((x, idx2, arr) => {
-                            const pallinoColor = { q1: 'bg-red-500', q2: 'bg-blue-500', q3: 'bg-emerald-500', q4: 'bg-slate-400' }[x.quadrante || ''] || '';
+                            const pallinoColor = { q1: 'bg-red-500', q2: 'bg-purple-500', q3: 'bg-emerald-500', q4: 'bg-slate-400' }[x.quadrante || ''] || '';
                             const dotHtml = pallinoColor ? `<span class="inline-block w-2.5 h-2.5 rounded-full ${pallinoColor} shrink-0 mt-1" title="Priorità Eisenhower"></span>` : '';
                             
                             const targetOptions = [];
@@ -3681,7 +3677,7 @@
                                     <select onchange="cambiaQuadranteScaletta('${giorno}','${x.id}',this.value)" aria-label="Matrice Eisenhower" class="border border-slate-200 rounded-lg p-1 text-[11px] bg-white cursor-pointer font-medium">
                                         <option value="" ${!x.quadrante ? 'selected' : ''}>Nessuna priorità</option>
                                         <option value="q1" ${x.quadrante === 'q1' ? 'selected' : ''}>🔴 Q1: Fai Subito</option>
-                                        <option value="q2" ${x.quadrante === 'q2' ? 'selected' : ''}>🔵 Q2: Pianifica</option>
+                                        <option value="q2" ${x.quadrante === 'q2' ? 'selected' : ''}>🟣 Q2: Pianifica</option>
                                         <option value="q3" ${x.quadrante === 'q3' ? 'selected' : ''}>🟢 Q3: Delega</option>
                                         <option value="q4" ${x.quadrante === 'q4' ? 'selected' : ''}>⚪ Q4: Parcheggia</option>
                                     </select>
