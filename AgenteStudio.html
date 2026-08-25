@@ -559,13 +559,32 @@
 
                     <!-- MP3 Settings -->
                     <details class="v2-settings">
-                        <summary><i class="fa-solid fa-sliders"></i> Impostazioni suono</summary>
-                        <div class="flex flex-col gap-2 px-2 pb-1 text-slate-400">
-                            <label class="font-bold flex items-center gap-2 cursor-pointer text-slate-300">
-                                <input type="checkbox" id="chk-mp3-enable" onchange="salvaImpostazioniMP3()" class="accent-blue-600 rounded"> Suona MP3 alla fine dei fischi
+                        <summary><i class="fa-solid fa-music"></i> Impostazioni Musica / Allarme MP3</summary>
+                        <div class="flex flex-col gap-2.5 px-2 pb-2 text-slate-300">
+                            <label class="font-bold flex items-center gap-2 cursor-pointer text-white">
+                                <input type="checkbox" id="chk-mp3-enable" onchange="salvaImpostazioniMP3()" class="accent-blue-500 rounded"> Suona MP3 alla fine dei fischi
                             </label>
-                            <input type="text" id="txt-mp3-path" oninput="salvaImpostazioniMP3()" placeholder="Es: traccia.mp3 (su Desktop) o URL"
-                                   class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 text-slate-200 focus:outline-none">
+                            
+                            <!-- File Picker MP3 -->
+                            <div>
+                                <input type="file" id="file-mp3-picker" accept="audio/*" class="hidden" onchange="gestisciUploadMP3(event)">
+                                <div class="flex items-center gap-2">
+                                    <button type="button" onclick="document.getElementById('file-mp3-picker').click()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm">
+                                        <i class="fa-solid fa-file-audio"></i> Scegli MP3 dal PC
+                                    </button>
+                                    <button type="button" id="btn-test-mp3" onclick="testAudioMP3()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 text-xs font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer" title="Ascolta anteprima">
+                                        <i class="fa-solid fa-play" id="icon-test-mp3"></i> <span id="text-test-mp3">Prova</span>
+                                    </button>
+                                </div>
+                                <p id="label-mp3-selezionato" class="text-[11px] text-teal-400 mt-1.5 truncate font-medium"></p>
+                            </div>
+
+                            <!-- URL o Nome file alternativo -->
+                            <div class="pt-1.5 border-t border-slate-700/50">
+                                <span class="text-[10px] text-slate-400">Oppure inserisci URL web o nome file locale:</span>
+                                <input type="text" id="txt-mp3-path" oninput="salvaImpostazioniMP3()" placeholder="Es: https://.../audio.mp3 o traccia.mp3"
+                                       class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
+                            </div>
                         </div>
                     </details>
                 </div>
@@ -3022,9 +3041,16 @@
                 Notification.requestPermission();
             }
 
+            if (remainingSeconds <= 0) {
+                remainingSeconds = totalSeconds;
+                sessioneAutoRegistrata = false;
+            }
+
             isTimerRunning = true;
             document.getElementById('btn-timer-icon').className = "fa-solid fa-pause";
             document.getElementById('btn-timer-text').innerText = "Sospendi";
+            updateTimerDisplay();
+
             timerInterval = setInterval(() => {
                 if (remainingSeconds > 0) {
                     remainingSeconds--;
@@ -3070,20 +3096,136 @@
             document.title = "Agente Studio";
         }
 
+        // ============================================================
+        // 8b. GESTIONE MP3 & AUDIO PERSISTENTE (IndexedDB)
+        // ============================================================
+
         let currentAudio = null;
+        const AUDIO_DB_NAME = 'AgenteStudioAudioDB';
+        const AUDIO_STORE_NAME = 'tracks';
+
+        function getAudioDB() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(AUDIO_DB_NAME, 1);
+                req.onupgradeneeded = () => {
+                    req.result.createObjectStore(AUDIO_STORE_NAME);
+                };
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function salvaAudioFileIndexedDB(blob) {
+            try {
+                const db = await getAudioDB();
+                const tx = db.transaction(AUDIO_STORE_NAME, 'readwrite');
+                tx.objectStore(AUDIO_STORE_NAME).put(blob, 'custom_alarm_mp3');
+                return new Promise((resolve, reject) => {
+                    tx.oncomplete = () => resolve(true);
+                    tx.onerror = () => reject(tx.error);
+                });
+            } catch (e) {
+                console.error("Errore salvataggio IndexedDB:", e);
+                return false;
+            }
+        }
+
+        async function caricaAudioFileIndexedDB() {
+            try {
+                const db = await getAudioDB();
+                const tx = db.transaction(AUDIO_STORE_NAME, 'readonly');
+                const req = tx.objectStore(AUDIO_STORE_NAME).get('custom_alarm_mp3');
+                return new Promise((resolve) => {
+                    req.onsuccess = () => resolve(req.result || null);
+                    req.onerror = () => resolve(null);
+                });
+            } catch (e) {
+                return null;
+            }
+        }
+
+        async function gestisciUploadMP3(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            await salvaAudioFileIndexedDB(file);
+            localStorage.setItem('timer_mp3_filename', file.name);
+
+            const chk = document.getElementById('chk-mp3-enable');
+            if (chk) chk.checked = true;
+            salvaImpostazioniMP3();
+
+            const lbl = document.getElementById('label-mp3-selezionato');
+            if (lbl) lbl.textContent = `🎵 Brano attivo: ${file.name}`;
+
+            showToast(`Brano MP3 salvato: ${file.name}`, 'success');
+        }
+
+        async function testAudioMP3() {
+            const btnText = document.getElementById('text-test-mp3');
+            const btnIcon = document.getElementById('icon-test-mp3');
+
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+                if (btnText) btnText.textContent = "Prova";
+                if (btnIcon) btnIcon.className = "fa-solid fa-play";
+                return;
+            }
+
+            const storedBlob = await caricaAudioFileIndexedDB();
+            let src = null;
+            if (storedBlob) {
+                src = URL.createObjectURL(storedBlob);
+            } else {
+                const path = document.getElementById('txt-mp3-path')?.value.trim();
+                if (path) src = path;
+            }
+
+            if (!src) {
+                showToast("Nessun MP3 selezionato. Clicca 'Scegli MP3 dal PC' o inserisci un URL.", "warning");
+                return;
+            }
+
+            try {
+                currentAudio = new Audio(src);
+                currentAudio.onended = () => {
+                    currentAudio = null;
+                    if (btnText) btnText.textContent = "Prova";
+                    if (btnIcon) btnIcon.className = "fa-solid fa-play";
+                };
+                await currentAudio.play();
+                if (btnText) btnText.textContent = "Stop";
+                if (btnIcon) btnIcon.className = "fa-solid fa-stop";
+            } catch (err) {
+                console.error("Errore test audio:", err);
+                showToast("Impossibile riprodurre l'audio. Prova a ricaricare il file MP3.", "warning");
+            }
+        }
 
         function salvaImpostazioniMP3() {
-            const enabled = document.getElementById('chk-mp3-enable').checked;
-            const path = document.getElementById('txt-mp3-path').value.trim();
+            const chk = document.getElementById('chk-mp3-enable');
+            const txt = document.getElementById('txt-mp3-path');
+            const enabled = chk ? chk.checked : false;
+            const path = txt ? txt.value.trim() : '';
             localStorage.setItem('timer_mp3_settings', JSON.stringify({ enabled, path }));
         }
 
-        function caricaImpostazioniMP3() {
+        async function caricaImpostazioniMP3() {
             const settings = JSON.parse(localStorage.getItem('timer_mp3_settings')) || { enabled: false, path: '' };
+            const filename = localStorage.getItem('timer_mp3_filename');
             const chk = document.getElementById('chk-mp3-enable');
             const txt = document.getElementById('txt-mp3-path');
+            const lbl = document.getElementById('label-mp3-selezionato');
+
             if (chk) chk.checked = settings.enabled;
-            if (txt) txt.value = settings.path;
+            if (txt) txt.value = settings.path || '';
+
+            if (filename && lbl) {
+                lbl.textContent = `🎵 Brano attivo: ${filename}`;
+            } else if (settings.path && lbl) {
+                lbl.textContent = `🔗 Percorso: ${settings.path}`;
+            }
         }
 
         function stopAlarm() {
@@ -3092,6 +3234,10 @@
             if (currentAudio) {
                 currentAudio.pause();
                 currentAudio = null;
+                const btnText = document.getElementById('text-test-mp3');
+                const btnIcon = document.getElementById('icon-test-mp3');
+                if (btnText) btnText.textContent = "Prova";
+                if (btnIcon) btnIcon.className = "fa-solid fa-play";
             }
         }
 
@@ -3145,19 +3291,38 @@
             startTitleFlash();
 
             // Avvio MP3 musicale dopo la fine dei 3 fischi (circa 1.5s)
-            setTimeout(() => {
+            setTimeout(async () => {
                 const mp3Enabled = document.getElementById('chk-mp3-enable')?.checked;
-                const mp3Path = document.getElementById('txt-mp3-path')?.value.trim();
-                if (mp3Enabled && mp3Path) {
-                    if (currentAudio) {
-                        currentAudio.pause();
-                        currentAudio = null;
+                if (!mp3Enabled) return;
+
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio = null;
+                }
+
+                // 1. Prova prima il file caricato in IndexedDB
+                const storedBlob = await caricaAudioFileIndexedDB();
+                if (storedBlob) {
+                    try {
+                        const url = URL.createObjectURL(storedBlob);
+                        currentAudio = new Audio(url);
+                        await currentAudio.play();
+                        return;
+                    } catch(e) {
+                        console.log("Errore riproduzione IndexedDB MP3:", e);
                     }
-                    currentAudio = new Audio(mp3Path);
-                    currentAudio.play().catch(e => {
-                        console.log("Errore riproduzione MP3:", e);
-                        showToast("Impossibile caricare l'MP3. Verifica il percorso del file.", "warning");
-                    });
+                }
+
+                // 2. Fallback a URL o percorso testuale
+                const mp3Path = document.getElementById('txt-mp3-path')?.value.trim();
+                if (mp3Path) {
+                    try {
+                        currentAudio = new Audio(mp3Path);
+                        await currentAudio.play();
+                    } catch(e) {
+                        console.log("Errore riproduzione MP3 da path:", e);
+                        showToast("Impossibile caricare l'MP3. Usa il tasto 'Scegli MP3 dal PC'.", "warning");
+                    }
                 }
             }, 1500);
 
