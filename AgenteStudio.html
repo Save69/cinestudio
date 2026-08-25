@@ -544,6 +544,28 @@
                         Seleziona la stanza in basso, avvia il timer e applica il Seiri (Scarto).
                     </p>
 
+                    <!-- Smooth Jazz Radio Mini-Player -->
+                    <div class="my-2.5 bg-slate-800/90 border border-amber-500/30 rounded-xl p-2.5 flex items-center justify-between gap-2.5 shadow-md">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/40">
+                                <i class="fa-solid fa-radio text-xs" id="radio-indicator-icon"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-[11px] font-bold text-slate-100 truncate">Smooth Jazz</span>
+                                    <span id="radio-live-badge" class="hidden text-[8px] font-black uppercase tracking-wider bg-red-500/20 text-red-400 px-1 py-0.5 rounded border border-red-500/30 animate-pulse">LIVE</span>
+                                </div>
+                                <p id="radio-status-text" class="text-[9px] text-slate-400 truncate">smoothjazz.com.pl</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <input type="range" id="radio-volume" min="0" max="1" step="0.05" value="0.7" oninput="cambiaVolumeRadio(this.value)" class="w-12 h-1 accent-amber-400 bg-slate-700 rounded-lg cursor-pointer" title="Volume Radio">
+                            <button type="button" id="btn-toggle-radio" onclick="toggleRadioSmoothJazz()" class="w-7 h-7 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-xs shadow transition-all cursor-pointer" title="Avvia/Ferma Radio Smooth Jazz">
+                                <i class="fa-solid fa-play" id="radio-play-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Preset Buttons -->
                     <div class="grid grid-cols-3 gap-2">
                         <button id="preset-btn-1" onclick="setPresetTimer(15)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all">15 Min</button>
@@ -563,6 +585,9 @@
                         <div class="flex flex-col gap-2.5 px-2 pb-2 text-slate-300">
                             <label class="font-bold flex items-center gap-2 cursor-pointer text-white">
                                 <input type="checkbox" id="chk-mp3-enable" onchange="salvaImpostazioniMP3()" class="accent-blue-500 rounded"> Suona MP3 alla fine dei fischi
+                            </label>
+                            <label class="font-bold flex items-center gap-2 cursor-pointer text-amber-300 text-xs">
+                                <input type="checkbox" id="chk-radio-auto" onchange="salvaImpostazioniMP3()" class="accent-amber-500 rounded"> Avvia Smooth Jazz all'avvio del timer
                             </label>
                             
                             <!-- File Picker MP3 -->
@@ -3046,6 +3071,12 @@
                 sessioneAutoRegistrata = false;
             }
 
+            // Avvio automatico Smooth Jazz se abilitato
+            const chkAutoRadio = document.getElementById('chk-radio-auto')?.checked;
+            if (chkAutoRadio && !isRadioPlaying) {
+                toggleRadioSmoothJazz(true);
+            }
+
             isTimerRunning = true;
             document.getElementById('btn-timer-icon').className = "fa-solid fa-pause";
             document.getElementById('btn-timer-text').innerText = "Sospendi";
@@ -3097,7 +3128,93 @@
         }
 
         // ============================================================
-        // 8b. GESTIONE MP3 & AUDIO PERSISTENTE (IndexedDB)
+        // 8b. SMOOTH JAZZ RADIO STREAMING & GESTIONE AUDIO
+        // ============================================================
+
+        const RADIO_STREAM_URL = 'https://bcast.vigormultimedia.com:48888/sjcompl256mp3';
+        const RADIO_STREAM_BACKUP = 'https://bcast.vigormultimedia.com:48888/sjcompl192aac';
+        let radioAudio = null;
+        let isRadioPlaying = false;
+        let wasRadioPlayingBeforeAlarm = false;
+
+        function initRadioPlayer() {
+            if (!radioAudio) {
+                radioAudio = new Audio(RADIO_STREAM_URL);
+                radioAudio.preload = 'none';
+                const savedVol = localStorage.getItem('radio_smoothjazz_volume');
+                radioAudio.volume = savedVol !== null ? parseFloat(savedVol) : 0.7;
+                const volSlider = document.getElementById('radio-volume');
+                if (volSlider) volSlider.value = String(radioAudio.volume);
+
+                radioAudio.onerror = () => {
+                    if (radioAudio.src === RADIO_STREAM_URL) {
+                        radioAudio.src = RADIO_STREAM_BACKUP;
+                        if (isRadioPlaying) radioAudio.play().catch(e => console.log("Errore backup radio:", e));
+                    }
+                };
+            }
+        }
+
+        function cambiaVolumeRadio(val) {
+            initRadioPlayer();
+            const vol = parseFloat(val);
+            radioAudio.volume = vol;
+            localStorage.setItem('radio_smoothjazz_volume', String(vol));
+        }
+
+        async function toggleRadioSmoothJazz(forceState) {
+            initRadioPlayer();
+            const shouldPlay = forceState !== undefined ? forceState : !isRadioPlaying;
+
+            const btnIcon = document.getElementById('radio-play-icon');
+            const statusText = document.getElementById('radio-status-text');
+            const liveBadge = document.getElementById('radio-live-badge');
+            const radioIcon = document.getElementById('radio-indicator-icon');
+
+            if (shouldPlay) {
+                try {
+                    radioAudio.src = RADIO_STREAM_URL;
+                    await radioAudio.play();
+                    isRadioPlaying = true;
+                    if (btnIcon) btnIcon.className = "fa-solid fa-pause";
+                    if (statusText) statusText.textContent = "In riproduzione (256k)";
+                    if (liveBadge) liveBadge.classList.remove('hidden');
+                    if (radioIcon) radioIcon.className = "fa-solid fa-radio text-xs text-amber-400 animate-pulse";
+                    showToast("📻 Smooth Jazz Radio avviata", "info");
+                } catch(e) {
+                    console.error("Errore avvio radio:", e);
+                    isRadioPlaying = false;
+                    if (statusText) statusText.textContent = "Stream non disponibile";
+                    showToast("Impossibile connettersi a Smooth Jazz Radio.", "warning");
+                }
+            } else {
+                radioAudio.pause();
+                isRadioPlaying = false;
+                if (btnIcon) btnIcon.className = "fa-solid fa-play";
+                if (statusText) statusText.textContent = "smoothjazz.com.pl";
+                if (liveBadge) liveBadge.classList.add('hidden');
+                if (radioIcon) radioIcon.className = "fa-solid fa-radio text-xs";
+            }
+        }
+
+        function pausaRadioPerAllarme() {
+            if (isRadioPlaying) {
+                wasRadioPlayingBeforeAlarm = true;
+                toggleRadioSmoothJazz(false);
+            }
+        }
+
+        function riprendiRadioDopoAllarme() {
+            if (wasRadioPlayingBeforeAlarm) {
+                wasRadioPlayingBeforeAlarm = false;
+                setTimeout(() => {
+                    toggleRadioSmoothJazz(true);
+                }, 800);
+            }
+        }
+
+        // ============================================================
+        // 8c. GESTIONE MP3 & AUDIO PERSISTENTE (IndexedDB)
         // ============================================================
 
         let currentAudio = null;
@@ -3205,20 +3322,24 @@
 
         function salvaImpostazioniMP3() {
             const chk = document.getElementById('chk-mp3-enable');
+            const chkRadio = document.getElementById('chk-radio-auto');
             const txt = document.getElementById('txt-mp3-path');
             const enabled = chk ? chk.checked : false;
+            const autoRadio = chkRadio ? chkRadio.checked : false;
             const path = txt ? txt.value.trim() : '';
-            localStorage.setItem('timer_mp3_settings', JSON.stringify({ enabled, path }));
+            localStorage.setItem('timer_mp3_settings', JSON.stringify({ enabled, path, autoRadio }));
         }
 
         async function caricaImpostazioniMP3() {
-            const settings = JSON.parse(localStorage.getItem('timer_mp3_settings')) || { enabled: false, path: '' };
+            const settings = JSON.parse(localStorage.getItem('timer_mp3_settings')) || { enabled: false, path: '', autoRadio: false };
             const filename = localStorage.getItem('timer_mp3_filename');
             const chk = document.getElementById('chk-mp3-enable');
+            const chkRadio = document.getElementById('chk-radio-auto');
             const txt = document.getElementById('txt-mp3-path');
             const lbl = document.getElementById('label-mp3-selezionato');
 
             if (chk) chk.checked = settings.enabled;
+            if (chkRadio) chkRadio.checked = Boolean(settings.autoRadio);
             if (txt) txt.value = settings.path || '';
 
             if (filename && lbl) {
@@ -3226,6 +3347,7 @@
             } else if (settings.path && lbl) {
                 lbl.textContent = `🔗 Percorso: ${settings.path}`;
             }
+            initRadioPlayer();
         }
 
         function stopAlarm() {
@@ -3239,6 +3361,8 @@
                 if (btnText) btnText.textContent = "Prova";
                 if (btnIcon) btnIcon.className = "fa-solid fa-play";
             }
+            // Riprende la radio Smooth Jazz se era in riproduzione prima dell'allarme
+            riprendiRadioDopoAllarme();
         }
 
         function playBeep() {
@@ -3284,6 +3408,9 @@
             isTimerRunning = false;
             document.getElementById('btn-timer-icon').className = "fa-solid fa-play";
             document.getElementById('btn-timer-text').innerText = "Nuova Sessione";
+            
+            // Stoppa immediatamente la radio Smooth Jazz prima dei fischi e dell'MP3
+            pausaRadioPerAllarme();
             playBeep();
 
             // Mostra overlay di allarme lampeggiante
