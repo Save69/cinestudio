@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -45,6 +45,328 @@
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: #475569;
         }
+
+        /* =========================================================
+           AGENTE STUDIO V2 — Design system
+           ========================================================= */
+        :root {
+            --v2-primary: #2563eb;
+            --v2-primary-hover: #1d4ed8;
+            --v2-primary-soft: #eff6ff;
+            --v2-surface: #ffffff;
+            --v2-surface-muted: #f8fafc;
+            --v2-border: #cbd5e1;
+            --v2-text: #0f172a;
+            --v2-muted: #64748b;
+            --v2-radius: 14px;
+            --v2-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 6px 18px rgba(15, 23, 42, 0.04);
+        }
+
+        body {
+            background: #f4f7fb;
+            color: var(--v2-text);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Scala tipografica più leggibile, inclusi gli elementi creati via JS. */
+        [class~="text-[9px]"]  { font-size: 11px !important; line-height: 1.35 !important; }
+        [class~="text-[10px]"] { font-size: 12px !important; line-height: 1.4 !important; }
+        [class~="text-[11px]"] { font-size: 13px !important; line-height: 1.45 !important; }
+
+        main > .tab-content > header h1 {
+            font-size: clamp(1.75rem, 2.4vw, 2rem);
+            letter-spacing: -0.025em;
+        }
+
+        main > .tab-content > header p {
+            font-size: 14px;
+            color: var(--v2-muted);
+        }
+
+        /* Campi: superficie riconoscibile, altezza comoda e focus uniforme. */
+        input:not([type="checkbox"]):not([type="radio"]),
+        select,
+        textarea {
+            background-color: var(--v2-surface-muted) !important;
+            border-color: var(--v2-border) !important;
+            color: var(--v2-text);
+            font-size: 14px !important;
+            border-radius: 10px !important;
+            transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease;
+        }
+
+        input:not([type="checkbox"]):not([type="radio"]),
+        select {
+            min-height: 40px;
+            padding-top: 8px !important;
+            padding-bottom: 8px !important;
+        }
+
+        textarea { padding: 12px 14px !important; }
+
+        input:not([type="checkbox"]):not([type="radio"]):focus,
+        select:focus,
+        textarea:focus {
+            background-color: #fff !important;
+            border-color: var(--v2-primary) !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, .14) !important;
+            outline: none !important;
+        }
+
+        input::placeholder,
+        textarea::placeholder { color: #94a3b8 !important; opacity: 1; }
+
+        /* Superfici più calme: meno ombre e niente doppi bordi decorativi. */
+        .v2-pillar-card {
+            border-width: 1px !important;
+            border-color: #dbe3ee !important;
+            box-shadow: var(--v2-shadow) !important;
+            overflow: hidden;
+        }
+
+        .v2-pillar-card > div:first-child {
+            border-left: 4px solid var(--pillar-accent);
+        }
+
+        .v2-pillar-card .v2-pillar-panel {
+            border-width: 1px !important;
+            border-color: #e2e8f0 !important;
+            background: var(--v2-surface-muted) !important;
+        }
+
+        /* Blu come colore primario dell'app; i colori dei pilastri restano accenti. */
+        .v2-brand,
+        #btn-toggle-timer {
+            background: var(--v2-primary) !important;
+            box-shadow: none !important;
+        }
+
+        #btn-toggle-timer:hover { background: var(--v2-primary-hover) !important; }
+
+        .v2-primary-button {
+            min-height: 40px;
+            background: var(--v2-primary) !important;
+            color: white !important;
+            border-color: var(--v2-primary) !important;
+        }
+
+        /* Impostazioni non quotidiane raccolte in un pannello discreto. */
+        .v2-settings {
+            margin-top: 14px;
+            border-top: 1px solid #334155;
+            padding-top: 10px;
+            color: #cbd5e1;
+        }
+
+        .v2-settings summary {
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            color: #cbd5e1;
+            list-style: none;
+            border-radius: 8px;
+            padding: 0 8px;
+        }
+
+        .v2-settings summary::-webkit-details-marker { display: none; }
+        .v2-settings summary:hover { background: #1e293b; color: white; }
+        .v2-settings[open] summary { margin-bottom: 8px; }
+
+        @media (max-width: 767px) {
+            main { padding: 16px !important; }
+            [class~="text-[10px]"], [class~="text-[11px]"] { font-size: 12px !important; }
+        }
+
+        /* V2.1 — applicazione visibile e uniforme sull'interfaccia esistente. */
+        @media (min-width: 768px) {
+            body > aside {
+                width: 17rem !important;
+                padding: 1.5rem !important;
+            }
+
+            body > main {
+                padding: 2rem 2.25rem !important;
+            }
+        }
+
+        .text-xs { font-size: 13px !important; line-height: 1.45 !important; }
+        .text-sm { font-size: 15px !important; line-height: 1.5 !important; }
+        [class~="text-[9px]"]  { font-size: 12px !important; }
+        [class~="text-[10px]"] { font-size: 13px !important; }
+        [class~="text-[11px]"] { font-size: 14px !important; }
+
+        main h2,
+        main h3,
+        main h4,
+        main h5 {
+            letter-spacing: -0.01em;
+        }
+
+        main section.bg-white,
+        main div.bg-white.rounded-2xl {
+            border-color: #dbe3ee !important;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, .04),
+                        0 8px 24px rgba(15, 23, 42, .045) !important;
+        }
+
+        input:not([type="checkbox"]):not([type="radio"]),
+        select {
+            min-height: 42px !important;
+            padding-left: 12px !important;
+            padding-right: 12px !important;
+        }
+
+        textarea {
+            background: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+            font-size: 15px !important;
+            line-height: 1.6 !important;
+        }
+
+        button {
+            outline-offset: 2px;
+        }
+
+        button:focus-visible {
+            outline: 3px solid rgba(37, 99, 235, .3) !important;
+        }
+
+        main button:not([class*="text-red"]):not([class*="bg-red"]):not([class*="bg-emerald"]):not([class*="bg-violet"]):not([class*="bg-sky"]) i {
+            color: currentColor;
+        }
+
+        /* Agenda compatta: stessa tipografia, meno spazio disperso. */
+        @media (min-width: 1280px) {
+            body > aside {
+                width: 14rem !important;
+                padding: 1rem !important;
+            }
+
+            body > main {
+                padding: 1rem 1.25rem !important;
+            }
+
+            body > aside > div:first-child > div:first-child {
+                margin-bottom: 1rem !important;
+                padding-bottom: .75rem !important;
+            }
+
+            body > aside nav + div {
+                margin-top: 1rem !important;
+                padding-top: .75rem !important;
+            }
+
+            body > aside nav button {
+                padding-top: .5rem !important;
+                padding-bottom: .5rem !important;
+            }
+
+            body > aside nav + div > div {
+                gap: .375rem !important;
+            }
+        }
+
+        #tab-agenda > header {
+            margin-bottom: .625rem !important;
+        }
+
+        #tab-agenda > header p {
+            margin-top: .125rem !important;
+        }
+
+        #tab-agenda > .bg-slate-50\/50 {
+            margin-bottom: .75rem !important;
+            padding: .5rem .625rem !important;
+        }
+
+        #tab-agenda > .grid {
+            gap: .75rem !important;
+            grid-template-columns: minmax(25rem, 44fr) minmax(34rem, 56fr);
+        }
+
+        #tab-agenda > .grid > section {
+            padding: .75rem !important;
+            border-radius: .75rem !important;
+        }
+
+        #quick-notes-drop-zone > div:first-child {
+            margin-bottom: .375rem !important;
+        }
+
+        #quick-notes {
+            min-height: 145px !important;
+            padding: .625rem !important;
+            line-height: 1.5 !important;
+        }
+
+        #titolo-scaletta {
+            white-space: nowrap;
+        }
+
+        #titolo-scaletta + div {
+            gap: .25rem !important;
+        }
+
+        #titolo-scaletta + div button,
+        #schedule-edit-btn {
+            padding-top: .375rem !important;
+            padding-bottom: .375rem !important;
+        }
+
+        #weekly-schedule {
+            padding-right: 0 !important;
+        }
+
+        #weekly-schedule.space-y-4 > :not([hidden]) ~ :not([hidden]) {
+            margin-top: .375rem !important;
+        }
+
+        #weekly-schedule > div {
+            padding: .45rem .625rem !important;
+            border-radius: .625rem !important;
+        }
+
+        #weekly-schedule > div > h3 {
+            padding-bottom: .25rem !important;
+            margin-bottom: .25rem !important;
+        }
+
+        #weekly-schedule > div > .space-y-2 > :not([hidden]) ~ :not([hidden]) {
+            margin-top: .125rem !important;
+        }
+
+        #reminders-list {
+            max-height: 11rem !important;
+        }
+
+        #reminders-list > div {
+            padding: .45rem .625rem !important;
+        }
+
+        #tab-agenda section[aria-labelledby="titolo-promemoria"] > div:first-child,
+        #tab-agenda section[aria-labelledby="titolo-scaletta"] > div:first-child {
+            margin-bottom: .5rem !important;
+            padding-bottom: .5rem !important;
+        }
+
+        #tab-agenda section[aria-labelledby="titolo-promemoria"] > div:first-child {
+            margin-bottom: .375rem !important;
+        }
+
+        #tab-agenda section[aria-labelledby="titolo-promemoria"] h2 + p {
+            margin-top: .125rem !important;
+        }
+
+        @media (max-width: 1279px) {
+            #tab-agenda > .grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden font-sans">
@@ -55,6 +377,31 @@
         <span id="toast-message">Registrazione completata!</span>
     </div>
 
+    <!-- Spiegazione ISO 5S -->
+    <div id="iso-5s-modal" class="hidden fixed inset-0 z-[70] bg-slate-950/70 p-4 items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="iso-5s-title" onclick="chiudiInfoIso5S(event)">
+        <div class="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl" onclick="event.stopPropagation()">
+            <div class="mb-4 flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600">Metodo di organizzazione</p>
+                    <h2 id="iso-5s-title" class="mt-1 text-2xl font-black text-slate-900">Che cosa significa ISO 5S?</h2>
+                </div>
+                <button type="button" onclick="chiudiInfoIso5S()" class="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700" aria-label="Chiudi spiegazione ISO 5S">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <p class="mb-4 text-sm leading-relaxed text-slate-600">Le 5S sono un metodo giapponese per creare e mantenere un ambiente di lavoro ordinato, efficiente e sostenibile. “ISO” qui richiama l'idea di uno standard applicato con costanza.</p>
+            <ol class="space-y-2 text-sm text-slate-700">
+                <li><strong class="text-slate-900">1. Seiri — Separare:</strong> elimina ciò che non serve.</li>
+                <li><strong class="text-slate-900">2. Seiton — Sistemare:</strong> assegna a ogni cosa un posto chiaro.</li>
+                <li><strong class="text-slate-900">3. Seiso — Pulire:</strong> pulisci e controlla mentre lo fai.</li>
+                <li><strong class="text-slate-900">4. Seiketsu — Standardizzare:</strong> crea regole semplici e ripetibili.</li>
+                <li><strong class="text-slate-900">5. Shitsuke — Sostenere:</strong> trasforma le regole in abitudini.</li>
+            </ol>
+            <div class="mt-5 rounded-xl bg-blue-50 p-3 text-xs leading-relaxed text-blue-900"><strong>In Agente Studio:</strong> il metodo viene applicato ai quattro pilastri — Lavoro, Divisione, Fisico e Riordino — tramite sessioni misurabili e continuità quotidiana.</div>
+            <button type="button" onclick="chiudiInfoIso5S()" class="mt-5 w-full rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-blue-700">Ho capito</button>
+        </div>
+    </div>
+
     <!-- ============================================================ -->
     <!-- SIDEBAR                                                        -->
     <!-- ============================================================ -->
@@ -62,12 +409,11 @@
         <div>
             <!-- Logo -->
             <div class="flex items-center gap-3 mb-8 px-2 border-b border-slate-800 pb-5">
-                <div class="bg-[#0d9488] text-white p-2.5 rounded-lg text-center font-bold text-xs tracking-wider shadow-sm shadow-teal-500/50">
+                <button type="button" onclick="apriInfoIso5S()" class="v2-brand bg-[#2563eb] text-white p-2.5 rounded-lg text-center font-bold text-xs tracking-wider cursor-pointer hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300" title="Clicca per scoprire il metodo ISO 5S" aria-haspopup="dialog" aria-controls="iso-5s-modal">
                     ISO 5S
-                </div>
+                </button>
                 <div>
                     <h2 class="font-bold text-sm leading-tight text-white tracking-wide">AGENTE STUDIO</h2>
-                    <p class="text-[10px] text-teal-400 font-semibold uppercase tracking-wider">4 Pilastri di Disciplina</p>
                 </div>
             </div>
 
@@ -179,6 +525,9 @@
                             </button>
                         </div>
 
+                        <!-- Pomodori completati oggi, separati per pilastro -->
+                        <div id="pomodori-oggi" class="grid grid-cols-2 gap-1.5 mb-3" aria-label="Pomodori completati oggi"></div>
+
                         <!-- Timer Display -->
                         <div class="text-center my-4">
                             <span class="text-5xl font-black font-mono tracking-widest" id="timer-display">30:00</span>
@@ -203,19 +552,22 @@
                     </div>
 
                     <!-- Toggle Button -->
-                    <button id="btn-toggle-timer" onclick="toggleTimer()" class="w-full mt-3 text-white py-2.5 rounded-xl font-bold text-sm tracking-wide shadow-md transition-all cursor-pointer flex items-center justify-center gap-2" style="background-color: #0d9488;">
+                    <button id="btn-toggle-timer" onclick="toggleTimer()" class="v2-primary-button w-full mt-3 text-white py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all cursor-pointer flex items-center justify-center gap-2" style="background-color: #2563eb;">
                         <i id="btn-timer-icon" class="fa-solid fa-play"></i>
                         <span id="btn-timer-text">Avvia Sessione</span>
                     </button>
 
                     <!-- MP3 Settings -->
-                    <div class="mt-4 border-t border-slate-800 pt-3 flex flex-col gap-1 text-[10px] text-slate-400">
-                        <label class="font-bold flex items-center gap-1.5 cursor-pointer text-slate-300">
-                            <input type="checkbox" id="chk-mp3-enable" onchange="salvaImpostazioniMP3()" class="accent-teal-500 rounded"> Suona MP3 alla fine dei fischi
-                        </label>
-                        <input type="text" id="txt-mp3-path" oninput="salvaImpostazioniMP3()" placeholder="Es: traccia.mp3 (su Desktop) o URL" 
-                               class="w-full mt-1 text-[11px] bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-teal-500">
-                    </div>
+                    <details class="v2-settings">
+                        <summary><i class="fa-solid fa-sliders"></i> Impostazioni suono</summary>
+                        <div class="flex flex-col gap-2 px-2 pb-1 text-slate-400">
+                            <label class="font-bold flex items-center gap-2 cursor-pointer text-slate-300">
+                                <input type="checkbox" id="chk-mp3-enable" onchange="salvaImpostazioniMP3()" class="accent-blue-600 rounded"> Suona MP3 alla fine dei fischi
+                            </label>
+                            <input type="text" id="txt-mp3-path" oninput="salvaImpostazioniMP3()" placeholder="Es: traccia.mp3 (su Desktop) o URL"
+                                   class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 text-slate-200 focus:outline-none">
+                        </div>
+                    </details>
                 </div>
 
                 <!-- KPI Cards (Uno per ciascuno dei 4 pilastri) -->
@@ -287,7 +639,7 @@
                 <div class="space-y-4">
 
                     <!-- ── 1. GRIGLIA LAVORO ── -->
-                    <div class="bg-white rounded-2xl border-2 border-sky-500 shadow-sm">
+                    <div class="v2-pillar-card bg-white rounded-2xl border border-slate-200" style="--pillar-accent:#0ea5e9">
                         <div class="p-5 cursor-pointer select-none" onclick="toggleObiettivi()" title="Clicca per gestire gli obiettivi settimanali">
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center gap-3">
@@ -304,7 +656,7 @@
                                     <div class="ml-2 text-sky-400"><i id="chevron-obiettivi" class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i></div>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 bg-sky-50/40 rounded-xl border-2 border-sky-500 select-none">
+                            <div class="v2-pillar-panel grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 rounded-xl border select-none">
                                 <!-- Griglia Calendario (Q3) -->
                                 <div id="grid-lavoro" class="lg:col-span-5 flex flex-wrap gap-1.5 align-content-start" onclick="event.stopPropagation()"></div>
 
@@ -366,7 +718,7 @@
                     </div>
 
                     <!-- ── 2. GRIGLIA DIVISIONE ── -->
-                    <div class="bg-white rounded-2xl border-2 border-red-500 shadow-sm">
+                    <div class="v2-pillar-card bg-white rounded-2xl border border-slate-200" style="--pillar-accent:#ef4444">
                         <div class="p-5 cursor-pointer select-none" onclick="toggleObiettiviDivisione()" title="Clicca per gestire gli obiettivi settimanali della divisione">
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center gap-3">
@@ -383,7 +735,7 @@
                                     <div class="ml-2 text-red-400"><i id="chevron-obiettivi-divisione" class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i></div>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 bg-red-50/40 rounded-xl border-2 border-red-500 select-none">
+                            <div class="v2-pillar-panel grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 rounded-xl border select-none">
                                 <!-- Griglia Calendario (Q3) -->
                                 <div id="grid-divisione" class="lg:col-span-5 flex flex-wrap gap-1.5 align-content-start" onclick="event.stopPropagation()"></div>
 
@@ -442,7 +794,7 @@
                     </div>
 
                     <!-- ── 3. GRIGLIA FISICO ── -->
-                    <div class="bg-white rounded-2xl border-2 border-violet-500 shadow-sm">
+                    <div class="v2-pillar-card bg-white rounded-2xl border border-slate-200" style="--pillar-accent:#8b5cf6">
                         <div class="p-5 cursor-pointer select-none" onclick="togglePeso()" title="Clicca per registrare il peso">
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center gap-3">
@@ -459,7 +811,7 @@
                                     <div class="ml-2 text-violet-400"><i id="chevron-peso" class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i></div>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 bg-violet-50/40 rounded-xl border-2 border-violet-500 select-none">
+                            <div class="v2-pillar-panel grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 rounded-xl border select-none">
                                 <!-- Griglia Calendario (Q3) -->
                                 <div id="grid-fisico" class="lg:col-span-5 flex flex-wrap gap-1.5 align-content-start" onclick="event.stopPropagation()"></div>
 
@@ -562,7 +914,7 @@
                     </div>
 
                     <!-- ── 4. GRIGLIA RIORDINO ── -->
-                    <div class="bg-white rounded-2xl border-2 border-emerald-400 shadow-sm">
+                    <div class="v2-pillar-card bg-white rounded-2xl border border-slate-200" style="--pillar-accent:#10b981">
                         <div class="p-5 cursor-pointer select-none" onclick="toggleStanzeAccordion()" title="Clicca per vedere le aree">
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center gap-3">
@@ -579,7 +931,7 @@
                                     <div class="ml-2 text-emerald-400"><i id="chevron-stanze" class="fa-solid fa-chevron-down text-sm transition-transform duration-300"></i></div>
                                 </div>
                             </div>
-                            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 bg-emerald-50/20 rounded-xl border-2 border-emerald-400 select-none">
+                            <div class="v2-pillar-panel grid grid-cols-1 lg:grid-cols-12 gap-3 p-3 rounded-xl border select-none">
                                 <!-- Griglia Calendario (Q3) -->
                                 <div id="grid-riordino" class="lg:col-span-5 flex flex-wrap gap-1.5 align-content-start" onclick="event.stopPropagation()"></div>
 
@@ -751,9 +1103,14 @@
                         <p class="text-[10px] text-slate-400">Classifica automaticamente le note ed elimina l'indecisione.</p>
                     </div>
                 </div>
-                <button onclick="toggleMatriceVisiva()" class="bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition-all cursor-pointer">
-                    <i class="fa-solid fa-shapes mr-1"></i> <span id="toggle-matrice-text">Mostra Matrice Eisenhower</span>
-                </button>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button id="btn-annulla-ultima" onclick="annullaUltimaOperazione()" disabled class="bg-white border border-slate-200 text-slate-400 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                        <i class="fa-solid fa-arrow-rotate-left mr-1"></i> Annulla ultima operazione
+                    </button>
+                    <button onclick="toggleMatriceVisiva()" class="bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition-all cursor-pointer">
+                        <i class="fa-solid fa-shapes mr-1"></i> <span id="toggle-matrice-text">Mostra Matrice decisionale</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Collapsible Eisenhower Matrix -->
@@ -761,7 +1118,7 @@
                 <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200">
                     <div class="flex items-center gap-2">
                         <i class="fa-solid fa-shapes text-blue-600"></i>
-                        <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider">Matrice Decisionale di Eisenhower</h3>
+                        <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wider">Matrice decisionale</h3>
                     </div>
                     <span class="text-[10px] text-slate-400 italic">Aggiornata in tempo reale in base alle attività pianificate</span>
                 </div>
@@ -799,7 +1156,7 @@
 
             <div class="grid grid-cols-1 xl:grid-cols-[46fr_54fr] gap-6 items-start">
                 <!-- 1. Blocco Note Rapido -->
-                <section class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm" aria-labelledby="titolo-note">
+                <section id="quick-notes-drop-zone" ondragover="consentiDropBloccoNote(event)" ondragenter="evidenziaDropBloccoNote(event, true)" ondragleave="evidenziaDropBloccoNote(event, false)" ondrop="dropAttivitaNelBloccoNote(event)" class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm transition-all" aria-labelledby="titolo-note">
                     <div class="flex justify-between items-center gap-3 mb-3">
                         <h2 id="titolo-note" class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-file-pen text-blue-600"></i> Blocco Note Rapido</h2>
                         <div class="flex items-center gap-2 shrink-0">
@@ -819,9 +1176,11 @@
                             </div>
                             <button onclick="chiudiSegretario()" class="text-slate-400 hover:text-slate-600 text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i> Chiudi</button>
                         </div>
-                        <div class="bg-white rounded-lg p-2.5 border border-slate-200 shadow-sm min-h-[44px] flex items-center justify-between gap-3">
-                            <p id="secretary-current-task" class="text-xs font-bold text-slate-700 leading-tight"></p>
-                            <span id="secretary-suggestion" class="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full shrink-0"></span>
+                        <div class="bg-white rounded-lg p-2.5 border border-slate-200 shadow-sm h-[96px] grid grid-cols-2 items-stretch gap-3 overflow-hidden">
+                            <p id="secretary-current-task" class="min-w-0 max-h-[74px] overflow-y-auto pr-1 text-xs font-bold text-slate-700 leading-snug break-words"></p>
+                            <div class="min-w-0 max-h-[74px] overflow-y-auto flex items-center">
+                                <span id="secretary-suggestion" class="w-full text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-1 rounded-lg leading-snug whitespace-normal break-words"></span>
+                            </div>
                         </div>
                         <div class="flex flex-wrap items-center justify-between gap-3">
                             <div class="flex flex-wrap items-center gap-2">
@@ -834,22 +1193,35 @@
                                     <button onclick="applicaPianificazione('q4')" title="Forza a Q4: Parcheggia" class="bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">⚪ Q4</button>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-1.5 border border-blue-200 bg-white rounded-lg p-1 shrink-0">
-                                <span class="text-[10px] font-bold text-slate-500">Giorno:</span>
-                                <select id="secretary-day-select" class="text-[10px] font-bold bg-white text-slate-700 focus:outline-none cursor-pointer">
-                                    <option value="Lunedì">Lunedì</option>
-                                    <option value="Martedì">Martedì</option>
-                                    <option value="Mercoledì">Mercoledì</option>
-                                    <option value="Giovedì">Giovedì</option>
-                                    <option value="Venerdì">Venerdì</option>
-                                    <option value="Sabato">Sabato</option>
-                                    <option value="Domenica">Domenica</option>
-                                    <option value="Promemoria">Promemoria</option>
-                                </select>
+                            <div class="flex flex-wrap items-center justify-end gap-2 shrink-0">
+                                <div class="flex items-center gap-1.5 border border-blue-200 bg-white rounded-lg p-1">
+                                    <span class="text-[10px] font-bold text-slate-500">Giorno:</span>
+                                    <select id="secretary-day-select" class="text-[10px] font-bold bg-white text-slate-700 focus:outline-none cursor-pointer">
+                                        <option value="Lunedì">Lunedì</option>
+                                        <option value="Martedì">Martedì</option>
+                                        <option value="Mercoledì">Mercoledì</option>
+                                        <option value="Giovedì">Giovedì</option>
+                                        <option value="Venerdì">Venerdì</option>
+                                        <option value="Sabato">Sabato</option>
+                                        <option value="Domenica">Domenica</option>
+                                        <option value="Promemoria">Promemoria</option>
+                                    </select>
+                                </div>
+                                <button type="button" onclick="applicaGiornoScelto()" class="v2-primary-button px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer" title="Usa il giorno scelto invece di quello suggerito">
+                                    <i class="fa-solid fa-arrow-right"></i> Procedi con il giorno scelto
+                                </button>
                             </div>
                         </div>
                         <div class="flex justify-between items-center text-[10px] text-slate-400 mt-1 border-t border-slate-200 pt-2">
-                            <span id="secretary-progress">Attività 1 di 1</span>
+                            <div class="flex items-center gap-1">
+                                <button id="secretary-prev" type="button" onclick="navigaTaskSegretario(-1)" title="Attività precedente" class="w-7 h-7 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-blue-50 hover:text-blue-700 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+                                <span id="secretary-progress" class="min-w-[82px] text-center font-bold">Attività 1 di 1</span>
+                                <button id="secretary-next" type="button" onclick="navigaTaskSegretario(1)" title="Attività successiva" class="w-7 h-7 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-blue-50 hover:text-blue-700 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </div>
                             <button onclick="elaboraTutteLeNoteInBlocco()" class="text-blue-700 hover:text-blue-900 font-bold flex items-center gap-1 cursor-pointer">
                                 <i class="fa-solid fa-wand-magic-sparkles"></i> 🧙‍♂️ Pianifica tutto in blocco
                             </button>
@@ -861,7 +1233,7 @@
                 </section>
 
                 <!-- 2. Scaletta Settimanale -->
-                <section class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm xl:row-span-2" aria-labelledby="titolo-scaletta">
+                <section class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm xl:row-span-3" aria-labelledby="titolo-scaletta">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-slate-100 pb-3">
                         <h2 id="titolo-scaletta" class="font-black text-slate-900 flex items-center gap-2 text-base shrink-0"><i class="fa-solid fa-calendar-week text-blue-600 text-lg"></i> Scaletta Settimanale</h2>
                         <div class="flex flex-wrap gap-1.5 justify-center sm:justify-start items-center">
@@ -883,7 +1255,21 @@
                     <div id="weekly-schedule" class="space-y-4 pr-2"></div>
                 </section>
 
-                <!-- 3. Focus Obiettivi Mese & Trimestre -->
+                <!-- 3. Promemoria senza giorno -->
+                <section class="bg-white border border-amber-200 rounded-2xl p-5 shadow-sm" aria-labelledby="titolo-promemoria">
+                    <div class="flex items-center justify-between gap-3 mb-3 pb-3 border-b border-amber-100">
+                        <div>
+                            <h2 id="titolo-promemoria" class="font-bold text-slate-900 flex items-center gap-2">
+                                <i class="fa-solid fa-bookmark text-amber-500"></i> Promemoria
+                                <span id="promemoria-count" class="text-[10px] font-black bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">0</span>
+                            </h2>
+                            <p class="text-xs text-slate-500 mt-1">Attività conservate senza un giorno preciso.</p>
+                        </div>
+                    </div>
+                    <div id="reminders-list" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+                </section>
+
+                <!-- 4. Focus Obiettivi Mese & Trimestre -->
                 <section class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm" aria-labelledby="titolo-focus-obiettivi">
                     <div class="flex items-center justify-between gap-3 mb-4">
                         <h2 id="titolo-focus-obiettivi" class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-bullseye text-blue-600"></i> Obiettivi Mese &amp; Trimestre</h2>
@@ -934,6 +1320,7 @@
                         </div>
                     </div>
                 </section>
+
             </div>
         </div><!-- end tab-agenda -->
 
@@ -985,6 +1372,7 @@
                 if (!datiPilastri[k]) datiPilastri[k] = defaults[k];
                 if (!datiPilastri[k].obiettiviTrimestre) datiPilastri[k].obiettiviTrimestre = [];
                 if (!datiPilastri[k].obiettiviMensili) datiPilastri[k].obiettiviMensili = {};
+                if (!datiPilastri[k].pomodoriGiornalieri) datiPilastri[k].pomodoriGiornalieri = {};
                 // Campi aggiuntivi per pilastri esistenti
                 if (k === 'divisione' && !datiPilastri.divisione.minutiGiornalieri) datiPilastri.divisione.minutiGiornalieri = {};
                 if (k === 'lavoro'  && !datiPilastri.lavoro.obiettivi)  datiPilastri.lavoro.obiettivi  = {};
@@ -1003,6 +1391,23 @@
             if (datiStudio.registroDate && datiStudio.registroDate.length > 0
                 && datiPilastri.riordino.registroDate.length === 0) {
                 datiPilastri.riordino.registroDate = [...datiStudio.registroDate];
+            }
+
+            // Allinea una sola volta i completamenti avvenuti prima che il
+            // contatore progressivo fosse disponibile. Da qui in avanti ogni
+            // sessione viene sommata normalmente da registraSessione().
+            const dataSessioneDaRecuperare = '2026-08-21';
+            const chiaveRecupero = 'recupero_check_2026-08-21_v3';
+            if (!localStorage.getItem(chiaveRecupero)) {
+                const completamentiConfermati = { lavoro: 1, divisione: 2 };
+                Object.entries(completamentiConfermati).forEach(([pilastro, minimo]) => {
+                    const conteggi = datiPilastri[pilastro].pomodoriGiornalieri;
+                    conteggi[dataSessioneDaRecuperare] = Math.max(
+                        minimo,
+                        Number(conteggi[dataSessioneDaRecuperare]) || 0
+                    );
+                });
+                localStorage.setItem(chiaveRecupero, 'completato');
             }
             localStorage.setItem('datiPilastri_5S_v1', JSON.stringify(datiPilastri));
         })();
@@ -1109,6 +1514,29 @@
         // 4. UTILITY FUNCTIONS
         // ============================================================
 
+        function apriInfoIso5S() {
+            const modal = document.getElementById('iso-5s-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+            modal.querySelector('button').focus();
+        }
+
+        function chiudiInfoIso5S(event) {
+            if (event && event.target !== event.currentTarget) return;
+            const modal = document.getElementById('iso-5s-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+            document.querySelector('[aria-controls="iso-5s-modal"]')?.focus();
+        }
+
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && !document.getElementById('iso-5s-modal').classList.contains('hidden')) {
+                chiudiInfoIso5S();
+            }
+        });
+
         function showToast(message, type = 'success') {
             const toast   = document.getElementById('toast-notification');
             const icon    = document.getElementById('toast-icon');
@@ -1211,6 +1639,44 @@
             // Set default timer preset for this pillar
             setPresetTimer(cfg.defaultMinutes);
             document.getElementById('timer-instruction').innerHTML = cfg.instruction;
+            renderPomodoriOggi();
+        }
+
+        function renderPomodoriOggi() {
+            const container = document.getElementById('pomodori-oggi');
+            if (!container) return;
+
+            const oggiStr = formattaData(new Date());
+            const colori = {
+                lavoro: '#0284c7',
+                divisione: '#ef4444',
+                fisico: '#7c3aed',
+                riordino: '#10b981'
+            };
+            const icone = {
+                lavoro: 'fa-briefcase',
+                divisione: 'fa-scale-balanced',
+                fisico: 'fa-person-running',
+                riordino: 'fa-broom'
+            };
+
+            container.innerHTML = ['lavoro', 'divisione', 'fisico', 'riordino'].map(p => {
+                const totale = datiPilastri[p]?.pomodoriGiornalieri?.[oggiStr] || 0;
+                const caselleVisibili = Math.max(4, Math.min(totale, 8));
+                const caselle = Array.from({ length: caselleVisibili }, (_, i) => `
+                    <span class="block h-2.5 flex-1 rounded-sm border border-slate-600/80"
+                          style="${i < totale ? `background:${colori[p]};border-color:${colori[p]}` : 'background:rgba(15,23,42,.7)'}"></span>
+                `).join('');
+                return `
+                    <div class="rounded-lg border px-2 py-1.5 transition-colors ${p === pilastriAttivo ? 'border-slate-500 bg-slate-800' : 'border-slate-700/70 bg-slate-900/40'}">
+                        <div class="flex items-center justify-between gap-2 mb-1">
+                            <span class="text-[10px] font-bold text-slate-300"><i class="fa-solid ${icone[p]} mr-1" style="color:${colori[p]}"></i>${PILASTRI_CONFIG[p].nome}</span>
+                            <span class="text-[10px] font-black text-white" title="${totale} Pomodori completati oggi">${totale}</span>
+                        </div>
+                        <div class="flex gap-1">${caselle}</div>
+                    </div>
+                `;
+            }).join('');
         }
 
         // ============================================================
@@ -2520,7 +2986,7 @@
                 label.style.color          = '#34d399';
                 dot.className              = "fa-solid fa-circle-check";
                 dot.style.color            = '#10b981';
-                instruction.innerText      = "Grande lavoro! Registra subito la sessione nel modulo in basso.";
+                instruction.innerText      = "Grande lavoro! Sessione registrata con successo.";
             } else {
                 // 🎯 FOCUS PHASE
                 card.style.backgroundColor = cfg.cardBg;
@@ -2709,7 +3175,8 @@
             }
 
             const minutiFatti = Math.round(totalSeconds / 60);
-            document.getElementById('input-minuti').value = String(minutiFatti);
+            const inputMin = document.getElementById('input-minuti');
+            if (inputMin) inputMin.value = String(minutiFatti);
 
             // Auto-register the completed session (gestisce i propri Toast internamente)
             registraSessione(pilastriAttivo, minutiFatti);
@@ -2724,18 +3191,29 @@
 
         function registraSessione(pilastro, minuti) {
             const oggiStr = formattaData(new Date());
+            const durata = Number(minuti) || 30;
+            const pomodoriCompletati = durata >= 30 ? Math.round(durata / 30) : 1;
+
+            datiPilastri[pilastro].pomodoriGiornalieri = datiPilastri[pilastro].pomodoriGiornalieri || {};
+            if (pomodoriCompletati > 0) {
+                const totalePrecedente = Number(
+                    datiPilastri[pilastro].pomodoriGiornalieri[oggiStr]
+                ) || 0;
+                datiPilastri[pilastro].pomodoriGiornalieri[oggiStr] =
+                    totalePrecedente + pomodoriCompletati;
+            }
 
             if (pilastro === 'divisione') {
                 datiPilastri.divisione.minutiGiornalieri = datiPilastri.divisione.minutiGiornalieri || {};
-                datiPilastri.divisione.minutiGiornalieri[oggiStr] = (datiPilastri.divisione.minutiGiornalieri[oggiStr] || 0) + minuti;
+                datiPilastri.divisione.minutiGiornalieri[oggiStr] = (datiPilastri.divisione.minutiGiornalieri[oggiStr] || 0) + durata;
                 
                 const minutiOggi = datiPilastri.divisione.minutiGiornalieri[oggiStr];
                 if (minutiOggi >= 120) {
                     if (!datiPilastri.divisione.registroDate.includes(oggiStr)) {
                         datiPilastri.divisione.registroDate.push(oggiStr);
-                        showToast(`🎯 Obiettivo Divisione completato! +${minuti} min (Totale oggi: ${minutiOggi}/120 min) — giornata segnata!`, "success");
+                        showToast(`🎯 Obiettivo Divisione completato! +${durata} min (Totale oggi: ${minutiOggi}/120 min) — giornata segnata!`, "success");
                     } else {
-                        showToast(`+${minuti} min registrati per Divisione (Totale oggi: ${minutiOggi} min)`, "success");
+                        showToast(`+${durata} min registrati per Divisione (Totale oggi: ${minutiOggi} min)`, "success");
                     }
                 } else {
                     // Se non ha ancora raggiunto 120, rimuove la data nel caso fosse presente
@@ -2743,42 +3221,46 @@
                     if (idx !== -1) {
                         datiPilastri.divisione.registroDate.splice(idx, 1);
                     }
-                    showToast(`+${minuti} min registrati per Divisione (Totale oggi: ${minutiOggi}/120 min. Mancano ${120 - minutiOggi} min per segnare la giornata)`, "info");
+                    showToast(`+${durata} min registrati per Divisione (Totale oggi: ${minutiOggi}/120 min. Mancano ${120 - minutiOggi} min per segnare la giornata)`, "info");
                 }
             } else {
                 // Per gli altri pilastri, registra direttamente il giorno
                 if (!datiPilastri[pilastro].registroDate.includes(oggiStr)) {
                     datiPilastri[pilastro].registroDate.push(oggiStr);
-                    showToast(`+${minuti} min registrati — ${PILASTRI_CONFIG[pilastro].nome} ✓`, "success");
+                    showToast(`+${durata} min registrati — ${PILASTRI_CONFIG[pilastro].nome} ✓`, "success");
                 } else {
-                    showToast(`+${minuti} min registrati — ${PILASTRI_CONFIG[pilastro].nome}`, "success");
+                    showToast(`+${durata} min registrati — ${PILASTRI_CONFIG[pilastro].nome}`, "success");
                 }
             }
 
-            // For Riordino: also add minutes to the specific room + sync datiStudio.registroDate
+            // For Riordino: sync datiStudio.registroDate
             if (pilastro === 'riordino') {
-                const stanzaId = document.getElementById('select-stanza').value;
-                datiStudio[stanzaId].minuti += minuti;
+                const selectStanza = document.getElementById('select-stanza');
+                if (selectStanza && selectStanza.value && datiStudio[selectStanza.value]) {
+                    datiStudio[selectStanza.value].minuti += durata;
+                }
                 if (!datiStudio.registroDate.includes(oggiStr)) {
                     datiStudio.registroDate.push(oggiStr);
                 }
             }
 
-            // BUG FIX: salvataggio immediato PRIMA del render
+            // Salvataggio immediato PRIMA del render
             salvaLocale();
             renderDashboard();
+            renderPomodoriOggi();
         }
 
         function aggiungiSessione() {
-            // BUG FIX: prevent double registration when timer auto-registers
+            // Previene doppio conteggio se la sessione è già registrata automaticamente
             if (sessioneAutoRegistrata) {
                 showToast("Sessione già registrata automaticamente dal timer! Clicca di nuovo per aggiungerne un'altra.", "warning");
                 sessioneAutoRegistrata = false;  // Reset: next click will register
                 return;
             }
 
-            const minutes = parseInt(document.getElementById('input-minuti').value);
-            registraSessione(pilastriAttivo, minutes);
+            const inputMin = document.getElementById('input-minuti');
+            const minutes = inputMin ? parseInt(inputMin.value) : Math.round(totalSeconds / 60);
+            registraSessione(pilastriAttivo, isNaN(minutes) ? 30 : minutes);
         }
 
         // ============================================================
@@ -2848,6 +3330,7 @@
         }
 
         function renderDashboard() {
+            renderPomodoriOggi();
             // --- Room Cards (Riordino) ---
             const container = document.getElementById('container-stanze');
             if (container) {
@@ -2974,7 +3457,8 @@
         const AGENDA_KEYS = {
             reminders: 'agente_studio_agenda_reminders_v1',
             schedule: 'agente_studio_weekly_schedule_v1',
-            notes: 'agente_studio_quick_notes_v1'
+            notes: 'agente_studio_quick_notes_v1',
+            undo: 'agente_studio_undo_last_operation_v1'
         };
         const giorniSettimana = ['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
         const scalettaDefault = {
@@ -2999,6 +3483,65 @@
         let modificaScalettaAttiva = false;
         let timerSalvataggioNote = null;
         let weekSwitchTimeout = null;
+        let activeSecretaryTasks = [];
+        let activeSecretaryIndex = 0;
+
+        function salvaStatoPerAnnullamento(descrizione) {
+            const textarea = document.getElementById('quick-notes');
+            const stato = {
+                descrizione,
+                scalettaAgenda: JSON.parse(JSON.stringify(scalettaAgenda)),
+                promemoriaAgenda: JSON.parse(JSON.stringify(promemoriaAgenda)),
+                note: textarea ? textarea.value : '',
+                activeSecretaryTasks: JSON.parse(JSON.stringify(activeSecretaryTasks)),
+                activeSecretaryIndex,
+                segretarioVisibile: !document.getElementById('secretary-panel').classList.contains('hidden')
+            };
+            localStorage.setItem(AGENDA_KEYS.undo, JSON.stringify(stato));
+            aggiornaPulsanteAnnulla();
+        }
+
+        function aggiornaPulsanteAnnulla() {
+            const button = document.getElementById('btn-annulla-ultima');
+            if (!button) return;
+            const stato = leggiJSONSicuro(AGENDA_KEYS.undo, null);
+            button.disabled = !stato;
+            button.className = stato
+                ? 'bg-blue-50 border border-blue-300 text-blue-700 hover:bg-blue-100 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition-all cursor-pointer'
+                : 'bg-white border border-slate-200 text-slate-400 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition-all opacity-50 cursor-not-allowed';
+            button.title = stato ? `Annulla: ${stato.descrizione}` : 'Nessuna operazione da annullare';
+        }
+
+        function annullaUltimaOperazione() {
+            const stato = leggiJSONSicuro(AGENDA_KEYS.undo, null);
+            if (!stato) {
+                showToast('Nessuna operazione da annullare.', 'info');
+                return;
+            }
+
+            scalettaAgenda = stato.scalettaAgenda;
+            promemoriaAgenda = stato.promemoriaAgenda;
+            activeSecretaryTasks = stato.activeSecretaryTasks || [];
+            activeSecretaryIndex = stato.activeSecretaryIndex || 0;
+
+            const textarea = document.getElementById('quick-notes');
+            if (textarea) textarea.value = stato.note || '';
+            salvaScaletta();
+            salvaPromemoria();
+            localStorage.setItem(AGENDA_KEYS.notes, stato.note || '');
+            localStorage.removeItem(AGENDA_KEYS.undo);
+
+            renderScaletta();
+            renderPromemoria();
+            if (stato.segretarioVisibile && activeSecretaryTasks.length) {
+                document.getElementById('secretary-panel').classList.remove('hidden');
+                caricaTaskSegretarioCorrente();
+            } else {
+                document.getElementById('secretary-panel').classList.add('hidden');
+            }
+            aggiornaPulsanteAnnulla();
+            showToast(`Operazione annullata: ${stato.descrizione}`, 'success');
+        }
 
         const weekThemes = {
             0: {
@@ -3194,6 +3737,8 @@
         
         function renderPromemoria() {
             const box = document.getElementById('reminders-list'); if (!box) return;
+            const count = document.getElementById('promemoria-count');
+            if (count) count.textContent = promemoriaAgenda.length;
             if (!promemoriaAgenda.length) { box.innerHTML = '<div class="text-center py-8 text-slate-400"><i class="fa-solid fa-list-check text-4xl text-blue-200 mb-3"></i><p class="text-sm font-bold text-slate-700">Nessun promemoria salvato</p><p class="text-xs mt-1">Aggiungi un promemoria per scadenze o cose da fare.</p></div>'; return; }
             box.innerHTML = promemoriaAgenda.map(x => {
                 let dayLetterHtml = '';
@@ -3430,6 +3975,38 @@
 
         function allowDrop(event) {
             event.preventDefault();
+        }
+
+        function consentiDropBloccoNote(event) {
+            event.preventDefault();
+            if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+        }
+
+        function evidenziaDropBloccoNote(event, attiva) {
+            const zona = document.getElementById('quick-notes-drop-zone');
+            if (!zona) return;
+            if (!attiva && event.relatedTarget && zona.contains(event.relatedTarget)) return;
+            zona.classList.toggle('ring-2', attiva);
+            zona.classList.toggle('ring-blue-500', attiva);
+            zona.classList.toggle('bg-blue-50/30', attiva);
+        }
+
+        function dropAttivitaNelBloccoNote(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            evidenziaDropBloccoNote(event, false);
+
+            try {
+                const data = JSON.parse(event.dataTransfer.getData('text/plain'));
+                if (!data || !data.giorno || !data.id) return;
+                if (data.giorno === 'Promemoria') {
+                    rimandaPromemoriaAlBloccoNote(data.id);
+                } else {
+                    rimandaAlBloccoNote(data.giorno, data.id);
+                }
+            } catch (e) {
+                console.error('Drop nel Blocco Note non valido:', e);
+            }
         }
 
         function dragEnter(event) {
@@ -3793,7 +4370,11 @@
             if (idx === -1) return;
 
             const item = list.splice(idx, 1)[0];
-            const cleanText = item.testo.replace(/\s*\(\d+\/\d+\)$/, ''); // Rimuove il suffisso (1/3) etc.
+            let cleanText = item.testo.replace(/\s*\(\d+\/\d+\)$/, ''); // Rimuove il suffisso (1/3) etc.
+            const tagQuadrante = item.quadrante ? item.quadrante.toUpperCase() : '';
+            if (tagQuadrante && !new RegExp(`(?:^|\\s)${tagQuadrante}(?:$|\\s|[\\].,)])`, 'i').test(cleanText)) {
+                cleanText += ` ${tagQuadrante}`;
+            }
 
             const textarea = document.getElementById('quick-notes');
             if (textarea) {
@@ -3972,20 +4553,34 @@
         }
 
         function caricaTaskSegretarioCorrente() {
-            if (activeSecretaryIndex >= activeSecretaryTasks.length) {
+            if (activeSecretaryTasks.length === 0) {
                 chiudiSegretario();
                 showToast('Tutte le note sono state pianificate con successo!', 'success');
                 return;
             }
 
+            activeSecretaryIndex = Math.max(0, Math.min(activeSecretaryIndex, activeSecretaryTasks.length - 1));
             const task = activeSecretaryTasks[activeSecretaryIndex];
-            document.getElementById('secretary-current-task').textContent = task.cleanText;
-            document.getElementById('secretary-suggestion').textContent = task.label;
+            const currentTaskElement = document.getElementById('secretary-current-task');
+            const suggestionElement = document.getElementById('secretary-suggestion');
+            currentTaskElement.textContent = task.cleanText;
+            currentTaskElement.title = task.cleanText;
+            suggestionElement.textContent = task.label;
+            suggestionElement.title = task.label;
             
             const select = document.getElementById('secretary-day-select');
             select.value = task.giorno;
 
             document.getElementById('secretary-progress').textContent = `Attività ${activeSecretaryIndex + 1} di ${activeSecretaryTasks.length}`;
+            document.getElementById('secretary-prev').disabled = activeSecretaryIndex === 0;
+            document.getElementById('secretary-next').disabled = activeSecretaryIndex === activeSecretaryTasks.length - 1;
+        }
+
+        function navigaTaskSegretario(direzione) {
+            const nuovoIndice = activeSecretaryIndex + direzione;
+            if (nuovoIndice < 0 || nuovoIndice >= activeSecretaryTasks.length) return;
+            activeSecretaryIndex = nuovoIndice;
+            caricaTaskSegretarioCorrente();
         }
 
         function applicaPianificazione(quadrante) {
@@ -3993,6 +4588,7 @@
             const task = activeSecretaryTasks[activeSecretaryIndex];
             const giornoSelezionato = document.getElementById('secretary-day-select').value;
             const numGiorni = task.numGiorni || 1;
+            salvaStatoPerAnnullamento(`pianificazione di “${task.cleanText}”`);
 
             if (giornoSelezionato === 'Promemoria') {
                 promemoriaAgenda.push({
@@ -4004,6 +4600,15 @@
                 });
                 salvaPromemoria();
                 renderPromemoria();
+                showToast(`“${task.cleanText}” inserita nei Promemoria.`, 'success');
+                const sezionePromemoria = document.getElementById('titolo-promemoria')?.closest('section');
+                if (sezionePromemoria) {
+                    setTimeout(() => {
+                        sezionePromemoria.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        sezionePromemoria.classList.add('ring-2', 'ring-amber-400');
+                        setTimeout(() => sezionePromemoria.classList.remove('ring-2', 'ring-amber-400'), 1800);
+                    }, 100);
+                }
             } else {
                 let currentDay = giornoSelezionato;
                 let currentOffset = selectedWeekOffset;
@@ -4029,12 +4634,20 @@
             }
 
             rimuoviRigaDaBloccoNote(task.originalLine);
-
-            activeSecretaryIndex++;
+            activeSecretaryTasks.splice(activeSecretaryIndex, 1);
+            if (activeSecretaryIndex >= activeSecretaryTasks.length) {
+                activeSecretaryIndex = Math.max(0, activeSecretaryTasks.length - 1);
+            }
             caricaTaskSegretarioCorrente();
         }
 
         function applicaPianificazioneConsigliata() {
+            if (activeSecretaryIndex >= activeSecretaryTasks.length) return;
+            const task = activeSecretaryTasks[activeSecretaryIndex];
+            applicaPianificazione(task.quadrante);
+        }
+
+        function applicaGiornoScelto() {
             if (activeSecretaryIndex >= activeSecretaryTasks.length) return;
             const task = activeSecretaryTasks[activeSecretaryIndex];
             applicaPianificazione(task.quadrante);
@@ -4071,6 +4684,7 @@
         function elaboraTutteLeNoteInBlocco() {
             if (activeSecretaryTasks.length === 0) return;
             if (!confirm('Il Segretario pianificherà tutte le note rimaste in base ai consigli automatici. Procedere?')) return;
+            salvaStatoPerAnnullamento('pianificazione automatica in blocco');
 
             while (activeSecretaryIndex < activeSecretaryTasks.length) {
                 const task = activeSecretaryTasks[activeSecretaryIndex];
@@ -4127,11 +4741,11 @@
             const hidden = container.classList.contains('hidden');
             if (hidden) {
                 container.classList.remove('hidden');
-                text.textContent = 'Nascondi Matrice Eisenhower';
+                text.textContent = 'Nascondi Matrice decisionale';
                 renderMatriceEisenhower();
             } else {
                 container.classList.add('hidden');
-                text.textContent = 'Mostra Matrice Eisenhower';
+                text.textContent = 'Mostra Matrice decisionale';
             }
         }
 
@@ -4140,36 +4754,51 @@
             if (!containerCheck || containerCheck.classList.contains('hidden')) return;
 
             const lists = { q1: [], q2: [], q3: [], q4: [] };
-            const uniqueKeys = { q1: new Set(), q2: new Set(), q3: new Set(), q4: new Set() };
+            const uniqueKeys = { q1: new Map(), q2: new Map(), q3: new Map(), q4: new Map() };
+
+            const aggiungiAttivitaMatrice = (x, provenienza) => {
+                if (!x.quadrante || !lists[x.quadrante]) return;
+
+                // Riunisce le parti della stessa attività anche se il contatore
+                // è scritto come (1/3), [1/3], 1 di 3 o non è perfettamente in coda.
+                const cleanText = x.testo
+                    .replace(/\s*[\(\[]\s*\d+\s*\/\s*\d+\s*[\)\]]\s*/gi, ' ')
+                    .replace(/\s+\d+\s+di\s+\d+\s*$/gi, '')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                const uniqueKey = cleanText.toLocaleLowerCase('it');
+                const indiceEsistente = uniqueKeys[x.quadrante].get(uniqueKey);
+
+                if (indiceEsistente === undefined) {
+                    uniqueKeys[x.quadrante].set(uniqueKey, lists[x.quadrante].length);
+                    lists[x.quadrante].push({ ...x, testo: cleanText, provenienza });
+                } else if (lists[x.quadrante][indiceEsistente].completata && !x.completata) {
+                    // Se almeno una parte deve ancora essere svolta, la riga
+                    // consolidata resta tra le attività da fare.
+                    lists[x.quadrante][indiceEsistente] = { ...x, testo: cleanText, provenienza };
+                }
+            };
 
             const weekSchedule = getWeekSchedule(selectedWeekOffset);
             giorniSettimana.forEach(g => {
                 weekSchedule[g].forEach(x => {
-                    if (x.quadrante && lists[x.quadrante]) {
-                        const cleanText = x.testo.replace(/\s*\(\d+\/\d+\)$/, '');
-                        if (!uniqueKeys[x.quadrante].has(cleanText)) {
-                            uniqueKeys[x.quadrante].add(cleanText);
-                            lists[x.quadrante].push({ ...x, testo: cleanText, provenienza: g });
-                        }
-                    }
+                    aggiungiAttivitaMatrice(x, g);
                 });
             });
 
             promemoriaAgenda.forEach(x => {
-                if (x.quadrante && lists[x.quadrante]) {
-                    const cleanText = x.testo.replace(/\s*\(\d+\/\d+\)$/, '');
-                    if (!uniqueKeys[x.quadrante].has(cleanText)) {
-                        uniqueKeys[x.quadrante].add(cleanText);
-                        lists[x.quadrante].push({ ...x, testo: cleanText, provenienza: 'Promemoria' });
-                    }
-                }
+                aggiungiAttivitaMatrice(x, 'Promemoria');
             });
 
             ['q1', 'q2', 'q3', 'q4'].forEach(q => {
                 const container = document.getElementById(`matrice-${q}-list`);
                 if (!container) return;
 
-                const arr = lists[q];
+                // Mantiene l'ordine esistente all'interno dei due gruppi,
+                // mostrando sempre prima le attività da fare e poi le completate.
+                const arr = [...lists[q]].sort((a, b) =>
+                    Number(Boolean(a.completata)) - Number(Boolean(b.completata))
+                );
                 if (arr.length === 0) {
                     container.innerHTML = `<p class="text-[10px] text-slate-400 italic">Nessuna attività</p>`;
                     return;
@@ -4178,12 +4807,15 @@
                 container.innerHTML = arr.map(x => {
                     const checkClass = x.completata ? 'line-through text-slate-400 font-normal' : 'text-slate-700 font-medium';
                     return `
-                        <div class="flex items-center justify-between gap-2 py-1 px-1.5 rounded-md hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors text-sm group" draggable="true" ondragstart="dragStart(event, '${x.provenienza}', '${x.id}')" ondragend="dragEnd(event)">
-                            <div class="flex items-center min-w-0 flex-1 font-medium">
-                                <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaMatrice('${x.provenienza}', '${x.id}')" class="mr-2 cursor-pointer accent-emerald-600 shrink-0">
-                                <span class="truncate ${checkClass}" title="${escapeHTML(x.testo)}">${escapeHTML(x.testo)}</span>
+                        <div class="flex items-start justify-between gap-2 py-1.5 px-1.5 rounded-md hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-colors text-sm group">
+                            <div class="flex items-start min-w-0 flex-1 font-medium">
+                                <span draggable="true" ondragstart="dragStart(event, '${x.provenienza}', '${x.id}')" ondragend="dragEnd(event)" class="mr-2 text-slate-400 hover:text-blue-600 cursor-grab active:cursor-grabbing shrink-0" title="Trascina in un altro quadrante" aria-label="Sposta in un altro quadrante">
+                                    <i class="fa-solid fa-grip-vertical"></i>
+                                </span>
+                                <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaMatrice('${x.provenienza}', '${x.id}')" class="mr-2 mt-0.5 cursor-pointer accent-emerald-600 shrink-0">
+                                <span class="whitespace-normal break-words leading-snug ${checkClass}">${escapeHTML(x.testo)}</span>
                             </div>
-                            <div class="flex items-center gap-1.5 shrink-0">
+                            <div class="flex items-center gap-1.5 shrink-0 mt-0.5">
                                 <span class="text-[9px] font-bold text-slate-400 bg-slate-100 px-1 py-0.5 rounded">${x.provenienza}</span>
                                 <button onclick="modificaTestoMatrice('${x.provenienza}', '${x.id}')" class="text-slate-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs" title="Modifica"><i class="fa-solid fa-pen"></i></button>
                                 <button onclick="eliminaAttivitaMatrice('${x.provenienza}', '${x.id}')" class="text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-xs" title="Elimina"><i class="fa-solid fa-trash"></i></button>
@@ -4345,6 +4977,7 @@
         renderScaletta();
         renderObiettiviAgenda();
         document.getElementById('quick-notes').value = localStorage.getItem(AGENDA_KEYS.notes) || '';
+        aggiornaPulsanteAnnulla();
         switchTab('agenda');
 
     </script>
@@ -4356,5 +4989,91 @@
         <p class="text-xl text-red-100 mb-8 font-semibold">La tua sessione di lavoro/allenamento è completata.</p>
         <button onclick="stopAlarm()" class="px-10 py-5 bg-white text-red-600 font-extrabold rounded-2xl shadow-2xl hover:scale-105 active:scale-95 transition-all text-2xl cursor-pointer">OK, DISATTIVA ALLARME</button>
     </div>
+    <input id="studio-transfer-file" type="file" accept="application/json,.json" class="hidden">
+    <div class="fixed left-4 bottom-4 z-[9998]">
+        <button id="studio-transfer-toggle" type="button" class="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-3 py-2 text-sm font-bold shadow-lg">
+            <i class="fa-solid fa-database mr-1"></i> Trasferisci dati
+        </button>
+        <div id="studio-transfer-menu" class="hidden absolute left-0 bottom-12 w-72 bg-white border border-slate-200 rounded-2xl p-4 shadow-2xl">
+            <p class="font-bold text-slate-900 mb-1">Dati di Agente Studio</p>
+            <p class="text-xs text-slate-500 mb-3">Esporta dal browser con l’agenda corretta e importa nell’altro browser.</p>
+            <div class="grid grid-cols-2 gap-2">
+                <button id="studio-transfer-export" type="button" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-3 py-2 text-sm font-bold">
+                    <i class="fa-solid fa-download mr-1"></i> Esporta
+                </button>
+                <button id="studio-transfer-import" type="button" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold">
+                    <i class="fa-solid fa-upload mr-1"></i> Importa
+                </button>
+            </div>
+            <p id="studio-transfer-status" class="text-xs text-slate-500 mt-2 min-h-4"></p>
+        </div>
+    </div>
+    <script>
+        (() => {
+            const menu = document.getElementById('studio-transfer-menu');
+            const status = document.getElementById('studio-transfer-status');
+            const picker = document.getElementById('studio-transfer-file');
+
+            document.getElementById('studio-transfer-toggle').addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+            });
+
+            document.getElementById('studio-transfer-export').addEventListener('click', () => {
+                const storage = {};
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    storage[key] = localStorage.getItem(key);
+                }
+                const payload = {
+                    app: 'Agente Studio',
+                    version: 1,
+                    exportedAt: new Date().toISOString(),
+                    storage
+                };
+                const blob = new Blob([JSON.stringify(payload, null, 2)], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `AgenteStudio_dati_${new Date().toISOString().slice(0, 10)}.json`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                URL.revokeObjectURL(url);
+                status.textContent = `${Object.keys(storage).length} archivi esportati.`;
+                status.className = 'text-xs text-emerald-600 font-bold mt-2 min-h-4';
+            });
+
+            document.getElementById('studio-transfer-import').addEventListener('click', () => picker.click());
+
+            picker.addEventListener('change', async () => {
+                const file = picker.files && picker.files[0];
+                if (!file) return;
+                try {
+                    const payload = JSON.parse(await file.text());
+                    if (payload.app !== 'Agente Studio' || !payload.storage || typeof payload.storage !== 'object') {
+                        throw new Error('file non riconosciuto');
+                    }
+                    const previous = {};
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        previous[key] = localStorage.getItem(key);
+                    }
+                    localStorage.setItem('agenteStudio_backup_pre_import', JSON.stringify({
+                        createdAt: new Date().toISOString(),
+                        storage: previous
+                    }));
+                    Object.entries(payload.storage).forEach(([key, value]) => localStorage.setItem(key, value));
+                    status.textContent = `${Object.keys(payload.storage).length} archivi importati.`;
+                    status.className = 'text-xs text-emerald-600 font-bold mt-2 min-h-4';
+                    setTimeout(() => location.reload(), 600);
+                } catch (error) {
+                    status.textContent = `Errore: ${error.message}`;
+                    status.className = 'text-xs text-red-600 font-bold mt-2 min-h-4';
+                } finally {
+                    picker.value = '';
+                }
+            });
+        })();
+    </script>
 </body>
 </html>
