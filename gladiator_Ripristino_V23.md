@@ -13,13 +13,14 @@
 1. **Integrazione della Matrice Decisionale 2x2 a fianco del Timer**:
    - Sostituiti i 4 riquadri KPI passivi a destra del Timer (`lg:col-span-2`) con la **Matrice Decisionale 2x2 interattiva** (Q1 Fai Subito 🔥, Q2 Pianifica 🎯, Q3 Delega/Rapidi ⚡, Q4 Parcheggia 📦).
    - Inseriti i **Mini-Badge KPI compatti** nella testata della matrice, ordinati secondo la sequenza ufficiale: **Lavoro, Divisione, Fisico, Riordino**.
-2. **Campi Azionabili e Selezione Focus Rapido**:
-   - Ciascuna riga della matrice dispone del pulsante **🎯 Focus**, che trasferisce istantaneamente il testo dell'attività come micro-obiettivo attivo nel Timer con feedback visivo e toast di conferma.
-   - Ogni quadrante include un campo di inserimento rapido `+ Nuovo compito...` per aggiungere compiti al volo direttamente nel quadrante selezionato.
+2. **Campi Azionabili, Spazi Ottimizzati e Focus con Icona `🎯`**:
+   - Sostituito il pulsante testuale con la comoda icona compatta **`🎯`** e compresso il badge di provenienza (`Prom.`, `Lun`, etc.), liberando oltre 80px di spazio orizzontale per il testo di ogni compito.
+   - Aumentata l'altezza utile (`max-h-60`) e snelliti padding/margini interni per eliminare le barre di scorrimento verticale e visualizzare tutte le righe a colpo d'occhio.
+   - Ogni quadrante include il campo rapido compatto `+ Nuovo compito...` con tasto Invio.
    - Piena conservazione del Drag & Drop tra quadranti, caselle di spunta verdi per il completamento, pulsante modifica (✏️) ed elimina (🗑️).
 3. **Ottimizzazione Viste e Pulizia ID**:
    - Rimossa la copia duplicata collassata in `tab-agenda`, sostituita da un comodo pulsante di collegamento alla matrice nel cruscotto principale.
-   - Garantita sincronizzazione bidirezionale in tempo reale tra Timer, Matrice, Scaletta Settimanale e Promemoria.
+   - Sincronizzazione bidirezionale in tempo reale tra Timer, Matrice, Scaletta Settimanale e Promemoria.
 4. **Sincronizzazione**:
    - File aggiornato in `C:\Users\Utente\Documents\Agente studio\AgenteStudio.html` e sincronizzato su `C:\Users\Utente\Desktop\AgenteStudio.html`.
 
