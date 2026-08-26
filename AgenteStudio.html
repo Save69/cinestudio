@@ -2024,11 +2024,32 @@
         // ============================================================
         // 7b. OBIETTIVI TRIMESTRALI E MENSILI PER TUTTI I PILASTRI
         // ============================================================
-        const MESI_Q3 = [
-            { key: '2026-07', label: 'Lug' },
-            { key: '2026-08', label: 'Ago' },
-            { key: '2026-09', label: 'Set' }
-        ];
+        const NOMI_MESI_BREVI = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+
+        function getMeseCorrenteKey(date = new Date()) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            return `${y}-${m}`;
+        }
+
+        function calcolaMesiTrimestreCorrente(date = new Date()) {
+            const y = date.getFullYear();
+            const mIdx = date.getMonth(); // 0-11
+            const qStartMonthIdx = Math.floor(mIdx / 3) * 3;
+            const mesi = [];
+            for (let i = 0; i < 3; i++) {
+                const monthIdx = qStartMonthIdx + i;
+                const mStr = String(monthIdx + 1).padStart(2, '0');
+                mesi.push({
+                    key: `${y}-${mStr}`,
+                    label: NOMI_MESI_BREVI[monthIdx]
+                });
+            }
+            return mesi;
+        }
+
+        let MESI_Q3 = calcolaMesiTrimestreCorrente();
+        const DEFAULT_MESE_KEY = getMeseCorrenteKey();
 
         const CONFIG_PILASTRI = {
             lavoro:    { color: 'sky' },
@@ -2038,10 +2059,10 @@
         };
 
         let selectedMesePilastro = {
-            lavoro:    '2026-07',
-            divisione: '2026-07',
-            fisico:    '2026-07',
-            riordino:  '2026-07'
+            lavoro:    DEFAULT_MESE_KEY,
+            divisione: DEFAULT_MESE_KEY,
+            fisico:    DEFAULT_MESE_KEY,
+            riordino:  DEFAULT_MESE_KEY
         };
 
         function renderObiettiviTrimestrePilastro(p) {
@@ -2108,7 +2129,7 @@
             const cont = document.getElementById(`tabs-mesi-${p}`);
             if (!cont) return;
             const c   = CONFIG_PILASTRI[p]?.color || 'sky';
-            const sel = selectedMesePilastro[p] || '2026-07';
+            const sel = selectedMesePilastro[p] || getMeseCorrenteKey();
 
             cont.innerHTML = MESI_Q3.map(m => {
                 const isActive = (m.key === sel);
@@ -2137,7 +2158,7 @@
             const container = document.getElementById(`list-obiettivi-mensili-${p}`);
             if (!container) return;
 
-            const sel  = selectedMesePilastro[p] || '2026-07';
+            const sel  = selectedMesePilastro[p] || getMeseCorrenteKey();
             const list = datiPilastri[p]?.obiettiviMensili?.[sel] || [];
             const c    = CONFIG_PILASTRI[p]?.color || 'sky';
 
@@ -2168,7 +2189,7 @@
         function addObiettivoMensilePilastro(p) {
             const input = document.getElementById(`input-ob-mensili-${p}`);
             if (!input || !input.value.trim()) return;
-            const sel = selectedMesePilastro[p] || '2026-07';
+            const sel = selectedMesePilastro[p] || getMeseCorrenteKey();
             if (!datiPilastri[p].obiettiviMensili) datiPilastri[p].obiettiviMensili = {};
             if (!datiPilastri[p].obiettiviMensili[sel]) {
                 datiPilastri[p].obiettiviMensili[sel] = [];
@@ -2180,7 +2201,7 @@
         }
 
         function toggleObiettivoMensilePilastro(p, idx) {
-            const sel  = selectedMesePilastro[p] || '2026-07';
+            const sel  = selectedMesePilastro[p] || getMeseCorrenteKey();
             const list = datiPilastri[p]?.obiettiviMensili?.[sel];
             if (!list || !list[idx]) return;
             list[idx].fatto = !list[idx].fatto;
@@ -2189,7 +2210,7 @@
         }
 
         function deleteObiettivoMensilePilastro(p, idx) {
-            const sel  = selectedMesePilastro[p] || '2026-07';
+            const sel  = selectedMesePilastro[p] || getMeseCorrenteKey();
             const list = datiPilastri[p]?.obiettiviMensili?.[sel];
             if (!list || !list[idx]) return;
             list.splice(idx, 1);
@@ -2285,7 +2306,7 @@
             // 1. Mesi Tabs for monthly goals
             const mesiTabs = document.getElementById('ob-agenda-mesi-tabs');
             if (mesiTabs) {
-                const sel = selectedMesePilastro[p] || '2026-07';
+                const sel = selectedMesePilastro[p] || getMeseCorrenteKey();
                 mesiTabs.innerHTML = MESI_Q3.map(m => {
                     const isActive = (m.key === sel);
                     const obs = datiPilastri[p]?.obiettiviMensili?.[m.key] || [];
@@ -2304,7 +2325,7 @@
             }
 
             // 2. Render Monthly list
-            const selMese = selectedMesePilastro[p] || '2026-07';
+            const selMese = selectedMesePilastro[p] || getMeseCorrenteKey();
             const listMensili = datiPilastri[p]?.obiettiviMensili?.[selMese] || [];
             const containerMensili = document.getElementById('ob-agenda-mensili-list');
             const progressMensili = document.getElementById('ob-agenda-mensili-progress');
@@ -2381,7 +2402,7 @@
 
         function toggleObiettivoMensileAgenda(idx) {
             const p = activeObiettiviAgendaTab;
-            const selMese = selectedMesePilastro[p] || '2026-07';
+            const selMese = selectedMesePilastro[p] || getMeseCorrenteKey();
             const list = datiPilastri[p]?.obiettiviMensili?.[selMese];
             if (list && list[idx]) {
                 list[idx].fatto = !list[idx].fatto;
@@ -2394,7 +2415,7 @@
         function eliminaObiettivoMensileAgenda(idx) {
             if (!confirm('Eliminare questo obiettivo mensile?')) return;
             const p = activeObiettiviAgendaTab;
-            const selMese = selectedMesePilastro[p] || '2026-07';
+            const selMese = selectedMesePilastro[p] || getMeseCorrenteKey();
             const list = datiPilastri[p]?.obiettiviMensili?.[selMese];
             if (list && list[idx]) {
                 list.splice(idx, 1);
@@ -2408,7 +2429,7 @@
             const p = activeObiettiviAgendaTab;
             const input = document.getElementById('ob-agenda-mensile-input');
             if (!input || !input.value.trim()) return;
-            const selMese = selectedMesePilastro[p] || '2026-07';
+            const selMese = selectedMesePilastro[p] || getMeseCorrenteKey();
 
             if (!datiPilastri[p].obiettiviMensili) datiPilastri[p].obiettiviMensili = {};
             if (!datiPilastri[p].obiettiviMensili[selMese]) {
