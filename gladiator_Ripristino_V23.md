@@ -12,7 +12,7 @@
 
 1. **Integrazione della Matrice Decisionale 2x2 a fianco del Timer**:
    - Sostituiti i 4 riquadri KPI passivi a destra del Timer (`lg:col-span-2`) con la **Matrice Decisionale 2x2 interattiva** (Q1 Fai Subito 🔥, Q2 Pianifica 🎯, Q3 Delega/Rapidi ⚡, Q4 Parcheggia 📦).
-   - Inseriti i **Mini-Badge KPI compatti** nella testata della matrice per mantenere sempre visibili e aggiornati i contatori dei 4 pilastri (*Riordino: 1/7, Divisione: 3/30, Lavoro: 10/30, Fisico: 13/30*).
+   - Inseriti i **Mini-Badge KPI compatti** nella testata della matrice, ordinati secondo la sequenza ufficiale: **Lavoro, Divisione, Fisico, Riordino**.
 2. **Campi Azionabili e Selezione Focus Rapido**:
    - Ciascuna riga della matrice dispone del pulsante **🎯 Focus**, che trasferisce istantaneamente il testo dell'attività come micro-obiettivo attivo nel Timer con feedback visivo e toast di conferma.
    - Ogni quadrante include un campo di inserimento rapido `+ Nuovo compito...` per aggiungere compiti al volo direttamente nel quadrante selezionato.
