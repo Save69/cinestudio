@@ -617,6 +617,7 @@
                 <!-- Matrice Decisionale 2x2 & Hub Priorità (Direttamente a fianco del Timer) -->
                 <div id="matrice-eisenhower-container" class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
                     <!-- Top Bar: Titolo + Mini-Badge KPI 4 Pilastri -->
+                    <!-- Top Bar: Titolo + Azioni + Mini-Badge KPI 4 Pilastri -->
                     <div class="flex flex-wrap items-center justify-between gap-3 pb-3 mb-3 border-b border-slate-100">
                         <div class="flex items-center gap-2.5">
                             <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm border border-blue-100 shadow-2xs">
@@ -626,23 +627,46 @@
                                 <h3 class="font-bold text-slate-800 text-sm tracking-wide flex items-center gap-2">
                                     Matrice Decisionale &amp; Focus Operativo
                                 </h3>
-                                <p class="text-[10px] text-slate-400">Clicca <strong class="text-blue-600">🎯 Focus</strong> su un compito per impostarlo come micro-obiettivo attivo nel timer</p>
+                                <p class="text-[10px] text-slate-400">Clicca <strong class="text-blue-600">🎯</strong> per il timer o cambia il giorno (<strong class="text-slate-600">Lun, Mar...</strong>) per pianificare subito nella scaletta</p>
                             </div>
                         </div>
-                        <!-- Mini-Badge KPI compatti per i 4 Pilastri -->
-                        <div class="flex items-center gap-1.5 flex-wrap text-[11px] font-bold">
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-sky-50 text-sky-700 border border-sky-200" title="Lavoro: Giorni con obiettivi">
-                                <i class="fa-solid fa-briefcase text-[10px]"></i> Lavoro: <span id="txt-kpi-lavoro" class="font-black">0 / 30</span>
-                            </span>
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-red-50 text-red-700 border border-red-200" title="Divisione: Giorni completati">
-                                <i class="fa-solid fa-scale-balanced text-[10px]"></i> Divisione: <span id="txt-kpi-divisione" class="font-black">0 / 30</span>
-                            </span>
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-violet-50 text-violet-700 border border-violet-200" title="Fisico: Allenamento">
-                                <i class="fa-solid fa-person-running text-[10px]"></i> Fisico: <span id="txt-kpi-fisico" class="font-black">0 / 30</span>
-                            </span>
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200" title="Riordino: Stanze conformi">
-                                <i class="fa-solid fa-broom text-[10px]"></i> Riordino: <span id="txt-kpi-riordino" class="font-black">0 / 7</span>
-                            </span>
+                        <!-- Azioni Matrice & Mini-Badge KPI -->
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button onclick="apriModalOrganizzaMatrice()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1 shadow-2xs" title="Incolla note multiple da classificare e distribuire automaticamente">
+                                <i class="fa-solid fa-wand-magic-sparkles text-blue-600"></i> Organizza Note
+                            </button>
+                            <!-- Mini-Badge KPI compatti per i 4 Pilastri -->
+                            <div class="flex items-center gap-1.5 flex-wrap text-[11px] font-bold">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-sky-50 text-sky-700 border border-sky-200" title="Lavoro: Giorni con obiettivi">
+                                    <i class="fa-solid fa-briefcase text-[10px]"></i> Lavoro: <span id="txt-kpi-lavoro" class="font-black">0 / 30</span>
+                                </span>
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-red-50 text-red-700 border border-red-200" title="Divisione: Giorni completati">
+                                    <i class="fa-solid fa-scale-balanced text-[10px]"></i> Divisione: <span id="txt-kpi-divisione" class="font-black">0 / 30</span>
+                                </span>
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-violet-50 text-violet-700 border border-violet-200" title="Fisico: Allenamento">
+                                    <i class="fa-solid fa-person-running text-[10px]"></i> Fisico: <span id="txt-kpi-fisico" class="font-black">0 / 30</span>
+                                </span>
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200" title="Riordino: Stanze conformi">
+                                    <i class="fa-solid fa-broom text-[10px]"></i> Riordino: <span id="txt-kpi-riordino" class="font-black">0 / 7</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pannello Organizza Note Rapido (nascosto di default) -->
+                    <div id="pannello-organizza-matrice" class="hidden mb-3 bg-blue-50/80 border border-blue-200 rounded-xl p-3 flex flex-col gap-2 transition-all">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-wand-magic-sparkles text-blue-600 text-sm"></i>
+                                <span class="text-xs font-bold text-slate-800">Organizza Note &amp; Distribuisci nei Quadranti / Giorni</span>
+                            </div>
+                            <button onclick="chiudiOrganizzaMatrice()" class="text-slate-400 hover:text-slate-600 text-xs p-1 cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <p class="text-[10px] text-slate-500">Incolla una o più note (una per riga). Verranno classificate ed inserite nei quadranti e nella scaletta settimanale.</p>
+                        <textarea id="textarea-organizza-matrice" placeholder="Es:&#10;Inviare bilancio a commercialista lunedì&#10;Chiamare fornitore urgente&#10;Comprare lampadina" class="w-full text-xs text-slate-700 bg-white border border-blue-200 rounded-lg p-2 min-h-[70px] focus:outline-none focus:border-blue-400 resize-none"></textarea>
+                        <div class="flex justify-end gap-2">
+                            <button onclick="chiudiOrganizzaMatrice()" class="px-2.5 py-1 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-200/50 cursor-pointer">Annulla</button>
+                            <button onclick="elaboraNoteMatrice()" class="px-3 py-1 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white cursor-pointer shadow-sm flex items-center gap-1"><i class="fa-solid fa-check"></i> Distribuisci Subito</button>
                         </div>
                     </div>
 
@@ -3481,6 +3505,7 @@
                     try {
                         const url = URL.createObjectURL(storedBlob);
                         currentAudio = new Audio(url);
+                        currentAudio.loop = true;
                         await currentAudio.play();
                         return;
                     } catch(e) {
@@ -3493,6 +3518,7 @@
                 if (mp3Path) {
                     try {
                         currentAudio = new Audio(mp3Path);
+                        currentAudio.loop = true;
                         await currentAudio.play();
                     } catch(e) {
                         console.log("Errore riproduzione MP3 da path:", e);
@@ -4133,15 +4159,26 @@
         }
 
         function aggiungiAttivitaScaletta(giorno) {
-            const input = document.getElementById(`new-task-${giorniSettimana.indexOf(giorno)}`);
+            const idx = giorniSettimana.indexOf(giorno);
+            const input = document.getElementById(`new-task-${idx}`);
+            if (!input) return;
             let testo = input.value.trim();
             if (!testo) return;
             testo = correggiOrtografia(testo);
+            const reco = classificaTaskConHeuristic(testo);
             const weekSchedule = getWeekSchedule(selectedWeekOffset);
-            weekSchedule[giorno].push({ id: nuovoId(), testo, completata: false });
+            if (!weekSchedule[giorno]) weekSchedule[giorno] = [];
+            weekSchedule[giorno].push({
+                id: nuovoId(),
+                testo: testo,
+                completata: false,
+                quadrante: reco.quadrante || 'q2'
+            });
+            input.value = '';
             ordinaAttivitaGiorno(giorno);
             salvaScaletta();
             renderScaletta();
+            renderMatriceEisenhower();
         }
 
         function eliminaAttivitaScaletta(giorno, id) {
@@ -4672,7 +4709,10 @@
                                    </div>`;
                         }).join('') : `<p class="text-sm italic text-slate-400">Nessuna attività</p>`}
                     </div>
-                    ${modificaScalettaAttiva ? `<div class="flex gap-2 mt-3"><input id="new-task-${indice}" onkeydown="if(event.key==='Enter'){event.preventDefault();aggiungiAttivitaScaletta('${giorno}')}" placeholder="Nuova attività per ${giorno}" class="min-w-0 flex-1 border ${theme.borderLight} rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-${theme.primary} focus:border-${theme.primary} focus:outline-none"><button onclick="aggiungiAttivitaScaletta('${giorno}')" aria-label="Aggiungi attività a ${giorno}" class="bg-${theme.primary} hover:bg-${theme.primaryHover} text-white rounded-lg px-2.5 cursor-pointer transition-colors"><i class="fa-solid fa-plus"></i></button></div>` : ''}
+                    <div class="flex gap-1.5 mt-2.5 pt-2 border-t border-slate-100">
+                        <input id="new-task-${indice}" onkeydown="if(event.key==='Enter'){event.preventDefault();aggiungiAttivitaScaletta('${giorno}')}" placeholder="+ Nuova attività per ${giorno}..." class="min-w-0 flex-1 border border-slate-200 bg-white rounded-lg px-2 py-1 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-${theme.primary} focus:border-${theme.primary}">
+                        <button onclick="aggiungiAttivitaScaletta('${giorno}')" aria-label="Aggiungi attività a ${giorno}" class="bg-${theme.primary} hover:bg-${theme.primaryHover} text-white text-xs font-bold px-2 py-1 rounded-lg cursor-pointer transition-colors shadow-2xs" title="Aggiungi"><i class="fa-solid fa-plus"></i></button>
+                    </div>
                 </div>`;
             }).join('');
             box.innerHTML = box.innerHTML.replaceAll('attivit\u00c3\u00a0', 'attivit\u00e0');
@@ -5195,7 +5235,6 @@
                 container.innerHTML = arr.map(x => {
                     const checkClass = x.completata ? 'line-through text-slate-400 font-normal' : 'text-slate-700 font-medium';
                     const safeEscapedText = escapeHTML(x.testo).replace(/'/g, "\\'");
-                    const provBadge = x.provenienza === 'Promemoria' ? 'Prom.' : x.provenienza.substring(0, 3);
                     return `
                         <div class="w-full flex items-center justify-between gap-2 py-0.5 px-1.5 rounded hover:bg-white/90 border border-transparent hover:border-slate-200/60 transition-all text-xs group">
                             <div class="flex items-center gap-1.5 min-w-0 flex-1">
@@ -5207,10 +5246,19 @@
                             </div>
                             <div class="ml-auto shrink-0 flex items-center gap-1.5 pl-1.5">
                                 ${!x.completata ? `
-                                <button onclick="impostaFocusTimerDaMatrice('${safeEscapedText}')" class="w-5 h-5 rounded flex items-center justify-center bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 text-xs cursor-pointer transition-all shrink-0" title="Imposta come Focus nel Timer">
+                                <button onclick="impostaFocusTimerDaMatrice('${safeEscapedText}')" class="w-5 h-5 rounded flex items-center justify-center bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 text-xs cursor-pointer transition-all shrink-0 shadow-2xs" title="Imposta come Focus nel Timer">
                                     🎯
                                 </button>` : ''}
-                                <span class="text-[9px] font-medium text-slate-400 shrink-0">(${provBadge})</span>
+                                <select onchange="spostaGiornoDaMatrice('${x.provenienza}', '${x.id}', this.value)" title="Pianifica giorno nella scaletta settimanale" class="text-[9px] font-bold text-slate-500 bg-slate-100/90 hover:bg-blue-50 hover:text-blue-700 border border-slate-200/80 rounded px-1 py-0.5 cursor-pointer outline-none transition-colors shrink-0">
+                                    <option value="Promemoria" ${x.provenienza === 'Promemoria' ? 'selected' : ''}>Prom.</option>
+                                    <option value="Lunedì" ${x.provenienza === 'Lunedì' ? 'selected' : ''}>Lun</option>
+                                    <option value="Martedì" ${x.provenienza === 'Martedì' ? 'selected' : ''}>Mar</option>
+                                    <option value="Mercoledì" ${x.provenienza === 'Mercoledì' ? 'selected' : ''}>Mer</option>
+                                    <option value="Giovedì" ${x.provenienza === 'Giovedì' ? 'selected' : ''}>Gio</option>
+                                    <option value="Venerdì" ${x.provenienza === 'Venerdì' ? 'selected' : ''}>Ven</option>
+                                    <option value="Sabato" ${x.provenienza === 'Sabato' ? 'selected' : ''}>Sab</option>
+                                    <option value="Domenica" ${x.provenienza === 'Domenica' ? 'selected' : ''}>Dom</option>
+                                </select>
                                 <button onclick="modificaTestoMatrice('${x.provenienza}', '${x.id}')" class="text-slate-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-[10px]" title="Modifica"><i class="fa-solid fa-pen"></i></button>
                                 <button onclick="eliminaAttivitaMatrice('${x.provenienza}', '${x.id}')" class="text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-[10px]" title="Elimina"><i class="fa-solid fa-trash"></i></button>
                             </div>
@@ -5218,6 +5266,143 @@
                     `;
                 }).join('');
             });
+        }
+
+        function apriModalOrganizzaMatrice() {
+            const panel = document.getElementById('pannello-organizza-matrice');
+            if (!panel) return;
+            panel.classList.toggle('hidden');
+            if (!panel.classList.contains('hidden')) {
+                document.getElementById('textarea-organizza-matrice')?.focus();
+            }
+        }
+
+        function chiudiOrganizzaMatrice() {
+            const panel = document.getElementById('pannello-organizza-matrice');
+            if (panel) panel.classList.add('hidden');
+        }
+
+        function elaboraNoteMatrice() {
+            const textarea = document.getElementById('textarea-organizza-matrice');
+            if (!textarea) return;
+            const text = textarea.value;
+            const lines = text.split('\n').map(l => l.trim()).filter(l => {
+                if (!l) return false;
+                let clean = l.replace(/^[-*•\d.+]\s*/, '').trim();
+                return clean.length > 2;
+            });
+
+            if (lines.length === 0) {
+                showToast('Nessuna riga valida da elaborare.', 'warning');
+                return;
+            }
+
+            salvaStatoPerAnnullamento('organizzazione note da matrice');
+            let countAggiunti = 0;
+
+            lines.forEach(line => {
+                let clean = line.replace(/^[-*•\d.+]\s*/, '').trim();
+                clean = correggiOrtografia(clean);
+                const reco = classificaTaskConHeuristic(clean);
+                const giorno = reco.giorno;
+                const quadrante = reco.quadrante || 'q2';
+                const numGiorni = reco.numGiorni || 1;
+
+                if (giorno === 'Promemoria') {
+                    promemoriaAgenda.push({
+                        id: nuovoId(),
+                        testo: clean,
+                        data: '',
+                        completata: false,
+                        quadrante: quadrante
+                    });
+                } else {
+                    let currentDay = giorno;
+                    let currentOffset = selectedWeekOffset;
+                    for (let i = 1; i <= numGiorni; i++) {
+                        const suffix = numGiorni > 1 ? ` (${i}/${numGiorni})` : '';
+                        if (i > 1 && currentDay === 'Lunedì') {
+                            currentOffset++;
+                        }
+                        const targetWeekSchedule = getWeekSchedule(currentOffset);
+                        if (!targetWeekSchedule[currentDay]) targetWeekSchedule[currentDay] = [];
+                        targetWeekSchedule[currentDay].push({
+                            id: nuovoId(),
+                            testo: clean + suffix,
+                            completata: false,
+                            quadrante: quadrante
+                        });
+                        ordinaAttivitaGiorno(currentDay, currentOffset);
+                        if (numGiorni > 1) {
+                            currentDay = getGiornoSuccessiveOrWrap(currentDay);
+                        }
+                    }
+                }
+                countAggiunti++;
+            });
+
+            salvaScaletta();
+            salvaPromemoria();
+            renderScaletta();
+            renderPromemoria();
+            renderMatriceEisenhower();
+
+            textarea.value = '';
+            chiudiOrganizzaMatrice();
+            showToast(`${countAggiunti} note organizzate e distribuite con successo!`, 'success');
+        }
+
+        function spostaGiornoDaMatrice(provenienzaAttuale, id, nuovoGiorno) {
+            if (provenienzaAttuale === nuovoGiorno) return;
+            salvaStatoPerAnnullamento(`spostamento giorno attività a ${nuovoGiorno}`);
+
+            let itemData = null;
+
+            if (provenienzaAttuale === 'Promemoria') {
+                const idx = promemoriaAgenda.findIndex(x => x.id === id);
+                if (idx !== -1) {
+                    itemData = promemoriaAgenda.splice(idx, 1)[0];
+                    salvaPromemoria();
+                }
+            } else {
+                const weekSchedule = getWeekSchedule(selectedWeekOffset);
+                if (weekSchedule[provenienzaAttuale]) {
+                    const idx = weekSchedule[provenienzaAttuale].findIndex(x => x.id === id);
+                    if (idx !== -1) {
+                        itemData = weekSchedule[provenienzaAttuale].splice(idx, 1)[0];
+                        salvaScaletta();
+                    }
+                }
+            }
+
+            if (!itemData) return;
+
+            if (nuovoGiorno === 'Promemoria') {
+                promemoriaAgenda.push({
+                    id: itemData.id,
+                    testo: itemData.testo,
+                    data: '',
+                    completata: Boolean(itemData.completata),
+                    quadrante: itemData.quadrante || 'q2'
+                });
+                salvaPromemoria();
+            } else {
+                const weekSchedule = getWeekSchedule(selectedWeekOffset);
+                if (!weekSchedule[nuovoGiorno]) weekSchedule[nuovoGiorno] = [];
+                weekSchedule[nuovoGiorno].push({
+                    id: itemData.id,
+                    testo: itemData.testo,
+                    completata: Boolean(itemData.completata),
+                    quadrante: itemData.quadrante || 'q2'
+                });
+                ordinaAttivitaGiorno(nuovoGiorno);
+                salvaScaletta();
+            }
+
+            renderScaletta();
+            renderPromemoria();
+            renderMatriceEisenhower();
+            showToast(`Attività pianificata per ${nuovoGiorno}`, 'success');
         }
 
         function toggleAttivitaMatrice(provenienza, id) {
