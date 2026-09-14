@@ -1370,15 +1370,21 @@
                         <textarea id="quick-notes" oninput="programmaSalvataggioNote()" placeholder="Scrivi qui i tuoi appunti, contatti, bozze di idee o testi da copiare... Si salvano automaticamente ad ogni lettera." class="w-full min-h-[200px] resize-y border border-slate-200 bg-slate-50/40 rounded-xl p-3 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                     </section>
 
-                    <!-- 3. Promemoria senza giorno -->
-                    <section class="bg-white border border-amber-200 rounded-2xl p-5 shadow-xs" aria-labelledby="titolo-promemoria">
+                    <!-- 3. Promemoria senza giorno (Drop Zone) -->
+                    <section id="section-promemoria"
+                             ondragover="allowDrop(event)"
+                             ondragenter="dragEnterPromemoria(event)"
+                             ondragleave="dragLeavePromemoria(event)"
+                             ondrop="dropElementOnPromemoria(event)"
+                             class="bg-white border border-amber-200 rounded-2xl p-5 shadow-xs transition-all"
+                             aria-labelledby="titolo-promemoria">
                         <div class="flex items-center justify-between gap-3 mb-3 pb-3 border-b border-amber-100">
                             <div>
                                 <h2 id="titolo-promemoria" class="font-bold text-slate-900 flex items-center gap-2">
                                     <i class="fa-solid fa-bookmark text-amber-500"></i> Promemoria
                                     <span id="promemoria-count" class="text-[10px] font-black bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">0</span>
                                 </h2>
-                                <p class="text-xs text-slate-500 mt-1">Attività conservate senza un giorno preciso.</p>
+                                <p class="text-xs text-slate-500 mt-1">Attività conservate senza un giorno preciso. (Trascina qui qualsiasi attività)</p>
                             </div>
                         </div>
                         <div id="reminders-list" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
@@ -4314,7 +4320,10 @@
             const box = document.getElementById('reminders-list'); if (!box) return;
             const count = document.getElementById('promemoria-count');
             if (count) count.textContent = promemoriaAgenda.length;
-            if (!promemoriaAgenda.length) { box.innerHTML = '<div class="text-center py-8 text-slate-400"><i class="fa-solid fa-list-check text-4xl text-blue-200 mb-3"></i><p class="text-sm font-bold text-slate-700">Nessun promemoria salvato</p><p class="text-xs mt-1">Aggiungi un promemoria per scadenze o cose da fare.</p></div>'; return; }
+            if (!promemoriaAgenda.length) { 
+                box.innerHTML = '<div class="text-center py-8 text-slate-400 border-2 border-dashed border-slate-100 rounded-xl"><i class="fa-solid fa-list-check text-4xl text-amber-200 mb-3"></i><p class="text-sm font-bold text-slate-700">Nessun promemoria salvato</p><p class="text-xs mt-1">Trascina qui le attività dalla scaletta o aggiungine di nuove.</p></div>'; 
+                return; 
+            }
             box.innerHTML = promemoriaAgenda.map(x => {
                 let dayLetterHtml = '';
                 if (x.data) {
@@ -4331,13 +4340,15 @@
                 const pallinoColor = { q1: 'bg-red-500', q2: 'bg-blue-500', q3: 'bg-emerald-500', q4: 'bg-slate-400' }[x.quadrante || ''] || '';
                 const dotHtml = pallinoColor ? `<span class="inline-block w-2 h-2 rounded-full ${pallinoColor} shrink-0 mt-1.5" title="Priorità Eisenhower"></span>` : '';
 
-                return `<div class="flex items-start gap-2 border border-slate-100 rounded-xl p-3 group">
-                    <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="togglePromemoria('${x.id}')" aria-label="Completa promemoria" class="mt-1 accent-emerald-600 shrink-0">
+                return `<div draggable="true" ondragstart="dragStart(event, 'Promemoria', '${x.id}')" ondragend="dragEnd(event)" class="flex items-start gap-2 border border-slate-100 hover:border-slate-200 bg-white hover:bg-slate-50/70 rounded-xl p-3 group transition-all cursor-grab active:cursor-grabbing shadow-2xs">
+                    <i class="fa-solid fa-grip-vertical text-slate-300 hover:text-slate-500 cursor-grab shrink-0 mt-1 mr-0.5" title="Trascina in un giorno della scaletta"></i>
+                    <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="togglePromemoria('${x.id}')" aria-label="Completa promemoria" class="mt-1 accent-emerald-600 shrink-0 cursor-pointer">
                     ${dotHtml}
                     <div class="min-w-0 flex-1">
-                        <p class="text-sm break-words ${x.completata ? 'line-through text-slate-400' : 'text-slate-700'}">${escapeHTML(x.testo)}</p>
+                        <p class="text-sm break-words ${x.completata ? 'line-through text-slate-400' : 'text-slate-700'} font-medium">${escapeHTML(x.testo)}</p>
                         ${x.data ? `<p class="text-[11px] text-blue-700 mt-1"><i class="fa-regular fa-calendar"></i> ${dayLetterHtml}${escapeHTML(x.data.split('-').reverse().join('/'))}</p>` : ''}
                     </div>
+                    <button onclick="apriModalCalendarioPianifica('Promemoria', '${x.id}', '${escapeHTML(x.testo).replace(/'/g, "\\'")}', 0)" class="p-1.5 text-slate-300 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" title="Pianifica per un giorno specifico con il calendario"><i class="fa-regular fa-calendar-days"></i></button>
                     <button onclick="rimandaPromemoriaAlBloccoNote('${x.id}')" title="Rimetti nel Blocco Note" class="p-1.5 text-slate-400 hover:text-blue-700 cursor-pointer"><i class="fa-solid fa-arrow-rotate-left"></i></button>
                     <button onclick="modificaPromemoria('${x.id}')" aria-label="Modifica promemoria" class="p-1.5 text-slate-400 hover:text-blue-700 cursor-pointer"><i class="fa-solid fa-pen"></i></button>
                     <button onclick="eliminaPromemoria('${x.id}')" aria-label="Elimina promemoria" class="p-1.5 text-slate-400 hover:text-red-600 cursor-pointer"><i class="fa-solid fa-trash"></i></button>
@@ -4368,23 +4379,23 @@
             const idx = giorniSettimana.indexOf(giorno);
             const input = document.getElementById(`new-task-${idx}`);
             if (!input) return;
-            let testo = input.value.trim();
-            if (!testo) return;
-            testo = correggiOrtografia(testo);
-            const reco = classificaTaskConHeuristic(testo);
+            const text = input.value.trim();
+            if (!text) return;
             const weekSchedule = getWeekSchedule(selectedWeekOffset);
             if (!weekSchedule[giorno]) weekSchedule[giorno] = [];
+            const cleanText = correggiOrtografia(text);
+            const reco = classificaTaskConHeuristic(cleanText);
+            const quadrante = reco.quadrante || 'q2';
             weekSchedule[giorno].push({
                 id: nuovoId(),
-                testo: testo,
+                testo: cleanText,
                 completata: false,
-                quadrante: reco.quadrante || 'q2'
+                quadrante: quadrante
             });
-            input.value = '';
             ordinaAttivitaGiorno(giorno);
             salvaScaletta();
             renderScaletta();
-            renderMatriceEisenhower();
+            input.value = '';
         }
 
         function eliminaAttivitaScaletta(giorno, id) {
@@ -4396,7 +4407,7 @@
 
         function ordinaAttivitaGiorno(giorno, offset = selectedWeekOffset) {
             const weekSchedule = getWeekSchedule(offset);
-            if (!weekSchedule[giorno]) return;
+            if (!weekSchedule[giorno] || !Array.isArray(weekSchedule[giorno])) return;
             const quadOrder = { q1: 1, q2: 2, q3: 3, q4: 4 };
             weekSchedule[giorno].sort((a, b) => {
                 const qa = quadOrder[a.quadrante] || 5;
@@ -4406,6 +4417,10 @@
         }
 
         function spostaAttivitaScaletta(da, id, targetString) {
+            if (targetString === 'Promemoria') {
+                spostaAttivitaTraGiorni(da, selectedWeekOffset, 'Promemoria', 0, id);
+                return;
+            }
             let targetGiorno = targetString;
             let targetOffset = selectedWeekOffset;
 
@@ -4415,24 +4430,7 @@
                 targetOffset = parseInt(match[2], 10);
             }
 
-            const srcWeekKey = getWeekKey(selectedWeekOffset);
-            const destWeekKey = getWeekKey(targetOffset);
-
-            const srcList = scalettaAgenda[srcWeekKey]?.[da];
-            if (!srcList) return;
-
-            const i = srcList.findIndex(x => x.id === id);
-            if (i < 0) return;
-
-            const item = srcList.splice(i, 1)[0];
-            const destWeekSchedule = getWeekSchedule(targetOffset);
-            destWeekSchedule[targetGiorno].push(item);
-
-            gestisciCascataAttivitaSpalmata(item.testo, targetGiorno, targetOffset);
-            ordinaAttivitaGiorno(targetGiorno, targetOffset);
-
-            salvaScaletta();
-            renderScaletta();
+            spostaAttivitaTraGiorni(da, selectedWeekOffset, targetGiorno, targetOffset, id);
         }
 
         function gestisciCascataAttivitaSpalmata(testoAttivita, giornoIniziale, offset = selectedWeekOffset) {
@@ -4592,6 +4590,39 @@
                 }
             } catch (e) {
                 console.error('Drop nel Blocco Note non valido:', e);
+            }
+        }
+
+        function dragEnterPromemoria(event) {
+            event.preventDefault();
+            const section = document.getElementById('section-promemoria');
+            if (section) section.classList.add('border-amber-400', 'bg-amber-50/50', 'ring-2', 'ring-amber-400');
+        }
+
+        function dragLeavePromemoria(event) {
+            const section = document.getElementById('section-promemoria');
+            if (section && (!event.relatedTarget || !section.contains(event.relatedTarget))) {
+                section.classList.remove('border-amber-400', 'bg-amber-50/50', 'ring-2', 'ring-amber-400');
+            }
+        }
+
+        function dropElementOnPromemoria(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const section = document.getElementById('section-promemoria');
+            if (section) section.classList.remove('border-amber-400', 'bg-amber-50/50', 'ring-2', 'ring-amber-400');
+
+            try {
+                const raw = event.dataTransfer.getData('text/plain') || event.dataTransfer.getData('application/json');
+                if (!raw) return;
+                const data = JSON.parse(raw);
+                const { giorno: origineGiorno, id, offset } = data;
+                if (!id || origineGiorno === 'Promemoria') return;
+
+                const srcOffset = (offset !== undefined) ? offset : selectedWeekOffset;
+                spostaAttivitaTraGiorni(origineGiorno, srcOffset, 'Promemoria', 0, id);
+            } catch (e) {
+                console.error('Drop on Promemoria error:', e);
             }
         }
 
@@ -4876,6 +4907,7 @@
                             const dotHtml = pallinoColor ? `<span class="inline-block w-2.5 h-2.5 rounded-full ${pallinoColor} shrink-0 mt-1" title="Priorità Eisenhower"></span>` : '';
                             
                             const targetOptions = [];
+                            targetOptions.push(`<option value="Promemoria">📌 Promemoria (senza data)</option>`);
                             giorniSettimana.forEach(g => {
                                 targetOptions.push(`<option value="${g}" ${selectedWeekOffset === 0 && g === giorno ? 'selected' : ''}>${g} (Corrente)</option>`);
                             });
@@ -4908,13 +4940,18 @@
                                     <button onclick="eliminaAttivitaScaletta('${giorno}','${x.id}')" aria-label="Elimina attività" class="text-slate-400 hover:text-red-600 p-1 cursor-pointer"><i class="fa-solid fa-trash"></i></button>
                                    </div>`
                                 : `<div class="flex items-start gap-1 text-sm text-slate-700 hover:bg-slate-50/50 p-1 rounded-lg transition-colors group/item" draggable="true" ondragstart="dragStart(event, '${giorno}', '${x.id}')" ondragend="dragEnd(event)" ondragover="allowDrop(event)" ondrop="dropElementOnItem(event, '${giorno}', '${x.id}')">
-                                    <i class="fa-solid fa-grip-vertical text-slate-300 hover:text-slate-500 cursor-grab shrink-0 mt-1 mr-1.5" title="Trascina in un altro giorno"></i>
+                                    <i class="fa-solid fa-grip-vertical text-slate-300 hover:text-slate-500 cursor-grab shrink-0 mt-1 mr-1.5" title="Trascina in un altro giorno o nei Promemoria"></i>
                                     <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaScaletta('${giorno}','${x.id}')" class="mt-1 accent-emerald-600 shrink-0 cursor-pointer">
                                     ${dotHtml}
                                     <span class="flex-1 min-w-0 ${x.completata ? 'line-through text-slate-400' : ''} cursor-default select-none">${escapeHTML(x.testo)}</span>
-                                    <button onclick="apriModalCalendarioPianifica('${giorno}', '${x.id}', '${escapeHTML(x.testo).replace(/'/g, "\\'")}', ${selectedWeekOffset})" class="text-slate-300 hover:text-blue-600 opacity-0 group-hover/item:opacity-100 transition-opacity p-0.5 cursor-pointer shrink-0" title="Apri nel Pianificatore Futuro con Controllo Carico">
-                                        <i class="fa-regular fa-calendar-days text-xs"></i>
-                                    </button>
+                                    <div class="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity shrink-0">
+                                        <button onclick="spostaAttivitaTraGiorni('${giorno}', ${selectedWeekOffset}, 'Promemoria', 0, '${x.id}')" class="text-slate-300 hover:text-amber-600 p-0.5 cursor-pointer" title="Sposta nei Promemoria (senza data)">
+                                            <i class="fa-solid fa-thumbtack text-xs"></i>
+                                        </button>
+                                        <button onclick="apriModalCalendarioPianifica('${giorno}', '${x.id}', '${escapeHTML(x.testo).replace(/'/g, "\\'")}', ${selectedWeekOffset})" class="text-slate-300 hover:text-blue-600 p-0.5 cursor-pointer" title="Apri nel Pianificatore Futuro con Controllo Carico">
+                                            <i class="fa-regular fa-calendar-days text-xs"></i>
+                                        </button>
+                                    </div>
                                    </div>`;
                         }).join('') : `<p class="text-sm italic text-slate-400">Nessuna attività</p>`}
                     </div>
