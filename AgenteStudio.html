@@ -4856,6 +4856,136 @@
             }
         }
 
+        // ============================================================
+        // CALCOLO CARICO PONDERATO PER QUADRANTE EISENHOWER
+        // ============================================================
+        function calcolaCaricoGiorno(tasks = []) {
+            if (!Array.isArray(tasks)) tasks = [];
+            const count = tasks.length;
+            if (count === 0) {
+                return {
+                    totalScore: 0,
+                    focusCount: 0,
+                    rapidCount: 0,
+                    parkedCount: 0,
+                    count: 0,
+                    livello: 'libero',
+                    badgeHtml: `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">🟢 0 compiti (Libero)</span>`,
+                    miniBadgeHtml: `<span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-md">🟢 Libero</span>`,
+                    cardBorder: 'border-slate-200 bg-white hover:border-slate-300'
+                };
+            }
+
+            let focusCount = 0;
+            let rapidCount = 0;
+            let parkedCount = 0;
+            let noQuadCount = 0;
+
+            tasks.forEach(t => {
+                const q = t.quadrante;
+                if (q === 'q1' || q === 'q2') focusCount++;
+                else if (q === 'q3') rapidCount++;
+                else if (q === 'q4') parkedCount++;
+                else noQuadCount++;
+            });
+
+            // Calcolo punteggio ponderato: Q1/Q2 = 1.0; Senza quadrante = 0.75; Q3 (rapido) = 0.25; Q4 = 0.1
+            const totalScore = (focusCount * 1.0) + (noQuadCount * 0.75) + (rapidCount * 0.25) + (parkedCount * 0.1);
+            
+            let livello = 'libero';
+            let badgeHtml = '';
+            let miniBadgeHtml = '';
+            let cardBorder = 'border-slate-200 bg-white hover:border-slate-300';
+
+            const summaryParts = [];
+            if (focusCount > 0) summaryParts.push(`${focusCount} Focus`);
+            if (rapidCount > 0) summaryParts.push(`${rapidCount} Rapidi`);
+            if (noQuadCount > 0 && focusCount === 0 && rapidCount === 0) summaryParts.push(`${noQuadCount} compiti`);
+            if (parkedCount > 0 && summaryParts.length === 0) summaryParts.push(`${parkedCount} Parcheggiati`);
+            
+            const labelRiepilogo = summaryParts.join(' · ') || `${count} compiti`;
+
+            if (totalScore <= 3.0) {
+                livello = 'libero';
+                badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">🟢 ${labelRiepilogo} (Ottimale)</span>`;
+                miniBadgeHtml = `<span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-md">🟢 ${labelRiepilogo}</span>`;
+                cardBorder = 'border-slate-200 bg-white hover:border-slate-300';
+            } else if (totalScore <= 4.5) {
+                livello = 'medio';
+                badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">🟡 ${labelRiepilogo} (Medio)</span>`;
+                miniBadgeHtml = `<span class="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-md">🟡 ${labelRiepilogo}</span>`;
+                cardBorder = 'border-amber-200 bg-amber-50/10 hover:border-amber-300';
+            } else {
+                livello = 'sovraccarico';
+                badgeHtml = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800 border border-red-200">🔴 ${labelRiepilogo} (Sovraccarico ⚠️)</span>`;
+                miniBadgeHtml = `<span class="text-[10px] font-bold text-red-700 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded-md">🔴 Sovraccarico ⚠️</span>`;
+                cardBorder = 'border-red-200 bg-red-50/10 hover:border-red-300';
+            }
+
+            return {
+                totalScore,
+                focusCount,
+                rapidCount,
+                parkedCount,
+                count,
+                livello,
+                badgeHtml,
+                miniBadgeHtml,
+                cardBorder
+            };
+        }
+
+        // ============================================================
+        // GESTIONE SUBTASK / CHECKLIST PER BLOCCHI TIMEBOXING
+        // ============================================================
+        window._openChecklists = window._openChecklists || {};
+
+        function toggleChecklistAperta(taskId) {
+            window._openChecklists[taskId] = !window._openChecklists[taskId];
+            renderScaletta();
+        }
+
+        function toggleSubtask(giorno, taskId, subId, offset = selectedWeekOffset) {
+            const weekSchedule = getWeekSchedule(offset);
+            const task = weekSchedule[giorno]?.find(t => t.id === taskId);
+            if (task && Array.isArray(task.subtasks)) {
+                const sub = task.subtasks.find(s => s.id === subId);
+                if (sub) {
+                    sub.completata = !sub.completata;
+                    salvaScaletta();
+                    renderScaletta();
+                }
+            }
+        }
+
+        function aggiungiSubtask(giorno, taskId, testo, offset = selectedWeekOffset) {
+            if (!testo || !testo.trim()) return;
+            const weekSchedule = getWeekSchedule(offset);
+            const task = weekSchedule[giorno]?.find(t => t.id === taskId);
+            if (task) {
+                if (!Array.isArray(task.subtasks)) task.subtasks = [];
+                task.subtasks.push({
+                    id: nuovoId(),
+                    testo: correggiOrtografia(testo.trim()),
+                    completata: false
+                });
+                window._openChecklists = window._openChecklists || {};
+                window._openChecklists[taskId] = true;
+                salvaScaletta();
+                renderScaletta();
+            }
+        }
+
+        function eliminaSubtask(giorno, taskId, subId, offset = selectedWeekOffset) {
+            const weekSchedule = getWeekSchedule(offset);
+            const task = weekSchedule[giorno]?.find(t => t.id === taskId);
+            if (task && Array.isArray(task.subtasks)) {
+                task.subtasks = task.subtasks.filter(s => s.id !== subId);
+                salvaScaletta();
+                renderScaletta();
+            }
+        }
+
         function renderScaletta() {
             const box = document.getElementById('weekly-schedule'); if (!box) return;
             const btn = document.getElementById('schedule-edit-btn'); btn.innerHTML = modificaScalettaAttiva ? '<i class="fa-solid fa-check"></i> Fine' : '<i class="fa-solid fa-pen-to-square"></i> Modifica';
@@ -4880,6 +5010,8 @@
                 const isWeekend = (giorno === 'Sabato' || giorno === 'Domenica');
                 const oggi = isOggi(indice);
                 const trascorso = selectedArchiveWeekKey === null && isGiornoTrascorso(indice, selectedWeekOffset);
+                const tasksGiorno = weekSchedule[giorno] || [];
+                const infoCarico = calcolaCaricoGiorno(tasksGiorno);
                 
                 const titleColor = oggi ? 'text-blue-700 font-extrabold' : (isWeekend ? 'text-red-600 font-bold' : 'text-slate-800');
                 
@@ -4898,11 +5030,17 @@
                     borderBgClass = `border ${theme.borderLight} bg-white shadow-sm`;
                 }
                 
-                const badgeOggi = oggi ? `<span class="ml-2 bg-blue-600 text-white text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md shadow-sm">Oggi</span>` : '';
+                const badgeOggi = oggi ? `<span class="ml-1.5 bg-blue-600 text-white text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md shadow-sm">Oggi</span>` : '';
                 return `<div class="${borderBgClass} rounded-xl p-3.5 transition-all duration-200" ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" ondrop="dropElement(event, '${giorno}')">
-                    <h3 class="text-sm font-bold ${titleColor} border-b border-dashed ${cardBorderBColor} pb-2.5 mb-2.5 flex items-center justify-between"><span class="flex items-center gap-1"><i class="fa-regular fa-calendar text-${calendarIconColor} mr-1"></i> ${giorno} ${getDataGiornoSettimana(indice)}</span>${badgeOggi}</h3>
+                    <h3 class="text-sm font-bold ${titleColor} border-b border-dashed ${cardBorderBColor} pb-2.5 mb-2.5 flex items-center justify-between">
+                        <span class="flex items-center gap-1"><i class="fa-regular fa-calendar text-${calendarIconColor} mr-1"></i> ${giorno} ${getDataGiornoSettimana(indice)}</span>
+                        <div class="flex items-center gap-1.5">
+                            ${infoCarico.miniBadgeHtml}
+                            ${badgeOggi}
+                        </div>
+                    </h3>
                     <div class="space-y-2">
-                        ${weekSchedule[giorno].length ? weekSchedule[giorno].map((x, idx2, arr) => {
+                        ${tasksGiorno.length ? tasksGiorno.map((x, idx2, arr) => {
                             const pallinoColor = { q1: 'bg-red-500', q2: 'bg-blue-500', q3: 'bg-emerald-500', q4: 'bg-slate-400' }[x.quadrante || ''] || '';
                             const dotHtml = pallinoColor ? `<span class="inline-block w-2.5 h-2.5 rounded-full ${pallinoColor} shrink-0 mt-1" title="Priorità Eisenhower"></span>` : '';
                             
@@ -4918,40 +5056,101 @@
                                 targetOptions.push(`<option value="${g} (+2)" ${selectedWeekOffset === 2 && g === giorno ? 'selected' : ''}>${g} (+2 Sett.)</option>`);
                             });
 
-                            return modificaScalettaAttiva 
-                                ? `<div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
-                                    <input value="${escapeHTML(x.testo)}" onchange="aggiornaTestoScaletta('${giorno}','${x.id}',this.value)" aria-label="Testo attività" class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-${theme.primary}">
-                                    
-                                    <!-- Su / Giù Ordinamento -->
-                                    <div class="flex items-center gap-0.5 shrink-0">
-                                        <button onclick="spostaElementoScaletta('${giorno}', ${idx2}, -1)" ${idx2 === 0 ? 'disabled class="text-slate-200 p-0.5 cursor-not-allowed"' : 'class="text-slate-400 hover:text-blue-700 p-0.5 cursor-pointer"'} title="Sposta su"><i class="fa-solid fa-chevron-up text-[10px]"></i></button>
-                                        <button onclick="spostaElementoScaletta('${giorno}', ${idx2}, 1)" ${idx2 === arr.length - 1 ? 'disabled class="text-slate-200 p-0.5 cursor-not-allowed"' : 'class="text-slate-400 hover:text-blue-700 p-0.5 cursor-pointer"'} title="Sposta giù"><i class="fa-solid fa-chevron-down text-[10px]"></i></button>
-                                    </div>
+                            const hasSubtasks = Array.isArray(x.subtasks) && x.subtasks.length > 0;
+                            const isChecklistOpen = Boolean(window._openChecklists && window._openChecklists[x.id]);
+                            const doneSubCount = hasSubtasks ? x.subtasks.filter(s => s.completata).length : 0;
+                            const totalSubCount = hasSubtasks ? x.subtasks.length : 0;
 
-                                    <select onchange="cambiaQuadranteScaletta('${giorno}','${x.id}',this.value)" aria-label="Matrice Eisenhower" class="border border-slate-200 rounded-lg p-1 text-[11px] bg-white cursor-pointer font-medium">
-                                        <option value="" ${!x.quadrante ? 'selected' : ''}>Nessuna priorità</option>
-                                        <option value="q1" ${x.quadrante === 'q1' ? 'selected' : ''}>🔴 Q1: Fai Subito</option>
-                                        <option value="q2" ${x.quadrante === 'q2' ? 'selected' : ''}>🔵 Q2: Pianifica</option>
-                                        <option value="q3" ${x.quadrante === 'q3' ? 'selected' : ''}>🟢 Q3: Delega</option>
-                                        <option value="q4" ${x.quadrante === 'q4' ? 'selected' : ''}>⚪ Q4: Parcheggia</option>
-                                    </select>
-                                    <select onchange="spostaAttivitaScaletta('${giorno}','${x.id}',this.value)" aria-label="Sposta attività" class="border border-slate-200 rounded-lg px-1 py-1.5 text-[11px] bg-white cursor-pointer">${targetOptions.join('')}</select>
-                                    <button onclick="rimandaAlBloccoNote('${giorno}','${x.id}')" title="Rimetti nel Blocco Note" class="text-slate-400 hover:text-blue-700 p-1 cursor-pointer"><i class="fa-solid fa-arrow-rotate-left"></i></button>
-                                    <button onclick="eliminaAttivitaScaletta('${giorno}','${x.id}')" aria-label="Elimina attività" class="text-slate-400 hover:text-red-600 p-1 cursor-pointer"><i class="fa-solid fa-trash"></i></button>
-                                   </div>`
-                                : `<div class="flex items-start gap-1 text-sm text-slate-700 hover:bg-slate-50/50 p-1 rounded-lg transition-colors group/item" draggable="true" ondragstart="dragStart(event, '${giorno}', '${x.id}')" ondragend="dragEnd(event)" ondragover="allowDrop(event)" ondrop="dropElementOnItem(event, '${giorno}', '${x.id}')">
-                                    <i class="fa-solid fa-grip-vertical text-slate-300 hover:text-slate-500 cursor-grab shrink-0 mt-1 mr-1.5" title="Trascina in un altro giorno o nei Promemoria"></i>
-                                    <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaScaletta('${giorno}','${x.id}')" class="mt-1 accent-emerald-600 shrink-0 cursor-pointer">
-                                    ${dotHtml}
-                                    <span class="flex-1 min-w-0 ${x.completata ? 'line-through text-slate-400' : ''} cursor-default select-none">${escapeHTML(x.testo)}</span>
-                                    <div class="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity shrink-0">
-                                        <button onclick="spostaAttivitaTraGiorni('${giorno}', ${selectedWeekOffset}, 'Promemoria', 0, '${x.id}')" class="text-slate-300 hover:text-amber-600 p-0.5 cursor-pointer" title="Sposta nei Promemoria (senza data)">
-                                            <i class="fa-solid fa-thumbtack text-xs"></i>
-                                        </button>
-                                        <button onclick="apriModalCalendarioPianifica('${giorno}', '${x.id}', '${escapeHTML(x.testo).replace(/'/g, "\\'")}', ${selectedWeekOffset})" class="text-slate-300 hover:text-blue-600 p-0.5 cursor-pointer" title="Apri nel Pianificatore Futuro con Controllo Carico">
-                                            <i class="fa-regular fa-calendar-days text-xs"></i>
-                                        </button>
+                            let subtasksHtml = '';
+                            if (hasSubtasks && isChecklistOpen) {
+                                subtasksHtml = `
+                                    <div class="ml-6 mt-1.5 pl-3 border-l-2 border-blue-200 space-y-1.5 py-1">
+                                        ${x.subtasks.map(s => `
+                                            <div class="flex items-center justify-between gap-2 text-xs text-slate-600 bg-slate-50/70 hover:bg-white p-1 rounded-md border border-slate-100 transition-colors group/sub">
+                                                <label class="flex items-center gap-2 min-w-0 cursor-pointer select-none">
+                                                    <input type="checkbox" ${s.completata ? 'checked' : ''} onchange="toggleSubtask('${giorno}', '${x.id}', '${s.id}', ${selectedWeekOffset})" class="w-3.5 h-3.5 accent-blue-600 rounded cursor-pointer">
+                                                    <span class="${s.completata ? 'line-through text-slate-400' : 'text-slate-700'}">${escapeHTML(s.testo)}</span>
+                                                </label>
+                                                ${modificaScalettaAttiva ? `<button onclick="eliminaSubtask('${giorno}', '${x.id}', '${s.id}', ${selectedWeekOffset})" class="text-slate-300 hover:text-red-500 p-0.5 cursor-pointer opacity-0 group-hover/sub:opacity-100 transition-opacity" title="Elimina sotto-attività"><i class="fa-solid fa-xmark text-[10px]"></i></button>` : ''}
+                                            </div>
+                                        `).join('')}
                                     </div>
+                                `;
+                            }
+
+                            let addSubtaskInputHtml = '';
+                            if (modificaScalettaAttiva && isChecklistOpen) {
+                                addSubtaskInputHtml = `
+                                    <div class="ml-6 mt-1.5 flex gap-1">
+                                        <input id="new-subtask-${x.id}" onkeydown="if(event.key==='Enter'){event.preventDefault();aggiungiSubtask('${giorno}', '${x.id}', this.value, ${selectedWeekOffset}); this.value='';}" placeholder="+ Nuova sotto-attività..." class="min-w-0 flex-1 border border-slate-200 bg-white rounded-md px-2 py-0.5 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                        <button onclick="const inp=document.getElementById('new-subtask-${x.id}'); if(inp){aggiungiSubtask('${giorno}', '${x.id}', inp.value, ${selectedWeekOffset}); inp.value='';}" class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-md font-bold cursor-pointer" title="Aggiungi sotto-attività">+</button>
+                                    </div>
+                                `;
+                            }
+
+                            return modificaScalettaAttiva 
+                                ? `<div class="p-1 rounded-xl bg-slate-50/50 border border-slate-100 mb-1">
+                                    <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
+                                        <input value="${escapeHTML(x.testo)}" onchange="aggiornaTestoScaletta('${giorno}','${x.id}',this.value)" aria-label="Testo attività" class="min-w-0 flex-1 border border-slate-200 bg-white rounded-lg px-2 py-1.5 text-sm focus:ring-2 focus:ring-${theme.primary}">
+                                        
+                                        <!-- Su / Giù Ordinamento -->
+                                        <div class="flex items-center gap-0.5 shrink-0">
+                                            <button onclick="spostaElementoScaletta('${giorno}', ${idx2}, -1)" ${idx2 === 0 ? 'disabled class="text-slate-200 p-0.5 cursor-not-allowed"' : 'class="text-slate-400 hover:text-blue-700 p-0.5 cursor-pointer"'} title="Sposta su"><i class="fa-solid fa-chevron-up text-[10px]"></i></button>
+                                            <button onclick="spostaElementoScaletta('${giorno}', ${idx2}, 1)" ${idx2 === arr.length - 1 ? 'disabled class="text-slate-200 p-0.5 cursor-not-allowed"' : 'class="text-slate-400 hover:text-blue-700 p-0.5 cursor-pointer"'} title="Sposta giù"><i class="fa-solid fa-chevron-down text-[10px]"></i></button>
+                                        </div>
+
+                                        <select onchange="cambiaQuadranteScaletta('${giorno}','${x.id}',this.value)" aria-label="Matrice Eisenhower" class="border border-slate-200 rounded-lg p-1 text-[11px] bg-white cursor-pointer font-medium">
+                                            <option value="" ${!x.quadrante ? 'selected' : ''}>Nessuna priorità</option>
+                                            <option value="q1" ${x.quadrante === 'q1' ? 'selected' : ''}>🔴 Q1: Fai Subito</option>
+                                            <option value="q2" ${x.quadrante === 'q2' ? 'selected' : ''}>🔵 Q2: Pianifica</option>
+                                            <option value="q3" ${x.quadrante === 'q3' ? 'selected' : ''}>🟢 Q3: Delega / Rapido</option>
+                                            <option value="q4" ${x.quadrante === 'q4' ? 'selected' : ''}>⚪ Q4: Parcheggia</option>
+                                        </select>
+                                        <select onchange="spostaAttivitaScaletta('${giorno}','${x.id}',this.value)" aria-label="Sposta attività" class="border border-slate-200 rounded-lg px-1 py-1.5 text-[11px] bg-white cursor-pointer">${targetOptions.join('')}</select>
+                                        <button onclick="toggleChecklistAperta('${x.id}')" class="px-2 py-1 text-xs font-bold rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 cursor-pointer flex items-center gap-1 shrink-0" title="Gestisci sotto-attività / checklist">
+                                            <i class="fa-solid fa-list-check text-[11px]"></i> Checklist ${totalSubCount > 0 ? `(${doneSubCount}/${totalSubCount})` : '+'}
+                                        </button>
+                                        <button onclick="rimandaAlBloccoNote('${giorno}','${x.id}')" title="Rimetti nel Blocco Note" class="text-slate-400 hover:text-blue-700 p-1 cursor-pointer"><i class="fa-solid fa-arrow-rotate-left"></i></button>
+                                        <button onclick="eliminaAttivitaScaletta('${giorno}','${x.id}')" aria-label="Elimina attività" class="text-slate-400 hover:text-red-600 p-1 cursor-pointer"><i class="fa-solid fa-trash"></i></button>
+                                    </div>
+                                    ${subtasksHtml}
+                                    ${addSubtaskInputHtml}
+                                   </div>`
+                                : `<div class="rounded-lg p-1 transition-colors hover:bg-slate-50/70 group/item">
+                                    <div class="flex items-start gap-1 text-sm text-slate-700" draggable="true" ondragstart="dragStart(event, '${giorno}', '${x.id}')" ondragend="dragEnd(event)" ondragover="allowDrop(event)" ondrop="dropElementOnItem(event, '${giorno}', '${x.id}')">
+                                        <i class="fa-solid fa-grip-vertical text-slate-300 hover:text-slate-500 cursor-grab shrink-0 mt-1 mr-1" title="Trascina in un altro giorno o nei Promemoria"></i>
+                                        <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaScaletta('${giorno}','${x.id}')" class="mt-1 accent-emerald-600 shrink-0 cursor-pointer">
+                                        ${dotHtml}
+                                        ${hasSubtasks ? `
+                                            <button onclick="toggleChecklistAperta('${x.id}')" class="text-blue-600 hover:text-blue-800 text-xs px-1 mt-0.5 cursor-pointer shrink-0" title="${isChecklistOpen ? 'Comprimi checklist' : 'Espandi checklist'}">
+                                                <i class="fa-solid ${isChecklistOpen ? 'fa-chevron-down' : 'fa-chevron-right'} text-[10px]"></i>
+                                            </button>
+                                        ` : ''}
+                                        <span class="flex-1 min-w-0 ${x.completata ? 'line-through text-slate-400' : ''} cursor-default select-none">${escapeHTML(x.testo)}</span>
+                                        ${hasSubtasks ? `
+                                            <button onclick="toggleChecklistAperta('${x.id}')" class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 cursor-pointer shrink-0" title="Checklist: ${doneSubCount} di ${totalSubCount} completati">
+                                                <i class="fa-solid fa-list-check text-[9px] mr-0.5"></i> ${doneSubCount}/${totalSubCount}
+                                            </button>
+                                        ` : ''}
+                                        <div class="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity shrink-0 ml-1">
+                                            <button onclick="toggleChecklistAperta('${x.id}')" class="text-slate-300 hover:text-blue-600 p-0.5 cursor-pointer" title="Aggiungi / Apri Checklist">
+                                                <i class="fa-solid fa-list-check text-xs"></i>
+                                            </button>
+                                            <button onclick="spostaAttivitaTraGiorni('${giorno}', ${selectedWeekOffset}, 'Promemoria', 0, '${x.id}')" class="text-slate-300 hover:text-amber-600 p-0.5 cursor-pointer" title="Sposta nei Promemoria (senza data)">
+                                                <i class="fa-solid fa-thumbtack text-xs"></i>
+                                            </button>
+                                            <button onclick="apriModalCalendarioPianifica('${giorno}', '${x.id}', '${escapeHTML(x.testo).replace(/'/g, "\\'")}', ${selectedWeekOffset})" class="text-slate-300 hover:text-blue-600 p-0.5 cursor-pointer" title="Apri nel Pianificatore Futuro con Controllo Carico">
+                                                <i class="fa-regular fa-calendar-days text-xs"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    ${subtasksHtml}
+                                    ${(isChecklistOpen && !modificaScalettaAttiva) ? `
+                                        <div class="ml-6 mt-1 flex gap-1">
+                                            <input id="quick-subtask-${x.id}" onkeydown="if(event.key==='Enter'){event.preventDefault();aggiungiSubtask('${giorno}', '${x.id}', this.value, ${selectedWeekOffset}); this.value='';}" placeholder="+ Aggiungi voce alla checklist..." class="min-w-0 flex-1 border border-slate-200 bg-white rounded-md px-2 py-0.5 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                            <button onclick="const inp=document.getElementById('quick-subtask-${x.id}'); if(inp){aggiungiSubtask('${giorno}', '${x.id}', inp.value, ${selectedWeekOffset}); inp.value='';}" class="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-md font-bold cursor-pointer">+</button>
+                                        </div>
+                                    ` : ''}
                                    </div>`;
                         }).join('') : `<p class="text-sm italic text-slate-400">Nessuna attività</p>`}
                     </div>
@@ -5739,19 +5938,10 @@
                 const isToday = (modalCalActiveOffset === 0 && isOggi(idx));
                 const dateLabel = getDataGiornoOffset(idx, modalCalActiveOffset);
                 const tasks = schedule[g] || [];
+                const infoCarico = calcolaCaricoGiorno(tasks);
                 const count = tasks.length;
-
-                let badgeCarico = '';
-                let cardBorder = 'border-slate-200 bg-white hover:border-slate-300';
-                if (count <= 2) {
-                    badgeCarico = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">🟢 ${count} compiti (Libero)</span>`;
-                } else if (count <= 4) {
-                    badgeCarico = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">🟡 ${count} compiti (Medio)</span>`;
-                    cardBorder = 'border-amber-200 bg-amber-50/10 hover:border-amber-300';
-                } else {
-                    badgeCarico = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800 border border-red-200">🔴 ${count} compiti (Sovraccarico ⚠️)</span>`;
-                    cardBorder = 'border-red-200 bg-red-50/10 hover:border-red-300';
-                }
+                const badgeCarico = infoCarico.badgeHtml;
+                const cardBorder = infoCarico.cardBorder;
 
                 const isCurrentPlacement = (activePlanningItem && activePlanningItem.provenienza === g && (activePlanningItem.sourceOffset || 0) === modalCalActiveOffset);
 
@@ -5776,6 +5966,10 @@
                                 ${count === 0 ? '<p class="text-[11px] text-slate-400 italic py-3 text-center">Nessun impegno fissato. Rilascia qui per pianificare!</p>' : ''}
                                 ${tasks.map(t => {
                                     const safeText = escapeHTML(t.testo).replace(/'/g, "\\'");
+                                    const hasSubs = Array.isArray(t.subtasks) && t.subtasks.length > 0;
+                                    const doneSubs = hasSubs ? t.subtasks.filter(s => s.completata).length : 0;
+                                    const totalSubs = hasSubs ? t.subtasks.length : 0;
+                                    const subBadge = hasSubs ? `<span class="text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-200 px-1 py-0.2 rounded shrink-0" title="Checklist: ${doneSubs}/${totalSubs} completati"><i class="fa-solid fa-list-check text-[8px] mr-0.5"></i>${doneSubs}/${totalSubs}</span>` : '';
                                     return `
                                     <div draggable="true"
                                          ondragstart="dragTaskModalCal(event, '${g}', '${t.id}', ${modalCalActiveOffset}, '${safeText}')"
@@ -5786,6 +5980,7 @@
                                             <i class="fa-solid fa-grip-vertical text-[9px] text-slate-300 group-hover:text-blue-500 shrink-0"></i>
                                             <span class="w-1.5 h-1.5 rounded-full ${t.quadrante === 'q1' ? 'bg-red-500' : (t.quadrante === 'q2' ? 'bg-blue-500' : (t.quadrante === 'q3' ? 'bg-emerald-500' : 'bg-slate-400'))} shrink-0"></span>
                                             <span class="truncate font-medium ${t.completata ? 'line-through text-slate-400' : ''}">${escapeHTML(t.testo)}</span>
+                                            ${subBadge}
                                         </div>
                                         <span class="text-[9px] text-slate-400 group-hover:text-blue-600 font-bold shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                                             <i class="fa-solid fa-arrows-up-down-left-right"></i>
@@ -5799,7 +5994,7 @@
                         <button onclick="confermaPianificazioneGiornoModal('${g}', ${modalCalActiveOffset})" class="w-full mt-2 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 shadow-2xs ${
                             isCurrentPlacement 
                                 ? 'bg-emerald-50 text-emerald-700 border border-emerald-300' 
-                                : (count >= 5 ? 'bg-slate-800 hover:bg-slate-900 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white')
+                                : (infoCarico.livello === 'sovraccarico' ? 'bg-slate-800 hover:bg-slate-900 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white')
                         }">
                             ${isCurrentPlacement ? '<i class="fa-solid fa-check"></i> Già pianificato qui' : `<i class="fa-regular fa-calendar-plus"></i> Pianifica per ${g.substring(0,3)}`}
                         </button>
@@ -5980,9 +6175,10 @@
                 promemoriaAgenda.push({
                     id: itemData.id,
                     testo: itemData.testo,
-                    data: '',
+                    data: itemData.data || '',
                     completata: Boolean(itemData.completata),
-                    quadrante: itemData.quadrante || 'q2'
+                    quadrante: itemData.quadrante || 'q2',
+                    subtasks: Array.isArray(itemData.subtasks) ? itemData.subtasks : []
                 });
                 salvaPromemoria();
                 showToast(`Attività spostata nei Promemoria`, 'success');
@@ -5993,7 +6189,8 @@
                     id: itemData.id,
                     testo: itemData.testo,
                     completata: Boolean(itemData.completata),
-                    quadrante: itemData.quadrante || 'q2'
+                    quadrante: itemData.quadrante || 'q2',
+                    subtasks: Array.isArray(itemData.subtasks) ? itemData.subtasks : []
                 });
                 ordinaAttivitaGiorno(destGiorno, destOffset);
                 salvaScaletta();
