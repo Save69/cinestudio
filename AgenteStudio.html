@@ -4912,6 +4912,9 @@
                                     <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaScaletta('${giorno}','${x.id}')" class="mt-1 accent-emerald-600 shrink-0 cursor-pointer">
                                     ${dotHtml}
                                     <span class="flex-1 min-w-0 ${x.completata ? 'line-through text-slate-400' : ''} cursor-default select-none">${escapeHTML(x.testo)}</span>
+                                    <button onclick="apriModalCalendarioPianifica('${giorno}', '${x.id}', '${escapeHTML(x.testo).replace(/'/g, "\\'")}', ${selectedWeekOffset})" class="text-slate-300 hover:text-blue-600 opacity-0 group-hover/item:opacity-100 transition-opacity p-0.5 cursor-pointer shrink-0" title="Apri nel Pianificatore Futuro con Controllo Carico">
+                                        <i class="fa-regular fa-calendar-days text-xs"></i>
+                                    </button>
                                    </div>`;
                         }).join('') : `<p class="text-sm italic text-slate-400">Nessuna attività</p>`}
                     </div>
@@ -5531,6 +5534,20 @@
             return `${giornoMese} ${mesiAbbreviati[target.getMonth()]}`;
         }
 
+        function getIntervalloSettimanaOffset(offset = 0) {
+            const oggi = new Date();
+            const day = oggi.getDay();
+            const diff = (day === 0) ? -6 : 1 - day;
+            const baseMonday = new Date(oggi);
+            baseMonday.setDate(oggi.getDate() + diff + (offset * 7));
+            
+            const baseSunday = new Date(baseMonday);
+            baseSunday.setDate(baseMonday.getDate() + 6);
+            
+            const mesi = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+            return `${baseMonday.getDate()} ${mesi[baseMonday.getMonth()]} – ${baseSunday.getDate()} ${mesi[baseSunday.getMonth()]} ${baseSunday.getFullYear()}`;
+        }
+
         function getOggiDataStringa() {
             const oggi = new Date();
             const day = oggi.getDay(); // 0=Dom, 1=Lun
@@ -5542,25 +5559,28 @@
         function cambiaSettimanaMatrice(direzione) {
             let nextOffset = selectedWeekOffset + direzione;
             if (nextOffset < 0) nextOffset = 0;
-            if (nextOffset > 2) nextOffset = 2;
+            if (nextOffset > 4) nextOffset = 4;
             cambiaSettimana(nextOffset);
             renderMatriceEisenhower();
         }
 
         // ============================================================
-        // MODAL CALENDARIO & ISPEZIONE CARICO LAVORO
+        // MODAL CALENDARIO & ISPEZIONE CARICO LAVORO (DRAG & DROP)
         // ============================================================
         let activePlanningItem = null;
         let modalCalActiveOffset = 0;
 
-        function apriModalCalendarioPianifica(provenienza, id, testo) {
-            activePlanningItem = { provenienza, id, testo };
-            modalCalActiveOffset = selectedWeekOffset || 0;
+        function apriModalCalendarioPianifica(provenienza, id, testo, sourceOffset = selectedWeekOffset) {
+            activePlanningItem = { provenienza, id, testo, sourceOffset: sourceOffset || 0 };
+            modalCalActiveOffset = sourceOffset || 0;
             const modal = document.getElementById('modal-calendario-pianifica');
             if (!modal) return;
             
             const titleEl = document.getElementById('modal-cal-item-title');
-            if (titleEl) titleEl.textContent = `Attività: "${testo}" (Attualmente in: ${provenienza})`;
+            if (titleEl) {
+                const sourceLabel = provenienza === 'Promemoria' ? 'Promemoria' : `${provenienza}${sourceOffset > 0 ? ' (+'+sourceOffset+' sett.)' : ''}`;
+                titleEl.textContent = `Attività: "${testo}" (Attualmente in: ${sourceLabel})`;
+            }
             
             modal.classList.remove('hidden');
             renderModalCalContent();
@@ -5573,18 +5593,105 @@
         }
 
         function cambiaSettimanaModalCal(offset) {
-            modalCalActiveOffset = offset;
+            modalCalActiveOffset = Math.max(0, offset);
             renderModalCalContent();
         }
 
-        function renderModalCalContent() {
-            for (let i = 0; i <= 2; i++) {
-                const btn = document.getElementById(`btn-modal-w${i}`);
-                if (btn) {
-                    btn.className = (i === modalCalActiveOffset)
-                        ? 'px-3 py-1.5 text-xs font-black rounded-xl bg-blue-600 text-white shadow-sm transition-all cursor-pointer'
-                        : 'px-3 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer';
+        function dragTaskModalCal(ev, giorno, id, offset, testo) {
+            const payload = JSON.stringify({ type: 'modal-task', giorno, id, offset, testo });
+            ev.dataTransfer.setData('text/plain', payload);
+            ev.dataTransfer.setData('application/json', payload);
+            ev.dataTransfer.effectAllowed = 'move';
+            if (ev.currentTarget) ev.currentTarget.classList.add('opacity-40');
+        }
+
+        function dragEndModalCal(ev) {
+            if (ev.currentTarget) ev.currentTarget.classList.remove('opacity-40');
+            document.querySelectorAll('.modal-cal-day-card, #modal-cal-btn-promemoria').forEach(c => {
+                c.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50/70', 'border-blue-400');
+            });
+        }
+
+        function allowDropModalCal(ev) {
+            ev.preventDefault();
+            ev.dataTransfer.dropEffect = 'move';
+        }
+
+        function dragEnterModalCal(el) {
+            if (el) el.classList.add('ring-2', 'ring-blue-500', 'bg-blue-50/70', 'border-blue-400');
+        }
+
+        function dragLeaveModalCal(el) {
+            if (el) el.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50/70', 'border-blue-400');
+        }
+
+        function dropTaskModalCal(ev, destGiorno, destOffset) {
+            ev.preventDefault();
+            const dropZone = ev.currentTarget;
+            if (dropZone) dropZone.classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50/70', 'border-blue-400');
+            
+            try {
+                let raw = ev.dataTransfer.getData('text/plain') || ev.dataTransfer.getData('application/json');
+                if (!raw) return;
+                const data = JSON.parse(raw);
+                
+                let srcGiorno = data.giorno || (activePlanningItem ? activePlanningItem.provenienza : null);
+                let srcOffset = (data.offset !== undefined) ? data.offset : (activePlanningItem ? (activePlanningItem.sourceOffset || 0) : modalCalActiveOffset);
+                let id = data.id || (activePlanningItem ? activePlanningItem.id : null);
+                
+                if (!srcGiorno || !id) return;
+                if (srcGiorno === destGiorno && srcOffset === destOffset) return;
+                
+                spostaAttivitaTraGiorni(srcGiorno, srcOffset, destGiorno, destOffset, id);
+                
+                if (activePlanningItem && activePlanningItem.id === id) {
+                    activePlanningItem.provenienza = destGiorno;
+                    activePlanningItem.sourceOffset = destOffset;
+                    const titleEl = document.getElementById('modal-cal-item-title');
+                    if (titleEl) {
+                        const destLabel = destGiorno === 'Promemoria' ? 'Promemoria' : `${destGiorno}${destOffset > 0 ? ' (+'+destOffset+' sett.)' : ''}`;
+                        titleEl.textContent = `Attività: "${activePlanningItem.testo}" (Pianificata in: ${destLabel})`;
+                    }
                 }
+                
+                renderModalCalContent();
+            } catch (e) {
+                console.error("Drop in modal error:", e);
+            }
+        }
+
+        function renderModalCalContent() {
+            // Selettore dinamico settimane nel modal
+            const tabsContainer = document.getElementById('modal-cal-week-tabs');
+            if (tabsContainer) {
+                const weekButtons = [
+                    { offset: 0, label: 'Questa Settimana' },
+                    { offset: 1, label: 'Prossima (+1)' },
+                    { offset: 2, label: 'Tra 2 Sett. (+2)' },
+                    { offset: 3, label: '+3 Sett.' },
+                    { offset: 4, label: '+4 Sett.' }
+                ];
+                
+                tabsContainer.innerHTML = `
+                    <button onclick="cambiaSettimanaModalCal(modalCalActiveOffset - 1)" ${modalCalActiveOffset === 0 ? 'disabled class="w-7 h-7 rounded-lg border border-slate-200 bg-slate-50 text-slate-300 flex items-center justify-center text-xs font-bold cursor-not-allowed"' : 'class="w-7 h-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600 shadow-2xs cursor-pointer transition-all"'} title="Settimana precedente">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    ${weekButtons.map(wb => `
+                        <button onclick="cambiaSettimanaModalCal(${wb.offset})" class="px-2.5 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                            wb.offset === modalCalActiveOffset
+                                ? 'bg-blue-600 text-white shadow-sm font-black'
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }">
+                            ${wb.label}
+                        </button>
+                    `).join('')}
+                    <button onclick="cambiaSettimanaModalCal(modalCalActiveOffset + 1)" class="w-7 h-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600 shadow-2xs cursor-pointer transition-all" title="Settimana successiva">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                    <span class="text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg ml-1 shrink-0">
+                        <i class="fa-regular fa-calendar mr-1"></i>${getIntervalloSettimanaOffset(modalCalActiveOffset)}
+                    </span>
+                `;
             }
 
             const grid = document.getElementById('modal-cal-days-grid');
@@ -5609,10 +5716,15 @@
                     cardBorder = 'border-red-200 bg-red-50/10 hover:border-red-300';
                 }
 
-                const isCurrentPlacement = (activePlanningItem && activePlanningItem.provenienza === g && selectedWeekOffset === modalCalActiveOffset);
+                const isCurrentPlacement = (activePlanningItem && activePlanningItem.provenienza === g && (activePlanningItem.sourceOffset || 0) === modalCalActiveOffset);
 
                 return `
-                    <div class="border ${cardBorder} rounded-xl p-3 flex flex-col justify-between transition-all shadow-2xs">
+                    <div class="modal-cal-day-card border ${cardBorder} rounded-xl p-3 flex flex-col justify-between transition-all shadow-2xs select-none"
+                         ondragover="allowDropModalCal(event)"
+                         ondragenter="dragEnterModalCal(this)"
+                         ondragleave="dragLeaveModalCal(this)"
+                         ondrop="dropTaskModalCal(event, '${g}', ${modalCalActiveOffset})"
+                         data-giorno="${g}">
                         <div>
                             <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-100">
                                 <div class="flex items-center gap-1.5">
@@ -5622,15 +5734,28 @@
                                 ${badgeCarico}
                             </div>
 
-                            <!-- Elenco compiti già pianificati -->
-                            <div class="space-y-1 my-2 max-h-[90px] overflow-y-auto pr-1 text-xs">
-                                ${count === 0 ? '<p class="text-[11px] text-slate-400 italic">Nessun impegno fissato. Ottimo per pianificare!</p>' : ''}
-                                ${tasks.map(t => `
-                                    <div class="flex items-center gap-1.5 text-[11px] text-slate-600 truncate" title="${escapeHTML(t.testo)}">
-                                        <span class="w-1.5 h-1.5 rounded-full ${t.quadrante === 'q1' ? 'bg-red-500' : (t.quadrante === 'q2' ? 'bg-blue-500' : (t.quadrante === 'q3' ? 'bg-emerald-500' : 'bg-slate-400'))} shrink-0"></span>
-                                        <span class="truncate ${t.completata ? 'line-through text-slate-400' : ''}">${escapeHTML(t.testo)}</span>
+                            <!-- Elenco compiti già pianificati (Trascina da qui su altri giorni) -->
+                            <div class="space-y-1.5 my-2 max-h-[105px] overflow-y-auto pr-1 text-xs custom-scrollbar">
+                                ${count === 0 ? '<p class="text-[11px] text-slate-400 italic py-3 text-center">Nessun impegno fissato. Rilascia qui per pianificare!</p>' : ''}
+                                ${tasks.map(t => {
+                                    const safeText = escapeHTML(t.testo).replace(/'/g, "\\'");
+                                    return `
+                                    <div draggable="true"
+                                         ondragstart="dragTaskModalCal(event, '${g}', '${t.id}', ${modalCalActiveOffset}, '${safeText}')"
+                                         ondragend="dragEndModalCal(event)"
+                                         class="flex items-center justify-between gap-1.5 text-[11px] text-slate-700 bg-slate-50 hover:bg-blue-50/70 p-1.5 rounded-lg border border-slate-200/80 hover:border-blue-300 transition-all cursor-grab active:cursor-grabbing group select-none shadow-2xs"
+                                         title="Trascina questo compito su un altro giorno per riequilibrare il carico">
+                                        <div class="flex items-center gap-1.5 truncate min-w-0">
+                                            <i class="fa-solid fa-grip-vertical text-[9px] text-slate-300 group-hover:text-blue-500 shrink-0"></i>
+                                            <span class="w-1.5 h-1.5 rounded-full ${t.quadrante === 'q1' ? 'bg-red-500' : (t.quadrante === 'q2' ? 'bg-blue-500' : (t.quadrante === 'q3' ? 'bg-emerald-500' : 'bg-slate-400'))} shrink-0"></span>
+                                            <span class="truncate font-medium ${t.completata ? 'line-through text-slate-400' : ''}">${escapeHTML(t.testo)}</span>
+                                        </div>
+                                        <span class="text-[9px] text-slate-400 group-hover:text-blue-600 font-bold shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <i class="fa-solid fa-arrows-up-down-left-right"></i>
+                                        </span>
                                     </div>
-                                `).join('')}
+                                    `;
+                                }).join('')}
                             </div>
                         </div>
 
@@ -5648,16 +5773,37 @@
 
         function confermaPianificazioneGiornoModal(targetGiorno, targetOffset) {
             if (!activePlanningItem) return;
-            const { provenienza, id } = activePlanningItem;
-            spostaGiornoDaMatrice(provenienza, id, `${targetGiorno}:${targetOffset}`);
+            const { provenienza, id, sourceOffset } = activePlanningItem;
+            spostaAttivitaTraGiorni(provenienza, sourceOffset || 0, targetGiorno, targetOffset, id);
             chiudiModalCalendarioPianifica();
         }
 
         function pianificaInPromemoriaDaModal() {
             if (!activePlanningItem) return;
-            const { provenienza, id } = activePlanningItem;
-            spostaGiornoDaMatrice(provenienza, id, 'Promemoria');
+            const { provenienza, id, sourceOffset } = activePlanningItem;
+            spostaAttivitaTraGiorni(provenienza, sourceOffset || 0, 'Promemoria', 0, id);
             chiudiModalCalendarioPianifica();
+        }
+
+        function saltaASettimanaDaDataLibera(dataStr) {
+            if (!dataStr) return;
+            const dObj = new Date(dataStr + 'T00:00:00');
+            if (isNaN(dObj.getTime())) return;
+            
+            const oggi = new Date();
+            const day = oggi.getDay();
+            const diff = (day === 0) ? -6 : 1 - day;
+            const currentMonday = new Date(oggi);
+            currentMonday.setDate(oggi.getDate() + diff);
+            currentMonday.setHours(0,0,0,0);
+            
+            const targetDate = new Date(dObj);
+            const diffDays = Math.floor((targetDate - currentMonday) / (1000 * 60 * 60 * 24));
+            const targetOffset = Math.max(0, Math.floor(diffDays / 7));
+            
+            modalCalActiveOffset = targetOffset;
+            renderModalCalContent();
+            showToast(`Vista aperta sulla settimana del ${dataStr}`, 'info');
         }
 
         function pianificaDataLiberaModal(dataStr) {
@@ -5677,10 +5823,10 @@
             
             const targetDate = new Date(dObj);
             const diffDays = Math.floor((targetDate - currentMonday) / (1000 * 60 * 60 * 24));
-            const targetOffset = Math.floor(diffDays / 7);
+            const targetOffset = Math.max(0, Math.floor(diffDays / 7));
             
-            const { provenienza, id } = activePlanningItem;
-            spostaGiornoDaMatrice(provenienza, id, `${mappedDay}:${targetOffset}`);
+            const { provenienza, id, sourceOffset } = activePlanningItem;
+            spostaAttivitaTraGiorni(provenienza, sourceOffset || 0, mappedDay, targetOffset, id);
             chiudiModalCalendarioPianifica();
         }
 
@@ -5768,33 +5914,24 @@
             showToast(`${countAggiunti} note organizzate e distribuite con successo!`, 'success');
         }
 
-        function spostaGiornoDaMatrice(provenienzaAttuale, id, valoreDest) {
-            let targetGiorno = valoreDest;
-            let targetOffset = selectedWeekOffset;
-
-            if (valoreDest && valoreDest.includes(':')) {
-                const parts = valoreDest.split(':');
-                targetGiorno = parts[0];
-                targetOffset = parseInt(parts[1], 10);
-            }
-
-            if (provenienzaAttuale === targetGiorno && selectedWeekOffset === targetOffset) return;
-            salvaStatoPerAnnullamento(`spostamento giorno attività a ${targetGiorno}`);
+        function spostaAttivitaTraGiorni(srcGiorno, srcOffset, destGiorno, destOffset, id) {
+            if (srcGiorno === destGiorno && srcOffset === destOffset) return;
+            salvaStatoPerAnnullamento(`spostamento attività da ${srcGiorno} a ${destGiorno}`);
 
             let itemData = null;
 
-            if (provenienzaAttuale === 'Promemoria') {
+            if (srcGiorno === 'Promemoria') {
                 const idx = promemoriaAgenda.findIndex(x => x.id === id);
                 if (idx !== -1) {
                     itemData = promemoriaAgenda.splice(idx, 1)[0];
                     salvaPromemoria();
                 }
             } else {
-                const weekSchedule = getWeekSchedule(selectedWeekOffset);
-                if (weekSchedule[provenienzaAttuale]) {
-                    const idx = weekSchedule[provenienzaAttuale].findIndex(x => x.id === id);
+                const srcSchedule = getWeekSchedule(srcOffset);
+                if (srcSchedule && srcSchedule[srcGiorno]) {
+                    const idx = srcSchedule[srcGiorno].findIndex(x => x.id === id);
                     if (idx !== -1) {
-                        itemData = weekSchedule[provenienzaAttuale].splice(idx, 1)[0];
+                        itemData = srcSchedule[srcGiorno].splice(idx, 1)[0];
                         salvaScaletta();
                     }
                 }
@@ -5802,7 +5939,7 @@
 
             if (!itemData) return;
 
-            if (targetGiorno === 'Promemoria') {
+            if (destGiorno === 'Promemoria') {
                 promemoriaAgenda.push({
                     id: itemData.id,
                     testo: itemData.testo,
@@ -5813,23 +5950,36 @@
                 salvaPromemoria();
                 showToast(`Attività spostata nei Promemoria`, 'success');
             } else {
-                const destSchedule = getWeekSchedule(targetOffset);
-                if (!destSchedule[targetGiorno]) destSchedule[targetGiorno] = [];
-                destSchedule[targetGiorno].push({
+                const destSchedule = getWeekSchedule(destOffset);
+                if (!destSchedule[destGiorno]) destSchedule[destGiorno] = [];
+                destSchedule[destGiorno].push({
                     id: itemData.id,
                     testo: itemData.testo,
                     completata: Boolean(itemData.completata),
                     quadrante: itemData.quadrante || 'q2'
                 });
-                ordinaAttivitaGiorno(targetGiorno, targetOffset);
+                ordinaAttivitaGiorno(destGiorno, destOffset);
                 salvaScaletta();
-                const offsetLabel = targetOffset === 0 ? '' : (targetOffset === 1 ? ' (+1 Sett.)' : ` (+${targetOffset} Sett.)`);
-                showToast(`Attività pianificata per ${targetGiorno}${offsetLabel}`, 'success');
+                const offsetLabel = destOffset === 0 ? '' : (destOffset === 1 ? ' (+1 Sett.)' : ` (+${destOffset} Sett.)`);
+                showToast(`Attività spostata in ${destGiorno}${offsetLabel}`, 'success');
             }
 
             renderScaletta();
             renderPromemoria();
             renderMatriceEisenhower();
+        }
+
+        function spostaGiornoDaMatrice(provenienzaAttuale, id, valoreDest, sourceOffset = selectedWeekOffset) {
+            let targetGiorno = valoreDest;
+            let targetOffset = selectedWeekOffset;
+
+            if (valoreDest && valoreDest.includes(':')) {
+                const parts = valoreDest.split(':');
+                targetGiorno = parts[0];
+                targetOffset = parseInt(parts[1], 10);
+            }
+
+            spostaAttivitaTraGiorni(provenienzaAttuale, sourceOffset, targetGiorno, targetOffset, id);
         }
 
         function toggleAttivitaMatrice(provenienza, id) {
@@ -6104,36 +6254,44 @@
 
             <!-- Body Modal -->
             <div class="p-4 overflow-y-auto space-y-3.5 flex-1">
-                <!-- Selettore Settimane Tabs -->
+                <!-- Selettore Settimane Tabs & Data Libera -->
                 <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                    <div class="flex items-center gap-1.5" id="modal-cal-week-tabs">
-                        <button onclick="cambiaSettimanaModalCal(0)" id="btn-modal-w0" class="px-3 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer">Questa Settimana</button>
-                        <button onclick="cambiaSettimanaModalCal(1)" id="btn-modal-w1" class="px-3 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer">Prossima (+1)</button>
-                        <button onclick="cambiaSettimanaModalCal(2)" id="btn-modal-w2" class="px-3 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer">Tra 2 Settimane (+2)</button>
+                    <div class="flex flex-wrap items-center gap-1.5" id="modal-cal-week-tabs">
+                        <!-- Popolato dinamicamente con frecce, tabs e range date -->
                     </div>
                     <div class="flex items-center gap-1.5">
-                        <span class="text-[11px] font-bold text-slate-500">Oppure Data Libera:</span>
-                        <input type="date" id="input-modal-cal-data-libera" onchange="pianificaDataLiberaModal(this.value)" class="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white text-slate-700 cursor-pointer focus:outline-none focus:border-blue-400">
+                        <span class="text-[11px] font-bold text-slate-500">Vai a data:</span>
+                        <input type="date" id="input-modal-cal-data-libera" onchange="saltaASettimanaDaDataLibera(this.value)" class="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white text-slate-700 cursor-pointer focus:outline-none focus:border-blue-400">
                     </div>
                 </div>
 
-                <!-- Legenda Carico -->
-                <div class="flex items-center gap-4 text-[10px] font-bold px-1 text-slate-500">
-                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 0-2 compiti: Libero</span>
-                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> 3-4 compiti: Medio</span>
-                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> 5+ compiti: Sovraccarico ⚠️</span>
+                <!-- Legenda Carico & Drag Hint -->
+                <div class="flex flex-wrap items-center justify-between gap-2 text-[10px] font-bold px-1 text-slate-500">
+                    <div class="flex items-center gap-3">
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 0-2: Libero</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> 3-4: Medio</span>
+                        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> 5+: Sovraccarico ⚠️</span>
+                    </div>
+                    <span class="text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md font-medium"><i class="fa-solid fa-hand-pointer mr-1"></i> Trascina qualsiasi compito da un giorno all'altro</span>
                 </div>
 
-                <!-- Griglia dei 7 Giorni con Carico e Anteprima Compiti -->
+                <!-- Griglia dei 7 Giorni con Carico e Anteprima Compiti (Drop Targets) -->
                 <div id="modal-cal-days-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <!-- Popolato dinamicamente da JS -->
                 </div>
             </div>
 
             <!-- Footer Modal -->
-            <div class="p-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                <button onclick="pianificaInPromemoriaDaModal()" class="text-xs font-bold text-slate-600 hover:text-blue-700 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs">
-                    <i class="fa-solid fa-thumbtack text-amber-500"></i> Parcheggia nei Promemoria
+            <div class="p-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between gap-2">
+                <button id="modal-cal-btn-promemoria"
+                        ondragover="allowDropModalCal(event)"
+                        ondragenter="dragEnterModalCal(this)"
+                        ondragleave="dragLeaveModalCal(this)"
+                        ondrop="dropTaskModalCal(event, 'Promemoria', 0)"
+                        onclick="pianificaInPromemoriaDaModal()"
+                        class="text-xs font-bold text-slate-600 hover:text-blue-700 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                        title="Clicca o trascina qui per parcheggiare nei Promemoria">
+                    <i class="fa-solid fa-thumbtack text-amber-500"></i> Parcheggia nei Promemoria (o trascina qui)
                 </button>
                 <button onclick="chiudiModalCalendarioPianifica()" class="text-xs font-bold text-slate-500 hover:text-slate-800 px-4 py-1.5 rounded-lg hover:bg-slate-200/50 transition-colors cursor-pointer">
                     Chiudi
