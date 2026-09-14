@@ -4375,6 +4375,20 @@
             salvaScaletta();
         }
 
+        function modificaAttivitaScalettaRapida(giorno, id) {
+            const weekSchedule = getWeekSchedule(selectedWeekOffset);
+            const x = weekSchedule[giorno]?.find(a => a.id === id);
+            if (!x) return;
+            const nuovoTesto = prompt('Modifica attività:', x.testo);
+            if (nuovoTesto !== null && nuovoTesto.trim()) {
+                x.testo = correggiOrtografia(nuovoTesto.trim());
+                salvaScaletta();
+                renderScaletta();
+                renderMatriceEisenhower();
+                showToast('Attività modificata.', 'success');
+            }
+        }
+
         function aggiungiAttivitaScaletta(giorno) {
             const idx = giorniSettimana.indexOf(giorno);
             const input = document.getElementById(`new-task-${idx}`);
@@ -4986,6 +5000,22 @@
             }
         }
 
+        function modificaSubtask(giorno, taskId, subId, offset = selectedWeekOffset) {
+            const weekSchedule = getWeekSchedule(offset);
+            const task = weekSchedule[giorno]?.find(t => t.id === taskId);
+            if (task && Array.isArray(task.subtasks)) {
+                const sub = task.subtasks.find(s => s.id === subId);
+                if (sub) {
+                    const nuovo = prompt('Modifica sotto-attività:', sub.testo);
+                    if (nuovo !== null && nuovo.trim()) {
+                        sub.testo = correggiOrtografia(nuovo.trim());
+                        salvaScaletta();
+                        renderScaletta();
+                    }
+                }
+            }
+        }
+
         function renderScaletta() {
             const box = document.getElementById('weekly-schedule'); if (!box) return;
             const btn = document.getElementById('schedule-edit-btn'); btn.innerHTML = modificaScalettaAttiva ? '<i class="fa-solid fa-check"></i> Fine' : '<i class="fa-solid fa-pen-to-square"></i> Modifica';
@@ -5069,9 +5099,12 @@
                                             <div class="flex items-center justify-between gap-2 text-xs text-slate-600 bg-slate-50/70 hover:bg-white p-1 rounded-md border border-slate-100 transition-colors group/sub">
                                                 <label class="flex items-center gap-2 min-w-0 cursor-pointer select-none">
                                                     <input type="checkbox" ${s.completata ? 'checked' : ''} onchange="toggleSubtask('${giorno}', '${x.id}', '${s.id}', ${selectedWeekOffset})" class="w-3.5 h-3.5 accent-blue-600 rounded cursor-pointer">
-                                                    <span class="${s.completata ? 'line-through text-slate-400' : 'text-slate-700'}">${escapeHTML(s.testo)}</span>
+                                                    <span class="${s.completata ? 'line-through text-slate-400' : 'text-slate-700'}" ondblclick="modificaSubtask('${giorno}', '${x.id}', '${s.id}', ${selectedWeekOffset})" title="Doppio clic per modificare">${escapeHTML(s.testo)}</span>
                                                 </label>
-                                                ${modificaScalettaAttiva ? `<button onclick="eliminaSubtask('${giorno}', '${x.id}', '${s.id}', ${selectedWeekOffset})" class="text-slate-300 hover:text-red-500 p-0.5 cursor-pointer opacity-0 group-hover/sub:opacity-100 transition-opacity" title="Elimina sotto-attività"><i class="fa-solid fa-xmark text-[10px]"></i></button>` : ''}
+                                                <div class="flex items-center gap-1 shrink-0 opacity-0 group-hover/sub:opacity-100 transition-opacity">
+                                                    <button onclick="modificaSubtask('${giorno}', '${x.id}', '${s.id}', ${selectedWeekOffset})" class="text-slate-300 hover:text-blue-600 p-0.5 cursor-pointer" title="Modifica sotto-attività"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                                                    ${modificaScalettaAttiva ? `<button onclick="eliminaSubtask('${giorno}', '${x.id}', '${s.id}', ${selectedWeekOffset})" class="text-slate-300 hover:text-red-500 p-0.5 cursor-pointer" title="Elimina sotto-attività"><i class="fa-solid fa-xmark text-[10px]"></i></button>` : ''}
+                                                </div>
                                             </div>
                                         `).join('')}
                                     </div>
@@ -5126,7 +5159,7 @@
                                                 <i class="fa-solid ${isChecklistOpen ? 'fa-chevron-down' : 'fa-chevron-right'} text-[10px]"></i>
                                             </button>
                                         ` : ''}
-                                        <span class="flex-1 min-w-0 ${x.completata ? 'line-through text-slate-400' : ''} cursor-default select-none">${escapeHTML(x.testo)}</span>
+                                        <span class="flex-1 min-w-0 ${x.completata ? 'line-through text-slate-400' : ''} cursor-default select-none" ondblclick="modificaAttivitaScalettaRapida('${giorno}', '${x.id}')" title="Doppio clic per modificare">${escapeHTML(x.testo)}</span>
                                         ${hasSubtasks ? `
                                             <button onclick="toggleChecklistAperta('${x.id}')" class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 cursor-pointer shrink-0" title="Checklist: ${doneSubCount} di ${totalSubCount} completati">
                                                 <i class="fa-solid fa-list-check text-[9px] mr-0.5"></i> ${doneSubCount}/${totalSubCount}
@@ -5135,6 +5168,9 @@
                                         <div class="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity shrink-0 ml-1">
                                             <button onclick="toggleChecklistAperta('${x.id}')" class="text-slate-300 hover:text-blue-600 p-0.5 cursor-pointer" title="Aggiungi / Apri Checklist">
                                                 <i class="fa-solid fa-list-check text-xs"></i>
+                                            </button>
+                                            <button onclick="modificaAttivitaScalettaRapida('${giorno}', '${x.id}')" class="text-slate-300 hover:text-blue-600 p-0.5 cursor-pointer" title="Modifica testo attività">
+                                                <i class="fa-solid fa-pen text-xs"></i>
                                             </button>
                                             <button onclick="spostaAttivitaTraGiorni('${giorno}', ${selectedWeekOffset}, 'Promemoria', 0, '${x.id}')" class="text-slate-300 hover:text-amber-600 p-0.5 cursor-pointer" title="Sposta nei Promemoria (senza data)">
                                                 <i class="fa-solid fa-thumbtack text-xs"></i>
