@@ -1283,7 +1283,7 @@
                                 <span class="h-5 w-[1px] bg-slate-200 block"></span>
                                 <div class="flex flex-wrap gap-1">
                                     <button onclick="applicaPianificazione('q1')" title="Forza a Q1: Fai Subito" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🔴 Q1</button>
-                                    <button onclick="applicaPianificazione('q2')" title="Forza a Q2: Pianifica" class="bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🟣 Q2</button>
+                                    <button onclick="applicaPianificazione('q2')" title="Forza a Q2: Pianifica" class="bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🔵 Q2</button>
                                     <button onclick="applicaPianificazione('q3')" title="Forza a Q3: Delega" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🟢 Q3</button>
                                     <button onclick="applicaPianificazione('q4')" title="Forza a Q4: Parcheggia" class="bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">⚪ Q4</button>
                                 </div>
@@ -4122,7 +4122,7 @@
                             : `${letter} `;
                     }
                 }
-                const pallinoColor = { q1: 'bg-red-500', q2: 'bg-purple-500', q3: 'bg-emerald-500', q4: 'bg-slate-400' }[x.quadrante || ''] || '';
+                const pallinoColor = { q1: 'bg-red-500', q2: 'bg-blue-500', q3: 'bg-emerald-500', q4: 'bg-slate-400' }[x.quadrante || ''] || '';
                 const dotHtml = pallinoColor ? `<span class="inline-block w-2 h-2 rounded-full ${pallinoColor} shrink-0 mt-1.5" title="Priorità Eisenhower"></span>` : '';
 
                 return `<div class="flex items-start gap-2 border border-slate-100 rounded-xl p-3 group">
@@ -4666,7 +4666,7 @@
                     <h3 class="text-sm font-bold ${titleColor} border-b border-dashed ${cardBorderBColor} pb-2.5 mb-2.5 flex items-center justify-between"><span class="flex items-center gap-1"><i class="fa-regular fa-calendar text-${calendarIconColor} mr-1"></i> ${giorno} ${getDataGiornoSettimana(indice)}</span>${badgeOggi}</h3>
                     <div class="space-y-2">
                         ${weekSchedule[giorno].length ? weekSchedule[giorno].map((x, idx2, arr) => {
-                            const pallinoColor = { q1: 'bg-red-500', q2: 'bg-purple-500', q3: 'bg-emerald-500', q4: 'bg-slate-400' }[x.quadrante || ''] || '';
+                            const pallinoColor = { q1: 'bg-red-500', q2: 'bg-blue-500', q3: 'bg-emerald-500', q4: 'bg-slate-400' }[x.quadrante || ''] || '';
                             const dotHtml = pallinoColor ? `<span class="inline-block w-2.5 h-2.5 rounded-full ${pallinoColor} shrink-0 mt-1" title="Priorità Eisenhower"></span>` : '';
                             
                             const targetOptions = [];
@@ -4693,7 +4693,7 @@
                                     <select onchange="cambiaQuadranteScaletta('${giorno}','${x.id}',this.value)" aria-label="Matrice Eisenhower" class="border border-slate-200 rounded-lg p-1 text-[11px] bg-white cursor-pointer font-medium">
                                         <option value="" ${!x.quadrante ? 'selected' : ''}>Nessuna priorità</option>
                                         <option value="q1" ${x.quadrante === 'q1' ? 'selected' : ''}>🔴 Q1: Fai Subito</option>
-                                        <option value="q2" ${x.quadrante === 'q2' ? 'selected' : ''}>🟣 Q2: Pianifica</option>
+                                        <option value="q2" ${x.quadrante === 'q2' ? 'selected' : ''}>🔵 Q2: Pianifica</option>
                                         <option value="q3" ${x.quadrante === 'q3' ? 'selected' : ''}>🟢 Q3: Delega</option>
                                         <option value="q4" ${x.quadrante === 'q4' ? 'selected' : ''}>⚪ Q4: Parcheggia</option>
                                     </select>
