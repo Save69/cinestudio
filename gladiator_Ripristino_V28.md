@@ -6,7 +6,7 @@
 - Agente: Antigravity
 - Cartella ufficiale: `C:\Users\Utente\Documents\Agente studio`
 - File sincronizzato sul Desktop: `C:\Users\Utente\Desktop\AgenteStudio.html`
-- Commit precedente: `2a46e27`
+- Commit precedente: `d7aa160`
 
 ## Modifiche
 
@@ -18,9 +18,10 @@
 2. **Scheda Dedicata "Pilastri & Costanza" (`#tab-dashboard`)**:
    - Trasferita la visualizzazione dei 4 Pilastri di Disciplina (Lavoro, Divisione, Fisico, Riordino) con le loro Heatmap di costanza, serie attive, statistiche storiche, stanze ISO 5S e protocolli di allenamento in una vista dedicata e pulita.
 
-3. **Navigazione & switchTab Ottimizzati**:
+3. **Navigazione, Struttura DOM & switchTab Ottimizzati**:
+   - Corretto l'annidamento dei tag dei tab principali per garantire che tutte le schede siano sorelle di primo livello dentro `<main>`.
    - Sidebar e navbar mobile aggiornate con le due macro-aree: `⚡ Operatività & Agenda` e `🏆 Pilastri & Costanza`.
-   - Funzione JavaScript `switchTab(tabId)` riscritta per gestire agilmente le due schede senza conflitti di visibilità né alterazione delle icone di navigazione.
+   - Funzione JavaScript `switchTab(tabId)` ottimizzata per gestire agilmente la commutazione senza conflitti visivi.
 
 4. **Sincronizzazione**:
    - File aggiornato in `C:\Users\Utente\Documents\Agente studio\AgenteStudio.html` e sincronizzato su `C:\Users\Utente\Desktop\AgenteStudio.html` con verifica hash SHA256.
