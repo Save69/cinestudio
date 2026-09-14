@@ -497,125 +497,147 @@
                 </div>
             </div>
 
-            <!-- Timer Card + KPI Cards -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Timer Card + Matrice Decisionale & Hub Priorità -->
+            <div class="grid grid-cols-1 xl:grid-cols-[285px_1fr] lg:grid-cols-[300px_1fr] gap-4 mb-6 items-stretch">
 
-                <!-- Timer Card -->
-                <div id="timer-card" class="lg:col-span-1 bg-slate-900 text-white p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col justify-between transition-all duration-500">
+                <!-- Timer Card (Compatta & Ottimizzata) -->
+                <div id="timer-card" class="bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 shadow-xl flex flex-col justify-between transition-all duration-500">
                     <div>
                         <!-- Status Row -->
-                        <div class="flex justify-between items-center mb-3">
+                        <div class="flex justify-between items-center mb-2.5">
                             <span class="text-[10px] font-bold uppercase tracking-widest text-teal-400 font-mono" id="timer-status-label">FASE 1: FOCUS ATTIVO — RIORDINO</span>
                             <i class="fa-solid fa-circle-dot text-teal-500 animate-pulse" id="timer-status-dot"></i>
                         </div>
 
                         <!-- Pillar Selector Pills -->
-                        <div class="flex gap-1 mb-4 bg-slate-800/70 p-1.5 rounded-xl">
-                            <button onclick="setPilastroAttivo('lavoro')" id="pill-lavoro" class="flex-1 flex items-center justify-center gap-1 py-1.5 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all pill-lavoro-active">
+                        <div class="flex gap-1 mb-3 bg-slate-800/70 p-1 rounded-xl">
+                            <button onclick="setPilastroAttivo('lavoro')" id="pill-lavoro" class="flex-1 flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all pill-lavoro-active">
                                 <i class="fa-solid fa-briefcase"></i> Lavoro
                             </button>
-                            <button onclick="setPilastroAttivo('divisione')" id="pill-divisione" class="flex-1 flex items-center justify-center gap-1 py-1.5 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all text-slate-400 hover:text-slate-200">
-                                <i class="fa-solid fa-scale-balanced"></i> Divisione
+                            <button onclick="setPilastroAttivo('divisione')" id="pill-divisione" class="flex-1 flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all text-slate-400 hover:text-slate-200">
+                                <i class="fa-solid fa-scale-balanced"></i> Div.
                             </button>
-                            <button onclick="setPilastroAttivo('fisico')" id="pill-fisico" class="flex-1 flex items-center justify-center gap-1 py-1.5 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all text-slate-400 hover:text-slate-200">
+                            <button onclick="setPilastroAttivo('fisico')" id="pill-fisico" class="flex-1 flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all text-slate-400 hover:text-slate-200">
                                 <i class="fa-solid fa-person-running"></i> Fisico
                             </button>
-                            <button onclick="setPilastroAttivo('riordino')" id="pill-riordino" class="flex-1 flex items-center justify-center gap-1 py-1.5 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all text-slate-400 hover:text-slate-200">
-                                <i class="fa-solid fa-broom"></i> Riordino
+                            <button onclick="setPilastroAttivo('riordino')" id="pill-riordino" class="flex-1 flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all text-slate-400 hover:text-slate-200">
+                                <i class="fa-solid fa-broom"></i> Riord.
                             </button>
                         </div>
 
                         <!-- Pomodori completati oggi, separati per pilastro -->
-                        <div id="pomodori-oggi" class="grid grid-cols-2 gap-1.5 mb-3" aria-label="Pomodori completati oggi"></div>
+                        <div id="pomodori-oggi" class="grid grid-cols-2 gap-1 mb-2.5" aria-label="Pomodori completati oggi"></div>
 
                         <!-- Timer Display -->
-                        <div class="text-center my-4">
-                            <span class="text-5xl font-black font-mono tracking-widest" id="timer-display">30:00</span>
+                        <div class="text-center my-2">
+                            <span class="text-4xl font-black font-mono tracking-widest" id="timer-display">30:00</span>
                         </div>
                     </div>
 
                     <!-- Progress Bar -->
-                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden my-3">
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden my-2">
                         <div id="timer-progress-bar" class="h-full w-full transition-all duration-1000" style="background-color: #0d9488;"></div>
                     </div>
 
                     <!-- Instruction Text -->
-                    <p id="timer-instruction" class="text-center text-[11px] text-slate-400 mb-4 h-8 flex items-center justify-center font-medium">
+                    <p id="timer-instruction" class="text-center text-[11px] text-slate-400 mb-2.5 h-7 flex items-center justify-center font-medium">
                         Seleziona la stanza in basso, avvia il timer e applica il Seiri (Scarto).
                     </p>
 
                     <!-- Smooth Jazz Radio Mini-Player -->
-                    <div class="my-2.5 bg-slate-800/90 border border-amber-500/30 rounded-xl p-2.5 flex items-center justify-between gap-2.5 shadow-md">
+                    <div class="my-2 bg-slate-800/90 border border-amber-500/30 rounded-xl p-2 flex items-center justify-between gap-2 shadow-md">
                         <div class="flex items-center gap-2 min-w-0">
-                            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/40">
-                                <i class="fa-solid fa-radio text-xs" id="radio-indicator-icon"></i>
+                            <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/40">
+                                <i class="fa-solid fa-radio text-[10px]" id="radio-indicator-icon"></i>
                             </div>
                             <div class="min-w-0">
-                                <div class="flex items-center gap-1.5">
-                                    <span class="text-[11px] font-bold text-slate-100 truncate">Smooth Jazz</span>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-[10px] font-bold text-slate-100 truncate">Smooth Jazz</span>
                                     <span id="radio-live-badge" class="hidden text-[8px] font-black uppercase tracking-wider bg-red-500/20 text-red-400 px-1 py-0.5 rounded border border-red-500/30 animate-pulse">LIVE</span>
                                 </div>
-                                <p id="radio-status-text" class="text-[9px] text-slate-400 truncate">smoothjazz.com.pl</p>
+                                <p id="radio-status-text" class="text-[8px] text-slate-400 truncate">smoothjazz.com.pl</p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <input type="range" id="radio-volume" min="0" max="1" step="0.05" value="0.7" oninput="cambiaVolumeRadio(this.value)" class="w-12 h-1 accent-amber-400 bg-slate-700 rounded-lg cursor-pointer" title="Volume Radio">
-                            <button type="button" id="btn-toggle-radio" onclick="toggleRadioSmoothJazz()" class="w-7 h-7 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-xs shadow transition-all cursor-pointer" title="Avvia/Ferma Radio Smooth Jazz">
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <input type="range" id="radio-volume" min="0" max="1" step="0.05" value="0.7" oninput="cambiaVolumeRadio(this.value)" class="w-10 h-1 accent-amber-400 bg-slate-700 rounded-lg cursor-pointer" title="Volume Radio">
+                            <button type="button" id="btn-toggle-radio" onclick="toggleRadioSmoothJazz()" class="w-6 h-6 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-[10px] shadow transition-all cursor-pointer" title="Avvia/Ferma Radio Smooth Jazz">
                                 <i class="fa-solid fa-play" id="radio-play-icon"></i>
                             </button>
                         </div>
                     </div>
 
                     <!-- Preset Buttons -->
-                    <div class="grid grid-cols-3 gap-2">
+                    <div class="grid grid-cols-3 gap-1.5">
                         <button id="preset-btn-1" onclick="setPresetTimer(15)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all">15 Min</button>
                         <button id="preset-btn-2" onclick="setPresetTimer(30)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all">30 Min</button>
                         <button onclick="resetTimer()" class="bg-slate-800 hover:bg-red-950 hover:text-red-400 text-slate-400 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all">Reset</button>
                     </div>
 
                     <!-- Toggle Button -->
-                    <button id="btn-toggle-timer" onclick="toggleTimer()" class="v2-primary-button w-full mt-3 text-white py-2.5 rounded-xl font-bold text-sm tracking-wide transition-all cursor-pointer flex items-center justify-center gap-2" style="background-color: #2563eb;">
+                    <button id="btn-toggle-timer" onclick="toggleTimer()" class="v2-primary-button w-full mt-2.5 text-white py-2 rounded-xl font-bold text-xs tracking-wide transition-all cursor-pointer flex items-center justify-center gap-2" style="background-color: #2563eb;">
                         <i id="btn-timer-icon" class="fa-solid fa-play"></i>
                         <span id="btn-timer-text">Avvia Sessione</span>
                     </button>
 
-                    <!-- MP3 Settings -->
+                    <!-- MP3 & Playlist Settings -->
                     <details class="v2-settings">
-                        <summary><i class="fa-solid fa-music"></i> Impostazioni Musica / Allarme MP3</summary>
-                        <div class="flex flex-col gap-2.5 px-2 pb-2 text-slate-300">
+                        <summary><i class="fa-solid fa-music text-blue-400"></i> Musica &amp; Allarme MP3</summary>
+                        <div class="flex flex-col gap-2.5 px-1 pb-1 text-slate-300 text-xs">
                             <label class="font-bold flex items-center gap-2 cursor-pointer text-white">
-                                <input type="checkbox" id="chk-mp3-enable" onchange="salvaImpostazioniMP3()" class="accent-blue-500 rounded"> Suona MP3 alla fine dei fischi
+                                <input type="checkbox" id="chk-mp3-enable" onchange="salvaImpostazioniMP3()" class="accent-blue-500 rounded"> Suona MP3 allarme
                             </label>
-                            <label class="font-bold flex items-center gap-2 cursor-pointer text-amber-300 text-xs">
-                                <input type="checkbox" id="chk-radio-auto" onchange="salvaImpostazioniMP3()" class="accent-amber-500 rounded"> Avvia Smooth Jazz all'avvio del timer
+                            <label class="font-bold flex items-center gap-2 cursor-pointer text-amber-300 text-[11px]">
+                                <input type="checkbox" id="chk-radio-auto" onchange="salvaImpostazioniMP3()" class="accent-amber-500 rounded"> Smooth Jazz in automatico col timer
                             </label>
                             
-                            <!-- File Picker MP3 -->
-                            <div>
+                            <!-- 1. Brano Iniziale Fisso -->
+                            <div class="pt-2 border-t border-slate-800">
+                                <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">1. Primo brano fisso</div>
                                 <input type="file" id="file-mp3-picker" accept="audio/*" class="hidden" onchange="gestisciUploadMP3(event)">
-                                <div class="flex items-center gap-2">
-                                    <button type="button" onclick="document.getElementById('file-mp3-picker').click()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm">
-                                        <i class="fa-solid fa-file-audio"></i> Scegli MP3 dal PC
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <button type="button" onclick="document.getElementById('file-mp3-picker').click()" class="bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm">
+                                        <i class="fa-solid fa-file-audio"></i> Scegli MP3 PC
                                     </button>
-                                    <button type="button" id="btn-test-mp3" onclick="testAudioMP3()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 text-xs font-bold px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer" title="Ascolta anteprima">
+                                    <button type="button" id="btn-test-mp3" onclick="testAudioMP3()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 text-[11px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 transition-colors cursor-pointer" title="Ascolta anteprima">
                                         <i class="fa-solid fa-play" id="icon-test-mp3"></i> <span id="text-test-mp3">Prova</span>
                                     </button>
                                 </div>
-                                <p id="label-mp3-selezionato" class="text-[11px] text-teal-400 mt-1.5 truncate font-medium"></p>
+                                <p id="label-mp3-selezionato" class="text-[10px] text-teal-400 mt-1 truncate font-medium"></p>
+                            </div>
+
+                            <!-- 2. Playlist / Cartella Brani Casuali (Shuffle) -->
+                            <div class="pt-2 border-t border-slate-800">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="text-[10px] uppercase font-bold text-slate-400">2. Brani casuali a seguire</span>
+                                    <button type="button" id="btn-clear-playlist" onclick="svuotaPlaylist()" class="text-[10px] text-red-400 hover:text-red-300 underline cursor-pointer hidden">Azzera</button>
+                                </div>
+                                <input type="file" id="file-mp3-folder" webkitdirectory directory multiple accept="audio/*" class="hidden" onchange="gestisciUploadPlaylist(event)">
+                                <input type="file" id="file-mp3-files" multiple accept="audio/*" class="hidden" onchange="gestisciUploadPlaylist(event)">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <button type="button" onclick="document.getElementById('file-mp3-folder').click()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 transition-colors cursor-pointer shadow-sm" title="Carica un'intera cartella di file MP3">
+                                        <i class="fa-solid fa-folder-open"></i> Cartella MP3
+                                    </button>
+                                    <button type="button" onclick="document.getElementById('file-mp3-files').click()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-[11px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 transition-colors cursor-pointer" title="Seleziona più file MP3">
+                                        <i class="fa-solid fa-list-check"></i> Più file
+                                    </button>
+                                </div>
+                                <div id="label-playlist-info" class="text-[10px] text-indigo-300 mt-1 font-medium flex items-center gap-1">
+                                    <i class="fa-solid fa-shuffle text-[9px]"></i> <span>Nessun brano casuale caricato (ripeterà il fisso)</span>
+                                </div>
                             </div>
 
                             <!-- URL o Nome file alternativo -->
-                            <div class="pt-1.5 border-t border-slate-700/50">
-                                <span class="text-[10px] text-slate-400">Oppure inserisci URL web o nome file locale:</span>
-                                <input type="text" id="txt-mp3-path" oninput="salvaImpostazioniMP3()" placeholder="Es: https://.../audio.mp3 o traccia.mp3"
-                                       class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-blue-500">
+                            <div class="pt-1.5 border-t border-slate-800">
+                                <span class="text-[9px] text-slate-400">Oppure URL web:</span>
+                                <input type="text" id="txt-mp3-path" oninput="salvaImpostazioniMP3()" placeholder="https://.../audio.mp3"
+                                       class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-slate-200 focus:outline-none focus:border-blue-500">
                             </div>
                         </div>
                     </details>
                 </div>
 
                 <!-- Matrice Decisionale 2x2 & Hub Priorità (Direttamente a fianco del Timer) -->
-                <div id="matrice-eisenhower-container" class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
+                <div id="matrice-eisenhower-container" class="bg-white border border-slate-200 rounded-2xl p-4 md:p-5 shadow-xs flex flex-col justify-between">
                     <!-- Top Bar: Titolo + Mini-Badge KPI 4 Pilastri -->
                     <!-- Top Bar: Titolo + Data Oggi + Navigatore Settimana + Azioni + Mini-Badge KPI -->
                     <div class="flex flex-wrap items-center justify-between gap-2.5 pb-3 mb-3 border-b border-slate-100">
@@ -3298,10 +3320,12 @@
         }
 
         // ============================================================
-        // 8c. GESTIONE MP3 & AUDIO PERSISTENTE (IndexedDB)
+        // 8c. GESTIONE MP3, PLAYLIST & AUDIO PERSISTENTE (IndexedDB)
         // ============================================================
 
         let currentAudio = null;
+        let alarmPlaylistCache = [];
+        let lastPlayedTrackIndex = -1;
         const AUDIO_DB_NAME = 'AgenteStudioAudioDB';
         const AUDIO_STORE_NAME = 'tracks';
 
@@ -3345,6 +3369,35 @@
             }
         }
 
+        async function salvaPlaylistIndexedDB(playlistData) {
+            try {
+                const db = await getAudioDB();
+                const tx = db.transaction(AUDIO_STORE_NAME, 'readwrite');
+                tx.objectStore(AUDIO_STORE_NAME).put(playlistData, 'custom_alarm_playlist');
+                return new Promise((resolve, reject) => {
+                    tx.oncomplete = () => resolve(true);
+                    tx.onerror = () => reject(tx.error);
+                });
+            } catch (e) {
+                console.error("Errore salvataggio playlist IndexedDB:", e);
+                return false;
+            }
+        }
+
+        async function caricaPlaylistIndexedDB() {
+            try {
+                const db = await getAudioDB();
+                const tx = db.transaction(AUDIO_STORE_NAME, 'readonly');
+                const req = tx.objectStore(AUDIO_STORE_NAME).get('custom_alarm_playlist');
+                return new Promise((resolve) => {
+                    req.onsuccess = () => resolve(req.result || []);
+                    req.onerror = () => resolve([]);
+                });
+            } catch (e) {
+                return [];
+            }
+        }
+
         async function gestisciUploadMP3(event) {
             const file = event.target.files && event.target.files[0];
             if (!file) return;
@@ -3357,9 +3410,55 @@
             salvaImpostazioniMP3();
 
             const lbl = document.getElementById('label-mp3-selezionato');
-            if (lbl) lbl.textContent = `🎵 Brano attivo: ${file.name}`;
+            if (lbl) lbl.textContent = `🎵 Fisso: ${file.name}`;
 
-            showToast(`Brano MP3 salvato: ${file.name}`, 'success');
+            showToast(`Primo brano MP3 impostato: ${file.name}`, 'success');
+        }
+
+        async function gestisciUploadPlaylist(event) {
+            const rawFiles = Array.from(event.target.files || []);
+            const audioFiles = rawFiles.filter(f => f.type.startsWith('audio/') || f.name.match(/\.(mp3|wav|ogg|m4a|aac|flac)$/i));
+            
+            if (audioFiles.length === 0) {
+                showToast("Nessun file audio compatibile trovato nella selezione.", "warning");
+                return;
+            }
+
+            const playlistData = audioFiles.map(f => ({
+                name: f.name,
+                blob: f
+            }));
+
+            await salvaPlaylistIndexedDB(playlistData);
+            alarmPlaylistCache = playlistData;
+            aggiornaUIPlaylist();
+
+            const chk = document.getElementById('chk-mp3-enable');
+            if (chk) chk.checked = true;
+            salvaImpostazioniMP3();
+
+            showToast(`Caricati ${playlistData.length} brani per la rotazione casuale!`, 'success');
+        }
+
+        async function svuotaPlaylist() {
+            await salvaPlaylistIndexedDB([]);
+            alarmPlaylistCache = [];
+            aggiornaUIPlaylist();
+            showToast("Playlist casuale azzerata.", "info");
+        }
+
+        function aggiornaUIPlaylist() {
+            const lbl = document.getElementById('label-playlist-info');
+            const btnClear = document.getElementById('btn-clear-playlist');
+            if (!lbl) return;
+
+            if (alarmPlaylistCache && alarmPlaylistCache.length > 0) {
+                lbl.innerHTML = `<i class="fa-solid fa-shuffle text-emerald-400 text-[9px]"></i> <span class="text-emerald-300 font-bold">${alarmPlaylistCache.length} brani</span> in rotazione casuale`;
+                if (btnClear) btnClear.classList.remove('hidden');
+            } else {
+                lbl.innerHTML = `<i class="fa-solid fa-shuffle text-[9px]"></i> <span>Nessun brano casuale (ripete il fisso)</span>`;
+                if (btnClear) btnClear.classList.add('hidden');
+            }
         }
 
         async function testAudioMP3() {
@@ -3378,13 +3477,15 @@
             let src = null;
             if (storedBlob) {
                 src = URL.createObjectURL(storedBlob);
+            } else if (alarmPlaylistCache && alarmPlaylistCache.length > 0 && alarmPlaylistCache[0].blob) {
+                src = URL.createObjectURL(alarmPlaylistCache[0].blob);
             } else {
                 const path = document.getElementById('txt-mp3-path')?.value.trim();
                 if (path) src = path;
             }
 
             if (!src) {
-                showToast("Nessun MP3 selezionato. Clicca 'Scegli MP3 dal PC' o inserisci un URL.", "warning");
+                showToast("Nessun MP3 selezionato. Clicca 'Scegli MP3 PC' o 'Cartella MP3'.", "warning");
                 return;
             }
 
@@ -3427,15 +3528,23 @@
             if (txt) txt.value = settings.path || '';
 
             if (filename && lbl) {
-                lbl.textContent = `🎵 Brano attivo: ${filename}`;
+                lbl.textContent = `🎵 Fisso: ${filename}`;
             } else if (settings.path && lbl) {
                 lbl.textContent = `🔗 Percorso: ${settings.path}`;
             }
+
+            // Carica la cache della playlist
+            alarmPlaylistCache = await caricaPlaylistIndexedDB();
+            aggiornaUIPlaylist();
+
             initRadioPlayer();
         }
 
         function stopAlarm() {
             document.getElementById('alarm-overlay').classList.add('hidden');
+            const txtOverlay = document.getElementById('alarm-overlay-track-name');
+            if (txtOverlay) txtOverlay.textContent = '';
+
             stopTitleFlash();
             if (currentAudio) {
                 currentAudio.pause();
@@ -3488,6 +3597,113 @@
             } catch(e) { console.log("Audio non supportato."); }
         }
 
+        async function avviaRiproduzioneAllarme() {
+            const mp3Enabled = document.getElementById('chk-mp3-enable')?.checked;
+            if (!mp3Enabled) return;
+
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+
+            if (!alarmPlaylistCache || alarmPlaylistCache.length === 0) {
+                alarmPlaylistCache = await caricaPlaylistIndexedDB();
+            }
+
+            const storedMainBlob = await caricaAudioFileIndexedDB();
+            const mp3Path = document.getElementById('txt-mp3-path')?.value.trim();
+            const txtOverlay = document.getElementById('alarm-overlay-track-name');
+
+            // 1. Prova prima il brano fisso registrato in IndexedDB
+            if (storedMainBlob) {
+                try {
+                    const filename = localStorage.getItem('timer_mp3_filename') || 'Brano principale';
+                    if (txtOverlay) txtOverlay.textContent = `🎵 In riproduzione: ${filename}`;
+                    
+                    const url = URL.createObjectURL(storedMainBlob);
+                    currentAudio = new Audio(url);
+                    currentAudio.loop = false;
+                    currentAudio.onended = () => {
+                        suonaProssimoBranoCasuale();
+                    };
+                    await currentAudio.play();
+                    return;
+                } catch(e) {
+                    console.log("Errore riproduzione IndexedDB MP3:", e);
+                }
+            } else if (mp3Path) {
+                try {
+                    if (txtOverlay) txtOverlay.textContent = `🎵 In riproduzione: ${mp3Path}`;
+                    currentAudio = new Audio(mp3Path);
+                    currentAudio.loop = false;
+                    currentAudio.onended = () => {
+                        suonaProssimoBranoCasuale();
+                    };
+                    await currentAudio.play();
+                    return;
+                } catch(e) {
+                    console.log("Errore riproduzione MP3 da path:", e);
+                }
+            }
+
+            // Se non c'era brano fisso ma ci sono brani in playlist, pesca subito un brano casuale
+            if (alarmPlaylistCache && alarmPlaylistCache.length > 0) {
+                suonaProssimoBranoCasuale();
+            }
+        }
+
+        function suonaProssimoBranoCasuale() {
+            const overlay = document.getElementById('alarm-overlay');
+            if (overlay && overlay.classList.contains('hidden')) {
+                return;
+            }
+
+            const txtOverlay = document.getElementById('alarm-overlay-track-name');
+
+            if (!alarmPlaylistCache || alarmPlaylistCache.length === 0) {
+                // Se non c'è playlist, ripete il brano principale
+                caricaAudioFileIndexedDB().then(storedBlob => {
+                    if (storedBlob) {
+                        try {
+                            const url = URL.createObjectURL(storedBlob);
+                            currentAudio = new Audio(url);
+                            currentAudio.loop = false;
+                            currentAudio.onended = () => suonaProssimoBranoCasuale();
+                            currentAudio.play().catch(e => console.log(e));
+                        } catch(e) {}
+                    }
+                });
+                return;
+            }
+
+            // Selezione casuale con rotazione senza ripetizione immediata
+            let nextIndex = 0;
+            if (alarmPlaylistCache.length === 1) {
+                nextIndex = 0;
+            } else {
+                do {
+                    nextIndex = Math.floor(Math.random() * alarmPlaylistCache.length);
+                } while (nextIndex === lastPlayedTrackIndex && alarmPlaylistCache.length > 1);
+            }
+            lastPlayedTrackIndex = nextIndex;
+
+            const traccia = alarmPlaylistCache[nextIndex];
+            if (traccia && traccia.blob) {
+                try {
+                    if (txtOverlay) txtOverlay.textContent = `🎲 Casuale: ${traccia.name}`;
+                    const url = URL.createObjectURL(traccia.blob);
+                    currentAudio = new Audio(url);
+                    currentAudio.loop = false;
+                    currentAudio.onended = () => {
+                        suonaProssimoBranoCasuale();
+                    };
+                    currentAudio.play().catch(e => console.log("Errore riproduzione brano casuale:", e));
+                } catch(e) {
+                    console.log("Errore audio random blob:", e);
+                }
+            }
+        }
+
         function timerComplete() {
             isTimerRunning = false;
             document.getElementById('btn-timer-icon').className = "fa-solid fa-play";
@@ -3502,41 +3718,8 @@
             startTitleFlash();
 
             // Avvio MP3 musicale dopo la fine dei 3 fischi (circa 1.5s)
-            setTimeout(async () => {
-                const mp3Enabled = document.getElementById('chk-mp3-enable')?.checked;
-                if (!mp3Enabled) return;
-
-                if (currentAudio) {
-                    currentAudio.pause();
-                    currentAudio = null;
-                }
-
-                // 1. Prova prima il file caricato in IndexedDB
-                const storedBlob = await caricaAudioFileIndexedDB();
-                if (storedBlob) {
-                    try {
-                        const url = URL.createObjectURL(storedBlob);
-                        currentAudio = new Audio(url);
-                        currentAudio.loop = true;
-                        await currentAudio.play();
-                        return;
-                    } catch(e) {
-                        console.log("Errore riproduzione IndexedDB MP3:", e);
-                    }
-                }
-
-                // 2. Fallback a URL o percorso testuale
-                const mp3Path = document.getElementById('txt-mp3-path')?.value.trim();
-                if (mp3Path) {
-                    try {
-                        currentAudio = new Audio(mp3Path);
-                        currentAudio.loop = true;
-                        await currentAudio.play();
-                    } catch(e) {
-                        console.log("Errore riproduzione MP3 da path:", e);
-                        showToast("Impossibile caricare l'MP3. Usa il tasto 'Scegli MP3 dal PC'.", "warning");
-                    }
-                }
+            setTimeout(() => {
+                avviaRiproduzioneAllarme();
             }, 1500);
 
             // Invia notifica desktop (se abilitata) per portare all'attenzione in background
@@ -5798,7 +5981,8 @@
     <div id="alarm-overlay" class="hidden fixed inset-0 z-[9999] flex flex-col items-center justify-center alarm-flashing text-center p-5 select-none">
         <div class="mb-6"><i class="fa-solid fa-bell text-8xl text-white animate-bounce"></i></div>
         <h1 class="text-6xl uppercase tracking-wider mb-2 font-black">TIMER COMPLETATO!</h1>
-        <p class="text-xl text-red-100 mb-8 font-semibold">La tua sessione di lavoro/allenamento è completata.</p>
+        <p class="text-xl text-red-100 mb-4 font-semibold">La tua sessione di lavoro/allenamento è completata.</p>
+        <p id="alarm-overlay-track-name" class="text-sm text-red-100 bg-red-950/60 px-4 py-1.5 rounded-full border border-red-400/30 mb-8 font-mono"></p>
         <button onclick="stopAlarm()" class="px-10 py-5 bg-white text-red-600 font-extrabold rounded-2xl shadow-2xl hover:scale-105 active:scale-95 transition-all text-2xl cursor-pointer">OK, DISATTIVA ALLARME</button>
     </div>
     <input id="studio-transfer-file" type="file" accept="application/json,.json" class="hidden">
