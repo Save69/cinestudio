@@ -284,12 +284,12 @@
             padding: .5rem .625rem !important;
         }
 
-        #tab-agenda > .grid {
+        .agenda-bottom-grid {
             gap: .75rem !important;
             grid-template-columns: minmax(25rem, 44fr) minmax(34rem, 56fr);
         }
 
-        #tab-agenda > .grid > section {
+        .agenda-bottom-grid section {
             padding: .75rem !important;
             border-radius: .75rem !important;
         }
@@ -363,8 +363,8 @@
         }
 
         @media (max-width: 1279px) {
-            #tab-agenda > .grid {
-                grid-template-columns: 1fr;
+            .agenda-bottom-grid {
+                grid-template-columns: 1fr !important;
             }
         }
     </style>
@@ -419,12 +419,12 @@
 
             <!-- Navigation -->
             <nav class="space-y-1.5">
-                <p class="text-[9px] uppercase tracking-wider text-slate-500 font-bold px-2 mb-2">Monitoraggio</p>
+                <p class="text-[9px] uppercase tracking-wider text-slate-500 font-bold px-2 mb-2">Navigazione</p>
                 <button onclick="switchTab('agenda')" id="btn-tab-agenda" class="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all cursor-pointer text-left shadow-lg bg-[#1e293b] text-white border border-slate-700/50">
-                    <i class="fa-solid fa-calendar-check text-blue-400"></i> Agenda &amp; Note
+                    <i class="fa-solid fa-bolt text-blue-400"></i> Operatività &amp; Agenda
                 </button>
                 <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all cursor-pointer text-left text-slate-400 hover:bg-slate-800 hover:text-white">
-                    <i class="fa-solid fa-chart-pie"></i> Dashboard Attività
+                    <i class="fa-solid fa-trophy text-amber-400"></i> Pilastri &amp; Costanza
                 </button>
             </nav>
 
@@ -475,309 +475,33 @@
     <main class="flex-1 flex flex-col overflow-y-auto p-4 md:p-8">
 
         <nav class="md:hidden flex gap-2 mb-4 bg-slate-900 p-2 rounded-xl" aria-label="Navigazione mobile">
-            <button onclick="switchTab('dashboard')" class="flex-1 text-xs font-bold text-white rounded-lg px-3 py-2 hover:bg-slate-700"><i class="fa-solid fa-chart-pie text-teal-400"></i> Dashboard</button>
-            <button onclick="switchTab('agenda')" class="flex-1 text-xs font-bold text-white rounded-lg px-3 py-2 hover:bg-slate-700"><i class="fa-solid fa-calendar-check text-blue-400"></i> Agenda</button>
+            <button onclick="switchTab('agenda')" class="flex-1 text-xs font-bold text-white rounded-lg px-3 py-2 hover:bg-slate-700"><i class="fa-solid fa-bolt text-blue-400"></i> Operatività</button>
+            <button onclick="switchTab('dashboard')" class="flex-1 text-xs font-bold text-white rounded-lg px-3 py-2 hover:bg-slate-700"><i class="fa-solid fa-trophy text-amber-400"></i> Pilastri</button>
         </nav>
 
-        <!-- ========== TAB: DASHBOARD ========== -->
-        <div id="tab-dashboard" class="tab-content active">
+        <!-- ========== TAB: PILASTRI & COSTANZA ========== -->
+        <div id="tab-dashboard" class="tab-content">
 
             <header class="flex justify-between items-center mb-6">
                 <div>
-                    <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Agente Studio</h1>
-                    <p class="text-sm text-slate-500 mt-1">Gestisci i 4 Pilastri della disciplina quotidiana — Q3 2026.</p>
+                    <div class="flex items-center gap-3">
+                        <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Pilastri della Disciplina &amp; Costanza</h1>
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold shadow-2xs">
+                            <i class="fa-solid fa-trophy text-amber-500"></i> Review &amp; Continuità
+                        </span>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-1">Monitoraggio della costanza, serie attive, heatmap delle abitudini, stanze ISO 5S e tracker allenamenti.</p>
                 </div>
+                <button onclick="switchTab('agenda')" class="bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-1.5">
+                    <i class="fa-solid fa-bolt text-blue-600"></i> <span>Torna all'Operatività &amp; Agenda</span>
+                </button>
             </header>
 
             <!-- Info Banner -->
             <div class="bg-teal-50 border border-teal-200 p-4 rounded-xl mb-6 flex gap-3 items-start text-sm text-teal-900">
                 <i class="fa-solid fa-circle-info text-teal-600 mt-0.5 text-base"></i>
                 <div>
-                    <strong>Come usare:</strong> Seleziona il <strong>Pilastro Attivo</strong> nel timer (Lavoro / Divisione / Fisico / Riordino), imposta la durata e avvia. Il sistema traccia sessioni separate per ciascun pilastro con griglie di costanza dedicate.
-                </div>
-            </div>
-
-            <!-- Timer Card + Matrice Decisionale & Hub Priorità -->
-            <div class="grid grid-cols-1 xl:grid-cols-[285px_1fr] lg:grid-cols-[300px_1fr] gap-4 mb-6 items-stretch">
-
-                <!-- Timer Card (Compatta & Ottimizzata) -->
-                <div id="timer-card" class="bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 shadow-xl flex flex-col justify-between transition-all duration-500">
-                    <div>
-                        <!-- Status Row -->
-                        <div class="flex justify-between items-center mb-2.5">
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-teal-400 font-mono" id="timer-status-label">FASE 1: FOCUS ATTIVO — RIORDINO</span>
-                            <i class="fa-solid fa-circle-dot text-teal-500 animate-pulse" id="timer-status-dot"></i>
-                        </div>
-
-                        <!-- Pillar Selector Pills -->
-                        <div class="flex gap-1 mb-3 bg-slate-800/70 p-1 rounded-xl">
-                            <button onclick="setPilastroAttivo('lavoro')" id="pill-lavoro" class="flex-1 flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all pill-lavoro-active">
-                                <i class="fa-solid fa-briefcase"></i> Lavoro
-                            </button>
-                            <button onclick="setPilastroAttivo('divisione')" id="pill-divisione" class="flex-1 flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all text-slate-400 hover:text-slate-200">
-                                <i class="fa-solid fa-scale-balanced"></i> Div.
-                            </button>
-                            <button onclick="setPilastroAttivo('fisico')" id="pill-fisico" class="flex-1 flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all text-slate-400 hover:text-slate-200">
-                                <i class="fa-solid fa-person-running"></i> Fisico
-                            </button>
-                            <button onclick="setPilastroAttivo('riordino')" id="pill-riordino" class="flex-1 flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all text-slate-400 hover:text-slate-200">
-                                <i class="fa-solid fa-broom"></i> Riord.
-                            </button>
-                        </div>
-
-                        <!-- Pomodori completati oggi, separati per pilastro -->
-                        <div id="pomodori-oggi" class="grid grid-cols-2 gap-1 mb-2.5" aria-label="Pomodori completati oggi"></div>
-
-                        <!-- Timer Display -->
-                        <div class="text-center my-2">
-                            <span class="text-4xl font-black font-mono tracking-widest" id="timer-display">30:00</span>
-                        </div>
-                    </div>
-
-                    <!-- Progress Bar -->
-                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden my-2">
-                        <div id="timer-progress-bar" class="h-full w-full transition-all duration-1000" style="background-color: #0d9488;"></div>
-                    </div>
-
-                    <!-- Instruction Text -->
-                    <p id="timer-instruction" class="text-center text-[11px] text-slate-400 mb-2.5 h-7 flex items-center justify-center font-medium">
-                        Seleziona la stanza in basso, avvia il timer e applica il Seiri (Scarto).
-                    </p>
-
-                    <!-- Smooth Jazz Radio Mini-Player -->
-                    <div class="my-2 bg-slate-800/90 border border-amber-500/30 rounded-xl p-2 flex items-center justify-between gap-2 shadow-md">
-                        <div class="flex items-center gap-2 min-w-0">
-                            <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/40">
-                                <i class="fa-solid fa-radio text-[10px]" id="radio-indicator-icon"></i>
-                            </div>
-                            <div class="min-w-0">
-                                <div class="flex items-center gap-1">
-                                    <span class="text-[10px] font-bold text-slate-100 truncate">Smooth Jazz</span>
-                                    <span id="radio-live-badge" class="hidden text-[8px] font-black uppercase tracking-wider bg-red-500/20 text-red-400 px-1 py-0.5 rounded border border-red-500/30 animate-pulse">LIVE</span>
-                                </div>
-                                <p id="radio-status-text" class="text-[8px] text-slate-400 truncate">smoothjazz.com.pl</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-1.5 shrink-0">
-                            <input type="range" id="radio-volume" min="0" max="1" step="0.05" value="0.7" oninput="cambiaVolumeRadio(this.value)" class="w-10 h-1 accent-amber-400 bg-slate-700 rounded-lg cursor-pointer" title="Volume Radio">
-                            <button type="button" id="btn-toggle-radio" onclick="toggleRadioSmoothJazz()" class="w-6 h-6 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-[10px] shadow transition-all cursor-pointer" title="Avvia/Ferma Radio Smooth Jazz">
-                                <i class="fa-solid fa-play" id="radio-play-icon"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Preset Buttons -->
-                    <div class="grid grid-cols-3 gap-1.5">
-                        <button id="preset-btn-1" onclick="setPresetTimer(15)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all">15 Min</button>
-                        <button id="preset-btn-2" onclick="setPresetTimer(30)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all">30 Min</button>
-                        <button onclick="resetTimer()" class="bg-slate-800 hover:bg-red-950 hover:text-red-400 text-slate-400 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all">Reset</button>
-                    </div>
-
-                    <!-- Toggle Button -->
-                    <button id="btn-toggle-timer" onclick="toggleTimer()" class="v2-primary-button w-full mt-2.5 text-white py-2 rounded-xl font-bold text-xs tracking-wide transition-all cursor-pointer flex items-center justify-center gap-2" style="background-color: #2563eb;">
-                        <i id="btn-timer-icon" class="fa-solid fa-play"></i>
-                        <span id="btn-timer-text">Avvia Sessione</span>
-                    </button>
-
-                    <!-- MP3 & Playlist Settings -->
-                    <details class="v2-settings">
-                        <summary><i class="fa-solid fa-music text-blue-400"></i> Musica &amp; Allarme MP3</summary>
-                        <div class="flex flex-col gap-2.5 px-1 pb-1 text-slate-300 text-xs">
-                            <label class="font-bold flex items-center gap-2 cursor-pointer text-white">
-                                <input type="checkbox" id="chk-mp3-enable" onchange="salvaImpostazioniMP3()" class="accent-blue-500 rounded"> Suona MP3 allarme
-                            </label>
-                            <label class="font-bold flex items-center gap-2 cursor-pointer text-amber-300 text-[11px]">
-                                <input type="checkbox" id="chk-radio-auto" onchange="salvaImpostazioniMP3()" class="accent-amber-500 rounded"> Smooth Jazz in automatico col timer
-                            </label>
-                            
-                            <!-- 1. Brano Iniziale Fisso -->
-                            <div class="pt-2 border-t border-slate-800">
-                                <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">1. Primo brano fisso</div>
-                                <input type="file" id="file-mp3-picker" accept="audio/*" class="hidden" onchange="gestisciUploadMP3(event)">
-                                <div class="flex items-center gap-1.5 flex-wrap">
-                                    <button type="button" onclick="document.getElementById('file-mp3-picker').click()" class="bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm">
-                                        <i class="fa-solid fa-file-audio"></i> Scegli MP3 PC
-                                    </button>
-                                    <button type="button" id="btn-test-mp3" onclick="testAudioMP3()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 text-[11px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 transition-colors cursor-pointer" title="Ascolta anteprima">
-                                        <i class="fa-solid fa-play" id="icon-test-mp3"></i> <span id="text-test-mp3">Prova</span>
-                                    </button>
-                                </div>
-                                <p id="label-mp3-selezionato" class="text-[10px] text-teal-400 mt-1 truncate font-medium"></p>
-                            </div>
-
-                            <!-- 2. Playlist / Cartella Brani Casuali (Shuffle) -->
-                            <div class="pt-2 border-t border-slate-800">
-                                <div class="flex items-center justify-between gap-1 mb-1">
-                                    <span class="text-[10px] uppercase font-bold text-slate-400">2. Brani casuali a seguire</span>
-                                    <button type="button" id="btn-clear-playlist" onclick="svuotaPlaylist()" class="text-[10px] text-red-400 hover:text-red-300 underline cursor-pointer hidden">Azzera</button>
-                                </div>
-                                <input type="file" id="file-mp3-folder" webkitdirectory directory multiple accept="audio/*" class="hidden" onchange="gestisciUploadPlaylist(event)">
-                                <input type="file" id="file-mp3-files" multiple accept="audio/*" class="hidden" onchange="gestisciUploadPlaylist(event)">
-                                <div class="flex items-center gap-1.5 flex-wrap">
-                                    <button type="button" onclick="document.getElementById('file-mp3-folder').click()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 transition-colors cursor-pointer shadow-sm" title="Carica un'intera cartella di file MP3">
-                                        <i class="fa-solid fa-folder-open"></i> Cartella MP3
-                                    </button>
-                                    <button type="button" onclick="document.getElementById('file-mp3-files').click()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-[11px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 transition-colors cursor-pointer" title="Seleziona più file MP3">
-                                        <i class="fa-solid fa-list-check"></i> Più file
-                                    </button>
-                                </div>
-                                <div id="label-playlist-info" class="text-[10px] text-indigo-300 mt-1 font-medium flex items-center gap-1">
-                                    <i class="fa-solid fa-shuffle text-[9px]"></i> <span>Nessun brano casuale caricato (ripeterà il fisso)</span>
-                                </div>
-                            </div>
-
-                            <!-- URL o Nome file alternativo -->
-                            <div class="pt-1.5 border-t border-slate-800">
-                                <span class="text-[9px] text-slate-400">Oppure URL web:</span>
-                                <input type="text" id="txt-mp3-path" oninput="salvaImpostazioniMP3()" placeholder="https://.../audio.mp3"
-                                       class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-slate-200 focus:outline-none focus:border-blue-500">
-                            </div>
-                        </div>
-                    </details>
-                </div>
-
-                <!-- Matrice Decisionale 2x2 & Hub Priorità (Direttamente a fianco del Timer) -->
-                <div id="matrice-eisenhower-container" class="bg-white border border-slate-200 rounded-2xl p-4 md:p-5 shadow-xs flex flex-col justify-between">
-                    <!-- Top Bar: Titolo + Mini-Badge KPI 4 Pilastri -->
-                    <!-- Top Bar: Titolo + Data Oggi + Navigatore Settimana + Azioni + Mini-Badge KPI -->
-                    <div class="flex flex-wrap items-center justify-between gap-2.5 pb-3 mb-3 border-b border-slate-100">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm border border-blue-100 shadow-2xs">
-                                <i class="fa-solid fa-shapes"></i>
-                            </div>
-                            <div>
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <h3 class="font-bold text-slate-800 text-sm tracking-wide">
-                                        Matrice Decisionale &amp; Focus Operativo
-                                    </h3>
-                                    <!-- Badge dinamico Data Odierna -->
-                                    <span id="matrice-badge-data-oggi" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-bold shadow-2xs">
-                                        <i class="fa-regular fa-calendar-check text-blue-600"></i> <span id="txt-matrice-data-oggi">Oggi</span>
-                                    </span>
-                                </div>
-                                <p class="text-[10px] text-slate-400">Clicca <strong class="text-blue-600">🎯</strong> per il timer, cambia il giorno (<strong class="text-slate-600">Lun, Mar...</strong>) o usa <strong class="text-blue-600">📅</strong> per pianificare con controllo carico</p>
-                            </div>
-                        </div>
-                        <!-- Azioni Matrice & Mini-Badge KPI -->
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <!-- Navigatore Settimana Rapido -->
-                            <div class="inline-flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-bold shadow-2xs">
-                                <button onclick="cambiaSettimanaMatrice(-1)" class="w-5 h-5 rounded bg-white hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors cursor-pointer" title="Settimana precedente"><i class="fa-solid fa-chevron-left text-[9px]"></i></button>
-                                <span id="txt-matrice-settimana" class="px-1.5 text-slate-700 text-[10px] font-bold">Settimana Corrente</span>
-                                <button onclick="cambiaSettimanaMatrice(1)" class="w-5 h-5 rounded bg-white hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors cursor-pointer" title="Settimana successiva"><i class="fa-solid fa-chevron-right text-[9px]"></i></button>
-                            </div>
-                            <button onclick="apriModalOrganizzaMatrice()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-[11px] font-bold px-2 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1 shadow-2xs" title="Incolla note multiple da classificare e distribuire automaticamente">
-                                <i class="fa-solid fa-wand-magic-sparkles text-blue-600"></i> Organizza Note
-                            </button>
-                            <!-- Mini-Badge KPI compatti per i 4 Pilastri -->
-                            <div class="flex items-center gap-1.5 flex-wrap text-[11px] font-bold">
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-sky-50 text-sky-700 border border-sky-200" title="Lavoro: Giorni con obiettivi">
-                                    <i class="fa-solid fa-briefcase text-[10px]"></i> Lavoro: <span id="txt-kpi-lavoro" class="font-black">0 / 30</span>
-                                </span>
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-red-50 text-red-700 border border-red-200" title="Divisione: Giorni completati">
-                                    <i class="fa-solid fa-scale-balanced text-[10px]"></i> Divisione: <span id="txt-kpi-divisione" class="font-black">0 / 30</span>
-                                </span>
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-violet-50 text-violet-700 border border-violet-200" title="Fisico: Allenamento">
-                                    <i class="fa-solid fa-person-running text-[10px]"></i> Fisico: <span id="txt-kpi-fisico" class="font-black">0 / 30</span>
-                                </span>
-                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200" title="Riordino: Stanze conformi">
-                                    <i class="fa-solid fa-broom text-[10px]"></i> Riordino: <span id="txt-kpi-riordino" class="font-black">0 / 7</span>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Pannello Organizza Note Rapido (nascosto di default) -->
-                    <div id="pannello-organizza-matrice" class="hidden mb-3 bg-blue-50/80 border border-blue-200 rounded-xl p-3 flex flex-col gap-2 transition-all">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <i class="fa-solid fa-wand-magic-sparkles text-blue-600 text-sm"></i>
-                                <span class="text-xs font-bold text-slate-800">Organizza Note &amp; Distribuisci nei Quadranti / Giorni</span>
-                            </div>
-                            <button onclick="chiudiOrganizzaMatrice()" class="text-slate-400 hover:text-slate-600 text-xs p-1 cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
-                        </div>
-                        <p class="text-[10px] text-slate-500">Incolla una o più note (una per riga). Verranno classificate ed inserite nei quadranti e nella scaletta settimanale.</p>
-                        <textarea id="textarea-organizza-matrice" placeholder="Es:&#10;Inviare bilancio a commercialista lunedì&#10;Chiamare fornitore urgente&#10;Comprare lampadina" class="w-full text-xs text-slate-700 bg-white border border-blue-200 rounded-lg p-2 min-h-[70px] focus:outline-none focus:border-blue-400 resize-none"></textarea>
-                        <div class="flex justify-end gap-2">
-                            <button onclick="chiudiOrganizzaMatrice()" class="px-2.5 py-1 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-200/50 cursor-pointer">Annulla</button>
-                            <button onclick="elaboraNoteMatrice()" class="px-3 py-1 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white cursor-pointer shadow-sm flex items-center gap-1"><i class="fa-solid fa-check"></i> Distribuisci Subito</button>
-                        </div>
-                    </div>
-
-                    <!-- Griglia 2x2 dei Quadranti Decisionale -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
-                        <!-- Q1: Urgente & Importante -->
-                        <div ondragover="allowDrop(event)" ondrop="dropElementOnMatrix(event, 'q1')" class="border border-red-200 bg-red-50/20 rounded-xl p-2.5 flex flex-col justify-between min-h-[175px] transition-all hover:border-red-300">
-                            <div>
-                                <div class="flex items-center justify-between pb-1 mb-1 border-b border-red-100/60">
-                                    <h4 class="text-xs font-bold text-red-600 flex items-center gap-1 uppercase tracking-wide">
-                                        <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Q1: Fai Subito
-                                    </h4>
-                                    <span class="text-[9px] font-bold text-red-500 bg-red-100/70 px-1.5 py-0.5 rounded">Urgente &amp; Importante</span>
-                                </div>
-                                <div id="matrice-q1-list" class="space-y-0.5 text-xs text-slate-600 max-h-60 overflow-y-auto pr-0.5"></div>
-                            </div>
-                            <!-- Input rapido Q1 -->
-                            <div class="mt-1.5 pt-1.5 border-t border-red-100/60 flex gap-1">
-                                <input type="text" id="input-rapido-q1" placeholder="+ Nuovo compito urgente..." class="flex-1 text-[11px] bg-white border border-red-200 rounded-lg px-2 py-0.5 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-red-400" onkeydown="if(event.key==='Enter') aggiungiAttivitaRapidaMatrice('q1')">
-                                <button onclick="aggiungiAttivitaRapidaMatrice('q1')" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-lg transition-colors cursor-pointer" title="Aggiungi a Q1">+</button>
-                            </div>
-                        </div>
-
-                        <!-- Q2: Non Urgente & Importante -->
-                        <div ondragover="allowDrop(event)" ondrop="dropElementOnMatrix(event, 'q2')" class="border border-blue-200 bg-blue-50/20 rounded-xl p-2.5 flex flex-col justify-between min-h-[175px] transition-all hover:border-blue-300">
-                            <div>
-                                <div class="flex items-center justify-between pb-1 mb-1 border-b border-blue-100/60">
-                                    <h4 class="text-xs font-bold text-blue-600 flex items-center gap-1 uppercase tracking-wide">
-                                        <span class="w-2 h-2 rounded-full bg-blue-500"></span> Q2: Pianifica
-                                    </h4>
-                                    <span class="text-[9px] font-bold text-blue-500 bg-blue-100/70 px-1.5 py-0.5 rounded">Strategico &amp; Valore</span>
-                                </div>
-                                <div id="matrice-q2-list" class="space-y-0.5 text-xs text-slate-600 max-h-60 overflow-y-auto pr-0.5"></div>
-                            </div>
-                            <!-- Input rapido Q2 -->
-                            <div class="mt-1.5 pt-1.5 border-t border-blue-100/60 flex gap-1">
-                                <input type="text" id="input-rapido-q2" placeholder="+ Nuovo compito strategico..." class="flex-1 text-[11px] bg-white border border-blue-200 rounded-lg px-2 py-0.5 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-blue-400" onkeydown="if(event.key==='Enter') aggiungiAttivitaRapidaMatrice('q2')">
-                                <button onclick="aggiungiAttivitaRapidaMatrice('q2')" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-lg transition-colors cursor-pointer" title="Aggiungi a Q2">+</button>
-                            </div>
-                        </div>
-
-                        <!-- Q3: Urgente & Non Importante -->
-                        <div ondragover="allowDrop(event)" ondrop="dropElementOnMatrix(event, 'q3')" class="border border-emerald-200 bg-emerald-50/20 rounded-xl p-2.5 flex flex-col justify-between min-h-[175px] transition-all hover:border-emerald-300">
-                            <div>
-                                <div class="flex items-center justify-between pb-1 mb-1 border-b border-emerald-100/60">
-                                    <h4 class="text-xs font-bold text-emerald-600 flex items-center gap-1 uppercase tracking-wide">
-                                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Q3: Delega / Rapidi
-                                    </h4>
-                                    <span class="text-[9px] font-bold text-emerald-600 bg-emerald-100/70 px-1.5 py-0.5 rounded">Operativo &amp; Veloce</span>
-                                </div>
-                                <div id="matrice-q3-list" class="space-y-0.5 text-xs text-slate-600 max-h-60 overflow-y-auto pr-0.5"></div>
-                            </div>
-                            <!-- Input rapido Q3 -->
-                            <div class="mt-1.5 pt-1.5 border-t border-emerald-100/60 flex gap-1">
-                                <input type="text" id="input-rapido-q3" placeholder="+ Nuovo compito rapido..." class="flex-1 text-[11px] bg-white border border-emerald-200 rounded-lg px-2 py-0.5 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-emerald-400" onkeydown="if(event.key==='Enter') aggiungiAttivitaRapidaMatrice('q3')">
-                                <button onclick="aggiungiAttivitaRapidaMatrice('q3')" class="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-2 py-0.5 rounded-lg transition-colors cursor-pointer" title="Aggiungi a Q3">+</button>
-                            </div>
-                        </div>
-
-                        <!-- Q4: Non Urgente & Non Importante -->
-                        <div ondragover="allowDrop(event)" ondrop="dropElementOnMatrix(event, 'q4')" class="border border-slate-200 bg-slate-50/40 rounded-xl p-2.5 flex flex-col justify-between min-h-[175px] transition-all hover:border-slate-300">
-                            <div>
-                                <div class="flex items-center justify-between pb-1 mb-1 border-b border-slate-200">
-                                    <h4 class="text-xs font-bold text-slate-500 flex items-center gap-1 uppercase tracking-wide">
-                                        <span class="w-2 h-2 rounded-full bg-slate-400"></span> Q4: Parcheggia
-                                    </h4>
-                                    <span class="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">Bassa priorità</span>
-                                </div>
-                                <div id="matrice-q4-list" class="space-y-0.5 text-xs text-slate-600 max-h-60 overflow-y-auto pr-0.5"></div>
-                            </div>
-                            <!-- Input rapido Q4 -->
-                            <div class="mt-1.5 pt-1.5 border-t border-slate-200 flex gap-1">
-                                <input type="text" id="input-rapido-q4" placeholder="+ Nuovo appunto parcheggiato..." class="flex-1 text-[11px] bg-white border border-slate-200 rounded-lg px-2 py-0.5 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-slate-400" onkeydown="if(event.key==='Enter') aggiungiAttivitaRapidaMatrice('q4')">
-                                <button onclick="aggiungiAttivitaRapidaMatrice('q4')" class="bg-slate-600 hover:bg-slate-700 text-white text-xs font-bold px-2 py-0.5 rounded-lg transition-colors cursor-pointer" title="Aggiungi a Q4">+</button>
-                            </div>
-                        </div>
-                    </div>
+                    <strong>Pannello di Review e Disciplina:</strong> Consulta le griglie di costanza per ciascuno dei 4 Pilastri (Lavoro, Divisione, Fisico, Riordino), monitora le stanze ISO 5S e pianifica gli obiettivi strategici di periodo.
                 </div>
             </div>
 
@@ -1257,199 +981,486 @@
             </div>
         </div><!-- end tab-scatole -->
 
-        <!-- ========== TAB: AGENDA & NOTE ========== -->
-        <div id="tab-agenda" class="tab-content">
-            <header class="mb-6">
-                <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Agenda &amp; Note</h1>
-                <p class="text-sm text-slate-500 mt-1">Gestisci le tue scadenze, cose da fare e appunti personali di lavoro</p>
-            </header>
+        <!-- ========== TAB: OPERATIVITA & AGENDA ========== -->
+        <div id="tab-agenda" class="tab-content active">
 
-            <!-- Control Bar with Eisenhower Toggle -->
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-6 bg-slate-50/50 border border-slate-200 rounded-xl p-3">
-                <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-user-tie text-blue-600 text-lg"></i>
-                    <div>
-                        <p class="text-xs font-bold text-slate-700">Segretario Agenda &amp; Matrice</p>
-                        <p class="text-[10px] text-slate-400">Classifica automaticamente le note ed elimina l'indecisione.</p>
+            <header class="flex flex-wrap items-center justify-between gap-3 mb-5">
+                <div>
+                    <div class="flex items-center gap-3">
+                        <h1 class="text-3xl font-extrabold tracking-tight text-slate-900">Operatività &amp; Agenda</h1>
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold shadow-2xs">
+                            <i class="fa-solid fa-bolt text-blue-600"></i> Centro di Comando
+                        </span>
                     </div>
+                    <p class="text-sm text-slate-500 mt-1">Gestisci appunti, matrice decisionale 2x2, scaletta settimanale e timer focus in un'unica schermata integrata.</p>
                 </div>
-                <div class="flex flex-wrap items-center gap-2">
-                    <button id="btn-annulla-ultima" onclick="annullaUltimaOperazione()" disabled class="bg-white border border-slate-200 text-slate-400 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button id="btn-annulla-ultima" onclick="annullaUltimaOperazione()" disabled class="bg-white border border-slate-200 text-slate-400 text-xs font-bold px-3 py-2 rounded-xl shadow-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                         <i class="fa-solid fa-arrow-rotate-left mr-1"></i> Annulla ultima operazione
                     </button>
-                    <button onclick="switchTab('dashboard')" class="bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm transition-all cursor-pointer">
-                        <i class="fa-solid fa-shapes mr-1"></i> <span>Apri Matrice Decisionale &amp; Timer</span>
+                    <button onclick="switchTab('dashboard')" class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-all cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-trophy text-amber-500"></i> <span>Pilastri &amp; Costanza</span>
                     </button>
+                </div>
+            </header>
+
+            <!-- 1. FASCIA SUPERIORE: Timer Card + Matrice Decisionale & Hub Priorità -->
+            <div class="grid grid-cols-1 xl:grid-cols-[285px_1fr] lg:grid-cols-[300px_1fr] gap-4 mb-5 items-stretch">
+
+                <!-- Timer Card (Compatta & Ottimizzata) -->
+                <div id="timer-card" class="bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 shadow-xl flex flex-col justify-between transition-all duration-500">
+                    <div>
+                        <!-- Status Row -->
+                        <div class="flex justify-between items-center mb-2.5">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-teal-400 font-mono" id="timer-status-label">FASE 1: FOCUS ATTIVO — RIORDINO</span>
+                            <i class="fa-solid fa-circle-dot text-teal-500 animate-pulse" id="timer-status-dot"></i>
+                        </div>
+
+                        <!-- Pillar Selector Pills -->
+                        <div class="flex gap-1 mb-3 bg-slate-800/70 p-1 rounded-xl">
+                            <button onclick="setPilastroAttivo('lavoro')" id="pill-lavoro" class="flex-1 flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all pill-lavoro-active">
+                                <i class="fa-solid fa-briefcase"></i> Lavoro
+                            </button>
+                            <button onclick="setPilastroAttivo('divisione')" id="pill-divisione" class="flex-1 flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all text-slate-400 hover:text-slate-200">
+                                <i class="fa-solid fa-scale-balanced"></i> Div.
+                            </button>
+                            <button onclick="setPilastroAttivo('fisico')" id="pill-fisico" class="flex-1 flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all text-slate-400 hover:text-slate-200">
+                                <i class="fa-solid fa-person-running"></i> Fisico
+                            </button>
+                            <button onclick="setPilastroAttivo('riordino')" id="pill-riordino" class="flex-1 flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all text-slate-400 hover:text-slate-200">
+                                <i class="fa-solid fa-broom"></i> Riord.
+                            </button>
+                        </div>
+
+                        <!-- Pomodori completati oggi, separati per pilastro -->
+                        <div id="pomodori-oggi" class="grid grid-cols-2 gap-1 mb-2.5" aria-label="Pomodori completati oggi"></div>
+
+                        <!-- Timer Display -->
+                        <div class="text-center my-2">
+                            <span class="text-4xl font-black font-mono tracking-widest" id="timer-display">30:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden my-2">
+                        <div id="timer-progress-bar" class="h-full w-full transition-all duration-1000" style="background-color: #0d9488;"></div>
+                    </div>
+
+                    <!-- Instruction Text -->
+                    <p id="timer-instruction" class="text-center text-[11px] text-slate-400 mb-2.5 h-7 flex items-center justify-center font-medium">
+                        Seleziona la stanza in basso, avvia il timer e applica il Seiri (Scarto).
+                    </p>
+
+                    <!-- Smooth Jazz Radio Mini-Player -->
+                    <div class="my-2 bg-slate-800/90 border border-amber-500/30 rounded-xl p-2 flex items-center justify-between gap-2 shadow-md">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/40">
+                                <i class="fa-solid fa-radio text-[10px]" id="radio-indicator-icon"></i>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-1">
+                                    <span class="text-[10px] font-bold text-slate-100 truncate">Smooth Jazz</span>
+                                    <span id="radio-live-badge" class="hidden text-[8px] font-black uppercase tracking-wider bg-red-500/20 text-red-400 px-1 py-0.5 rounded border border-red-500/30 animate-pulse">LIVE</span>
+                                </div>
+                                <p id="radio-status-text" class="text-[8px] text-slate-400 truncate">smoothjazz.com.pl</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <input type="range" id="radio-volume" min="0" max="1" step="0.05" value="0.7" oninput="cambiaVolumeRadio(this.value)" class="w-10 h-1 accent-amber-400 bg-slate-700 rounded-lg cursor-pointer" title="Volume Radio">
+                            <button type="button" id="btn-toggle-radio" onclick="toggleRadioSmoothJazz()" class="w-6 h-6 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-[10px] shadow transition-all cursor-pointer" title="Avvia/Ferma Radio Smooth Jazz">
+                                <i class="fa-solid fa-play" id="radio-play-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Preset Buttons -->
+                    <div class="grid grid-cols-3 gap-1.5">
+                        <button id="preset-btn-1" onclick="setPresetTimer(15)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all">15 Min</button>
+                        <button id="preset-btn-2" onclick="setPresetTimer(30)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all">30 Min</button>
+                        <button onclick="resetTimer()" class="bg-slate-800 hover:bg-red-950 hover:text-red-400 text-slate-400 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all">Reset</button>
+                    </div>
+
+                    <!-- Toggle Button -->
+                    <button id="btn-toggle-timer" onclick="toggleTimer()" class="v2-primary-button w-full mt-2.5 text-white py-2 rounded-xl font-bold text-xs tracking-wide transition-all cursor-pointer flex items-center justify-center gap-2" style="background-color: #2563eb;">
+                        <i id="btn-timer-icon" class="fa-solid fa-play"></i>
+                        <span id="btn-timer-text">Avvia Sessione</span>
+                    </button>
+
+                    <!-- MP3 & Playlist Settings -->
+                    <details class="v2-settings">
+                        <summary><i class="fa-solid fa-music text-blue-400"></i> Musica &amp; Allarme MP3</summary>
+                        <div class="flex flex-col gap-2.5 px-1 pb-1 text-slate-300 text-xs">
+                            <label class="font-bold flex items-center gap-2 cursor-pointer text-white">
+                                <input type="checkbox" id="chk-mp3-enable" onchange="salvaImpostazioniMP3()" class="accent-blue-500 rounded"> Suona MP3 allarme
+                            </label>
+                            <label class="font-bold flex items-center gap-2 cursor-pointer text-amber-300 text-[11px]">
+                                <input type="checkbox" id="chk-radio-auto" onchange="salvaImpostazioniMP3()" class="accent-amber-500 rounded"> Smooth Jazz in automatico col timer
+                            </label>
+                            
+                            <!-- 1. Brano Iniziale Fisso -->
+                            <div class="pt-2 border-t border-slate-800">
+                                <div class="text-[10px] uppercase font-bold text-slate-400 mb-1">1. Primo brano fisso</div>
+                                <input type="file" id="file-mp3-picker" accept="audio/*" class="hidden" onchange="gestisciUploadMP3(event)">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <button type="button" onclick="document.getElementById('file-mp3-picker').click()" class="bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm">
+                                        <i class="fa-solid fa-file-audio"></i> Scegli MP3 PC
+                                    </button>
+                                    <button type="button" id="btn-test-mp3" onclick="testAudioMP3()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 text-[11px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 transition-colors cursor-pointer" title="Ascolta anteprima">
+                                        <i class="fa-solid fa-play" id="icon-test-mp3"></i> <span id="text-test-mp3">Prova</span>
+                                    </button>
+                                </div>
+                                <p id="label-mp3-selezionato" class="text-[10px] text-teal-400 mt-1 truncate font-medium"></p>
+                            </div>
+
+                            <!-- 2. Playlist / Cartella Brani Casuali (Shuffle) -->
+                            <div class="pt-2 border-t border-slate-800">
+                                <div class="flex items-center justify-between gap-1 mb-1">
+                                    <span class="text-[10px] uppercase font-bold text-slate-400">2. Brani casuali a seguire</span>
+                                    <button type="button" id="btn-clear-playlist" onclick="svuotaPlaylist()" class="text-[10px] text-red-400 hover:text-red-300 underline cursor-pointer hidden">Azzera</button>
+                                </div>
+                                <input type="file" id="file-mp3-folder" webkitdirectory directory multiple accept="audio/*" class="hidden" onchange="gestisciUploadPlaylist(event)">
+                                <input type="file" id="file-mp3-files" multiple accept="audio/*" class="hidden" onchange="gestisciUploadPlaylist(event)">
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <button type="button" onclick="document.getElementById('file-mp3-folder').click()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 transition-colors cursor-pointer shadow-sm" title="Carica un'intera cartella di file MP3">
+                                        <i class="fa-solid fa-folder-open"></i> Cartella MP3
+                                    </button>
+                                    <button type="button" onclick="document.getElementById('file-mp3-files').click()" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-[11px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 transition-colors cursor-pointer" title="Seleziona più file MP3">
+                                        <i class="fa-solid fa-list-check"></i> Più file
+                                    </button>
+                                </div>
+                                <div id="label-playlist-info" class="text-[10px] text-indigo-300 mt-1 font-medium flex items-center gap-1">
+                                    <i class="fa-solid fa-shuffle text-[9px]"></i> <span>Nessun brano casuale caricato (ripeterà il fisso)</span>
+                                </div>
+                            </div>
+
+                            <!-- URL o Nome file alternativo -->
+                            <div class="pt-1.5 border-t border-slate-800">
+                                <span class="text-[9px] text-slate-400">Oppure URL web:</span>
+                                <input type="text" id="txt-mp3-path" oninput="salvaImpostazioniMP3()" placeholder="https://.../audio.mp3"
+                                       class="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-slate-200 focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Matrice Decisionale 2x2 & Hub Priorità (Direttamente a fianco del Timer) -->
+                <div id="matrice-eisenhower-container" class="bg-white border border-slate-200 rounded-2xl p-4 md:p-5 shadow-xs flex flex-col justify-between">
+                    <!-- Top Bar: Titolo + Mini-Badge KPI 4 Pilastri -->
+                    <!-- Top Bar: Titolo + Data Oggi + Navigatore Settimana + Azioni + Mini-Badge KPI -->
+                    <div class="flex flex-wrap items-center justify-between gap-2.5 pb-3 mb-3 border-b border-slate-100">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm border border-blue-100 shadow-2xs">
+                                <i class="fa-solid fa-shapes"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h3 class="font-bold text-slate-800 text-sm tracking-wide">
+                                        Matrice Decisionale &amp; Focus Operativo
+                                    </h3>
+                                    <!-- Badge dinamico Data Odierna -->
+                                    <span id="matrice-badge-data-oggi" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-bold shadow-2xs">
+                                        <i class="fa-regular fa-calendar-check text-blue-600"></i> <span id="txt-matrice-data-oggi">Oggi</span>
+                                    </span>
+                                </div>
+                                <p class="text-[10px] text-slate-400">Clicca <strong class="text-blue-600">🎯</strong> per il timer, cambia il giorno (<strong class="text-slate-600">Lun, Mar...</strong>) o usa <strong class="text-blue-600">📅</strong> per pianificare con controllo carico</p>
+                            </div>
+                        </div>
+                        <!-- Azioni Matrice & Mini-Badge KPI -->
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <!-- Navigatore Settimana Rapido -->
+                            <div class="inline-flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-bold shadow-2xs">
+                                <button onclick="cambiaSettimanaMatrice(-1)" class="w-5 h-5 rounded bg-white hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors cursor-pointer" title="Settimana precedente"><i class="fa-solid fa-chevron-left text-[9px]"></i></button>
+                                <span id="txt-matrice-settimana" class="px-1.5 text-slate-700 text-[10px] font-bold">Settimana Corrente</span>
+                                <button onclick="cambiaSettimanaMatrice(1)" class="w-5 h-5 rounded bg-white hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors cursor-pointer" title="Settimana successiva"><i class="fa-solid fa-chevron-right text-[9px]"></i></button>
+                            </div>
+                            <button onclick="apriModalOrganizzaMatrice()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-[11px] font-bold px-2 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1 shadow-2xs" title="Incolla note multiple da classificare e distribuire automaticamente">
+                                <i class="fa-solid fa-wand-magic-sparkles text-blue-600"></i> Organizza Note
+                            </button>
+                            <!-- Mini-Badge KPI compatti per i 4 Pilastri -->
+                            <div class="flex items-center gap-1.5 flex-wrap text-[11px] font-bold">
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-sky-50 text-sky-700 border border-sky-200" title="Lavoro: Giorni con obiettivi">
+                                    <i class="fa-solid fa-briefcase text-[10px]"></i> Lavoro: <span id="txt-kpi-lavoro" class="font-black">0 / 30</span>
+                                </span>
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-red-50 text-red-700 border border-red-200" title="Divisione: Giorni completati">
+                                    <i class="fa-solid fa-scale-balanced text-[10px]"></i> Divisione: <span id="txt-kpi-divisione" class="font-black">0 / 30</span>
+                                </span>
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-violet-50 text-violet-700 border border-violet-200" title="Fisico: Allenamento">
+                                    <i class="fa-solid fa-person-running text-[10px]"></i> Fisico: <span id="txt-kpi-fisico" class="font-black">0 / 30</span>
+                                </span>
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200" title="Riordino: Stanze conformi">
+                                    <i class="fa-solid fa-broom text-[10px]"></i> Riordino: <span id="txt-kpi-riordino" class="font-black">0 / 7</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pannello Organizza Note Rapido (nascosto di default) -->
+                    <div id="pannello-organizza-matrice" class="hidden mb-3 bg-blue-50/80 border border-blue-200 rounded-xl p-3 flex flex-col gap-2 transition-all">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-wand-magic-sparkles text-blue-600 text-sm"></i>
+                                <span class="text-xs font-bold text-slate-800">Organizza Note &amp; Distribuisci nei Quadranti / Giorni</span>
+                            </div>
+                            <button onclick="chiudiOrganizzaMatrice()" class="text-slate-400 hover:text-slate-600 text-xs p-1 cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <p class="text-[10px] text-slate-500">Incolla una o più note (una per riga). Verranno classificate ed inserite nei quadranti e nella scaletta settimanale.</p>
+                        <textarea id="textarea-organizza-matrice" placeholder="Es:&#10;Inviare bilancio a commercialista lunedì&#10;Chiamare fornitore urgente&#10;Comprare lampadina" class="w-full text-xs text-slate-700 bg-white border border-blue-200 rounded-lg p-2 min-h-[70px] focus:outline-none focus:border-blue-400 resize-none"></textarea>
+                        <div class="flex justify-end gap-2">
+                            <button onclick="chiudiOrganizzaMatrice()" class="px-2.5 py-1 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-200/50 cursor-pointer">Annulla</button>
+                            <button onclick="elaboraNoteMatrice()" class="px-3 py-1 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white cursor-pointer shadow-sm flex items-center gap-1"><i class="fa-solid fa-check"></i> Distribuisci Subito</button>
+                        </div>
+                    </div>
+
+                    <!-- Griglia 2x2 dei Quadranti Decisionale -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
+                        <!-- Q1: Urgente & Importante -->
+                        <div ondragover="allowDrop(event)" ondrop="dropElementOnMatrix(event, 'q1')" class="border border-red-200 bg-red-50/20 rounded-xl p-2.5 flex flex-col justify-between min-h-[175px] transition-all hover:border-red-300">
+                            <div>
+                                <div class="flex items-center justify-between pb-1 mb-1 border-b border-red-100/60">
+                                    <h4 class="text-xs font-bold text-red-600 flex items-center gap-1 uppercase tracking-wide">
+                                        <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Q1: Fai Subito
+                                    </h4>
+                                    <span class="text-[9px] font-bold text-red-500 bg-red-100/70 px-1.5 py-0.5 rounded">Urgente &amp; Importante</span>
+                                </div>
+                                <div id="matrice-q1-list" class="space-y-0.5 text-xs text-slate-600 max-h-60 overflow-y-auto pr-0.5"></div>
+                            </div>
+                            <!-- Input rapido Q1 -->
+                            <div class="mt-1.5 pt-1.5 border-t border-red-100/60 flex gap-1">
+                                <input type="text" id="input-rapido-q1" placeholder="+ Nuovo compito urgente..." class="flex-1 text-[11px] bg-white border border-red-200 rounded-lg px-2 py-0.5 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-red-400" onkeydown="if(event.key==='Enter') aggiungiAttivitaRapidaMatrice('q1')">
+                                <button onclick="aggiungiAttivitaRapidaMatrice('q1')" class="bg-red-500 hover:bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-lg transition-colors cursor-pointer" title="Aggiungi a Q1">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Q2: Non Urgente & Importante -->
+                        <div ondragover="allowDrop(event)" ondrop="dropElementOnMatrix(event, 'q2')" class="border border-blue-200 bg-blue-50/20 rounded-xl p-2.5 flex flex-col justify-between min-h-[175px] transition-all hover:border-blue-300">
+                            <div>
+                                <div class="flex items-center justify-between pb-1 mb-1 border-b border-blue-100/60">
+                                    <h4 class="text-xs font-bold text-blue-600 flex items-center gap-1 uppercase tracking-wide">
+                                        <span class="w-2 h-2 rounded-full bg-blue-500"></span> Q2: Pianifica
+                                    </h4>
+                                    <span class="text-[9px] font-bold text-blue-500 bg-blue-100/70 px-1.5 py-0.5 rounded">Strategico &amp; Valore</span>
+                                </div>
+                                <div id="matrice-q2-list" class="space-y-0.5 text-xs text-slate-600 max-h-60 overflow-y-auto pr-0.5"></div>
+                            </div>
+                            <!-- Input rapido Q2 -->
+                            <div class="mt-1.5 pt-1.5 border-t border-blue-100/60 flex gap-1">
+                                <input type="text" id="input-rapido-q2" placeholder="+ Nuovo compito strategico..." class="flex-1 text-[11px] bg-white border border-blue-200 rounded-lg px-2 py-0.5 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-blue-400" onkeydown="if(event.key==='Enter') aggiungiAttivitaRapidaMatrice('q2')">
+                                <button onclick="aggiungiAttivitaRapidaMatrice('q2')" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-2 py-0.5 rounded-lg transition-colors cursor-pointer" title="Aggiungi a Q2">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Q3: Urgente & Non Importante -->
+                        <div ondragover="allowDrop(event)" ondrop="dropElementOnMatrix(event, 'q3')" class="border border-emerald-200 bg-emerald-50/20 rounded-xl p-2.5 flex flex-col justify-between min-h-[175px] transition-all hover:border-emerald-300">
+                            <div>
+                                <div class="flex items-center justify-between pb-1 mb-1 border-b border-emerald-100/60">
+                                    <h4 class="text-xs font-bold text-emerald-600 flex items-center gap-1 uppercase tracking-wide">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Q3: Delega / Rapidi
+                                    </h4>
+                                    <span class="text-[9px] font-bold text-emerald-600 bg-emerald-100/70 px-1.5 py-0.5 rounded">Operativo &amp; Veloce</span>
+                                </div>
+                                <div id="matrice-q3-list" class="space-y-0.5 text-xs text-slate-600 max-h-60 overflow-y-auto pr-0.5"></div>
+                            </div>
+                            <!-- Input rapido Q3 -->
+                            <div class="mt-1.5 pt-1.5 border-t border-emerald-100/60 flex gap-1">
+                                <input type="text" id="input-rapido-q3" placeholder="+ Nuovo compito rapido..." class="flex-1 text-[11px] bg-white border border-emerald-200 rounded-lg px-2 py-0.5 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-emerald-400" onkeydown="if(event.key==='Enter') aggiungiAttivitaRapidaMatrice('q3')">
+                                <button onclick="aggiungiAttivitaRapidaMatrice('q3')" class="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-2 py-0.5 rounded-lg transition-colors cursor-pointer" title="Aggiungi a Q3">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Q4: Non Urgente & Non Importante -->
+                        <div ondragover="allowDrop(event)" ondrop="dropElementOnMatrix(event, 'q4')" class="border border-slate-200 bg-slate-50/40 rounded-xl p-2.5 flex flex-col justify-between min-h-[175px] transition-all hover:border-slate-300">
+                            <div>
+                                <div class="flex items-center justify-between pb-1 mb-1 border-b border-slate-200">
+                                    <h4 class="text-xs font-bold text-slate-500 flex items-center gap-1 uppercase tracking-wide">
+                                        <span class="w-2 h-2 rounded-full bg-slate-400"></span> Q4: Parcheggia
+                                    </h4>
+                                    <span class="text-[9px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">Bassa priorità</span>
+                                </div>
+                                <div id="matrice-q4-list" class="space-y-0.5 text-xs text-slate-600 max-h-60 overflow-y-auto pr-0.5"></div>
+                            </div>
+                            <!-- Input rapido Q4 -->
+                            <div class="mt-1.5 pt-1.5 border-t border-slate-200 flex gap-1">
+                                <input type="text" id="input-rapido-q4" placeholder="+ Nuovo appunto parcheggiato..." class="flex-1 text-[11px] bg-white border border-slate-200 rounded-lg px-2 py-0.5 text-slate-700 placeholder:text-slate-400 focus:outline-none focus:border-slate-400" onkeydown="if(event.key==='Enter') aggiungiAttivitaRapidaMatrice('q4')">
+                                <button onclick="aggiungiAttivitaRapidaMatrice('q4')" class="bg-slate-600 hover:bg-slate-700 text-white text-xs font-bold px-2 py-0.5 rounded-lg transition-colors cursor-pointer" title="Aggiungi a Q4">+</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 xl:grid-cols-[46fr_54fr] gap-6 items-start">
-                <!-- 1. Blocco Note Rapido -->
-                <section id="quick-notes-drop-zone" ondragover="consentiDropBloccoNote(event)" ondragenter="evidenziaDropBloccoNote(event, true)" ondragleave="evidenziaDropBloccoNote(event, false)" ondrop="dropAttivitaNelBloccoNote(event)" class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm transition-all" aria-labelledby="titolo-note">
-                    <div class="flex justify-between items-center gap-3 mb-3">
-                        <h2 id="titolo-note" class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-file-pen text-blue-600"></i> Blocco Note Rapido</h2>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <button onclick="avviaSegretario()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-[11px] font-bold px-2.5 py-1.5 rounded-lg shadow-sm transition-colors cursor-pointer flex items-center gap-1">
-                                <i class="fa-solid fa-user-tie"></i> Organizza
-                            </button>
-                            <span id="notes-status" class="text-[11px] text-slate-400"><i class="fa-solid fa-cloud-arrow-down"></i> Salvato in locale</span>
+            <!-- 2. FASCIA INFERIORE: Blocco Note & Promemoria (sinistra) + Scaletta Settimanale & Focus Obiettivi (destra) -->
+            <div class="agenda-bottom-grid grid grid-cols-1 xl:grid-cols-[44fr_56fr] gap-4 items-start">
+                <!-- Colonna Sinistra: Blocco Note Rapido + Promemoria -->
+                <div class="space-y-4">
+                    <!-- 1. Blocco Note Rapido -->
+                    <section id="quick-notes-drop-zone" ondragover="consentiDropBloccoNote(event)" ondragenter="evidenziaDropBloccoNote(event, true)" ondragleave="evidenziaDropBloccoNote(event, false)" ondrop="dropAttivitaNelBloccoNote(event)" class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs transition-all" aria-labelledby="titolo-note">
+                        <div class="flex justify-between items-center gap-3 mb-3">
+                            <h2 id="titolo-note" class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-file-pen text-blue-600"></i> Blocco Note Rapido</h2>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <button onclick="avviaSegretario()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-[11px] font-bold px-2.5 py-1.5 rounded-lg shadow-xs transition-colors cursor-pointer flex items-center gap-1">
+                                    <i class="fa-solid fa-user-tie"></i> Organizza
+                                </button>
+                                <span id="notes-status" class="text-[11px] text-slate-400"><i class="fa-solid fa-cloud-arrow-down"></i> Salvato in locale</span>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- Secretary Wizard Panel -->
-                    <div id="secretary-panel" class="hidden bg-blue-50/70 border border-blue-200 rounded-xl p-3.5 mb-3 flex flex-col gap-3 transition-all select-none">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2 text-xs font-bold text-blue-800">
-                                <i class="fa-solid fa-bell-concierge text-blue-600 animate-pulse"></i>
-                                <span>Il Segretario propone la pianificazione:</span>
+                        <!-- Secretary Wizard Panel -->
+                        <div id="secretary-panel" class="hidden bg-blue-50/70 border border-blue-200 rounded-xl p-3.5 mb-3 flex flex-col gap-3 transition-all select-none">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2 text-xs font-bold text-blue-800">
+                                    <i class="fa-solid fa-bell-concierge text-blue-600 animate-pulse"></i>
+                                    <span>Il Segretario propone la pianificazione:</span>
+                                </div>
+                                <button onclick="chiudiSegretario()" class="text-slate-400 hover:text-slate-600 text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i> Chiudi</button>
                             </div>
-                            <button onclick="chiudiSegretario()" class="text-slate-400 hover:text-slate-600 text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i> Chiudi</button>
-                        </div>
-                        <div class="bg-white rounded-lg p-2.5 border border-slate-200 shadow-sm h-[96px] grid grid-cols-2 items-stretch gap-3 overflow-hidden">
-                            <p id="secretary-current-task" class="min-w-0 max-h-[74px] overflow-y-auto pr-1 text-xs font-bold text-slate-700 leading-snug break-words"></p>
-                            <div class="min-w-0 max-h-[74px] overflow-y-auto flex items-center">
-                                <span id="secretary-suggestion" class="w-full text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-1 rounded-lg leading-snug whitespace-normal break-words"></span>
-                            </div>
-                        </div>
-                        <div class="flex flex-wrap items-center justify-between gap-3">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <button onclick="applicaPianificazioneConsigliata()" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-xs font-black px-4 py-1.5 rounded-lg shadow-sm transition-all cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-check"></i> Ok (Consigliato)</button>
-                                <span class="h-5 w-[1px] bg-slate-200 block"></span>
-                                <div class="flex flex-wrap gap-1">
-                                    <button onclick="applicaPianificazione('q1')" title="Forza a Q1: Fai Subito" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🔴 Q1</button>
-                                    <button onclick="applicaPianificazione('q2')" title="Forza a Q2: Pianifica" class="bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🔵 Q2</button>
-                                    <button onclick="applicaPianificazione('q3')" title="Forza a Q3: Delega" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🟢 Q3</button>
-                                    <button onclick="applicaPianificazione('q4')" title="Forza a Q4: Parcheggia" class="bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">⚪ Q4</button>
+                            <div class="bg-white rounded-lg p-2.5 border border-slate-200 shadow-xs h-[96px] grid grid-cols-2 items-stretch gap-3 overflow-hidden">
+                                <p id="secretary-current-task" class="min-w-0 max-h-[74px] overflow-y-auto pr-1 text-xs font-bold text-slate-700 leading-snug break-words"></p>
+                                <div class="min-w-0 max-h-[74px] overflow-y-auto flex items-center">
+                                    <span id="secretary-suggestion" class="w-full text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-1 rounded-lg leading-snug whitespace-normal break-words"></span>
                                 </div>
                             </div>
-                            <div class="flex flex-wrap items-center justify-end gap-2 shrink-0">
-                                <div class="flex items-center gap-1.5 border border-blue-200 bg-white rounded-lg p-1">
-                                    <span class="text-[10px] font-bold text-slate-500">Giorno:</span>
-                                    <select id="secretary-day-select" class="text-[10px] font-bold bg-white text-slate-700 focus:outline-none cursor-pointer">
-                                        <option value="Lunedì">Lunedì</option>
-                                        <option value="Martedì">Martedì</option>
-                                        <option value="Mercoledì">Mercoledì</option>
-                                        <option value="Giovedì">Giovedì</option>
-                                        <option value="Venerdì">Venerdì</option>
-                                        <option value="Sabato">Sabato</option>
-                                        <option value="Domenica">Domenica</option>
-                                        <option value="Promemoria">Promemoria</option>
-                                    </select>
+                            <div class="flex flex-wrap items-center justify-between gap-3">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <button onclick="applicaPianificazioneConsigliata()" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 text-xs font-black px-4 py-1.5 rounded-lg shadow-xs transition-all cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-check"></i> Ok (Consigliato)</button>
+                                    <span class="h-5 w-[1px] bg-slate-200 block"></span>
+                                    <div class="flex flex-wrap gap-1">
+                                        <button onclick="applicaPianificazione('q1')" title="Forza a Q1: Fai Subito" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🔴 Q1</button>
+                                        <button onclick="applicaPianificazione('q2')" title="Forza a Q2: Pianifica" class="bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🔵 Q2</button>
+                                        <button onclick="applicaPianificazione('q3')" title="Forza a Q3: Delega" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-600 border border-emerald-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">🟢 Q3</button>
+                                        <button onclick="applicaPianificazione('q4')" title="Forza a Q4: Parcheggia" class="bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 text-[11px] font-bold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer">⚪ Q4</button>
+                                    </div>
                                 </div>
-                                <button type="button" onclick="applicaGiornoScelto()" class="v2-primary-button px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer" title="Usa il giorno scelto invece di quello suggerito">
-                                    <i class="fa-solid fa-arrow-right"></i> Procedi con il giorno scelto
+                                <div class="flex flex-wrap items-center justify-end gap-2 shrink-0">
+                                    <div class="flex items-center gap-1.5 border border-blue-200 bg-white rounded-lg p-1">
+                                        <span class="text-[10px] font-bold text-slate-500">Giorno:</span>
+                                        <select id="secretary-day-select" class="text-[10px] font-bold bg-white text-slate-700 focus:outline-none cursor-pointer">
+                                            <option value="Lunedì">Lunedì</option>
+                                            <option value="Martedì">Martedì</option>
+                                            <option value="Mercoledì">Mercoledì</option>
+                                            <option value="Giovedì">Giovedì</option>
+                                            <option value="Venerdì">Venerdì</option>
+                                            <option value="Sabato">Sabato</option>
+                                            <option value="Domenica">Domenica</option>
+                                            <option value="Promemoria">Promemoria</option>
+                                        </select>
+                                    </div>
+                                    <button type="button" onclick="applicaGiornoScelto()" class="v2-primary-button px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer" title="Usa il giorno scelto invece di quello suggerito">
+                                        <i class="fa-solid fa-arrow-right"></i> Procedi con il giorno scelto
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center text-[10px] text-slate-400 mt-1 border-t border-slate-200 pt-2">
+                                <div class="flex items-center gap-1">
+                                    <button id="secretary-prev" type="button" onclick="navigaTaskSegretario(-1)" title="Attività precedente" class="w-7 h-7 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-blue-50 hover:text-blue-700 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
+                                        <i class="fa-solid fa-chevron-left"></i>
+                                    </button>
+                                    <span id="secretary-progress" class="min-w-[82px] text-center font-bold">Attività 1 di 1</span>
+                                    <button id="secretary-next" type="button" onclick="navigaTaskSegretario(1)" title="Attività successiva" class="w-7 h-7 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-blue-50 hover:text-blue-700 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
+                                        <i class="fa-solid fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                                <button onclick="elaboraTutteLeNoteInBlocco()" class="text-blue-700 hover:text-blue-900 font-bold flex items-center gap-1 cursor-pointer">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> 🧙‍♂️ Pianifica tutto in blocco
                                 </button>
                             </div>
                         </div>
-                        <div class="flex justify-between items-center text-[10px] text-slate-400 mt-1 border-t border-slate-200 pt-2">
-                            <div class="flex items-center gap-1">
-                                <button id="secretary-prev" type="button" onclick="navigaTaskSegretario(-1)" title="Attività precedente" class="w-7 h-7 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-blue-50 hover:text-blue-700 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
-                                    <i class="fa-solid fa-chevron-left"></i>
-                                </button>
-                                <span id="secretary-progress" class="min-w-[82px] text-center font-bold">Attività 1 di 1</span>
-                                <button id="secretary-next" type="button" onclick="navigaTaskSegretario(1)" title="Attività successiva" class="w-7 h-7 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-blue-50 hover:text-blue-700 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer">
-                                    <i class="fa-solid fa-chevron-right"></i>
-                                </button>
+
+                        <label for="quick-notes" class="sr-only">Appunti rapidi</label>
+                        <textarea id="quick-notes" oninput="programmaSalvataggioNote()" placeholder="Scrivi qui i tuoi appunti, contatti, bozze di idee o testi da copiare... Si salvano automaticamente ad ogni lettera." class="w-full min-h-[200px] resize-y border border-slate-200 bg-slate-50/40 rounded-xl p-3 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </section>
+
+                    <!-- 3. Promemoria senza giorno -->
+                    <section class="bg-white border border-amber-200 rounded-2xl p-5 shadow-xs" aria-labelledby="titolo-promemoria">
+                        <div class="flex items-center justify-between gap-3 mb-3 pb-3 border-b border-amber-100">
+                            <div>
+                                <h2 id="titolo-promemoria" class="font-bold text-slate-900 flex items-center gap-2">
+                                    <i class="fa-solid fa-bookmark text-amber-500"></i> Promemoria
+                                    <span id="promemoria-count" class="text-[10px] font-black bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">0</span>
+                                </h2>
+                                <p class="text-xs text-slate-500 mt-1">Attività conservate senza un giorno preciso.</p>
                             </div>
-                            <button onclick="elaboraTutteLeNoteInBlocco()" class="text-blue-700 hover:text-blue-900 font-bold flex items-center gap-1 cursor-pointer">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i> 🧙‍♂️ Pianifica tutto in blocco
-                            </button>
                         </div>
-                    </div>
+                        <div id="reminders-list" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+                    </section>
+                </div>
 
-                    <label for="quick-notes" class="sr-only">Appunti rapidi</label>
-                    <textarea id="quick-notes" oninput="programmaSalvataggioNote()" placeholder="Scrivi qui i tuoi appunti, contatti, bozze di idee o testi da copiare... Si salvano automaticamente ad ogni lettera." class="w-full min-h-[255px] resize-y border border-slate-200 bg-slate-50/40 rounded-xl p-3 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                </section>
+                <!-- Colonna Destra: Scaletta Settimanale + Focus Obiettivi Mese & Trimestre -->
+                <div class="space-y-4">
+                    <!-- 2. Scaletta Settimanale -->
+                    <section class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs" aria-labelledby="titolo-scaletta">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-slate-100 pb-3">
+                            <h2 id="titolo-scaletta" class="font-black text-slate-900 flex items-center gap-2 text-base shrink-0"><i class="fa-solid fa-calendar-week text-blue-600 text-lg"></i> Scaletta Settimanale</h2>
+                            <div class="flex flex-wrap gap-1.5 justify-center sm:justify-start items-center">
+                                <button id="btn-week-0" onclick="cambiaSettimana(0)" ondragover="allowDrop(event)" ondragenter="startWeekSwitchTimer(0)" ondragleave="clearWeekSwitchTimer()" ondrop="dropElementOnWeek(event, 0); clearWeekSwitchTimer();" class="px-3.5 py-1.5 text-xs font-black rounded-xl bg-red-50 text-red-600 border border-red-200 shadow-xs transition-all cursor-pointer">Settimana Corrente</button>
+                                <button id="btn-week-1" onclick="cambiaSettimana(1)" ondragover="allowDrop(event)" ondragenter="startWeekSwitchTimer(1)" ondragleave="clearWeekSwitchTimer()" ondrop="dropElementOnWeek(event, 1); clearWeekSwitchTimer();" class="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer">Prossima Settimana (+1)</button>
+                                <button id="btn-week-2" onclick="cambiaSettimana(2)" ondragover="allowDrop(event)" ondragenter="startWeekSwitchTimer(2)" ondragleave="clearWeekSwitchTimer()" ondrop="dropElementOnWeek(event, 2); clearWeekSwitchTimer();" class="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer">Settimana Successiva (+2)</button>
+                                
+                                <!-- Dropdown Archivio -->
+                                <div class="relative inline-block text-left" id="archive-dropdown-container">
+                                    <button onclick="toggleArchiveDropdown()" id="btn-archive-trigger" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-box-archive"></i> Archivio</button>
+                                    <div id="archive-dropdown-menu" class="hidden absolute right-0 mt-2 w-56 rounded-xl bg-white border border-slate-200 shadow-lg z-50 py-1.5 max-h-60 overflow-y-auto"></div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 justify-end">
+                                <button id="schedule-edit-btn" onclick="toggleModificaScaletta()" class="border border-slate-200 hover:bg-slate-50 rounded-xl px-3 py-1.5 text-xs font-bold focus:ring-2 focus:ring-blue-500 cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-pen-to-square"></i> Modifica</button>
+                            </div>
+                        </div>
+                        <p id="schedule-help" class="hidden text-xs text-blue-700 bg-blue-50 rounded-lg px-3 py-2 mb-3">Modalità modifica attiva: cambia i testi, sposta o elimina le attività e aggiungine di nuove.</p>
+                        <div id="weekly-schedule" class="space-y-4 pr-2"></div>
+                    </section>
 
-                <!-- 2. Scaletta Settimanale -->
-                <section class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm xl:row-span-3" aria-labelledby="titolo-scaletta">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 border-b border-slate-100 pb-3">
-                        <h2 id="titolo-scaletta" class="font-black text-slate-900 flex items-center gap-2 text-base shrink-0"><i class="fa-solid fa-calendar-week text-blue-600 text-lg"></i> Scaletta Settimanale</h2>
-                        <div class="flex flex-wrap gap-1.5 justify-center sm:justify-start items-center">
-                            <button id="btn-week-0" onclick="cambiaSettimana(0)" ondragover="allowDrop(event)" ondragenter="startWeekSwitchTimer(0)" ondragleave="clearWeekSwitchTimer()" ondrop="dropElementOnWeek(event, 0); clearWeekSwitchTimer();" class="px-3.5 py-1.5 text-xs font-black rounded-xl bg-red-50 text-red-600 border border-red-200 shadow-sm transition-all cursor-pointer">Settimana Corrente</button>
-                            <button id="btn-week-1" onclick="cambiaSettimana(1)" ondragover="allowDrop(event)" ondragenter="startWeekSwitchTimer(1)" ondragleave="clearWeekSwitchTimer()" ondrop="dropElementOnWeek(event, 1); clearWeekSwitchTimer();" class="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer">Prossima Settimana (+1)</button>
-                            <button id="btn-week-2" onclick="cambiaSettimana(2)" ondragover="allowDrop(event)" ondragenter="startWeekSwitchTimer(2)" ondragleave="clearWeekSwitchTimer()" ondrop="dropElementOnWeek(event, 2); clearWeekSwitchTimer();" class="px-3.5 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer">Settimana Successiva (+2)</button>
+                    <!-- 4. Focus Obiettivi Mese & Trimestre -->
+                    <section class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs" aria-labelledby="titolo-focus-obiettivi">
+                        <div class="flex items-center justify-between gap-3 mb-4">
+                            <h2 id="titolo-focus-obiettivi" class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-bullseye text-blue-600"></i> Obiettivi Mese &amp; Trimestre</h2>
+                        </div>
+
+                        <!-- Tabs Pilastri -->
+                        <div class="grid grid-cols-4 gap-1 p-1 bg-slate-100 rounded-xl mb-4 text-center">
+                            <button onclick="setObiettiviAgendaTab('lavoro')" id="btn-ob-tab-lavoro" class="py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer bg-sky-50 text-sky-700 border border-sky-200 shadow-xs">Lavoro</button>
+                            <button onclick="setObiettiviAgendaTab('divisione')" id="btn-ob-tab-divisione" class="py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:bg-slate-200">Divisione</button>
+                            <button onclick="setObiettiviAgendaTab('fisico')" id="btn-ob-tab-fisico" class="py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:bg-slate-200">Fisico</button>
+                            <button onclick="setObiettiviAgendaTab('riordino')" id="btn-ob-tab-riordino" class="py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:bg-slate-200">Riordino</button>
+                        </div>
+
+                        <!-- Riquadro Obiettivi Mensili -->
+                        <div class="border border-slate-200 bg-slate-50/20 rounded-xl p-3.5 mb-3 flex flex-col gap-3">
+                            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                                <span class="text-[13px] font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5"><i id="ob-agenda-mensili-icon" class="fa-regular fa-calendar-check text-blue-600 text-sm"></i> Obiettivi Mensili</span>
+                                <span id="ob-agenda-mensili-progress" class="text-[10px] font-extrabold text-blue-800 bg-blue-100 px-2 py-0.5 rounded-full">0/0</span>
+                            </div>
                             
-                            <!-- Dropdown Archivio -->
-                            <div class="relative inline-block text-left" id="archive-dropdown-container">
-                                <button onclick="toggleArchiveDropdown()" id="btn-archive-trigger" class="px-3 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-box-archive"></i> Archivio</button>
-                                <div id="archive-dropdown-menu" class="hidden absolute right-0 mt-2 w-56 rounded-xl bg-white border border-slate-200 shadow-lg z-50 py-1.5 max-h-60 overflow-y-auto"></div>
+                            <!-- Mini Tabs Mesi (Lug, Ago, Set) -->
+                            <div id="ob-agenda-mesi-tabs" class="flex gap-1.5 overflow-x-auto pb-1"></div>
+
+                            <!-- Lista Obiettivi Mensili -->
+                            <div id="ob-agenda-mensili-list" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+
+                            <!-- Input Aggiungi Obiettivo Mensile -->
+                            <div class="flex gap-1.5 mt-1">
+                                <input id="ob-agenda-mensile-input" onkeydown="if(event.key==='Enter') aggiungiObiettivoMensileAgenda()" placeholder="Nuovo obiettivo mensile..." class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
+                                <button id="ob-agenda-mensile-add-btn" onclick="aggiungiObiettivoMensileAgenda()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-lg px-2.5 cursor-pointer transition-colors"><i class="fa-solid fa-plus text-xs"></i></button>
                             </div>
                         </div>
-                        <div class="flex gap-2 justify-end">
-                            <button id="schedule-edit-btn" onclick="toggleModificaScaletta()" class="border border-slate-200 hover:bg-slate-50 rounded-xl px-3 py-1.5 text-xs font-bold focus:ring-2 focus:ring-blue-500 cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-pen-to-square"></i> Modifica</button>
+
+                        <!-- Riquadro Obiettivi Trimestre -->
+                        <div class="border border-slate-200 bg-slate-50/20 rounded-xl p-3.5 flex flex-col gap-3">
+                            <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                                <span class="text-[13px] font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5"><i id="ob-agenda-trimestre-icon" class="fa-solid fa-bullseye text-blue-600 text-sm"></i> Obiettivi Trimestre (Q3)</span>
+                                <span id="ob-agenda-trimestre-progress" class="text-[10px] font-extrabold text-blue-800 bg-blue-100 px-2 py-0.5 rounded-full">0/0</span>
+                            </div>
+
+                            <!-- Lista Obiettivi Trimestre -->
+                            <div id="ob-agenda-trimestre-list" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
+
+                            <!-- Input Aggiungi Obiettivo Trimestre -->
+                            <div class="flex gap-1.5 mt-1">
+                                <input id="ob-agenda-trimestre-input" onkeydown="if(event.key==='Enter') aggiungiObiettivoTrimestreAgenda()" placeholder="Nuovo obiettivo trimestre..." class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
+                                <button id="ob-agenda-trimestre-add-btn" onclick="aggiungiObiettivoTrimestreAgenda()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-lg px-2.5 cursor-pointer transition-colors"><i class="fa-solid fa-plus text-xs"></i></button>
+                            </div>
                         </div>
-                    </div>
-                    <p id="schedule-help" class="hidden text-xs text-blue-700 bg-blue-50 rounded-lg px-3 py-2 mb-3">Modalità modifica attiva: cambia i testi, sposta o elimina le attività e aggiungine di nuove.</p>
-                    <div id="weekly-schedule" class="space-y-4 pr-2"></div>
-                </section>
-
-                <!-- 3. Promemoria senza giorno -->
-                <section class="bg-white border border-amber-200 rounded-2xl p-5 shadow-sm" aria-labelledby="titolo-promemoria">
-                    <div class="flex items-center justify-between gap-3 mb-3 pb-3 border-b border-amber-100">
-                        <div>
-                            <h2 id="titolo-promemoria" class="font-bold text-slate-900 flex items-center gap-2">
-                                <i class="fa-solid fa-bookmark text-amber-500"></i> Promemoria
-                                <span id="promemoria-count" class="text-[10px] font-black bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">0</span>
-                            </h2>
-                            <p class="text-xs text-slate-500 mt-1">Attività conservate senza un giorno preciso.</p>
-                        </div>
-                    </div>
-                    <div id="reminders-list" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
-                </section>
-
-                <!-- 4. Focus Obiettivi Mese & Trimestre -->
-                <section class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm" aria-labelledby="titolo-focus-obiettivi">
-                    <div class="flex items-center justify-between gap-3 mb-4">
-                        <h2 id="titolo-focus-obiettivi" class="font-bold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-bullseye text-blue-600"></i> Obiettivi Mese &amp; Trimestre</h2>
-                    </div>
-
-                    <!-- Tabs Pilastri -->
-                    <div class="grid grid-cols-4 gap-1 p-1 bg-slate-100 rounded-xl mb-4 text-center">
-                        <button onclick="setObiettiviAgendaTab('lavoro')" id="btn-ob-tab-lavoro" class="py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer bg-sky-50 text-sky-700 border border-sky-200 shadow-sm">Lavoro</button>
-                        <button onclick="setObiettiviAgendaTab('divisione')" id="btn-ob-tab-divisione" class="py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:bg-slate-200">Divisione</button>
-                        <button onclick="setObiettiviAgendaTab('fisico')" id="btn-ob-tab-fisico" class="py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:bg-slate-200">Fisico</button>
-                        <button onclick="setObiettiviAgendaTab('riordino')" id="btn-ob-tab-riordino" class="py-1 px-1.5 text-[11px] font-bold rounded-lg transition-all cursor-pointer text-slate-600 hover:bg-slate-200">Riordino</button>
-                    </div>
-
-                    <!-- Riquadro Obiettivi Mensili -->
-                    <div class="border border-slate-200 bg-slate-50/20 rounded-xl p-3.5 mb-3 flex flex-col gap-3">
-                        <div class="flex items-center justify-between pb-2 border-b border-slate-200">
-                            <span class="text-[13px] font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5"><i id="ob-agenda-mensili-icon" class="fa-regular fa-calendar-check text-blue-600 text-sm"></i> Obiettivi Mensili</span>
-                            <span id="ob-agenda-mensili-progress" class="text-[10px] font-extrabold text-blue-800 bg-blue-100 px-2 py-0.5 rounded-full">0/0</span>
-                        </div>
-                        
-                        <!-- Mini Tabs Mesi (Lug, Ago, Set) -->
-                        <div id="ob-agenda-mesi-tabs" class="flex gap-1.5 overflow-x-auto pb-1"></div>
-
-                        <!-- Lista Obiettivi Mensili -->
-                        <div id="ob-agenda-mensili-list" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
-
-                        <!-- Input Aggiungi Obiettivo Mensile -->
-                        <div class="flex gap-1.5 mt-1">
-                            <input id="ob-agenda-mensile-input" onkeydown="if(event.key==='Enter') aggiungiObiettivoMensileAgenda()" placeholder="Nuovo obiettivo mensile..." class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
-                            <button id="ob-agenda-mensile-add-btn" onclick="aggiungiObiettivoMensileAgenda()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-lg px-2.5 cursor-pointer transition-colors"><i class="fa-solid fa-plus text-xs"></i></button>
-                        </div>
-                    </div>
-
-                    <!-- Riquadro Obiettivi Trimestre -->
-                    <div class="border border-slate-200 bg-slate-50/20 rounded-xl p-3.5 flex flex-col gap-3">
-                        <div class="flex items-center justify-between pb-2 border-b border-slate-200">
-                            <span class="text-[13px] font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5"><i id="ob-agenda-trimestre-icon" class="fa-solid fa-bullseye text-blue-600 text-sm"></i> Obiettivi Trimestre (Q3)</span>
-                            <span id="ob-agenda-trimestre-progress" class="text-[10px] font-extrabold text-blue-800 bg-blue-100 px-2 py-0.5 rounded-full">0/0</span>
-                        </div>
-
-                        <!-- Lista Obiettivi Trimestre -->
-                        <div id="ob-agenda-trimestre-list" class="space-y-1.5 max-h-36 overflow-y-auto pr-1"></div>
-
-                        <!-- Input Aggiungi Obiettivo Trimestre -->
-                        <div class="flex gap-1.5 mt-1">
-                            <input id="ob-agenda-trimestre-input" onkeydown="if(event.key==='Enter') aggiungiObiettivoTrimestreAgenda()" placeholder="Nuovo obiettivo trimestre..." class="min-w-0 flex-1 border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-blue-500 bg-white">
-                            <button id="ob-agenda-trimestre-add-btn" onclick="aggiungiObiettivoTrimestreAgenda()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-lg px-2.5 cursor-pointer transition-colors"><i class="fa-solid fa-plus text-xs"></i></button>
-                        </div>
-                    </div>
-                </section>
-
+                    </section>
+                </div>
             </div>
         </div><!-- end tab-agenda -->
 
@@ -1687,31 +1698,30 @@
         }
 
         function switchTab(tabId) {
-            const availableTabs = ['dashboard', 'agenda'];
-            if (!availableTabs.includes(tabId)) tabId = 'dashboard';
+            const availableTabs = ['agenda', 'dashboard', 'procedura', 'scatole'];
+            if (!availableTabs.includes(tabId)) tabId = 'agenda';
 
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            const dashboardRoot = document.getElementById('tab-dashboard');
-            if (dashboardRoot) {
-                Array.from(dashboardRoot.children).forEach(el => {
-                    if (el.id !== 'tab-agenda') el.classList.toggle('hidden', tabId === 'agenda');
-                });
-                dashboardRoot.classList.add('active');
-            }
             const activeTab = document.getElementById(`tab-${tabId}`);
             if (activeTab) activeTab.classList.add('active');
 
-            const menuBtns = availableTabs;
+            const menuBtns = ['agenda', 'dashboard'];
             menuBtns.forEach(id => {
                 const btn = document.getElementById(`btn-tab-${id}`);
                 if (!btn) return;
-                const iconMap = { dashboard: 'fa-chart-pie', agenda: 'fa-calendar-check' };
+                const icon = btn.querySelector('i');
                 if (id === tabId) {
                     btn.className = "w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all cursor-pointer text-left shadow-lg bg-[#1e293b] text-white border border-slate-700/50";
-                    btn.querySelector('i').className = `fa-solid ${iconMap[id]} ${id === 'agenda' ? 'text-blue-400' : 'text-teal-400'}`;
+                    if (icon) {
+                        if (id === 'agenda') icon.className = "fa-solid fa-bolt text-blue-400";
+                        else if (id === 'dashboard') icon.className = "fa-solid fa-trophy text-amber-400";
+                    }
                 } else {
                     btn.className = "w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all cursor-pointer text-left text-slate-400 hover:bg-slate-800/60 hover:text-white";
-                    btn.querySelector('i').className = `fa-solid ${iconMap[id]}`;
+                    if (icon) {
+                        if (id === 'agenda') icon.className = "fa-solid fa-bolt text-slate-400";
+                        else if (id === 'dashboard') icon.className = "fa-solid fa-trophy text-slate-400";
+                    }
                 }
             });
         }
