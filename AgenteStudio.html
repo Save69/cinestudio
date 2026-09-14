@@ -4419,11 +4419,13 @@
             input.value = '';
         }
 
-        function eliminaAttivitaScaletta(giorno, id) {
-            const weekSchedule = getWeekSchedule(selectedWeekOffset);
-            weekSchedule[giorno] = weekSchedule[giorno].filter(x => x.id !== id);
-            salvaScaletta();
-            renderScaletta();
+        function eliminaAttivitaScaletta(giorno, id, offset = selectedWeekOffset) {
+            const weekSchedule = getWeekSchedule(offset);
+            if (weekSchedule && weekSchedule[giorno]) {
+                weekSchedule[giorno] = weekSchedule[giorno].filter(x => x.id !== id);
+                salvaScaletta();
+                renderScaletta();
+            }
         }
 
         function ordinaAttivitaGiorno(giorno, offset = selectedWeekOffset) {
@@ -5770,8 +5772,8 @@
                                                     <span class="${s.completata ? 'line-through text-slate-400' : 'text-slate-700'}" ondblclick="modificaSubtask('${giorno}', '${x.id}', '${s.id}', ${selectedWeekOffset})" title="Doppio clic per modificare">${escapeHTML(s.testo)}</span>
                                                 </label>
                                                 <div class="flex items-center gap-1 shrink-0 opacity-0 group-hover/sub:opacity-100 transition-opacity">
-                                                    <button onclick="modificaSubtask('${giorno}', '${x.id}', '${s.id}', ${selectedWeekOffset})" class="text-slate-300 hover:text-blue-600 p-0.5 cursor-pointer" title="Modifica sotto-attività"><i class="fa-solid fa-pen text-[10px]"></i></button>
-                                                    ${modificaScalettaAttiva ? `<button onclick="eliminaSubtask('${giorno}', '${x.id}', '${s.id}', ${selectedWeekOffset})" class="text-slate-300 hover:text-red-500 p-0.5 cursor-pointer" title="Elimina sotto-attività"><i class="fa-solid fa-xmark text-[10px]"></i></button>` : ''}
+                                                    <button onclick="modificaSubtask('${giorno}', '${x.id}', '${s.id}', ${selectedWeekOffset})" class="text-slate-300 hover:text-blue-600 p-0.5 cursor-pointer" title="Modifica voce"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                                                    <button onclick="eliminaSubtask('${giorno}', '${x.id}', '${s.id}', ${selectedWeekOffset})" class="text-slate-300 hover:text-red-500 p-0.5 cursor-pointer" title="Elimina voce checklist"><i class="fa-solid fa-trash text-[10px]"></i></button>
                                                 </div>
                                             </div>
                                         `).join('')}
@@ -5848,6 +5850,9 @@
                                             </button>
                                             <button onclick="apriModalCalendarioPianifica('${giorno}', '${x.id}', '${escapeHTML(x.testo).replace(/'/g, "\\'")}', ${selectedWeekOffset})" class="text-slate-300 hover:text-blue-600 p-0.5 cursor-pointer" title="Apri nel Pianificatore Futuro con Controllo Carico">
                                                 <i class="fa-regular fa-calendar-days text-xs"></i>
+                                            </button>
+                                            <button onclick="eliminaAttivitaScaletta('${giorno}','${x.id}')" class="text-slate-300 hover:text-red-500 p-0.5 cursor-pointer" title="Elimina attività">
+                                                <i class="fa-solid fa-trash text-xs"></i>
                                             </button>
                                         </div>
                                     </div>
