@@ -617,22 +617,34 @@
                 <!-- Matrice Decisionale 2x2 & Hub Priorità (Direttamente a fianco del Timer) -->
                 <div id="matrice-eisenhower-container" class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
                     <!-- Top Bar: Titolo + Mini-Badge KPI 4 Pilastri -->
-                    <!-- Top Bar: Titolo + Azioni + Mini-Badge KPI 4 Pilastri -->
-                    <div class="flex flex-wrap items-center justify-between gap-3 pb-3 mb-3 border-b border-slate-100">
+                    <!-- Top Bar: Titolo + Data Oggi + Navigatore Settimana + Azioni + Mini-Badge KPI -->
+                    <div class="flex flex-wrap items-center justify-between gap-2.5 pb-3 mb-3 border-b border-slate-100">
                         <div class="flex items-center gap-2.5">
                             <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm border border-blue-100 shadow-2xs">
                                 <i class="fa-solid fa-shapes"></i>
                             </div>
                             <div>
-                                <h3 class="font-bold text-slate-800 text-sm tracking-wide flex items-center gap-2">
-                                    Matrice Decisionale &amp; Focus Operativo
-                                </h3>
-                                <p class="text-[10px] text-slate-400">Clicca <strong class="text-blue-600">🎯</strong> per il timer o cambia il giorno (<strong class="text-slate-600">Lun, Mar...</strong>) per pianificare subito nella scaletta</p>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h3 class="font-bold text-slate-800 text-sm tracking-wide">
+                                        Matrice Decisionale &amp; Focus Operativo
+                                    </h3>
+                                    <!-- Badge dinamico Data Odierna -->
+                                    <span id="matrice-badge-data-oggi" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 text-[11px] font-bold shadow-2xs">
+                                        <i class="fa-regular fa-calendar-check text-blue-600"></i> <span id="txt-matrice-data-oggi">Oggi</span>
+                                    </span>
+                                </div>
+                                <p class="text-[10px] text-slate-400">Clicca <strong class="text-blue-600">🎯</strong> per il timer, cambia il giorno (<strong class="text-slate-600">Lun, Mar...</strong>) o usa <strong class="text-blue-600">📅</strong> per pianificare con controllo carico</p>
                             </div>
                         </div>
                         <!-- Azioni Matrice & Mini-Badge KPI -->
                         <div class="flex items-center gap-2 flex-wrap">
-                            <button onclick="apriModalOrganizzaMatrice()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-[11px] font-bold px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1 shadow-2xs" title="Incolla note multiple da classificare e distribuire automaticamente">
+                            <!-- Navigatore Settimana Rapido -->
+                            <div class="inline-flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-xs font-bold shadow-2xs">
+                                <button onclick="cambiaSettimanaMatrice(-1)" class="w-5 h-5 rounded bg-white hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors cursor-pointer" title="Settimana precedente"><i class="fa-solid fa-chevron-left text-[9px]"></i></button>
+                                <span id="txt-matrice-settimana" class="px-1.5 text-slate-700 text-[10px] font-bold">Settimana Corrente</span>
+                                <button onclick="cambiaSettimanaMatrice(1)" class="w-5 h-5 rounded bg-white hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors cursor-pointer" title="Settimana successiva"><i class="fa-solid fa-chevron-right text-[9px]"></i></button>
+                            </div>
+                            <button onclick="apriModalOrganizzaMatrice()" class="bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-[11px] font-bold px-2 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1 shadow-2xs" title="Incolla note multiple da classificare e distribuire automaticamente">
                                 <i class="fa-solid fa-wand-magic-sparkles text-blue-600"></i> Organizza Note
                             </button>
                             <!-- Mini-Badge KPI compatti per i 4 Pilastri -->
@@ -5218,6 +5230,21 @@
                 aggiungiAttivitaMatrice(x, 'Promemoria');
             });
 
+            // Aggiorna data odierna e label settimana nella testata matrice
+            const txtOggi = document.getElementById('txt-matrice-data-oggi');
+            if (txtOggi) txtOggi.textContent = getOggiDataStringa();
+
+            const txtSett = document.getElementById('txt-matrice-settimana');
+            if (txtSett) {
+                if (selectedWeekOffset === 0) txtSett.textContent = 'Settimana Corrente';
+                else if (selectedWeekOffset === 1) txtSett.textContent = 'Prossima (+1)';
+                else txtSett.textContent = `+${selectedWeekOffset} Settimana`;
+            }
+
+            const w0 = getWeekSchedule(0);
+            const w1 = getWeekSchedule(1);
+            const w2 = getWeekSchedule(2);
+
             ['q1', 'q2', 'q3', 'q4'].forEach(q => {
                 const container = document.getElementById(`matrice-${q}-list`);
                 if (!container) return;
@@ -5235,8 +5262,30 @@
                 container.innerHTML = arr.map(x => {
                     const checkClass = x.completata ? 'line-through text-slate-400 font-normal' : 'text-slate-700 font-medium';
                     const safeEscapedText = escapeHTML(x.testo).replace(/'/g, "\\'");
+
+                    // Generazione opzioni raggruppate con carico compiti
+                    const optSettCorrente = giorniSettimana.map((g, i) => {
+                        const isToday = isOggi(i);
+                        const count = (w0[g] || []).length;
+                        const isSelected = (x.provenienza === g && selectedWeekOffset === 0);
+                        const todayMark = isToday ? ' 🟢 (Oggi)' : '';
+                        return `<option value="${g}:0" ${isSelected ? 'selected' : ''}>${g.substring(0, 3)} ${getDataGiornoOffset(i, 0)}${todayMark} [${count}]</option>`;
+                    }).join('');
+
+                    const optProssima = giorniSettimana.map((g, i) => {
+                        const count = (w1[g] || []).length;
+                        const isSelected = (x.provenienza === g && selectedWeekOffset === 1);
+                        return `<option value="${g}:1" ${isSelected ? 'selected' : ''}>+1 ${g.substring(0, 3)} ${getDataGiornoOffset(i, 1)} [${count}]</option>`;
+                    }).join('');
+
+                    const optTraDue = giorniSettimana.map((g, i) => {
+                        const count = (w2[g] || []).length;
+                        const isSelected = (x.provenienza === g && selectedWeekOffset === 2);
+                        return `<option value="${g}:2" ${isSelected ? 'selected' : ''}>+2 ${g.substring(0, 3)} ${getDataGiornoOffset(i, 2)} [${count}]</option>`;
+                    }).join('');
+
                     return `
-                        <div class="w-full flex items-center justify-between gap-2 py-0.5 px-1.5 rounded hover:bg-white/90 border border-transparent hover:border-slate-200/60 transition-all text-xs group">
+                        <div class="w-full flex items-center justify-between gap-1.5 py-0.5 px-1.5 rounded hover:bg-white/90 border border-transparent hover:border-slate-200/60 transition-all text-xs group">
                             <div class="flex items-center gap-1.5 min-w-0 flex-1">
                                 <span draggable="true" ondragstart="dragStart(event, '${x.provenienza}', '${x.id}')" ondragend="dragEnd(event)" class="text-slate-300 hover:text-blue-600 cursor-grab active:cursor-grabbing shrink-0" title="Trascina in un altro quadrante" aria-label="Sposta">
                                     <i class="fa-solid fa-grip-vertical text-[10px]"></i>
@@ -5244,21 +5293,26 @@
                                 <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaMatrice('${x.provenienza}', '${x.id}')" class="cursor-pointer accent-emerald-600 shrink-0">
                                 <span class="break-words leading-tight flex-1 ${checkClass}">${escapeHTML(x.testo)}</span>
                             </div>
-                            <div class="ml-auto shrink-0 flex items-center gap-1.5 pl-1.5">
+                            <div class="ml-auto shrink-0 flex items-center gap-1 pl-1">
                                 ${!x.completata ? `
                                 <button onclick="impostaFocusTimerDaMatrice('${safeEscapedText}')" class="w-5 h-5 rounded flex items-center justify-center bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 text-xs cursor-pointer transition-all shrink-0 shadow-2xs" title="Imposta come Focus nel Timer">
                                     🎯
                                 </button>` : ''}
-                                <select onchange="spostaGiornoDaMatrice('${x.provenienza}', '${x.id}', this.value)" title="Pianifica giorno nella scaletta settimanale" class="text-[9px] font-bold text-slate-500 bg-slate-100/90 hover:bg-blue-50 hover:text-blue-700 border border-slate-200/80 rounded px-1 py-0.5 cursor-pointer outline-none transition-colors shrink-0">
-                                    <option value="Promemoria" ${x.provenienza === 'Promemoria' ? 'selected' : ''}>Prom.</option>
-                                    <option value="Lunedì" ${x.provenienza === 'Lunedì' ? 'selected' : ''}>Lun</option>
-                                    <option value="Martedì" ${x.provenienza === 'Martedì' ? 'selected' : ''}>Mar</option>
-                                    <option value="Mercoledì" ${x.provenienza === 'Mercoledì' ? 'selected' : ''}>Mer</option>
-                                    <option value="Giovedì" ${x.provenienza === 'Giovedì' ? 'selected' : ''}>Gio</option>
-                                    <option value="Venerdì" ${x.provenienza === 'Venerdì' ? 'selected' : ''}>Ven</option>
-                                    <option value="Sabato" ${x.provenienza === 'Sabato' ? 'selected' : ''}>Sab</option>
-                                    <option value="Domenica" ${x.provenienza === 'Domenica' ? 'selected' : ''}>Dom</option>
+                                <select onchange="spostaGiornoDaMatrice('${x.provenienza}', '${x.id}', this.value)" title="Pianifica giorno nella scaletta (mostra compiti già fissati)" class="text-[9px] font-bold text-slate-600 bg-slate-100/90 hover:bg-blue-50 hover:text-blue-700 border border-slate-200/80 rounded px-1 py-0.5 cursor-pointer outline-none transition-colors shrink-0 max-w-[90px] sm:max-w-none">
+                                    <option value="Promemoria" ${x.provenienza === 'Promemoria' ? 'selected' : ''}>Promemoria [${promemoriaAgenda.length}]</option>
+                                    <optgroup label="📍 Questa Settimana">
+                                        ${optSettCorrente}
+                                    </optgroup>
+                                    <optgroup label="⏩ Prossima (+1)">
+                                        ${optProssima}
+                                    </optgroup>
+                                    <optgroup label="⏭️ Tra 2 Settimane (+2)">
+                                        ${optTraDue}
+                                    </optgroup>
                                 </select>
+                                <button onclick="apriModalCalendarioPianifica('${x.provenienza}', '${x.id}', '${safeEscapedText}')" class="w-5 h-5 rounded flex items-center justify-center bg-slate-50 hover:bg-blue-50 text-slate-500 hover:text-blue-600 border border-slate-200 text-[10px] cursor-pointer transition-all shrink-0 shadow-2xs" title="Apri Calendario &amp; Ispezione Carico">
+                                    <i class="fa-regular fa-calendar-days"></i>
+                                </button>
                                 <button onclick="modificaTestoMatrice('${x.provenienza}', '${x.id}')" class="text-slate-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-[10px]" title="Modifica"><i class="fa-solid fa-pen"></i></button>
                                 <button onclick="eliminaAttivitaMatrice('${x.provenienza}', '${x.id}')" class="text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-[10px]" title="Elimina"><i class="fa-solid fa-trash"></i></button>
                             </div>
@@ -5266,6 +5320,174 @@
                     `;
                 }).join('');
             });
+        }
+
+        function getDataGiornoOffset(indiceGiorno, offset = 0) {
+            const oggi = new Date();
+            const day = oggi.getDay();
+            const diff = (day === 0) ? -6 : 1 - day;
+            const baseMonday = new Date(oggi);
+            baseMonday.setDate(oggi.getDate() + diff + (offset * 7));
+            
+            const target = new Date(baseMonday);
+            target.setDate(baseMonday.getDate() + indiceGiorno);
+            
+            const giornoMese = target.getDate();
+            const mesiAbbreviati = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+            return `${giornoMese} ${mesiAbbreviati[target.getMonth()]}`;
+        }
+
+        function getOggiDataStringa() {
+            const oggi = new Date();
+            const day = oggi.getDay(); // 0=Dom, 1=Lun
+            const nomiGiorni = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
+            const nomiMesi = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+            return `${nomiGiorni[day]} ${oggi.getDate()} ${nomiMesi[oggi.getMonth()]} ${oggi.getFullYear()}`;
+        }
+
+        function cambiaSettimanaMatrice(direzione) {
+            let nextOffset = selectedWeekOffset + direzione;
+            if (nextOffset < 0) nextOffset = 0;
+            if (nextOffset > 2) nextOffset = 2;
+            cambiaSettimana(nextOffset);
+            renderMatriceEisenhower();
+        }
+
+        // ============================================================
+        // MODAL CALENDARIO & ISPEZIONE CARICO LAVORO
+        // ============================================================
+        let activePlanningItem = null;
+        let modalCalActiveOffset = 0;
+
+        function apriModalCalendarioPianifica(provenienza, id, testo) {
+            activePlanningItem = { provenienza, id, testo };
+            modalCalActiveOffset = selectedWeekOffset || 0;
+            const modal = document.getElementById('modal-calendario-pianifica');
+            if (!modal) return;
+            
+            const titleEl = document.getElementById('modal-cal-item-title');
+            if (titleEl) titleEl.textContent = `Attività: "${testo}" (Attualmente in: ${provenienza})`;
+            
+            modal.classList.remove('hidden');
+            renderModalCalContent();
+        }
+
+        function chiudiModalCalendarioPianifica() {
+            const modal = document.getElementById('modal-calendario-pianifica');
+            if (modal) modal.classList.add('hidden');
+            activePlanningItem = null;
+        }
+
+        function cambiaSettimanaModalCal(offset) {
+            modalCalActiveOffset = offset;
+            renderModalCalContent();
+        }
+
+        function renderModalCalContent() {
+            for (let i = 0; i <= 2; i++) {
+                const btn = document.getElementById(`btn-modal-w${i}`);
+                if (btn) {
+                    btn.className = (i === modalCalActiveOffset)
+                        ? 'px-3 py-1.5 text-xs font-black rounded-xl bg-blue-600 text-white shadow-sm transition-all cursor-pointer'
+                        : 'px-3 py-1.5 text-xs font-bold rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all cursor-pointer';
+                }
+            }
+
+            const grid = document.getElementById('modal-cal-days-grid');
+            if (!grid) return;
+
+            const schedule = getWeekSchedule(modalCalActiveOffset);
+            grid.innerHTML = giorniSettimana.map((g, idx) => {
+                const isToday = (modalCalActiveOffset === 0 && isOggi(idx));
+                const dateLabel = getDataGiornoOffset(idx, modalCalActiveOffset);
+                const tasks = schedule[g] || [];
+                const count = tasks.length;
+
+                let badgeCarico = '';
+                let cardBorder = 'border-slate-200 bg-white hover:border-slate-300';
+                if (count <= 2) {
+                    badgeCarico = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">🟢 ${count} compiti (Libero)</span>`;
+                } else if (count <= 4) {
+                    badgeCarico = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">🟡 ${count} compiti (Medio)</span>`;
+                    cardBorder = 'border-amber-200 bg-amber-50/10 hover:border-amber-300';
+                } else {
+                    badgeCarico = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800 border border-red-200">🔴 ${count} compiti (Sovraccarico ⚠️)</span>`;
+                    cardBorder = 'border-red-200 bg-red-50/10 hover:border-red-300';
+                }
+
+                const isCurrentPlacement = (activePlanningItem && activePlanningItem.provenienza === g && selectedWeekOffset === modalCalActiveOffset);
+
+                return `
+                    <div class="border ${cardBorder} rounded-xl p-3 flex flex-col justify-between transition-all shadow-2xs">
+                        <div>
+                            <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-100">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-bold text-slate-800 text-xs">${g} ${dateLabel}</span>
+                                    ${isToday ? '<span class="bg-blue-600 text-white text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md">Oggi</span>' : ''}
+                                </div>
+                                ${badgeCarico}
+                            </div>
+
+                            <!-- Elenco compiti già pianificati -->
+                            <div class="space-y-1 my-2 max-h-[90px] overflow-y-auto pr-1 text-xs">
+                                ${count === 0 ? '<p class="text-[11px] text-slate-400 italic">Nessun impegno fissato. Ottimo per pianificare!</p>' : ''}
+                                ${tasks.map(t => `
+                                    <div class="flex items-center gap-1.5 text-[11px] text-slate-600 truncate" title="${escapeHTML(t.testo)}">
+                                        <span class="w-1.5 h-1.5 rounded-full ${t.quadrante === 'q1' ? 'bg-red-500' : (t.quadrante === 'q2' ? 'bg-blue-500' : (t.quadrante === 'q3' ? 'bg-emerald-500' : 'bg-slate-400'))} shrink-0"></span>
+                                        <span class="truncate ${t.completata ? 'line-through text-slate-400' : ''}">${escapeHTML(t.testo)}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <button onclick="confermaPianificazioneGiornoModal('${g}', ${modalCalActiveOffset})" class="w-full mt-2 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1 shadow-2xs ${
+                            isCurrentPlacement 
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-300' 
+                                : (count >= 5 ? 'bg-slate-800 hover:bg-slate-900 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white')
+                        }">
+                            ${isCurrentPlacement ? '<i class="fa-solid fa-check"></i> Già pianificato qui' : `<i class="fa-regular fa-calendar-plus"></i> Pianifica per ${g.substring(0,3)}`}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function confermaPianificazioneGiornoModal(targetGiorno, targetOffset) {
+            if (!activePlanningItem) return;
+            const { provenienza, id } = activePlanningItem;
+            spostaGiornoDaMatrice(provenienza, id, `${targetGiorno}:${targetOffset}`);
+            chiudiModalCalendarioPianifica();
+        }
+
+        function pianificaInPromemoriaDaModal() {
+            if (!activePlanningItem) return;
+            const { provenienza, id } = activePlanningItem;
+            spostaGiornoDaMatrice(provenienza, id, 'Promemoria');
+            chiudiModalCalendarioPianifica();
+        }
+
+        function pianificaDataLiberaModal(dataStr) {
+            if (!dataStr || !activePlanningItem) return;
+            const dObj = new Date(dataStr + 'T00:00:00');
+            if (isNaN(dObj.getTime())) return;
+            
+            const dayOfWeek = dObj.getDay(); // 0=Dom, 1=Lun
+            const mappedDay = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'][dayOfWeek];
+            
+            const oggi = new Date();
+            const day = oggi.getDay();
+            const diff = (day === 0) ? -6 : 1 - day;
+            const currentMonday = new Date(oggi);
+            currentMonday.setDate(oggi.getDate() + diff);
+            currentMonday.setHours(0,0,0,0);
+            
+            const targetDate = new Date(dObj);
+            const diffDays = Math.floor((targetDate - currentMonday) / (1000 * 60 * 60 * 24));
+            const targetOffset = Math.floor(diffDays / 7);
+            
+            const { provenienza, id } = activePlanningItem;
+            spostaGiornoDaMatrice(provenienza, id, `${mappedDay}:${targetOffset}`);
+            chiudiModalCalendarioPianifica();
         }
 
         function apriModalOrganizzaMatrice() {
@@ -5352,9 +5574,18 @@
             showToast(`${countAggiunti} note organizzate e distribuite con successo!`, 'success');
         }
 
-        function spostaGiornoDaMatrice(provenienzaAttuale, id, nuovoGiorno) {
-            if (provenienzaAttuale === nuovoGiorno) return;
-            salvaStatoPerAnnullamento(`spostamento giorno attività a ${nuovoGiorno}`);
+        function spostaGiornoDaMatrice(provenienzaAttuale, id, valoreDest) {
+            let targetGiorno = valoreDest;
+            let targetOffset = selectedWeekOffset;
+
+            if (valoreDest && valoreDest.includes(':')) {
+                const parts = valoreDest.split(':');
+                targetGiorno = parts[0];
+                targetOffset = parseInt(parts[1], 10);
+            }
+
+            if (provenienzaAttuale === targetGiorno && selectedWeekOffset === targetOffset) return;
+            salvaStatoPerAnnullamento(`spostamento giorno attività a ${targetGiorno}`);
 
             let itemData = null;
 
@@ -5377,7 +5608,7 @@
 
             if (!itemData) return;
 
-            if (nuovoGiorno === 'Promemoria') {
+            if (targetGiorno === 'Promemoria') {
                 promemoriaAgenda.push({
                     id: itemData.id,
                     testo: itemData.testo,
@@ -5386,23 +5617,25 @@
                     quadrante: itemData.quadrante || 'q2'
                 });
                 salvaPromemoria();
+                showToast(`Attività spostata nei Promemoria`, 'success');
             } else {
-                const weekSchedule = getWeekSchedule(selectedWeekOffset);
-                if (!weekSchedule[nuovoGiorno]) weekSchedule[nuovoGiorno] = [];
-                weekSchedule[nuovoGiorno].push({
+                const destSchedule = getWeekSchedule(targetOffset);
+                if (!destSchedule[targetGiorno]) destSchedule[targetGiorno] = [];
+                destSchedule[targetGiorno].push({
                     id: itemData.id,
                     testo: itemData.testo,
                     completata: Boolean(itemData.completata),
                     quadrante: itemData.quadrante || 'q2'
                 });
-                ordinaAttivitaGiorno(nuovoGiorno);
+                ordinaAttivitaGiorno(targetGiorno, targetOffset);
                 salvaScaletta();
+                const offsetLabel = targetOffset === 0 ? '' : (targetOffset === 1 ? ' (+1 Sett.)' : ` (+${targetOffset} Sett.)`);
+                showToast(`Attività pianificata per ${targetGiorno}${offsetLabel}`, 'success');
             }
 
             renderScaletta();
             renderPromemoria();
             renderMatriceEisenhower();
-            showToast(`Attività pianificata per ${nuovoGiorno}`, 'success');
         }
 
         function toggleAttivitaMatrice(provenienza, id) {
@@ -5654,5 +5887,64 @@
             });
         })();
     </script>
+
+    <!-- Modal Calendario & Ispezione Carico Lavoro -->
+    <div id="modal-calendario-pianifica" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 select-none">
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-scale-in">
+            <!-- Header Modal -->
+            <div class="flex items-center justify-between p-4 border-b border-slate-100 bg-slate-50/80">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm shrink-0">
+                        <i class="fa-solid fa-calendar-days"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="font-bold text-slate-800 text-sm">Pianificatore Futuro con Controllo Carico</h3>
+                        <p id="modal-cal-item-title" class="text-xs text-slate-500 truncate max-w-md italic">Seleziona il giorno migliore</p>
+                    </div>
+                </div>
+                <button onclick="chiudiModalCalendarioPianifica()" class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 flex items-center justify-center cursor-pointer text-sm shrink-0">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Body Modal -->
+            <div class="p-4 overflow-y-auto space-y-3.5 flex-1">
+                <!-- Selettore Settimane Tabs -->
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-1.5" id="modal-cal-week-tabs">
+                        <button onclick="cambiaSettimanaModalCal(0)" id="btn-modal-w0" class="px-3 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer">Questa Settimana</button>
+                        <button onclick="cambiaSettimanaModalCal(1)" id="btn-modal-w1" class="px-3 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer">Prossima (+1)</button>
+                        <button onclick="cambiaSettimanaModalCal(2)" id="btn-modal-w2" class="px-3 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer">Tra 2 Settimane (+2)</button>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[11px] font-bold text-slate-500">Oppure Data Libera:</span>
+                        <input type="date" id="input-modal-cal-data-libera" onchange="pianificaDataLiberaModal(this.value)" class="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white text-slate-700 cursor-pointer focus:outline-none focus:border-blue-400">
+                    </div>
+                </div>
+
+                <!-- Legenda Carico -->
+                <div class="flex items-center gap-4 text-[10px] font-bold px-1 text-slate-500">
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 0-2 compiti: Libero</span>
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> 3-4 compiti: Medio</span>
+                    <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> 5+ compiti: Sovraccarico ⚠️</span>
+                </div>
+
+                <!-- Griglia dei 7 Giorni con Carico e Anteprima Compiti -->
+                <div id="modal-cal-days-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <!-- Popolato dinamicamente da JS -->
+                </div>
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="p-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                <button onclick="pianificaInPromemoriaDaModal()" class="text-xs font-bold text-slate-600 hover:text-blue-700 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs">
+                    <i class="fa-solid fa-thumbtack text-amber-500"></i> Parcheggia nei Promemoria
+                </button>
+                <button onclick="chiudiModalCalendarioPianifica()" class="text-xs font-bold text-slate-500 hover:text-slate-800 px-4 py-1.5 rounded-lg hover:bg-slate-200/50 transition-colors cursor-pointer">
+                    Chiudi
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
