@@ -1395,6 +1395,17 @@
                             </div>
                         </div>
                         <div id="reminders-list" class="space-y-2 max-h-72 overflow-y-auto pr-1"></div>
+                        <div class="flex flex-wrap sm:flex-nowrap gap-1.5 mt-3 pt-2.5 border-t border-amber-100 items-center">
+                            <select id="new-promemoria-priority" class="border border-amber-200 rounded-lg px-2 py-1 text-xs bg-white text-slate-700 font-bold cursor-pointer shrink-0 focus:outline-none focus:ring-1 focus:ring-amber-500 shadow-2xs" title="Priorità promemoria">
+                                <option value="q1">🔴 Q1</option>
+                                <option value="q2" selected>🔵 Q2</option>
+                                <option value="q3">🟢 Q3</option>
+                                <option value="q4">⚪ Q4</option>
+                                <option value="auto">✨ Auto</option>
+                            </select>
+                            <input id="new-promemoria-text" onkeydown="if(event.key==='Enter'){event.preventDefault();aggiungiPromemoriaRapido()}" placeholder="+ Nuovo promemoria..." class="min-w-0 flex-1 border border-amber-200 bg-white rounded-lg px-2 py-1 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-500">
+                            <button onclick="aggiungiPromemoriaRapido()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-2.5 py-1 rounded-lg cursor-pointer transition-colors shadow-2xs shrink-0" title="Aggiungi Promemoria"><i class="fa-solid fa-plus"></i></button>
+                        </div>
                     </section>
                 </div>
 
@@ -4344,8 +4355,10 @@
                             : `${letter} `;
                     }
                 }
-                const pallinoColor = { q1: 'bg-red-500', q2: 'bg-blue-500', q3: 'bg-emerald-500', q4: 'bg-slate-400' }[x.quadrante || ''] || '';
-                const dotHtml = pallinoColor ? `<span class="inline-block w-2 h-2 rounded-full ${pallinoColor} shrink-0 mt-1.5" title="Priorità Eisenhower"></span>` : '';
+                const quad = x.quadrante || 'q2';
+                const pallinoColor = { q1: 'bg-red-500 hover:ring-2 hover:ring-red-300', q2: 'bg-blue-500 hover:ring-2 hover:ring-blue-300', q3: 'bg-emerald-500 hover:ring-2 hover:ring-emerald-300', q4: 'bg-slate-400 hover:ring-2 hover:ring-slate-300' }[quad] || 'bg-blue-500';
+                const nomeQuad = { q1: 'Q1: Fai Subito (Rosso)', q2: 'Q2: Pianifica (Blu)', q3: 'Q3: Delega / Rapido (Verde)', q4: 'Q4: Bassa Priorità (Grigio)' }[quad] || 'Priorità';
+                const dotHtml = `<button onclick="ciclaQuadrantePromemoria('${x.id}')" class="inline-block w-2.5 h-2.5 rounded-full ${pallinoColor} shrink-0 mt-1 cursor-pointer transition-all shadow-xs" title="Priorità: ${nomeQuad}. Clicca per cambiare"></button>`;
 
                 return `<div draggable="true" ondragstart="dragStart(event, 'Promemoria', '${x.id}')" ondragend="dragEnd(event)" class="flex items-start gap-2 border border-slate-100 hover:border-slate-200 bg-white hover:bg-slate-50/70 rounded-xl p-3 group transition-all cursor-grab active:cursor-grabbing shadow-2xs">
                     <i class="fa-solid fa-grip-vertical text-slate-300 hover:text-slate-500 cursor-grab shrink-0 mt-1 mr-0.5" title="Trascina in un giorno della scaletta"></i>
@@ -4362,6 +4375,61 @@
                 </div>`;
             }).join('');
             renderMatriceEisenhower();
+        }
+
+        function ciclaQuadrante(giorno, id, offset = selectedWeekOffset) {
+            const weekSchedule = getWeekSchedule(offset);
+            const x = weekSchedule[giorno]?.find(a => a.id === id);
+            if (!x) return;
+            const sequenza = { '': 'q1', 'q1': 'q2', 'q2': 'q3', 'q3': 'q4', 'q4': 'q1' };
+            x.quadrante = sequenza[x.quadrante || 'q2'] || 'q1';
+            ordinaAttivitaGiorno(giorno, offset);
+            salvaScaletta();
+            renderScaletta();
+            renderMatriceEisenhower();
+            const nomi = { q1: '🔴 Q1: Fai Subito (Rosso)', q2: '🔵 Q2: Pianifica (Blu)', q3: '🟢 Q3: Delega / Rapido (Verde)', q4: '⚪ Q4: Parcheggia / Bassa (Grigio)' };
+            showToast(`Priorità: ${nomi[x.quadrante]}`, 'info');
+        }
+
+        function ciclaQuadrantePromemoria(id) {
+            const item = promemoriaAgenda.find(x => x.id === id);
+            if (!item) return;
+            const sequenza = { '': 'q1', 'q1': 'q2', 'q2': 'q3', 'q3': 'q4', 'q4': 'q1' };
+            item.quadrante = sequenza[item.quadrante || 'q2'] || 'q1';
+            salvaPromemoria();
+            renderPromemoria();
+            renderMatriceEisenhower();
+            const nomi = { q1: '🔴 Q1: Fai Subito (Rosso)', q2: '🔵 Q2: Pianifica (Blu)', q3: '🟢 Q3: Delega / Rapido (Verde)', q4: '⚪ Q4: Parcheggia / Bassa (Grigio)' };
+            showToast(`Priorità: ${nomi[item.quadrante]}`, 'info');
+        }
+
+        function aggiungiPromemoriaRapido() {
+            const input = document.getElementById('new-promemoria-text');
+            if (!input) return;
+            const text = input.value.trim();
+            if (!text) return;
+            const cleanText = correggiOrtografia(text);
+            const prioritySelect = document.getElementById('new-promemoria-priority');
+            const chosenPriority = prioritySelect ? prioritySelect.value : 'q2';
+            let quadrante = 'q2';
+            if (chosenPriority === 'auto') {
+                const reco = classificaTaskConHeuristic(cleanText);
+                quadrante = reco.quadrante || 'q2';
+            } else if (chosenPriority) {
+                quadrante = chosenPriority;
+            }
+            promemoriaAgenda.push({
+                id: nuovoId(),
+                testo: cleanText,
+                data: '',
+                completata: false,
+                quadrante: quadrante
+            });
+            salvaPromemoria();
+            renderPromemoria();
+            renderMatriceEisenhower();
+            input.value = '';
+            showToast('Promemoria aggiunto.', 'success');
         }
 
         function salvaScaletta() { localStorage.setItem(AGENDA_KEYS.schedule, JSON.stringify(scalettaAgenda)); }
@@ -4405,8 +4473,17 @@
             const weekSchedule = getWeekSchedule(selectedWeekOffset);
             if (!weekSchedule[giorno]) weekSchedule[giorno] = [];
             const cleanText = correggiOrtografia(text);
-            const reco = classificaTaskConHeuristic(cleanText);
-            const quadrante = reco.quadrante || 'q2';
+            
+            const prioritySelect = document.getElementById(`new-task-priority-${idx}`);
+            const chosenPriority = prioritySelect ? prioritySelect.value : 'q2';
+            let quadrante = 'q2';
+            if (chosenPriority === 'auto') {
+                const reco = classificaTaskConHeuristic(cleanText);
+                quadrante = reco.quadrante || 'q2';
+            } else if (chosenPriority) {
+                quadrante = chosenPriority;
+            }
+            
             weekSchedule[giorno].push({
                 id: nuovoId(),
                 testo: cleanText,
@@ -4416,6 +4493,7 @@
             ordinaAttivitaGiorno(giorno);
             salvaScaletta();
             renderScaletta();
+            renderMatriceEisenhower();
             input.value = '';
         }
 
@@ -5741,8 +5819,10 @@
                     ${gcalEventsHtml}
                     <div class="space-y-2">
                         ${tasksGiorno.length ? tasksGiorno.map((x, idx2, arr) => {
-                            const pallinoColor = { q1: 'bg-red-500', q2: 'bg-blue-500', q3: 'bg-emerald-500', q4: 'bg-slate-400' }[x.quadrante || ''] || '';
-                            const dotHtml = pallinoColor ? `<span class="inline-block w-2.5 h-2.5 rounded-full ${pallinoColor} shrink-0 mt-1" title="Priorità Eisenhower"></span>` : '';
+                            const quad = x.quadrante || 'q2';
+                            const pallinoColor = { q1: 'bg-red-500 hover:ring-2 hover:ring-red-300', q2: 'bg-blue-500 hover:ring-2 hover:ring-blue-300', q3: 'bg-emerald-500 hover:ring-2 hover:ring-emerald-300', q4: 'bg-slate-400 hover:ring-2 hover:ring-slate-300' }[quad] || 'bg-blue-500';
+                            const nomeQuad = { q1: 'Q1: Fai Subito (Rosso)', q2: 'Q2: Pianifica (Blu)', q3: 'Q3: Delega / Rapido (Verde)', q4: 'Q4: Bassa Priorità (Grigio)' }[quad] || 'Priorità';
+                            const dotHtml = `<button onclick="ciclaQuadrante('${giorno}','${x.id}')" class="inline-block w-2.5 h-2.5 rounded-full ${pallinoColor} shrink-0 mt-1 cursor-pointer transition-all shadow-xs" title="Priorità: ${nomeQuad}. Clicca per cambiare"></button>`;
                             
                             const targetOptions = [];
                             targetOptions.push(`<option value="Promemoria">📌 Promemoria (senza data)</option>`);
@@ -5866,9 +5946,16 @@
                                    </div>`;
                         }).join('') : `<p class="text-sm italic text-slate-400">Nessuna attività</p>`}
                     </div>
-                    <div class="flex gap-1.5 mt-2.5 pt-2 border-t border-slate-100">
+                    <div class="flex flex-wrap sm:flex-nowrap gap-1.5 mt-2.5 pt-2 border-t border-slate-100 items-center">
+                        <select id="new-task-priority-${indice}" class="border border-slate-200 rounded-lg px-2 py-1 text-xs bg-white text-slate-700 font-bold cursor-pointer shrink-0 focus:outline-none focus:ring-1 focus:ring-${theme.primary} shadow-2xs" title="Seleziona priorità compito">
+                            <option value="q1">🔴 Q1</option>
+                            <option value="q2" selected>🔵 Q2</option>
+                            <option value="q3">🟢 Q3</option>
+                            <option value="q4">⚪ Q4</option>
+                            <option value="auto">✨ Auto</option>
+                        </select>
                         <input id="new-task-${indice}" onkeydown="if(event.key==='Enter'){event.preventDefault();aggiungiAttivitaScaletta('${giorno}')}" placeholder="+ Nuova attività per ${giorno}..." class="min-w-0 flex-1 border border-slate-200 bg-white rounded-lg px-2 py-1 text-xs text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-${theme.primary} focus:border-${theme.primary}">
-                        <button onclick="aggiungiAttivitaScaletta('${giorno}')" aria-label="Aggiungi attività a ${giorno}" class="bg-${theme.primary} hover:bg-${theme.primaryHover} text-white text-xs font-bold px-2 py-1 rounded-lg cursor-pointer transition-colors shadow-2xs" title="Aggiungi"><i class="fa-solid fa-plus"></i></button>
+                        <button onclick="aggiungiAttivitaScaletta('${giorno}')" aria-label="Aggiungi attività a ${giorno}" class="bg-${theme.primary} hover:bg-${theme.primaryHover} text-white text-xs font-bold px-2.5 py-1 rounded-lg cursor-pointer transition-colors shadow-2xs shrink-0" title="Aggiungi"><i class="fa-solid fa-plus"></i></button>
                     </div>
                 </div>`;
             }).join('');
