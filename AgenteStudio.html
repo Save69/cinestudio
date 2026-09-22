@@ -6608,6 +6608,9 @@
                 container.innerHTML = arr.map(x => {
                     const checkClass = x.completata ? 'line-through text-slate-400 font-normal' : 'text-slate-700 font-medium';
                     const safeEscapedText = escapeHTML(x.testo).replace(/'/g, "\\'");
+                    const oggiStr = formattaData(new Date());
+                    const haNuovaScadenza = Boolean(x.data && x.data >= oggiStr);
+                    const isInSospeso = Boolean(x.infoSettimana && x.infoSettimana.isPast && !haNuovaScadenza);
 
                     // Generazione opzioni raggruppate con carico compiti
                     const optSettCorrente = giorniSettimana.map((g, i) => {
@@ -6639,7 +6642,8 @@
                                 <input type="checkbox" ${x.completata ? 'checked' : ''} onchange="toggleAttivitaMatrice('${x.provenienza}', '${x.id}')" class="cursor-pointer accent-emerald-600 shrink-0">
                                 <span class="break-words leading-tight flex-1 ${checkClass}">
                                     ${escapeHTML(x.testo)}
-                                    ${x.infoSettimana && x.infoSettimana.isPast ? `<span class="inline-block ml-1 px-1 py-0.2 text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded shrink-0 select-none" title="Non evaso dalla settimana del ${escapeHTML(x.infoSettimana.labelOrigine)}">⏳ In sospeso (${escapeHTML(x.infoSettimana.labelOrigine)})</span>` : ''}
+                                    ${isInSospeso ? `<span class="inline-block ml-1 px-1 py-0.2 text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded shrink-0 select-none" title="Non evaso dalla settimana del ${escapeHTML(x.infoSettimana.labelOrigine)}">⏳ In sospeso (${escapeHTML(x.infoSettimana.labelOrigine)})</span>` : ''}
+                                    ${x.data ? `<span class="inline-block ml-1 px-1 py-0.2 text-[9px] font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded shrink-0 select-none" title="Scadenza: ${escapeHTML(x.data.split('-').reverse().join('/'))}"><i class="fa-regular fa-calendar text-[8px] mr-0.5"></i>${escapeHTML(x.data.split('-').reverse().join('/'))}</span>` : ''}
                                 </span>
                             </div>
                             <div class="ml-auto shrink-0 flex items-center gap-1 pl-1">
@@ -6648,7 +6652,7 @@
                                     🎯
                                 </button>` : ''}
                                 <select onchange="spostaGiornoDaMatrice('${x.provenienza}', '${x.id}', this.value)" title="Pianifica giorno nella scaletta (mostra compiti già fissati)" class="text-[9px] font-bold text-slate-600 bg-slate-100/90 hover:bg-blue-50 hover:text-blue-700 border border-slate-200/80 rounded px-1 py-0.5 cursor-pointer outline-none transition-colors shrink-0 max-w-[90px] sm:max-w-none">
-                                    ${x.infoSettimana && x.infoSettimana.isPast ? `<option value="" selected disabled>⏳ Non evaso (${escapeHTML(x.infoSettimana.labelOrigine || x.provenienza)})</option>` : ''}
+                                    ${isInSospeso ? `<option value="" selected disabled>⏳ Non evaso (${escapeHTML(x.infoSettimana.labelOrigine || x.provenienza)})</option>` : ''}
                                     <option value="Promemoria" ${x.provenienza === 'Promemoria' ? 'selected' : ''}>Promemoria [${promemoriaAgenda.length}]</option>
                                     <optgroup label="📍 Questa Settimana">
                                         ${optSettCorrente}
@@ -6685,6 +6689,21 @@
             const giornoMese = target.getDate();
             const mesiAbbreviati = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
             return `${giornoMese} ${mesiAbbreviati[target.getMonth()]}`;
+        }
+
+        function calcolaDataISO(indiceGiorno, offset = 0) {
+            const oggi = new Date();
+            const day = oggi.getDay();
+            const diff = (day === 0) ? -6 : 1 - day;
+            const baseMonday = new Date(oggi);
+            baseMonday.setDate(oggi.getDate() + diff + (offset * 7));
+            
+            const target = new Date(baseMonday);
+            target.setDate(baseMonday.getDate() + indiceGiorno);
+            const y = target.getFullYear();
+            const m = String(target.getMonth() + 1).padStart(2, '0');
+            const d = String(target.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
         }
 
         function getIntervalloSettimanaOffset(offset = 0) {
@@ -6972,11 +6991,12 @@
             
             const targetDate = new Date(dObj);
             const diffDays = Math.floor((targetDate - currentMonday) / (1000 * 60 * 60 * 24));
-            const targetOffset = Math.max(0, Math.floor(diffDays / 7));
+            const targetOffset = Math.floor(diffDays / 7);
             
             const { provenienza, id, sourceOffset } = activePlanningItem;
-            spostaAttivitaTraGiorni(provenienza, sourceOffset || 0, mappedDay, targetOffset, id);
+            spostaAttivitaTraGiorni(provenienza, sourceOffset || 0, mappedDay, targetOffset, id, dataStr);
             chiudiModalCalendarioPianifica();
+            showToast(`Nuova scadenza fissata per ${mappedDay} (${dataStr.split('-').reverse().join('/')})`, 'success');
         }
 
         function apriModalOrganizzaMatrice() {
@@ -7063,10 +7083,9 @@
             showToast(`${countAggiunti} note organizzate e distribuite con successo!`, 'success');
         }
 
-        function spostaAttivitaTraGiorni(srcGiorno, srcOffset, destGiorno, destOffset, id) {
-            if (srcGiorno === destGiorno && srcOffset === destOffset) return;
-
+        function spostaAttivitaTraGiorni(srcGiorno, srcOffset, destGiorno, destOffset, id, nuovaData = null) {
             let itemData = null;
+            let srcWeekKey = null;
 
             if (srcGiorno === 'Promemoria') {
                 const idx = promemoriaAgenda.findIndex(x => x.id === id);
@@ -7075,21 +7094,22 @@
                     salvaPromemoria();
                 }
             } else {
-                const srcSchedule = getWeekSchedule(srcOffset);
-                if (srcSchedule && srcSchedule[srcGiorno]) {
-                    const idx = srcSchedule[srcGiorno].findIndex(x => x.id === id);
+                // Prima cerca in tutte le settimane per individuare l'esatta posizione di origine
+                const res = trovaAttivitaInTutteLeSettimane(id);
+                if (res && res.lista) {
+                    const idx = res.lista.findIndex(x => x.id === id);
                     if (idx !== -1) {
-                        itemData = srcSchedule[srcGiorno].splice(idx, 1)[0];
+                        itemData = res.lista.splice(idx, 1)[0];
+                        srcWeekKey = res.wKey;
                         salvaScaletta();
                     }
                 }
-                // Se non era nella settimana srcOffset, cercalo in tutte le settimane
                 if (!itemData) {
-                    const res = trovaAttivitaInTutteLeSettimane(id);
-                    if (res && res.lista) {
-                        const idx = res.lista.findIndex(x => x.id === id);
+                    const srcSchedule = getWeekSchedule(srcOffset);
+                    if (srcSchedule && srcSchedule[srcGiorno]) {
+                        const idx = srcSchedule[srcGiorno].findIndex(x => x.id === id);
                         if (idx !== -1) {
-                            itemData = res.lista.splice(idx, 1)[0];
+                            itemData = srcSchedule[srcGiorno].splice(idx, 1)[0];
                             salvaScaletta();
                         }
                     }
@@ -7097,13 +7117,29 @@
             }
 
             if (!itemData) return;
+
+            const destMondayKey = getWeekKey(destOffset);
+            if (srcGiorno === destGiorno && srcWeekKey === destMondayKey && !nuovaData) {
+                // Il compito si trovava già esattamente in quel giorno della stessa settimana
+                const curSched = getWeekSchedule(destOffset);
+                if (!curSched[destGiorno]) curSched[destGiorno] = [];
+                curSched[destGiorno].push(itemData);
+                salvaScaletta();
+                return;
+            }
+
             salvaStatoPerAnnullamento(`spostamento attività da ${srcGiorno} a ${destGiorno}`);
+
+            // Calcola la nuova scadenza per il giorno di destinazione
+            const idxGiorno = giorniSettimana.indexOf(destGiorno);
+            const dataCalcolata = (idxGiorno !== -1) ? calcolaDataISO(idxGiorno, destOffset) : null;
+            const dataFinale = nuovaData || dataCalcolata || itemData.data || '';
 
             if (destGiorno === 'Promemoria') {
                 promemoriaAgenda.push({
                     id: itemData.id,
                     testo: itemData.testo,
-                    data: itemData.data || '',
+                    data: nuovaData || itemData.data || '',
                     completata: Boolean(itemData.completata),
                     quadrante: itemData.quadrante || 'q2',
                     subtasks: Array.isArray(itemData.subtasks) ? itemData.subtasks : []
@@ -7116,6 +7152,7 @@
                 destSchedule[destGiorno].push({
                     id: itemData.id,
                     testo: itemData.testo,
+                    data: dataFinale,
                     completata: Boolean(itemData.completata),
                     quadrante: itemData.quadrante || 'q2',
                     subtasks: Array.isArray(itemData.subtasks) ? itemData.subtasks : []
@@ -7123,7 +7160,7 @@
                 ordinaAttivitaGiorno(destGiorno, destOffset);
                 salvaScaletta();
                 const offsetLabel = destOffset === 0 ? '' : (destOffset === 1 ? ' (+1 Sett.)' : ` (+${destOffset} Sett.)`);
-                showToast(`Attività spostata in ${destGiorno}${offsetLabel}`, 'success');
+                showToast(`Attività ripianificata per ${destGiorno}${offsetLabel}`, 'success');
             }
 
             renderScaletta();
@@ -7470,8 +7507,9 @@
                         <!-- Popolato dinamicamente con frecce, tabs e range date -->
                     </div>
                     <div class="flex items-center gap-1.5">
-                        <span class="text-[11px] font-bold text-slate-500">Vai a data:</span>
-                        <input type="date" id="input-modal-cal-data-libera" onchange="saltaASettimanaDaDataLibera(this.value)" class="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white text-slate-700 cursor-pointer focus:outline-none focus:border-blue-400">
+                        <span class="text-[11px] font-bold text-slate-500">Imposta scadenza:</span>
+                        <input type="date" id="input-modal-cal-data-libera" onchange="pianificaDataLiberaModal(this.value)" class="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white text-slate-700 cursor-pointer focus:outline-none focus:border-blue-400">
+                        <button onclick="pianificaDataLiberaModal(document.getElementById('input-modal-cal-data-libera').value)" class="px-2 py-1 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all cursor-pointer flex items-center gap-1 shadow-2xs" title="Fissa questa data come nuova scadenza"><i class="fa-regular fa-calendar-check"></i> Fissa</button>
                     </div>
                 </div>
 
