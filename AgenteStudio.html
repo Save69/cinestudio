@@ -139,13 +139,10 @@
         }
 
         /* Blu come colore primario dell'app; i colori dei pilastri restano accenti. */
-        .v2-brand,
-        #btn-toggle-timer {
+        .v2-brand {
             background: var(--v2-primary) !important;
             box-shadow: none !important;
         }
-
-        #btn-toggle-timer:hover { background: var(--v2-primary-hover) !important; }
 
         .v2-primary-button {
             min-height: 40px;
@@ -156,9 +153,9 @@
 
         /* Impostazioni non quotidiane raccolte in un pannello discreto. */
         .v2-settings {
-            margin-top: 14px;
+            margin-top: 8px;
             border-top: 1px solid #334155;
-            padding-top: 10px;
+            padding-top: 6px;
             color: #cbd5e1;
         }
 
@@ -1013,19 +1010,19 @@
             </header>
 
             <!-- 1. FASCIA SUPERIORE: Timer Card + Matrice Decisionale & Hub Priorità -->
-            <div class="grid grid-cols-1 xl:grid-cols-[285px_1fr] lg:grid-cols-[300px_1fr] gap-4 mb-5 items-stretch">
+            <div class="grid grid-cols-1 xl:grid-cols-[285px_1fr] lg:grid-cols-[300px_1fr] gap-4 mb-5 items-start">
 
                 <!-- Timer Card (Compatta & Ottimizzata) -->
-                <div id="timer-card" class="bg-slate-900 text-white p-4 rounded-2xl border border-slate-800 shadow-xl flex flex-col justify-between transition-all duration-500">
+                <div id="timer-card" class="bg-slate-900 text-white p-3 rounded-2xl border border-slate-800 shadow-xl flex flex-col justify-start transition-all duration-500">
                     <div>
                         <!-- Status Row -->
-                        <div class="flex justify-between items-center mb-2.5">
+                        <div class="flex justify-between items-center mb-1.5">
                             <span class="text-[10px] font-bold uppercase tracking-widest text-teal-400 font-mono" id="timer-status-label">FASE 1: FOCUS ATTIVO — RIORDINO</span>
                             <i class="fa-solid fa-circle-dot text-teal-500 animate-pulse" id="timer-status-dot"></i>
                         </div>
 
                         <!-- Pillar Selector Pills -->
-                        <div class="flex gap-1 mb-3 bg-slate-800/70 p-1 rounded-xl">
+                        <div class="flex gap-1 mb-2 bg-slate-800/70 p-1 rounded-xl">
                             <button onclick="setPilastroAttivo('lavoro')" id="pill-lavoro" class="flex-1 flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all pill-lavoro-active">
                                 <i class="fa-solid fa-briefcase"></i> Lavoro
                             </button>
@@ -1041,55 +1038,55 @@
                         </div>
 
                         <!-- Pomodori completati oggi, separati per pilastro -->
-                        <div id="pomodori-oggi" class="grid grid-cols-2 gap-1 mb-2.5" aria-label="Pomodori completati oggi"></div>
+                        <div id="pomodori-oggi" class="grid grid-cols-2 gap-1 mb-1.5" aria-label="Pomodori completati oggi"></div>
 
                         <!-- Timer Display -->
-                        <div class="text-center my-2">
-                            <span class="text-4xl font-black font-mono tracking-widest" id="timer-display">30:00</span>
+                        <div class="text-center my-0.5">
+                            <span class="text-3xl font-black font-mono tracking-widest" id="timer-display">30:00</span>
                         </div>
                     </div>
 
                     <!-- Progress Bar -->
-                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden my-2">
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden my-1">
                         <div id="timer-progress-bar" class="h-full w-full transition-all duration-1000" style="background-color: #0d9488;"></div>
                     </div>
 
                     <!-- Instruction Text -->
-                    <p id="timer-instruction" class="text-center text-[11px] text-slate-400 mb-2.5 h-7 flex items-center justify-center font-medium">
+                    <p id="timer-instruction" class="text-center text-[10px] text-slate-400 mb-1 leading-tight font-medium">
                         Seleziona la stanza in basso, avvia il timer e applica il Seiri (Scarto).
                     </p>
 
                     <!-- Smooth Jazz Radio Mini-Player -->
-                    <div class="my-2 bg-slate-800/90 border border-amber-500/30 rounded-xl p-2 flex items-center justify-between gap-2 shadow-md">
-                        <div class="flex items-center gap-2 min-w-0">
-                            <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/40">
-                                <i class="fa-solid fa-radio text-[10px]" id="radio-indicator-icon"></i>
+                    <div class="my-1 bg-slate-800/90 border border-amber-500/30 rounded-xl p-1.5 flex items-center justify-between gap-2 shadow-xs">
+                        <div class="flex items-center gap-1.5 min-w-0">
+                            <div class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/40">
+                                <i class="fa-solid fa-radio text-[9px]" id="radio-indicator-icon"></i>
                             </div>
                             <div class="min-w-0">
                                 <div class="flex items-center gap-1">
-                                    <span class="text-[10px] font-bold text-slate-100 truncate">Smooth Jazz</span>
-                                    <span id="radio-live-badge" class="hidden text-[8px] font-black uppercase tracking-wider bg-red-500/20 text-red-400 px-1 py-0.5 rounded border border-red-500/30 animate-pulse">LIVE</span>
+                                    <span class="text-[9px] font-bold text-slate-100 truncate">Smooth Jazz</span>
+                                    <span id="radio-live-badge" class="hidden text-[7px] font-black uppercase tracking-wider bg-red-500/20 text-red-400 px-1 py-0.5 rounded border border-red-500/30 animate-pulse">LIVE</span>
                                 </div>
                                 <p id="radio-status-text" class="text-[8px] text-slate-400 truncate">smoothjazz.com.pl</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-1.5 shrink-0">
                             <input type="range" id="radio-volume" min="0" max="1" step="0.05" value="0.7" oninput="cambiaVolumeRadio(this.value)" class="w-10 h-1 accent-amber-400 bg-slate-700 rounded-lg cursor-pointer" title="Volume Radio">
-                            <button type="button" id="btn-toggle-radio" onclick="toggleRadioSmoothJazz()" class="w-6 h-6 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-[10px] shadow transition-all cursor-pointer" title="Avvia/Ferma Radio Smooth Jazz">
+                            <button type="button" id="btn-toggle-radio" onclick="toggleRadioSmoothJazz()" class="w-5 h-5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-[9px] shadow transition-all cursor-pointer" title="Avvia/Ferma Radio Smooth Jazz">
                                 <i class="fa-solid fa-play" id="radio-play-icon"></i>
                             </button>
                         </div>
                     </div>
 
                     <!-- Preset Buttons -->
-                    <div class="grid grid-cols-3 gap-1.5">
-                        <button id="preset-btn-1" onclick="setPresetTimer(15)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all">15 Min</button>
-                        <button id="preset-btn-2" onclick="setPresetTimer(30)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all">30 Min</button>
-                        <button onclick="resetTimer()" class="bg-slate-800 hover:bg-red-950 hover:text-red-400 text-slate-400 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all">Reset</button>
+                    <div class="grid grid-cols-3 gap-1 my-1">
+                        <button id="preset-btn-1" onclick="setPresetTimer(15)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1 rounded-lg text-xs font-bold cursor-pointer transition-all">15 Min</button>
+                        <button id="preset-btn-2" onclick="setPresetTimer(30)" class="bg-slate-800 hover:bg-slate-700 text-slate-300 py-1 rounded-lg text-xs font-bold cursor-pointer transition-all">30 Min</button>
+                        <button onclick="resetTimer()" class="bg-slate-800 hover:bg-red-950 hover:text-red-400 text-slate-400 py-1 rounded-lg text-xs font-bold cursor-pointer transition-all">Reset</button>
                     </div>
 
                     <!-- Toggle Button -->
-                    <button id="btn-toggle-timer" onclick="toggleTimer()" class="v2-primary-button w-full mt-2.5 text-white py-2 rounded-xl font-bold text-xs tracking-wide transition-all cursor-pointer flex items-center justify-center gap-2" style="background-color: #2563eb;">
+                    <button id="btn-toggle-timer" onclick="toggleTimer()" class="w-full mt-1 text-white py-2 rounded-xl font-bold text-xs tracking-wide transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-sm">
                         <i id="btn-timer-icon" class="fa-solid fa-play"></i>
                         <span id="btn-timer-text">Avvia Sessione</span>
                     </button>
@@ -1609,8 +1606,8 @@
                 barColor:        '#10b981',   // emerald-500
                 labelColor:      '#6ee7b7',   // emerald-300
                 dotColor:        '#10b981',
-                btnBg:           '#059669',   // emerald-600
-                btnHover:        '#047857',   // emerald-700
+                btnBg:           '#10b981',   // emerald-500
+                btnHover:        '#059669',   // emerald-600
                 presets:         [15, 30],
                 presetLabels:    ['15 Min', '30 Min'],
                 defaultMinutes:  30,
@@ -1775,9 +1772,9 @@
                 const pill = document.getElementById(`pill-${p}`);
                 if (!pill) return;
                 if (p === id) {
-                    pill.className = `flex-1 flex items-center justify-center gap-1 py-1.5 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all pill-${p}-active`;
+                    pill.className = `flex-1 flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all pill-${p}-active`;
                 } else {
-                    pill.className = `flex-1 flex items-center justify-center gap-1 py-1.5 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all text-slate-400 hover:text-slate-200`;
+                    pill.className = `flex-1 flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all text-slate-400 hover:text-slate-200`;
                 }
             });
 
@@ -1794,11 +1791,13 @@
             p2.textContent  = cfg.presetLabels[1];
             p2.onclick      = () => setPresetTimer(cfg.presets[1]);
 
-            // Update toggle button color + hover
+            // Update toggle button color + hover (dinamico per pilastro attivo)
             const btnToggle = document.getElementById('btn-toggle-timer');
-            btnToggle.style.backgroundColor = cfg.btnBg;
-            btnToggle.onmouseenter = () => { btnToggle.style.backgroundColor = cfg.btnHover; };
-            btnToggle.onmouseleave = () => { btnToggle.style.backgroundColor = cfg.btnBg; };
+            if (btnToggle) {
+                btnToggle.style.setProperty('background-color', cfg.btnBg, 'important');
+                btnToggle.onmouseenter = () => { btnToggle.style.setProperty('background-color', cfg.btnHover, 'important'); };
+                btnToggle.onmouseleave = () => { btnToggle.style.setProperty('background-color', cfg.btnBg, 'important'); };
+            }
 
             // Set default timer preset for this pillar
             setPresetTimer(cfg.defaultMinutes);
@@ -1828,16 +1827,16 @@
                 const totale = datiPilastri[p]?.pomodoriGiornalieri?.[oggiStr] || 0;
                 const caselleVisibili = Math.max(4, Math.min(totale, 8));
                 const caselle = Array.from({ length: caselleVisibili }, (_, i) => `
-                    <span class="block h-2.5 flex-1 rounded-sm border border-slate-600/80"
+                    <span class="block h-2 flex-1 rounded-xs border border-slate-600/80"
                           style="${i < totale ? `background:${colori[p]};border-color:${colori[p]}` : 'background:rgba(15,23,42,.7)'}"></span>
                 `).join('');
                 return `
-                    <div class="rounded-lg border px-2 py-1.5 transition-colors ${p === pilastriAttivo ? 'border-slate-500 bg-slate-800' : 'border-slate-700/70 bg-slate-900/40'}">
-                        <div class="flex items-center justify-between gap-2 mb-1">
-                            <span class="text-[10px] font-bold text-slate-300"><i class="fa-solid ${icone[p]} mr-1" style="color:${colori[p]}"></i>${PILASTRI_CONFIG[p].nome}</span>
-                            <span class="text-[10px] font-black text-white" title="${totale} Pomodori completati oggi">${totale}</span>
+                    <div class="rounded-lg border px-1.5 py-1 transition-colors ${p === pilastriAttivo ? 'border-slate-500 bg-slate-800' : 'border-slate-700/70 bg-slate-900/40'}">
+                        <div class="flex items-center justify-between gap-1 mb-0.5">
+                            <span class="text-[9px] font-bold text-slate-300"><i class="fa-solid ${icone[p]} mr-1" style="color:${colori[p]}"></i>${PILASTRI_CONFIG[p].nome}</span>
+                            <span class="text-[9px] font-black text-white" title="${totale} Pomodori completati oggi">${totale}</span>
                         </div>
-                        <div class="flex gap-1">${caselle}</div>
+                        <div class="flex gap-0.5">${caselle}</div>
                     </div>
                 `;
             }).join('');
