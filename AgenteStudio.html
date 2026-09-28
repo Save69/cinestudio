@@ -5553,8 +5553,15 @@
         // ============================================================
         let activeExportTask = null;
 
-        function apriModalEsportaGcal(titolo, dataDefault) {
-            activeExportTask = { titolo, dataDefault };
+        function toggleAllDayGcal(isAllDay) {
+            const timeInput = document.getElementById('gcal-export-time');
+            const durContainer = document.getElementById('gcal-export-duration-container');
+            if (timeInput) timeInput.disabled = isAllDay;
+            if (durContainer) durContainer.style.display = isAllDay ? 'none' : 'block';
+        }
+
+        function apriModalEsportaGcal(titolo, dataDefault, noteDefault = '') {
+            activeExportTask = { titolo, dataDefault, noteDefault };
             const modal = document.getElementById('modal-esporta-gcal');
             if (!modal) return;
 
@@ -5562,6 +5569,9 @@
             const inputData = document.getElementById('gcal-export-date');
             const inputOra = document.getElementById('gcal-export-time');
             const inputDurata = document.getElementById('gcal-export-duration');
+            const inputDetails = document.getElementById('gcal-export-details');
+            const chkAllDay = document.getElementById('gcal-export-allday');
+            const btnApi = document.getElementById('gcal-btn-api-export');
 
             if (inputTitolo) inputTitolo.value = titolo || '';
             if (inputData) {
@@ -5571,10 +5581,37 @@
                 const now = new Date();
                 const nextHour = (now.getHours() + 1) % 24;
                 inputOra.value = `${String(nextHour).padStart(2, '0')}:00`;
+                inputOra.disabled = false;
             }
+            if (chkAllDay) chkAllDay.checked = false;
+            const durContainer = document.getElementById('gcal-export-duration-container');
+            if (durContainer) durContainer.style.display = 'block';
             if (inputDurata) inputDurata.value = '60';
+            if (inputDetails) inputDetails.value = noteDefault || 'Compito da Agente Studio';
+
+            // Mostra pulsante API solo se presente token OAuth attivo
+            if (btnApi) {
+                if (typeof getGcalToken === 'function' && getGcalToken()) {
+                    btnApi.classList.remove('hidden');
+                } else {
+                    btnApi.classList.add('hidden');
+                }
+            }
 
             modal.classList.remove('hidden');
+        }
+
+        function apriModalEsportaGcalDaMatrice(testo, provenienza, data, weekOffset = 0) {
+            let dataCalcolata = data;
+            if (!dataCalcolata || dataCalcolata.length < 10) {
+                const gIdx = giorniSettimana.indexOf(provenienza);
+                if (gIdx !== -1) {
+                    dataCalcolata = calcolaDataISO(gIdx, parseInt(weekOffset, 10) || 0);
+                } else {
+                    dataCalcolata = formattaData(new Date());
+                }
+            }
+            apriModalEsportaGcal(testo, dataCalcolata, `Priorità e compito da Agente Studio (${provenienza || 'Matrice'})`);
         }
 
         function chiudiModalEsportaGcal() {
@@ -5583,11 +5620,103 @@
             activeExportTask = null;
         }
 
+        function apriGoogleCalendarWeb() {
+            const inputTitolo = document.getElementById('gcal-export-title');
+            const inputData = document.getElementById('gcal-export-date');
+            const inputOra = document.getElementById('gcal-export-time');
+            const inputDurata = document.getElementById('gcal-export-duration');
+            const inputDetails = document.getElementById('gcal-export-details');
+            const chkAllDay = document.getElementById('gcal-export-allday');
+
+            const titolo = inputTitolo?.value.trim() || 'Attività Agente Studio';
+            const dataStr = inputData?.value || formattaData(new Date());
+            const isAllDay = Boolean(chkAllDay?.checked);
+            const oraStr = inputOra?.value || '09:00';
+            const durataMin = parseInt(inputDurata?.value, 10) || 60;
+            const note = inputDetails?.value.trim() || 'Creato da Agente Studio';
+
+            let datesParam = '';
+            if (isAllDay) {
+                const cleanStart = dataStr.replace(/-/g, '');
+                const nextDay = new Date(dataStr + 'T00:00:00');
+                nextDay.setDate(nextDay.getDate() + 1);
+                const pad = n => String(n).padStart(2, '0');
+                const cleanEnd = `${nextDay.getFullYear()}${pad(nextDay.getMonth()+1)}${pad(nextDay.getDate())}`;
+                datesParam = `${cleanStart}/${cleanEnd}`;
+            } else {
+                const startDt = new Date(`${dataStr}T${oraStr}:00`);
+                const endDt = new Date(startDt.getTime() + (durataMin * 60000));
+                const pad = n => String(n).padStart(2, '0');
+                const fmt = dt => `${dt.getFullYear()}${pad(dt.getMonth()+1)}${pad(dt.getDate())}T${pad(dt.getHours())}${pad(dt.getMinutes())}00`;
+                datesParam = `${fmt(startDt)}/${fmt(endDt)}`;
+            }
+
+            const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(titolo)}&dates=${datesParam}&details=${encodeURIComponent(note)}`;
+            window.open(url, '_blank', 'noopener,noreferrer');
+            showToast(`Apertura Google Calendar per "${titolo}"...`, 'success');
+            chiudiModalEsportaGcal();
+        }
+
+        function scaricaFileICS() {
+            const inputTitolo = document.getElementById('gcal-export-title');
+            const inputData = document.getElementById('gcal-export-date');
+            const inputOra = document.getElementById('gcal-export-time');
+            const inputDurata = document.getElementById('gcal-export-duration');
+            const inputDetails = document.getElementById('gcal-export-details');
+            const chkAllDay = document.getElementById('gcal-export-allday');
+
+            const titolo = inputTitolo?.value.trim() || 'Attività';
+            const dataStr = inputData?.value || formattaData(new Date());
+            const isAllDay = Boolean(chkAllDay?.checked);
+            const oraStr = inputOra?.value || '09:00';
+            const durataMin = parseInt(inputDurata?.value, 10) || 60;
+            const note = inputDetails?.value.trim() || 'Creato da Agente Studio';
+
+            let icsDates = '';
+            const pad = n => String(n).padStart(2, '0');
+            if (isAllDay) {
+                const cleanStart = dataStr.replace(/-/g, '');
+                const nextDay = new Date(dataStr + 'T00:00:00');
+                nextDay.setDate(nextDay.getDate() + 1);
+                const cleanEnd = `${nextDay.getFullYear()}${pad(nextDay.getMonth()+1)}${pad(nextDay.getDate())}`;
+                icsDates = `DTSTART;VALUE=DATE:${cleanStart}\r\nDTEND;VALUE=DATE:${cleanEnd}`;
+            } else {
+                const startDt = new Date(`${dataStr}T${oraStr}:00`);
+                const endDt = new Date(startDt.getTime() + (durataMin * 60000));
+                const fmt = dt => `${dt.getFullYear()}${pad(dt.getMonth()+1)}${pad(dt.getDate())}T${pad(dt.getHours())}${pad(dt.getMinutes())}00`;
+                icsDates = `DTSTART:${fmt(startDt)}\r\nDTEND:${fmt(endDt)}`;
+            }
+
+            const dtstamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+            const icsContent = [
+                'BEGIN:VCALENDAR',
+                'VERSION:2.0',
+                'PRODID:-//Agente Studio//IT',
+                'CALSCALE:GREGORIAN',
+                'BEGIN:VEVENT',
+                `UID:${Date.now()}@agentestudio`,
+                `DTSTAMP:${dtstamp}`,
+                icsDates,
+                `SUMMARY:${titolo}`,
+                `DESCRIPTION:${note.replace(/\n/g, '\\n')}`,
+                'END:VEVENT',
+                'END:VCALENDAR'
+            ].join('\r\n');
+
+            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${titolo.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 30)}.ics`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+            showToast('File .ics scaricato con successo!', 'success');
+        }
+
         async function confermaEsportaGoogleCalendar() {
             const tok = getGcalToken();
             if (!tok) {
-                showToast('Connetti prima il tuo account Google nelle impostazioni.', 'warning');
-                apriModalGoogleCalendar();
+                showToast('Nessun token Google attivo. Apertura tramite Google Calendar Web...', 'info');
+                apriGoogleCalendarWeb();
                 return;
             }
 
@@ -5595,11 +5724,13 @@
             const inputData = document.getElementById('gcal-export-date');
             const inputOra = document.getElementById('gcal-export-time');
             const inputDurata = document.getElementById('gcal-export-duration');
+            const inputDetails = document.getElementById('gcal-export-details');
 
             const titolo = inputTitolo?.value.trim() || 'Nuovo evento da Agente Studio';
             const dataStr = inputData?.value;
             const oraStr = inputOra?.value || '09:00';
             const durataMin = parseInt(inputDurata?.value, 10) || 60;
+            const note = inputDetails?.value.trim() || 'Creato da Agente Studio';
 
             if (!dataStr) {
                 showToast('Seleziona una data valida per l\'evento.', 'warning');
@@ -5609,12 +5740,11 @@
             const startIso = `${dataStr}T${oraStr}:00`;
             const startDate = new Date(startIso);
             const endDate = new Date(startDate.getTime() + (durataMin * 60 * 1000));
-
             const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Europe/Rome';
 
             const payload = {
                 summary: titolo,
-                description: 'Creato da Agente Studio',
+                description: note,
                 start: {
                     dateTime: startDate.toISOString(),
                     timeZone: timeZone
@@ -5648,11 +5778,12 @@
                 await sincronizzaGoogleCalendar(false);
             } catch (e) {
                 console.error("Errore esportazione evento Google:", e);
-                showToast(`Impossibile creare l'evento: ${e.message}`, 'danger');
+                showToast(`Errore API: apertura tramite Google Calendar Web...`, 'warning');
+                apriGoogleCalendarWeb();
             } finally {
                 if (btnConfirm) {
                     btnConfirm.disabled = false;
-                    btnConfirm.innerHTML = '<i class="fa-solid fa-calendar-plus"></i> Crea su Google Calendar';
+                    btnConfirm.innerHTML = '<i class="fa-brands fa-google"></i> Apri su Google Calendar';
                 }
             }
         }
@@ -5990,8 +6121,8 @@
                                             <button onclick="modificaAttivitaScalettaRapida('${giorno}', '${x.id}')" class="text-slate-300 hover:text-blue-600 p-0.5 cursor-pointer" title="Modifica testo attività">
                                                 <i class="fa-solid fa-pen text-xs"></i>
                                             </button>
-                                            <button onclick="apriModalEsportaGcal('${escapeHTML(x.testo).replace(/'/g, "\\'")}', '${isoDate}')" class="text-slate-300 hover:text-blue-600 p-0.5 cursor-pointer" title="Esporta su Google Calendar">
-                                                <i class="fa-solid fa-cloud-arrow-up text-xs"></i>
+                                            <button onclick="apriModalEsportaGcal('${escapeHTML(x.testo).replace(/'/g, "\\'")}', '${isoDate}', 'Attività da Agente Studio (${giorno})')" class="text-slate-400 hover:text-blue-600 p-0.5 cursor-pointer" title="Salva su Google Calendar">
+                                                <i class="fa-brands fa-google text-xs text-blue-500 hover:text-blue-600"></i>
                                             </button>
                                             <button onclick="spostaAttivitaTraGiorni('${giorno}', ${selectedWeekOffset}, 'Promemoria', 0, '${x.id}')" class="text-slate-300 hover:text-amber-600 p-0.5 cursor-pointer" title="Sposta nei Promemoria (senza data)">
                                                 <i class="fa-solid fa-thumbtack text-xs"></i>
@@ -6674,6 +6805,9 @@
                                 </select>
                                 <button onclick="apriModalCalendarioPianifica('${x.provenienza}', '${x.id}', '${safeEscapedText}')" class="w-5 h-5 rounded flex items-center justify-center bg-slate-50 hover:bg-blue-50 text-slate-500 hover:text-blue-600 border border-slate-200 text-[10px] cursor-pointer transition-all shrink-0 shadow-2xs" title="Apri Calendario &amp; Ispezione Carico">
                                     <i class="fa-regular fa-calendar-days"></i>
+                                </button>
+                                <button onclick="apriModalEsportaGcalDaMatrice('${safeEscapedText}', '${x.provenienza}', '${x.data || ''}', '${x.infoSettimana?.weekOffset ?? selectedWeekOffset}')" class="w-5 h-5 rounded flex items-center justify-center bg-slate-50 hover:bg-blue-50 text-slate-400 hover:text-blue-600 border border-slate-200 text-[10px] cursor-pointer transition-all shrink-0 shadow-2xs" title="Salva su Google Calendar">
+                                    <i class="fa-brands fa-google text-blue-500"></i>
                                 </button>
                                 <button onclick="modificaTestoMatrice('${x.provenienza}', '${x.id}')" class="text-slate-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-[10px]" title="Modifica"><i class="fa-solid fa-pen"></i></button>
                                 <button onclick="eliminaAttivitaMatrice('${x.provenienza}', '${x.id}')" class="text-slate-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer text-[10px]" title="Elimina"><i class="fa-solid fa-trash"></i></button>
@@ -7588,7 +7722,7 @@
 
                 <!-- Azioni Connessione -->
                 <div class="flex items-center justify-between gap-2 pt-1 pb-3 border-b border-slate-100">
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
                         <button id="gcal-btn-connect" onclick="connettiGoogleCalendar()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold cursor-pointer transition-colors shadow-sm flex items-center gap-1.5">
                             <i class="fa-brands fa-google"></i> Connetti Account Google
                         </button>
@@ -7597,6 +7731,9 @@
                         </button>
                         <button id="gcal-btn-sync-now" onclick="sincronizzaGoogleCalendar(true)" disabled class="px-3 py-2 bg-slate-50 hover:bg-blue-50 border border-slate-200 text-slate-700 hover:text-blue-700 rounded-xl font-bold cursor-pointer transition-colors flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed">
                             <i class="fa-solid fa-arrows-rotate"></i> Sincronizza Ora
+                        </button>
+                        <button type="button" onclick="chiudiModalGoogleCalendar(); apriModalEsportaGcal('', formattaData(new Date()));" class="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl font-bold cursor-pointer transition-colors flex items-center gap-1.5 shadow-2xs" title="Crea un nuovo evento in Google Calendar">
+                            <i class="fa-solid fa-calendar-plus"></i> Nuovo Evento
                         </button>
                     </div>
                     <span id="gcal-last-sync-time" class="text-[11px] text-slate-400 italic"></span>
@@ -7728,13 +7865,13 @@
         <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden animate-scale-in">
             <!-- Header -->
             <div class="flex items-center justify-between p-4 border-b border-slate-100 bg-slate-50/90">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm">
-                        <i class="fa-solid fa-calendar-plus"></i>
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                        <i class="fa-brands fa-google"></i>
                     </div>
                     <div>
-                        <h3 class="font-bold text-slate-800 text-sm">Crea Evento su Google Calendar</h3>
-                        <p class="text-xs text-slate-500">Invia questa attività al tuo calendario</p>
+                        <h3 class="font-bold text-slate-800 text-sm">Salva su Google Calendar</h3>
+                        <p class="text-xs text-slate-500">Imposta orario e apri l'evento precompilato</p>
                     </div>
                 </div>
                 <button onclick="chiudiModalEsportaGcal()" class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 flex items-center justify-center cursor-pointer text-sm">
@@ -7746,7 +7883,7 @@
             <div class="p-4 space-y-3 text-xs">
                 <div>
                     <label class="font-bold text-slate-700 block mb-1">Titolo dell'Evento:</label>
-                    <input type="text" id="gcal-export-title" class="w-full text-xs font-medium bg-white border border-slate-200 rounded-lg p-2 text-slate-800 focus:outline-none focus:border-blue-500">
+                    <input type="text" id="gcal-export-title" class="w-full text-xs font-medium bg-white border border-slate-200 rounded-lg p-2 text-slate-800 focus:outline-none focus:border-blue-500" placeholder="Titolo attività...">
                 </div>
 
                 <div class="grid grid-cols-2 gap-2.5">
@@ -7755,12 +7892,17 @@
                         <input type="date" id="gcal-export-date" class="w-full text-xs bg-white border border-slate-200 rounded-lg p-2 text-slate-700 focus:outline-none focus:border-blue-500">
                     </div>
                     <div>
-                        <label class="font-bold text-slate-700 block mb-1">Ora Inizio:</label>
+                        <label class="font-bold text-slate-700 block mb-1 flex items-center justify-between">
+                            <span>Ora Inizio:</span>
+                            <label class="font-normal text-[10px] text-slate-500 flex items-center gap-1 cursor-pointer">
+                                <input type="checkbox" id="gcal-export-allday" onchange="toggleAllDayGcal(this.checked)" class="accent-blue-600 rounded"> Tutto il giorno
+                            </label>
+                        </label>
                         <input type="time" id="gcal-export-time" class="w-full text-xs bg-white border border-slate-200 rounded-lg p-2 text-slate-700 focus:outline-none focus:border-blue-500">
                     </div>
                 </div>
 
-                <div>
+                <div id="gcal-export-duration-container">
                     <label class="font-bold text-slate-700 block mb-1">Durata:</label>
                     <select id="gcal-export-duration" class="w-full text-xs bg-white border border-slate-200 rounded-lg p-2 text-slate-700 focus:outline-none focus:border-blue-500">
                         <option value="15">15 minuti</option>
@@ -7769,18 +7911,39 @@
                         <option value="60" selected>1 ora (60 min)</option>
                         <option value="90">1 ora e 30 min</option>
                         <option value="120">2 ore</option>
+                        <option value="180">3 ore</option>
                     </select>
+                </div>
+
+                <div>
+                    <label class="font-bold text-slate-700 block mb-1">Note / Descrizione:</label>
+                    <textarea id="gcal-export-details" rows="2" class="w-full text-xs bg-white border border-slate-200 rounded-lg p-2 text-slate-700 focus:outline-none focus:border-blue-500" placeholder="Note aggiuntive per l'evento..."></textarea>
+                </div>
+
+                <div class="bg-blue-50/70 border border-blue-100 rounded-xl p-2.5 text-[11px] text-blue-900 flex items-start gap-2">
+                    <i class="fa-solid fa-lightbulb text-blue-500 mt-0.5 shrink-0"></i>
+                    <span>Cliccando su <strong>"Apri su Google Calendar"</strong> si aprirà la schermata ufficiale di Google con l'evento già compilato. A te basterà cliccare <strong>Salva</strong>.</span>
                 </div>
             </div>
 
             <!-- Footer -->
-            <div class="p-3.5 border-t border-slate-100 bg-slate-50/80 flex items-center justify-between">
-                <button onclick="chiudiModalEsportaGcal()" class="px-3.5 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-200/50 rounded-lg transition-colors cursor-pointer">
-                    Annulla
-                </button>
-                <button id="gcal-btn-confirm-export" onclick="confermaEsportaGoogleCalendar()" class="px-4 py-2 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-sm cursor-pointer flex items-center gap-1.5">
-                    <i class="fa-solid fa-calendar-plus"></i> Crea su Google Calendar
-                </button>
+            <div class="p-3.5 border-t border-slate-100 bg-slate-50/80 flex items-center justify-between gap-2 flex-wrap">
+                <div class="flex items-center gap-1.5">
+                    <button type="button" onclick="scaricaFileICS()" class="px-2.5 py-1.5 text-[11px] font-bold text-slate-600 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer flex items-center gap-1" title="Scarica file calendario (.ics per Apple, Outlook, ecc.)">
+                        <i class="fa-solid fa-download text-[10px]"></i> .ICS
+                    </button>
+                    <button type="button" onclick="chiudiModalEsportaGcal()" class="px-3 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-800 rounded-lg transition-colors cursor-pointer">
+                        Annulla
+                    </button>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <button id="gcal-btn-api-export" type="button" onclick="confermaEsportaGoogleCalendar()" class="hidden px-3 py-1.5 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors cursor-pointer flex items-center gap-1">
+                        <i class="fa-solid fa-cloud-arrow-up text-xs"></i> API Diretta
+                    </button>
+                    <button id="gcal-btn-confirm-export" type="button" onclick="apriGoogleCalendarWeb()" class="px-4 py-2 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors shadow-sm cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-brands fa-google"></i> Apri su Google Calendar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
