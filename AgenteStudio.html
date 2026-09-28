@@ -6488,6 +6488,16 @@
         }
 
         const idEvasiSessione = new Set();
+        try {
+            const rawEvasi = sessionStorage.getItem('agente_id_evasi_sessione');
+            if (rawEvasi) JSON.parse(rawEvasi).forEach(id => idEvasiSessione.add(id));
+        } catch (e) {}
+
+        function salvaIdEvasiSessione() {
+            try {
+                sessionStorage.setItem('agente_id_evasi_sessione', JSON.stringify([...idEvasiSessione]));
+            } catch (e) {}
+        }
 
         function trovaAttivitaInTutteLeSettimane(id) {
             if (!scalettaAgenda || typeof scalettaAgenda !== 'object') return null;
@@ -6609,7 +6619,7 @@
                     const safeEscapedText = escapeHTML(x.testo).replace(/'/g, "\\'");
                     const oggiStr = formattaData(new Date());
                     const haNuovaScadenza = Boolean(x.data && x.data >= oggiStr);
-                    const isInSospeso = Boolean(x.infoSettimana && x.infoSettimana.isPast && !haNuovaScadenza);
+                    const isInSospeso = Boolean(!x.completata && x.infoSettimana && x.infoSettimana.isPast && !haNuovaScadenza);
 
                     // Generazione opzioni raggruppate con carico compiti
                     const optSettCorrente = giorniSettimana.map((g, i) => {
@@ -6650,7 +6660,7 @@
                                     🎯
                                 </button>` : ''}
                                 <select onchange="spostaGiornoDaMatrice('${x.provenienza}', '${x.id}', this.value)" title="Pianifica giorno nella scaletta (mostra compiti già fissati)" class="text-[9px] font-bold text-slate-600 bg-slate-100/90 hover:bg-blue-50 hover:text-blue-700 border border-slate-200/80 rounded px-1 py-0.5 cursor-pointer outline-none transition-colors shrink-0 max-w-[90px] sm:max-w-none">
-                                    ${isInSospeso ? `<option value="" selected disabled>⏳ Non evaso (${escapeHTML(x.infoSettimana.labelOrigine || x.provenienza)})</option>` : ''}
+                                    ${x.infoSettimana && x.infoSettimana.isPast && !haNuovaScadenza ? `<option value="" selected disabled>${x.completata ? '✓ Completato' : '⏳ Non evaso'} (${escapeHTML(x.infoSettimana.labelOrigine || x.provenienza)})</option>` : ''}
                                     <option value="Promemoria" ${x.provenienza === 'Promemoria' ? 'selected' : ''}>Promemoria [${promemoriaAgenda.length}]</option>
                                     <optgroup label="📍 Questa Settimana">
                                         ${optSettCorrente}
@@ -7192,6 +7202,9 @@
                 let found = weekSchedule[provenienza]?.find(a => a.id === id);
                 if (found) {
                     found.completata = !found.completata;
+                    if (found.completata) idEvasiSessione.add(id);
+                    else idEvasiSessione.delete(id);
+                    salvaIdEvasiSessione();
                     salvaScaletta();
                     renderScaletta();
                 } else {
@@ -7203,6 +7216,7 @@
                         } else {
                             idEvasiSessione.delete(id);
                         }
+                        salvaIdEvasiSessione();
                         salvaScaletta();
                         renderScaletta();
                     }
