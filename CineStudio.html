@@ -96,6 +96,10 @@
         </div>
 
         <div class="flex items-center gap-2 sm:gap-3">
+            <button onclick="openAddMovieModal()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-bold border border-amber-500/40 transition flex items-center gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-plus"></i>
+                <span class="hidden sm:inline">Aggiungi</span> Film
+            </button>
             <button onclick="openDnaModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition flex items-center gap-1.5 cursor-pointer">
                 <i class="fa-solid fa-dna text-purple-400"></i>
                 <span class="hidden sm:inline">Il Tuo</span> DNA Cinefilo
@@ -148,9 +152,10 @@
                         </label>
                         <select id="select-mood" onchange="generateRecommendations()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-amber-500">
                             <option value="all">🌟 Qualsiasi (Ispirami)</option>
+                            <option value="autore">🏆 Festival, Autore & Premi (Venezia, Oscar, Moretti, Fandango)</option>
+                            <option value="cuore">🎭 Cuore, Emozione & Troisi/Benigni/La La Land</option>
                             <option value="mente">🧠 Mente, Ritmo & Ingegno</option>
                             <option value="anima">🚶 Viaggio, Spiritualità & Anima</option>
-                            <option value="cuore">🎭 Cuore, Emozione & Troisi/Benigni</option>
                             <option value="epica">🎬 Grande Regia, Leone & Epica</option>
                             <option value="meraviglia">✨ Meraviglia & Fantasia (Miyazaki/Hugo)</option>
                         </select>
@@ -264,6 +269,20 @@
                         <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 border border-slate-700">Giuseppe Tornatore</span>
                         <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 border border-slate-700">Massimo Troisi</span>
                         <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 border border-slate-700">Roberto Benigni</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 border border-slate-700">Nanni Moretti</span>
+                    </div>
+                </div>
+
+                <!-- Festival, Premi & Autorialità -->
+                <div>
+                    <h4 class="font-bold text-amber-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-trophy"></i> Festival, Premi & Autorialità
+                    </h4>
+                    <div class="flex flex-wrap gap-1.5">
+                        <span class="px-2.5 py-1 rounded-lg bg-amber-950/60 text-amber-300 border border-amber-800/60">Mostra del Cinema di Venezia (Leone d'Oro)</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-amber-950/60 text-amber-300 border border-amber-800/60">Festival di Berlino (Orso d'Oro)</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-amber-950/60 text-amber-300 border border-amber-800/60">Vincitori Premi Oscar</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-amber-950/60 text-amber-300 border border-amber-800/60">Produzioni Fandango (Domenico Procacci)</span>
                     </div>
                 </div>
 
@@ -284,7 +303,7 @@
                     <h4 class="font-bold text-emerald-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                         <i class="fa-solid fa-gem"></i> I Tuoi Punti Cardinali
                     </h4>
-                    <div class="flex flex-wrap gap-1.5">
+                    <div class="flex flex-wrap gap-1.5" id="dna-milestones">
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">C'era una volta in America</span>
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Nuovo Cinema Paradiso</span>
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Le ali della libertà</span>
@@ -295,11 +314,34 @@
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">The Wolf of Wall Street</span>
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Vita di Pi</span>
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Limitless</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">La La Land</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">La stanza del figlio</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Caro diario</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Le conseguenze dell'amore</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Tre manifesti a Ebbing, Missouri</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Parasite</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Nomadland</span>
+                    </div>
+                </div>
+
+                <!-- Elementi Aggiunti dall'Utente al DNA -->
+                <div class="pt-2 border-t border-slate-800">
+                    <h4 class="font-bold text-purple-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-plus-circle"></i> Aggiungi al tuo DNA (Film o Autori)</span>
+                    </h4>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-new-dna-item" placeholder="Es. David Fincher, Whiplash, Martin Scorsese..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomDnaItem();}">
+                        <button onclick="addCustomDnaItem()" class="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-xs cursor-pointer flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Aggiungi
+                        </button>
+                    </div>
+                    <div id="custom-dna-tags" class="flex flex-wrap gap-1.5 mt-2">
+                        <!-- Tag inseriti dall'utente -->
                     </div>
                 </div>
 
                 <!-- I Blacklistati -->
-                <div>
+                <div class="pt-2 border-t border-slate-800">
                     <h4 class="font-bold text-rose-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                         <i class="fa-solid fa-ban"></i> Cosa Escludere Sempre
                     </h4>
@@ -307,7 +349,7 @@
                         <span class="px-2.5 py-1 rounded-lg bg-rose-950/60 text-rose-300 border border-rose-800/60">Horror & Splatter</span>
                         <span class="px-2.5 py-1 rounded-lg bg-rose-950/60 text-rose-300 border border-rose-800/60">Commedie demenziali</span>
                         <span class="px-2.5 py-1 rounded-lg bg-rose-950/60 text-rose-300 border border-rose-800/60">Film lenti senza trama</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-rose-950/60 text-rose-300 border border-rose-800/60">Musical</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-rose-950/60 text-rose-300 border border-rose-800/60">Musical canzonettistici (esclusi capolavori come La La Land)</span>
                     </div>
                 </div>
 
@@ -329,6 +371,106 @@
                     Salva & Chiudi
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal: Aggiungi Nuovo Film al Catalogo Personale -->
+    <div id="modal-add-movie" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-lg rounded-2xl p-6 space-y-4 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto animate-fade-in">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 text-sm font-black">
+                        <i class="fa-solid fa-plus"></i>
+                    </div>
+                    <h3 class="text-lg font-black text-white">Aggiungi Film al Catalogo</h3>
+                </div>
+                <button onclick="closeAddMovieModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <form id="form-add-movie" onsubmit="saveCustomMovie(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-300 font-bold mb-1">Titolo del Film *</label>
+                    <input type="text" id="add-movie-title" required placeholder="Es. La stanza del figlio" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1">Regista</label>
+                        <input type="text" id="add-movie-director" placeholder="Es. Nanni Moretti" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1">Piattaforma Streaming *</label>
+                        <select id="add-movie-platform" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold">
+                            <option value="prime">Prime Video</option>
+                            <option value="netflix">Netflix</option>
+                            <option value="raiplay">RaiPlay</option>
+                            <option value="disney">Disney+</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1">Anno</label>
+                        <input type="number" id="add-movie-year" value="2020" min="1930" max="2030" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1">Durata (min)</label>
+                        <input type="number" id="add-movie-duration" value="110" min="30" max="300" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1">Mood</label>
+                        <select id="add-movie-mood" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-white font-bold">
+                            <option value="autore">🏆 Festival/Autore</option>
+                            <option value="cuore">🎭 Cuore/Commedia</option>
+                            <option value="mente">🧠 Mente/Ritmo</option>
+                            <option value="anima">🚶 Anima/Viaggio</option>
+                            <option value="epica">🎬 Grande Epica</option>
+                            <option value="meraviglia">✨ Meraviglia</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1">Voto IMDb</label>
+                        <input type="number" step="0.1" id="add-movie-imdb" value="7.5" min="1" max="10" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1">Voto MYmovies</label>
+                        <input type="number" step="0.1" id="add-movie-mymovies" value="3.8" min="1" max="5" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 font-bold mb-1">Cast / Attori principali</label>
+                    <input type="text" id="add-movie-cast" placeholder="Es. Nanni Moretti, Laura Morante, Silvio Orlando" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 font-bold mb-1">Perché è adatto a te</label>
+                    <input type="text" id="add-movie-why" placeholder="Es. Palma d'Oro a Cannes, produzione Fandango, cinema d'autore toccante" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 font-bold mb-1">Breve Sinossi (opzionale)</label>
+                    <textarea id="add-movie-synopsis" rows="2" placeholder="Di cosa parla la storia..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 font-bold mb-1">Link Piattaforma (opzionale)</label>
+                    <input type="url" id="add-movie-link" placeholder="https://..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono">
+                </div>
+
+                <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                    <button type="button" onclick="closeAddMovieModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold cursor-pointer">Annulla</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Salva nel Catalogo
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -854,6 +996,136 @@
                 why: "La maestria artigianale e classica di Spielberg: eleganza, valori morali solidi e tensione da Guerra Fredda.",
                 synopsis: "Un avvocato assicurativo di New York viene incaricato di negoziare lo scambio tra una spia sovietica e un pilota americano.",
                 poster: "https://image.tmdb.org/t/p/w500/5501928k20m9j2k0j92k3o0j.jpg"
+            },
+
+            // Nuovi Aggiunti: Festival, Autore, Fandango, Moretti, La La Land
+            {
+                id: 'netflix-lalaland',
+                title: "La La Land",
+                year: 2016,
+                duration: 128,
+                director: "Damien Chazelle",
+                cast: "Ryan Gosling, Emma Stone, John Legend",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 8.0,
+                mymovies: 4.1,
+                mood: "cuore",
+                why: "L'eccezione d'autore assoluta: 6 Premi Oscar, aperto a Venezia, amore per il grande cinema, melodia e malinconia pura.",
+                synopsis: "Un pianista jazz e un'aspirante attrice si innamorano a Los Angeles inseguendo i loro sogni artistici.",
+                poster: "https://image.tmdb.org/t/p/w500/uDO8zWDhfWwoFdKS4fzkVJt0Rf0.jpg"
+            },
+            {
+                id: 'raiplay-moretti-stanza',
+                title: "La stanza del figlio",
+                year: 2001,
+                duration: 99,
+                director: "Nanni Moretti",
+                cast: "Nanni Moretti, Laura Morante, Silvio Orlando, Jasmine Trinca",
+                platform: "raiplay",
+                link: "https://www.raiplay.it",
+                imdb: 7.3,
+                mymovies: 4.0,
+                mood: "autore",
+                why: "Palma d'Oro a Cannes e produzione Fandango: il capolavoro umano di Nanni Moretti, struggente, sobrio e mai ricattatorio.",
+                synopsis: "La vita serena di uno psicanalista di Ancona viene sconvolta dall'improvvisa perdita del figlio diciassettenne.",
+                poster: "https://image.tmdb.org/t/p/w500/z6lK9wK80l92k3o0j2k0j92k3.jpg"
+            },
+            {
+                id: 'raiplay-moretti-diario',
+                title: "Caro diario",
+                year: 1993,
+                duration: 100,
+                director: "Nanni Moretti",
+                cast: "Nanni Moretti, Renato Carpentieri, Jennifer Beals",
+                platform: "raiplay",
+                link: "https://www.raiplay.it",
+                imdb: 7.2,
+                mymovies: 3.9,
+                mood: "autore",
+                why: "Premio per la Miglior Regia a Cannes: Nanni Moretti sulla Vespa per le strade estive di Roma, tra cinema, isole e autoironia.",
+                synopsis: "In tre capitoli (In vespa, Le isole, Medici), Moretti racconta le sue passioni, i suoi tic e la sua personale odissea sanitaria.",
+                poster: "https://image.tmdb.org/t/p/w500/c72019k02m9j2k0j92k3o0j.jpg"
+            },
+            {
+                id: 'prime-sorrentino-conseguenze',
+                title: "Le conseguenze dell'amore",
+                year: 2004,
+                duration: 100,
+                director: "Paolo Sorrentino",
+                cast: "Toni Servillo, Olivia Magnani, Adriano Giannini",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 7.5,
+                mymovies: 4.1,
+                mood: "autore",
+                why: "Prodotto da Fandango e rivelazione al Festival di Cannes: regia geometrica di Sorrentino e un Toni Servillo magistrale.",
+                synopsis: "Titta Di Girolamo vive da dieci anni in una camera d'albergo in Svizzera, prigioniero di una routine rigida e di un segreto pericoloso.",
+                poster: "https://image.tmdb.org/t/p/w500/872019k02m9j2k0j92k3o0j.jpg"
+            },
+            {
+                id: 'disney-tre-manifesti',
+                title: "Tre manifesti a Ebbing, Missouri",
+                year: 2017,
+                duration: 115,
+                director: "Martin McDonagh",
+                cast: "Frances McDormand, Woody Harrelson, Sam Rockwell",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 8.1,
+                mymovies: 4.1,
+                mood: "autore",
+                why: "Trionfo alla Mostra di Venezia e 2 Premi Oscar: scrittura straordinaria, ritmo tagliente, dolore e redenzione umana.",
+                synopsis: "Una madre affigge tre manifesti polemici all'ingresso della cittadina per spronare la polizia a trovare l'assassino della figlia.",
+                poster: "https://image.tmdb.org/t/p/w500/22cLMYk02m9j2k0j92k3o0j.jpg"
+            },
+            {
+                id: 'prime-parasite',
+                title: "Parasite",
+                year: 2019,
+                duration: 132,
+                director: "Bong Joon-ho",
+                cast: "Song Kang-ho, Lee Sun-kyun, Cho Yeo-jeong",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 8.5,
+                mymovies: 4.4,
+                mood: "mente",
+                why: "Palma d'Oro a Cannes e 4 Premi Oscar storici: ritmo millimetrico, tensione continua, ingegno e zero tempi morti.",
+                synopsis: "Una famiglia povera s'infiltra con astuzia e ingegno nella vita quotidiana di una ricchissima famiglia di Seul.",
+                poster: "https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg"
+            },
+            {
+                id: 'disney-nomadland',
+                title: "Nomadland",
+                year: 2020,
+                duration: 107,
+                director: "Chloé Zhao",
+                cast: "Frances McDormand, David Strathairn, Linda May",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 7.3,
+                mymovies: 3.8,
+                mood: "anima",
+                why: "Leone d'Oro a Venezia e 3 Premi Oscar (Miglior Film e Regia): poesia visiva, libertà interiore e viaggio nell'Ovest americano.",
+                synopsis: "Dopo la chiusura dell'azienda in cui lavorava, una donna sessantenne carica tutto sul suo furgone e intraprende una vita nomade.",
+                poster: "https://image.tmdb.org/t/p/w500/66A9MqX20k92j0k92k3o0j.jpg"
+            },
+            {
+                id: 'netflix-moretti-avvenire',
+                title: "Il sol dell'avvenire",
+                year: 2023,
+                duration: 95,
+                director: "Nanni Moretti",
+                cast: "Nanni Moretti, Margherita Buy, Silvio Orlando, Barbora Bobulova",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 6.8,
+                mymovies: 3.7,
+                mood: "autore",
+                why: "Produzione Fandango presentata a Cannes: Nanni Moretti si interroga sul futuro del cinema con ironia, musica e calore.",
+                synopsis: "Un regista sta girando un film ambientato nel 1956 tra Roma e il circo ungherese, mentre la sua vita familiare attraversa una crisi.",
+                poster: "https://image.tmdb.org/t/p/w500/5501928k20m9j2k0j92k3o0j2.jpg"
             }
         ];
 
@@ -863,6 +1135,12 @@
         let watchlistIds = new Set(JSON.parse(localStorage.getItem('cinestudio_watchlist') || '[]'));
         let minImdb = parseFloat(localStorage.getItem('cinestudio_min_imdb') || '6.3');
         let minMymovies = parseFloat(localStorage.getItem('cinestudio_min_mymovies') || '3.3');
+        let customDnaItems = JSON.parse(localStorage.getItem('cinestudio_custom_dna') || '[]');
+
+        function getAllMovies() {
+            const userCustom = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
+            return [...INITIAL_CATALOG, ...userCustom];
+        }
 
         // Init
         document.addEventListener('DOMContentLoaded', () => {
@@ -871,6 +1149,7 @@
             document.getElementById('cfg-imdb-min').value = minImdb;
             document.getElementById('cfg-mymovies-min').value = minMymovies;
             updateWatchlistCount();
+            renderCustomDnaTags();
             generateRecommendations(false);
             renderAllMatchingMovies();
         });
@@ -897,7 +1176,7 @@
             const mood = document.getElementById('select-mood').value;
             const maxDuration = parseInt(document.getElementById('select-duration').value, 10);
 
-            return INITIAL_CATALOG.filter(movie => {
+            return getAllMovies().filter(movie => {
                 // Piattaforma attiva
                 if (!activePlatforms.has(movie.platform)) return false;
 
@@ -1123,7 +1402,7 @@
 
         function renderWatchlistItems() {
             const container = document.getElementById('watchlist-items');
-            const items = INITIAL_CATALOG.filter(m => watchlistIds.has(m.id));
+            const items = getAllMovies().filter(m => watchlistIds.has(m.id));
             if (items.length === 0) {
                 container.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">Nessun film salvato in Watchlist.</p>`;
                 return;
@@ -1161,7 +1440,7 @@
 
         function renderSeenItems() {
             const container = document.getElementById('seen-items');
-            const items = INITIAL_CATALOG.filter(m => seenIds.has(m.id));
+            const items = getAllMovies().filter(m => seenIds.has(m.id));
             if (items.length === 0) {
                 container.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">Nessun film segnato come già visto.</p>`;
                 return;
@@ -1180,13 +1459,95 @@
         }
 
         // ==========================================
+        // DNA CINEFILO PERSONALIZZATO (AGGIUNTE UTENTE)
+        // ==========================================
+        function renderCustomDnaTags() {
+            const container = document.getElementById('custom-dna-tags');
+            if (!container) return;
+            if (customDnaItems.length === 0) {
+                container.innerHTML = `<span class="text-[11px] text-slate-500 italic">Nessun elemento personalizzato ancora aggiunto. Inserisci sopra i tuoi registi o film preferiti!</span>`;
+                return;
+            }
+            container.innerHTML = customDnaItems.map((item, index) => `
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-950/60 text-purple-300 border border-purple-800/60 text-xs">
+                    <span>${escapeHtml(item)}</span>
+                    <button type="button" onclick="removeCustomDnaItem(${index})" class="hover:text-rose-400 cursor-pointer ml-0.5 text-[11px]">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </span>
+            `).join('');
+        }
+
+        function addCustomDnaItem() {
+            const input = document.getElementById('input-new-dna-item');
+            const val = input.value.trim();
+            if (!val) return;
+            if (!customDnaItems.includes(val)) {
+                customDnaItems.push(val);
+                localStorage.setItem('cinestudio_custom_dna', JSON.stringify(customDnaItems));
+                renderCustomDnaTags();
+            }
+            input.value = '';
+        }
+
+        function removeCustomDnaItem(idx) {
+            customDnaItems.splice(idx, 1);
+            localStorage.setItem('cinestudio_custom_dna', JSON.stringify(customDnaItems));
+            renderCustomDnaTags();
+        }
+
+        // ==========================================
+        // AGGIUNTA FILM PERSONALIZZATO AL CATALOGO
+        // ==========================================
+        function openAddMovieModal() {
+            document.getElementById('modal-add-movie').classList.remove('hidden');
+        }
+
+        function closeAddMovieModal() {
+            document.getElementById('modal-add-movie').classList.add('hidden');
+            document.getElementById('form-add-movie').reset();
+        }
+
+        function saveCustomMovie(e) {
+            e.preventDefault();
+            const title = document.getElementById('add-movie-title').value.trim();
+            if (!title) return;
+
+            const customMovies = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
+            const newMovie = {
+                id: 'custom-' + Date.now(),
+                title: title,
+                year: parseInt(document.getElementById('add-movie-year').value, 10) || 2020,
+                duration: parseInt(document.getElementById('add-movie-duration').value, 10) || 110,
+                director: document.getElementById('add-movie-director').value.trim() || 'Regista',
+                cast: document.getElementById('add-movie-cast').value.trim() || '',
+                platform: document.getElementById('add-movie-platform').value,
+                link: document.getElementById('add-movie-link').value.trim() || 'https://www.google.com/search?q=' + encodeURIComponent(title + ' film streaming'),
+                imdb: parseFloat(document.getElementById('add-movie-imdb').value) || 7.0,
+                mymovies: parseFloat(document.getElementById('add-movie-mymovies').value) || 3.5,
+                mood: document.getElementById('add-movie-mood').value,
+                why: document.getElementById('add-movie-why').value.trim() || 'Aggiunto manualmente alla tua collezione personale.',
+                synopsis: document.getElementById('add-movie-synopsis').value.trim() || 'Film inserito tra i tuoi preferiti.',
+                poster: 'https://via.placeholder.com/300x450/1e293b/f59e0b?text=' + encodeURIComponent(title)
+            };
+
+            customMovies.push(newMovie);
+            localStorage.setItem('cinestudio_user_movies', JSON.stringify(customMovies));
+
+            closeAddMovieModal();
+            generateRecommendations(false);
+            renderAllMatchingMovies();
+            alert(`"${newMovie.title}" è stato aggiunto con successo al catalogo!`);
+        }
+
+        // ==========================================
         // PROMEMORIA / REMIND: WHATSAPP & GOOGLE CALENDAR
         // ==========================================
         let currentRemindMovie = null;
         let currentRemindDate = new Date();
 
         function openRemindModal(movieId) {
-            const movie = INITIAL_CATALOG.find(m => m.id === movieId);
+            const movie = getAllMovies().find(m => m.id === movieId);
             if (!movie) return;
             currentRemindMovie = movie;
 

@@ -40,6 +40,13 @@ Creata l'applicazione autonoma **CineStudio** (`CineStudio.html` e script `avvia
    - **WhatsApp Intent**: genera e apre un messaggio formattato con titolo, piattaforma, durata, voti IMDb/MYmovies, motivazione e link streaming.
    - **Google Calendar Intent**: genera l'evento calendar completo di orario d'inizio e fine calcolato sulla durata esatta del film, alert notifica, link e sinossi.
 
+6. **DNA Dinamico & Aggiunta Film al Catalogo**:
+   - **DNA Cinefilo espandibile**: modale interattiva del DNA con possibilità di inserire nuovi tag/registi/titoli personalizzati conservati in `localStorage` (`cinestudio_custom_dna`).
+   - **Ampliamento Festival, Premi & Autorialità**: integrati nel DNA Nanni Moretti, produzioni Fandango, vincitori Mostra del Cinema di Venezia (Leone d'Oro), Festival di Berlino (Orso d'Oro) e Premi Oscar.
+   - **Eccezione Musical d'Autore**: sbloccati capolavori acclamati come *La La Land*.
+   - **Modale "+ Aggiungi Film"**: form per inserire nuovi titoli nel catalogo personale (`cinestudio_user_movies`), integrati senza soluzione di continuità nel motore di raccomandazione via `getAllMovies()`.
+   - **Nuovo Mood dedicato**: *"🏆 Festival, Autore & Premi (Venezia, Oscar, Moretti, Fandango)"*.
+
 ## Ripristino
 
 Per rimuovere la nuova web-app qualora non desiderata:
