@@ -367,6 +367,68 @@
         </div>
     </div>
 
+    <!-- Modal: Promemoria Serata (WhatsApp & Google Calendar) -->
+    <div id="modal-remind" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-lg rounded-2xl p-6 space-y-5 border border-slate-700 shadow-2xl animate-fade-in">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center text-white text-sm">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    <h3 class="text-lg font-black text-white">Imposta Promemoria Serata</h3>
+                </div>
+                <button onclick="closeRemindModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Anteprima Film Selezionato -->
+            <div id="remind-movie-preview" class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 flex items-start gap-3">
+                <!-- Info film compilate dinamicamente via JS -->
+            </div>
+
+            <!-- Selezione Data & Orario -->
+            <div class="space-y-3">
+                <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <i class="fa-regular fa-clock text-amber-400"></i> Quando hai intenzione di guardarlo?
+                </label>
+                
+                <!-- Preset rapidi -->
+                <div class="grid grid-cols-3 gap-2">
+                    <button type="button" onclick="setRemindPreset('tonight-2100')" id="preset-tonight-2100" class="remind-preset-btn py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-center text-slate-200 cursor-pointer transition">
+                        Stasera 21:00
+                    </button>
+                    <button type="button" onclick="setRemindPreset('tonight-2130')" id="preset-tonight-2130" class="remind-preset-btn py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-center text-slate-200 cursor-pointer transition">
+                        Stasera 21:30
+                    </button>
+                    <button type="button" onclick="setRemindPreset('tomorrow-2115')" id="preset-tomorrow-2115" class="remind-preset-btn py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-center text-slate-200 cursor-pointer transition">
+                        Domani 21:15
+                    </button>
+                </div>
+
+                <!-- Input orario personalizzato -->
+                <div class="pt-1">
+                    <label class="text-[10px] text-slate-400 block mb-1">Oppure scegli data e ora specifica:</label>
+                    <input type="datetime-local" id="remind-custom-datetime" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 font-mono" onchange="onCustomDateTimeChange()">
+                </div>
+            </div>
+
+            <!-- Pulsanti Canali: WhatsApp & Google Calendar -->
+            <div class="space-y-2.5 pt-3 border-t border-slate-800">
+                <button type="button" onclick="sendWhatsAppRemind()" class="w-full py-3 px-4 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 transition cursor-pointer flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    <span>Invia Promemoria su WhatsApp</span>
+                </button>
+                <button type="button" onclick="sendGoogleCalendarRemind()" class="w-full py-3 px-4 rounded-xl bg-[#4285F4] hover:bg-[#3367d6] text-white font-black text-xs shadow-lg shadow-blue-500/20 transition cursor-pointer flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-google text-base"></i>
+                    <span>Aggiungi a Google Calendar (con alert)</span>
+                </button>
+            </div>
+            
+            <p class="text-[10px] text-center text-slate-500 leading-tight">Google Calendar calcola in automatico la durata del film &bull; WhatsApp prepara un messaggio formattato con voti, scheda e link streaming.</p>
+        </div>
+    </div>
+
     <!-- Database Cinefilo Curato -->
     <script>
         const INITIAL_CATALOG = [
@@ -935,6 +997,9 @@
                         <a href="${movie.link}" target="_blank" rel="noopener noreferrer" class="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs text-center border border-slate-700 transition flex items-center justify-center gap-1.5">
                             <i class="fa-solid fa-play text-amber-400 text-[10px]"></i> Guarda Ora
                         </a>
+                        <button onclick="openRemindModal('${movie.id}')" class="p-2 rounded-xl bg-slate-800 hover:bg-sky-950 hover:text-sky-400 border border-slate-700 text-slate-300 transition text-xs cursor-pointer" title="Imposta Promemoria (WhatsApp / Google Calendar)">
+                            <i class="fa-solid fa-bell text-sky-400"></i>
+                        </button>
                         <button onclick="toggleWatchlist('${movie.id}')" class="p-2 rounded-xl border ${isWatchlisted ? 'bg-amber-500 text-slate-950 border-amber-500' : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'} transition text-xs cursor-pointer" title="${isWatchlisted ? 'Rimuovi da Watchlist' : 'Aggiungi a Watchlist'}">
                             <i class="fa-solid fa-bookmark"></i>
                         </button>
@@ -967,6 +1032,9 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-1">
+                        <button onclick="openRemindModal('${m.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:text-sky-400 text-slate-400" title="Imposta Promemoria (WhatsApp / Calendar)">
+                            <i class="fa-solid fa-bell"></i>
+                        </button>
                         <button onclick="markAsSeen('${m.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:text-emerald-400 text-slate-400" title="Già Visto">
                             <i class="fa-solid fa-check"></i>
                         </button>
@@ -1071,8 +1139,11 @@
                         <p class="text-slate-400 text-[11px] mt-0.5">${escapeHtml(m.why)}</p>
                     </div>
                     <div class="flex items-center gap-2">
+                        <button onclick="openRemindModal('${m.id}')" class="px-2 py-1 rounded-lg bg-sky-950 hover:bg-sky-900 text-sky-300 border border-sky-800 font-bold text-[11px] flex items-center gap-1 cursor-pointer" title="Imposta Promemoria">
+                            <i class="fa-solid fa-bell"></i> Promemoria
+                        </button>
                         <a href="${m.link}" target="_blank" class="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold text-[11px]">Guarda</a>
-                        <button onclick="toggleWatchlist('${m.id}'); renderWatchlistItems();" class="text-rose-400 hover:text-rose-300 p-1"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="toggleWatchlist('${m.id}'); renderWatchlistItems();" class="text-rose-400 hover:text-rose-300 p-1 cursor-pointer" title="Rimuovi"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 </div>
             `).join('');
@@ -1101,11 +1172,143 @@
                         <span class="font-bold text-white">${escapeHtml(m.title)}</span>
                         <span class="text-slate-400 text-[11px]">(${m.year} &bull; ${escapeHtml(m.director)})</span>
                     </div>
-                    <button onclick="unmarkSeen('${m.id}')" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:text-white text-[11px]" title="Riporta tra i disponibili">
+                    <button onclick="unmarkSeen('${m.id}')" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:text-white text-[11px] cursor-pointer" title="Riporta tra i disponibili">
                         Ripristina
                     </button>
                 </div>
             `).join('');
+        }
+
+        // ==========================================
+        // PROMEMORIA / REMIND: WHATSAPP & GOOGLE CALENDAR
+        // ==========================================
+        let currentRemindMovie = null;
+        let currentRemindDate = new Date();
+
+        function openRemindModal(movieId) {
+            const movie = INITIAL_CATALOG.find(m => m.id === movieId);
+            if (!movie) return;
+            currentRemindMovie = movie;
+
+            // Render preview
+            const preview = document.getElementById('remind-movie-preview');
+            preview.innerHTML = `
+                <div class="w-12 h-16 rounded-lg bg-slate-800 overflow-hidden flex-shrink-0 border border-slate-700">
+                    <img src="${movie.poster}" alt="${escapeHtml(movie.title)}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150x225?text=Cinema';">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1 flex-wrap">
+                        ${getPlatformBadge(movie.platform, true)}
+                        <h4 class="font-black text-white text-sm truncate">${escapeHtml(movie.title)}</h4>
+                        <span class="text-xs text-slate-400 font-mono">(${movie.year})</span>
+                    </div>
+                    <p class="text-xs text-slate-400"><i class="fa-solid fa-clapperboard text-slate-500 mr-1"></i> ${escapeHtml(movie.director)} &bull; ${formatDuration(movie.duration)}</p>
+                    <div class="flex items-center gap-3 mt-1 font-mono text-[11px]">
+                        <span class="text-[#f5c518] font-black">IMDb ${movie.imdb.toFixed(1)}</span>
+                        <span class="text-rose-400 font-black">MYmovies ${movie.mymovies.toFixed(1)}</span>
+                    </div>
+                </div>
+            `;
+
+            // Default: stasera alle 21:00 (o 21:30 se sono già passate le 20:30)
+            const now = new Date();
+            if (now.getHours() >= 21) {
+                setRemindPreset('tonight-2130');
+            } else {
+                setRemindPreset('tonight-2100');
+            }
+
+            document.getElementById('modal-remind').classList.remove('hidden');
+        }
+
+        function closeRemindModal() {
+            document.getElementById('modal-remind').classList.add('hidden');
+            currentRemindMovie = null;
+        }
+
+        function setRemindPreset(preset) {
+            let target = new Date();
+
+            document.querySelectorAll('.remind-preset-btn').forEach(btn => {
+                btn.classList.remove('border-amber-500', 'text-amber-300', 'bg-amber-500/10');
+                btn.classList.add('border-slate-700', 'text-slate-200', 'bg-slate-800');
+            });
+
+            const activeBtn = document.getElementById(`preset-${preset}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('border-slate-700', 'text-slate-200', 'bg-slate-800');
+                activeBtn.classList.add('border-amber-500', 'text-amber-300', 'bg-amber-500/10');
+            }
+
+            if (preset === 'tonight-2100') {
+                target.setHours(21, 0, 0, 0);
+            } else if (preset === 'tonight-2130') {
+                target.setHours(21, 30, 0, 0);
+            } else if (preset === 'tomorrow-2115') {
+                target.setDate(target.getDate() + 1);
+                target.setHours(21, 15, 0, 0);
+            }
+
+            currentRemindDate = target;
+
+            // Aggiorna l'input personalizzato
+            const pad = n => String(n).padStart(2, '0');
+            const localIso = `${target.getFullYear()}-${pad(target.getMonth()+1)}-${pad(target.getDate())}T${pad(target.getHours())}:${pad(target.getMinutes())}`;
+            document.getElementById('remind-custom-datetime').value = localIso;
+        }
+
+        function onCustomDateTimeChange() {
+            const val = document.getElementById('remind-custom-datetime').value;
+            if (val) {
+                currentRemindDate = new Date(val);
+                document.querySelectorAll('.remind-preset-btn').forEach(btn => {
+                    btn.classList.remove('border-amber-500', 'text-amber-300', 'bg-amber-500/10');
+                    btn.classList.add('border-slate-700', 'text-slate-200', 'bg-slate-800');
+                });
+            }
+        }
+
+        function formatHumanDateTime(d) {
+            const days = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
+            const pad = n => String(n).padStart(2, '0');
+            return `${days[d.getDay()]} ${pad(d.getDate())}/${pad(d.getMonth()+1)} alle ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        }
+
+        function sendWhatsAppRemind() {
+            if (!currentRemindMovie) return;
+            const m = currentRemindMovie;
+            const when = formatHumanDateTime(currentRemindDate);
+
+            const msg = `🎬 *PROMEMORIA SERATA CINEMA*\n\n` +
+                        `*${m.title}* (${m.year})\n` +
+                        `📺 *Piattaforma:* ${m.platform.toUpperCase()}\n` +
+                        `⏱️ *Durata:* ${formatDuration(m.duration)}\n` +
+                        `⭐ *IMDb:* ${m.imdb.toFixed(1)} | 🎬 *MYmovies:* ${m.mymovies.toFixed(1)}/5\n` +
+                        `🎥 *Regia:* ${m.director}\n\n` +
+                        `💡 *Perché vederlo:* ${m.why}\n\n` +
+                        `⏰ *In programma per:* ${when}\n` +
+                        `🔗 *Link streaming:* ${m.link}`;
+
+            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+        }
+
+        function sendGoogleCalendarRemind() {
+            if (!currentRemindMovie) return;
+            const m = currentRemindMovie;
+            const start = new Date(currentRemindDate);
+            const end = new Date(start.getTime() + (m.duration || 120) * 60 * 1000);
+
+            const pad = n => String(n).padStart(2, '0');
+            const formatGCal = d => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+
+            const title = `🎬 Film: ${m.title} (${m.year}) su ${m.platform.toUpperCase()}`;
+            const details = `Piattaforma: ${m.platform.toUpperCase()}\nRegia: ${m.director}\nCast: ${m.cast}\nDurata: ${formatDuration(m.duration)}\n\n⭐ IMDb: ${m.imdb.toFixed(1)} | 🎬 MYmovies: ${m.mymovies.toFixed(1)}/5\n\n💡 Perché vederlo:\n${m.why}\n\n📖 Sinossi:\n${m.synopsis}\n\n🔗 Guarda ora: ${m.link}`;
+            const location = `${m.platform.toUpperCase()} Streaming`;
+            const dates = `${formatGCal(start)}/${formatGCal(end)}`;
+
+            const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location)}&dates=${dates}`;
+            window.open(url, '_blank');
         }
 
         function escapeHtml(text) {

@@ -34,6 +34,12 @@ Creata l'applicazione autonoma **CineStudio** (`CineStudio.html` e script `avvia
    - Watchlist serale integrata.
    - Nessun server o database esterno necessario: funziona sia come file locale sia via web server.
 
+5. **Integrazione Promemoria 1-Click (WhatsApp & Google Calendar)**:
+   - Tasto icona campana 🔔 presente su ogni scheda film, nella Watchlist e nel catalogo completo.
+   - Apertura modale di pianificazione con orario preimpostato (Stasera 21:00, Stasera 21:30, Domani 21:15 o data/ora personalizzata).
+   - **WhatsApp Intent**: genera e apre un messaggio formattato con titolo, piattaforma, durata, voti IMDb/MYmovies, motivazione e link streaming.
+   - **Google Calendar Intent**: genera l'evento calendar completo di orario d'inizio e fine calcolato sulla durata esatta del film, alert notifica, link e sinossi.
+
 ## Ripristino
 
 Per rimuovere la nuova web-app qualora non desiderata:
