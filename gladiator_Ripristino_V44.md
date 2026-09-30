@@ -62,6 +62,10 @@ Creata l'applicazione autonoma **CineStudio** (`CineStudio.html` e script `avvia
      - *Il caso Spotlight* (2015, La7, Oscar Miglior Film, Michael Keaton).
      - *Navalny* (2022, Discovery+, Oscar Miglior Documentario).
 
+8. **Modale Dettagli & Trama Estesa (1-Click) e Correzione DNA Punti Cardinali**:
+   - **Correzione Punti Cardinali DNA**: rimossi tutti i film candidati o festivalieri non ancora visti (*Tre manifesti*, *Parasite*, *Nomadland*, *Moretti*, *Fandango*) dal box dei "Punti Cardinali", mantenendo rigorosamente solo i titoli storici indicati e amati personalmente dall'utente.
+   - **Interattività 1-Click per Trama & Scheda Completa**: cliccando su qualsiasi film (sia nell'elenco generale, sia nelle 3 scelte serali, sia nella Watchlist) si apre una modale dedicata (`#modal-movie-details`) con la **trama completa e avvincente**, i voti IMDb/MYmovies, il cast, il perché è consigliato e tutti i comandi rapidi (Guarda Ora, Promemoria WhatsApp/Calendar, Watchlist, Già Visto).
+
 ## Ripristino
 
 Per rimuovere la nuova web-app qualora non desiderata:

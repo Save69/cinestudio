@@ -324,12 +324,6 @@
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Vita di Pi</span>
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Limitless</span>
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">La La Land</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">La stanza del figlio</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Caro diario</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Le conseguenze dell'amore</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Tre manifesti a Ebbing, Missouri</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Parasite</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Nomadland</span>
                     </div>
                 </div>
 
@@ -580,6 +574,67 @@
             </div>
             
             <p class="text-[10px] text-center text-slate-500 leading-tight">Google Calendar calcola in automatico la durata del film &bull; WhatsApp prepara un messaggio formattato con voti, scheda e link streaming.</p>
+        </div>
+    </div>
+
+    <!-- Modal: Dettagli Film & Trama Estesa -->
+    <div id="modal-movie-details" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-xl rounded-2xl p-6 space-y-4 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto animate-fade-in flex flex-col">
+            <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-800">
+                <div class="space-y-1">
+                    <div id="detail-badges" class="flex items-center gap-2 flex-wrap">
+                        <!-- Badge piattaforma, anno, durata -->
+                    </div>
+                    <h3 id="detail-title" class="text-xl font-black text-white leading-tight"></h3>
+                    <p id="detail-director" class="text-xs text-slate-400"></p>
+                </div>
+                <button onclick="closeMovieDetailsModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3.5">
+                <!-- Voti Guardrail -->
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                        <span class="bg-[#f5c518] text-slate-950 font-black text-[10px] px-1 rounded font-mono">IMDb</span>
+                        <span id="detail-imdb" class="text-amber-300 font-black text-xs"></span>
+                    </div>
+                    <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30">
+                        <span class="text-rose-400 font-black text-[10px] uppercase font-mono">MYmovies</span>
+                        <span id="detail-mymovies" class="text-rose-300 font-black text-xs"></span>
+                    </div>
+                </div>
+
+                <!-- Cast -->
+                <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                        <i class="fa-solid fa-user-group text-sky-400 mr-1"></i> Cast Principale:
+                    </span>
+                    <p id="detail-cast" class="text-slate-200"></p>
+                </div>
+
+                <!-- Di cosa parla (Trama) -->
+                <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-700/80 text-xs space-y-1.5">
+                    <span class="text-[11px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-open"></i> Di cosa parla (Trama Completa):
+                    </span>
+                    <p id="detail-synopsis" class="text-slate-200 leading-relaxed text-xs sm:text-sm font-normal"></p>
+                </div>
+
+                <!-- Perché è per te -->
+                <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5 mb-1">
+                        <i class="fa-solid fa-sparkles"></i> Perché è consigliato per te:
+                    </span>
+                    <p id="detail-why" class="text-slate-300 leading-relaxed"></p>
+                </div>
+            </div>
+
+            <!-- Footer Azioni -->
+            <div id="detail-actions" class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2 flex-wrap">
+                <!-- Inserito dinamicamente via JS -->
+            </div>
         </div>
     </div>
 
@@ -1088,7 +1143,7 @@
                 mymovies: 4.1,
                 mood: "autore",
                 why: "Trionfo alla Mostra di Venezia e 2 Premi Oscar: scrittura straordinaria, ritmo tagliente, dolore e redenzione umana.",
-                synopsis: "Una madre affigge tre manifesti polemici all'ingresso della cittadina per spronare la polizia a trovare l'assassino della figlia.",
+                synopsis: "Dopo sette mesi dall'omicidio e dallo stupro della figlia Angela senza che la polizia locale abbia trovato colpevoli, Mildred Hayes decide di scuotere la comunità: affitta tre giganteschi cartelloni pubblicitari all'ingresso del paese con scritte accusatorie dirette allo stimato sceriffo Willoughby. Il gesto scatena una reazione a catena di rabbia, conflitti e inaspettata empatia, affrontando il dolore senza retorica e con dialoghi memorabili.",
                 poster: "https://image.tmdb.org/t/p/w500/22cLMYk02m9j2k0j92k3o0j.jpg"
             },
             {
@@ -1097,14 +1152,14 @@
                 year: 2019,
                 duration: 132,
                 director: "Bong Joon-ho",
-                cast: "Song Kang-ho, Lee Sun-kyun, Cho Yeo-jeong",
+                cast: "Song Kang-ho, Lee Sun-kyun, Cho Yeo-jeong, Choi Woo-shik, Park So-dam",
                 platform: "prime",
                 link: "https://www.primevideo.com",
                 imdb: 8.5,
                 mymovies: 4.4,
                 mood: "mente",
                 why: "Palma d'Oro a Cannes e 4 Premi Oscar storici: ritmo millimetrico, tensione continua, ingegno e zero tempi morti.",
-                synopsis: "Una famiglia povera s'infiltra con astuzia e ingegno nella vita quotidiana di una ricchissima famiglia di Seul.",
+                synopsis: "La famiglia Kim vive in uno squallido seminterrato a Seul sbarcando il lunario con lavoretti precari. Quando il figlio maggiore riesce a farsi assumere come tutor d'inglese per la figlia dei ricchissimi Park, architetta un piano geniale per far assumere l'intera famiglia (sorella, padre e madre) sostituendo il personale di servizio all'insaputa dei padroni. Quella che sembra una commedia brillante e una truffa perfetta si trasforma gradualmente in un thriller tesissimo, imprevedibile e travolgente, con un ritmo serratissimo fino all'ultimo secondo.",
                 poster: "https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg"
             },
             {
@@ -1120,7 +1175,7 @@
                 mymovies: 3.8,
                 mood: "anima",
                 why: "Leone d'Oro a Venezia e 3 Premi Oscar (Miglior Film e Regia): poesia visiva, libertà interiore e viaggio nell'Ovest americano.",
-                synopsis: "Dopo la chiusura dell'azienda in cui lavorava, una donna sessantenne carica tutto sul suo furgone e intraprende una vita nomade.",
+                synopsis: "Dopo la morte del marito e il collasso economico della cittadina mineraria di Empire nel Nevada, la sessantenne Fern decide di caricare le poche cose rimaste su un furgone attrezzato e mettersi in viaggio lungo l'Ovest americano. Vivendo da moderna nomade, svolgendo lavori stagionali e incontrando una comunità solidale di persone fuori dagli schemi convenzionali, Fern compie un viaggio intimo di rinascita, lutto e sconfinata libertà interiore.",
                 poster: "https://image.tmdb.org/t/p/w500/66A9MqX20k92j0k92k3o0j.jpg"
             },
             {
@@ -1418,7 +1473,10 @@
 
                         <!-- Titolo e Regista -->
                         <div class="px-4 py-2">
-                            <h3 class="text-lg font-black text-white leading-tight mb-1">${escapeHtml(movie.title)}</h3>
+                            <h3 onclick="openMovieDetailsModal('${movie.id}')" class="text-lg font-black text-white leading-tight mb-1 cursor-pointer hover:text-amber-300 transition flex items-center justify-between group" title="Clicca per leggere dettagli e trama completa">
+                                <span>${escapeHtml(movie.title)}</span>
+                                <i class="fa-solid fa-circle-info text-xs text-slate-500 group-hover:text-amber-400 transition ml-2"></i>
+                            </h3>
                             <p class="text-xs text-slate-400"><i class="fa-solid fa-clapperboard text-slate-500 mr-1"></i> ${escapeHtml(movie.director)}</p>
                             <p class="text-[11px] text-slate-400 truncate"><i class="fa-solid fa-user-group text-slate-500 mr-1"></i> ${escapeHtml(movie.cast)}</p>
                         </div>
@@ -1447,7 +1505,7 @@
 
                         <!-- Sinossi -->
                         <div class="px-4 py-2">
-                            <p class="text-xs text-slate-400 leading-relaxed line-clamp-3">${escapeHtml(movie.synopsis)}</p>
+                            <p onclick="openMovieDetailsModal('${movie.id}')" class="text-xs text-slate-400 leading-relaxed line-clamp-3 cursor-pointer hover:text-slate-200 transition" title="Clicca per leggere la trama completa">${escapeHtml(movie.synopsis)}</p>
                         </div>
                     </div>
 
@@ -1478,23 +1536,27 @@
             document.getElementById('all-matching-count').textContent = pool.length;
 
             container.innerHTML = pool.map(m => `
-                <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-start justify-between gap-2 text-xs">
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-1.5 mb-1">
+                <div class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/50 flex items-start justify-between gap-2 text-xs transition group">
+                    <div class="flex-1 min-w-0 cursor-pointer" onclick="openMovieDetailsModal('${m.id}')" title="Clicca per leggere la trama e i dettagli di ${escapeHtml(m.title)}">
+                        <div class="flex items-center gap-1.5 mb-1 flex-wrap">
                             ${getPlatformBadge(m.platform, true)}
-                            <span class="font-bold text-white truncate">${escapeHtml(m.title)}</span>
+                            <span class="font-bold text-white group-hover:text-amber-300 transition text-[13px]">${escapeHtml(m.title)}</span>
+                            <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30 opacity-80 group-hover:opacity-100 flex items-center gap-1"><i class="fa-solid fa-book-open text-[9px]"></i> Trama & Dettagli</span>
                         </div>
-                        <p class="text-slate-400 text-[11px] truncate">${escapeHtml(m.director)} &bull; ${m.year} &bull; ${formatDuration(m.duration)}</p>
-                        <div class="flex items-center gap-2 mt-1 font-mono text-[10px]">
-                            <span class="text-[#f5c518]">IMDb ${m.imdb}</span>
-                            <span class="text-rose-400">MYmovies ${m.mymovies}</span>
+                        <p class="text-slate-400 text-[11px] truncate"><i class="fa-solid fa-clapperboard text-slate-500 mr-1"></i>${escapeHtml(m.director)} &bull; ${m.year} &bull; ${formatDuration(m.duration)}</p>
+                        <div class="flex items-center gap-3 mt-1.5 font-mono text-[10px]">
+                            <span class="text-[#f5c518] font-bold">IMDb ${m.imdb.toFixed(1)}</span>
+                            <span class="text-rose-400 font-bold">MYmovies ${m.mymovies.toFixed(1)}</span>
                         </div>
                     </div>
-                    <div class="flex items-center gap-1">
-                        <button onclick="openRemindModal('${m.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:text-sky-400 text-slate-400" title="Imposta Promemoria (WhatsApp / Calendar)">
-                            <i class="fa-solid fa-bell"></i>
+                    <div class="flex items-center gap-1 pl-1">
+                        <button onclick="openRemindModal('${m.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:bg-sky-950 hover:text-sky-400 text-slate-400 transition cursor-pointer" title="Imposta Promemoria (WhatsApp / Calendar)">
+                            <i class="fa-solid fa-bell text-sky-400"></i>
                         </button>
-                        <button onclick="markAsSeen('${m.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:text-emerald-400 text-slate-400" title="Già Visto">
+                        <button onclick="toggleWatchlist('${m.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:text-amber-400 text-slate-400 transition cursor-pointer" title="Aggiungi / Rimuovi Watchlist">
+                            <i class="fa-solid fa-bookmark ${watchlistIds.has(m.id) ? 'text-amber-400' : ''}"></i>
+                        </button>
+                        <button onclick="markAsSeen('${m.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:bg-emerald-950 hover:text-emerald-400 text-slate-400 transition cursor-pointer" title="Segna come Già Visto">
                             <i class="fa-solid fa-check"></i>
                         </button>
                     </div>
@@ -1568,7 +1630,68 @@
             renderAllMatchingMovies();
         }
 
-        // Modals
+        // Modals & Details
+        function getPlatformName(plat) {
+            switch(plat) {
+                case 'netflix': return 'Netflix';
+                case 'prime': return 'Prime Video';
+                case 'disney': return 'Disney+';
+                case 'raiplay': return 'RaiPlay';
+                case 'discovery': return 'Discovery+';
+                case 'la7': return 'La7';
+                default: return plat;
+            }
+        }
+
+        function openMovieDetailsModal(id) {
+            const movie = getAllMovies().find(m => m.id === id);
+            if (!movie) return;
+
+            const modal = document.getElementById('modal-movie-details');
+            document.getElementById('detail-title').textContent = movie.title;
+            document.getElementById('detail-director').innerHTML = `<i class="fa-solid fa-clapperboard text-slate-500 mr-1"></i> Regia di <strong>${escapeHtml(movie.director)}</strong>`;
+            document.getElementById('detail-imdb').textContent = movie.imdb.toFixed(1);
+            document.getElementById('detail-mymovies').innerHTML = `${movie.mymovies.toFixed(1)} <i class="fa-solid fa-star text-[9px]"></i>`;
+            document.getElementById('detail-cast').textContent = movie.cast || 'Non specificato';
+            document.getElementById('detail-synopsis').textContent = movie.synopsis || 'Nessuna trama disponibile.';
+            document.getElementById('detail-why').textContent = movie.why || '';
+
+            // Badges
+            document.getElementById('detail-badges').innerHTML = `
+                ${getPlatformBadge(movie.platform)}
+                <span class="text-xs px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 font-mono">${movie.year}</span>
+                <span class="text-xs px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 font-mono"><i class="fa-regular fa-clock mr-1 text-emerald-400"></i>${formatDuration(movie.duration)}</span>
+            `;
+
+            // Actions footer
+            const isWatchlisted = watchlistIds.has(movie.id);
+            const isSeen = seenIds.has(movie.id);
+
+            document.getElementById('detail-actions').innerHTML = `
+                <a href="${movie.link}" target="_blank" rel="noopener noreferrer" class="py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center gap-1.5 shadow-lg shadow-amber-500/20 cursor-pointer">
+                    <i class="fa-solid fa-play"></i> Guarda su ${getPlatformName(movie.platform)}
+                </a>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button onclick="closeMovieDetailsModal(); openRemindModal('${movie.id}')" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-sky-950 hover:text-sky-400 border border-slate-700 text-slate-300 transition text-xs font-bold flex items-center gap-1.5 cursor-pointer" title="Promemoria WhatsApp / Calendar">
+                        <i class="fa-solid fa-bell text-sky-400"></i> <span>Promemoria</span>
+                    </button>
+                    <button onclick="toggleWatchlist('${movie.id}'); openMovieDetailsModal('${movie.id}')" class="py-2 px-3 rounded-xl border ${isWatchlisted ? 'bg-amber-500/20 text-amber-300 border-amber-500/50' : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'} transition text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-bookmark ${isWatchlisted ? 'text-amber-400' : ''}"></i>
+                        <span>${isWatchlisted ? 'In Watchlist' : '+ Watchlist'}</span>
+                    </button>
+                    <button onclick="markAsSeen('${movie.id}'); closeMovieDetailsModal()" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-emerald-950 hover:text-emerald-400 border border-slate-700 text-slate-300 transition text-xs font-bold flex items-center gap-1.5 cursor-pointer" title="Segna come Già Visto">
+                        <i class="fa-solid fa-check text-emerald-400"></i> <span>${isSeen ? 'Visto' : 'Già Visto'}</span>
+                    </button>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeMovieDetailsModal() {
+            document.getElementById('modal-movie-details').classList.add('hidden');
+        }
+
         function openDnaModal() { document.getElementById('modal-dna').classList.remove('hidden'); }
         function closeDnaModal() { document.getElementById('modal-dna').classList.add('hidden'); }
 
@@ -1590,14 +1713,14 @@
                 return;
             }
             container.innerHTML = items.map(m => `
-                <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
-                    <div>
+                <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs hover:border-amber-500/40 transition">
+                    <div class="cursor-pointer flex-1 mr-2" onclick="toggleWatchlistModal(); openMovieDetailsModal('${m.id}')" title="Clicca per visualizzare la scheda completa">
                         <div class="flex items-center gap-2">
                             ${getPlatformBadge(m.platform, true)}
-                            <h4 class="font-bold text-white">${escapeHtml(m.title)}</h4>
+                            <h4 class="font-bold text-white hover:text-amber-300 transition">${escapeHtml(m.title)}</h4>
                             <span class="text-slate-400 text-[11px]">(${m.year})</span>
                         </div>
-                        <p class="text-slate-400 text-[11px] mt-0.5">${escapeHtml(m.why)}</p>
+                        <p class="text-slate-400 text-[11px] mt-0.5 line-clamp-1">${escapeHtml(m.why)}</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <button onclick="openRemindModal('${m.id}')" class="px-2 py-1 rounded-lg bg-sky-950 hover:bg-sky-900 text-sky-300 border border-sky-800 font-bold text-[11px] flex items-center gap-1 cursor-pointer" title="Imposta Promemoria">
