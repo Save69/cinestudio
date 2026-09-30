@@ -66,6 +66,10 @@ Creata l'applicazione autonoma **CineStudio** (`CineStudio.html` e script `avvia
    - **Correzione Punti Cardinali DNA**: rimossi tutti i film candidati o festivalieri non ancora visti (*Tre manifesti*, *Parasite*, *Nomadland*, *Moretti*, *Fandango*) dal box dei "Punti Cardinali", mantenendo rigorosamente solo i titoli storici indicati e amati personalmente dall'utente.
    - **Interattività 1-Click per Trama & Scheda Completa**: cliccando su qualsiasi film (sia nell'elenco generale, sia nelle 3 scelte serali, sia nella Watchlist) si apre una modale dedicata (`#modal-movie-details`) con la **trama completa e avvincente**, i voti IMDb/MYmovies, il cast, il perché è consigliato e tutti i comandi rapidi (Guarda Ora, Promemoria WhatsApp/Calendar, Watchlist, Già Visto).
 
+9. **Regola Ferrea "Zero Noleggi" & "Radar Film Cercati"**:
+   - **Guardrail Zero Noleggi a Pagamento**: esclusione automatica di qualsiasi titolo che richieda costi extra di noleggio/acquisto (es. Prime a noleggio per 3.99€, Apple, Chili). Solo film 100% inclusi negli abbonamenti (Netflix, Prime, Disney+) o completamente gratuiti (RaiPlay, Discovery+, La7).
+   - **Nuovo "Radar Film Cercati & Desiderati"**: pulsante e modale dedicata (`#modal-radar`) in cui vengono monitorati i titoli desiderati dall'utente (es. *I guerrieri* di Clint Eastwood) con il loro stato attuale ("Solo a Noleggio"), in attesa che approdino senza costi su RaiPlay o nei cataloghi inclusi.
+
 ## Ripristino
 
 Per rimuovere la nuova web-app qualora non desiderata:

@@ -106,6 +106,11 @@
                 <i class="fa-solid fa-dna text-purple-400"></i>
                 <span class="hidden sm:inline">Il Tuo</span> DNA Cinefilo
             </button>
+            <button onclick="toggleRadarModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition flex items-center gap-1.5 cursor-pointer relative" title="Film cercati / In attesa di streaming gratuito o incluso">
+                <i class="fa-solid fa-satellite-dish text-sky-400"></i>
+                <span class="hidden sm:inline">Radar</span> Cercati
+                <span id="radar-count" class="ml-1 px-1.5 py-0.2 rounded-full bg-sky-500 text-slate-950 text-[10px] font-black">1</span>
+            </button>
             <button onclick="toggleWatchlistModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition flex items-center gap-1.5 cursor-pointer relative">
                 <i class="fa-solid fa-bookmark text-amber-400"></i>
                 <span>Watchlist</span>
@@ -205,6 +210,9 @@
                     </span>
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 text-slate-200 font-mono text-[11px]">
                         <span class="text-rose-400 font-black">MYmovies</span> &ge; <span id="label-mymovies-val">3.3</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-950/70 text-emerald-300 border border-emerald-800/70 font-mono text-[11px] font-bold">
+                        <i class="fa-solid fa-circle-check text-emerald-400"></i> Zero Noleggi (Solo inclusi in abbonamento o 100% Free)
                     </span>
                     <span class="text-slate-400 text-[11px]">
                         <i class="fa-solid fa-ban text-rose-500"></i> Horror, demenziali, lenti senza trama, musical esclusi.
@@ -477,6 +485,47 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal: Radar Film Cercati (In attesa di streaming gratuito / incluso) -->
+    <div id="modal-radar" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-2xl rounded-2xl p-6 space-y-4 border border-slate-700 max-h-[85vh] flex flex-col shadow-2xl animate-fade-in">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center text-sm font-black">
+                        <i class="fa-solid fa-satellite-dish"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-white">Radar Film Cercati & Desiderati</h3>
+                        <p class="text-[11px] text-slate-400">Titoli che desideri vedere ma attualmente solo a noleggio a pagamento o non ancora in streaming.</p>
+                    </div>
+                </div>
+                <button onclick="toggleRadarModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Box aggiunta nuovo titolo al radar -->
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+                <label class="block text-[11px] font-bold text-slate-300">Aggiungi un titolo al Radar per monitorarlo:</label>
+                <div class="flex gap-2">
+                    <input type="text" id="input-new-radar-title" placeholder="Es. I guerrieri, Barry Lyndon, ecc..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white" onkeydown="if(event.key==='Enter'){event.preventDefault();addRadarItem();}">
+                    <button onclick="addRadarItem()" class="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-xs cursor-pointer flex items-center gap-1">
+                        <i class="fa-solid fa-plus"></i> Monitora
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lista Titoli nel Radar -->
+            <div id="radar-items" class="flex-1 overflow-y-auto space-y-2.5 pr-1">
+                <!-- Compilato dinamicamente via JS -->
+            </div>
+            
+            <div class="pt-2 border-t border-slate-800 flex justify-between items-center text-[11px] text-slate-500">
+                <span class="flex items-center gap-1"><i class="fa-solid fa-shield-halved text-emerald-400"></i> Zero Noleggi: questi film non vengono proposti nella scelta serale finché non sono gratuiti/inclusi.</span>
+                <button onclick="toggleRadarModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 font-bold hover:text-white cursor-pointer">Chiudi</button>
+            </div>
         </div>
     </div>
 
@@ -1270,6 +1319,7 @@
                 imdb: 7.6,
                 mymovies: 3.5,
                 mood: "epica",
+                rentalOnly: true,
                 why: "Il cult con Clint Eastwood che avevi iniziato: avventura, colpo grosso dietro le linee nemiche, umorismo cinico e grandissimo ritmo.",
                 synopsis: "Durante la Seconda Guerra Mondiale, un soldato americano scopre che in una banca dietro le linee tedesche sono custoditi milioni in lingotti d'oro e organizza un blitz.",
                 poster: "https://image.tmdb.org/t/p/w500/i0enk5i0U08B4u3S3vV1kO0Lz2j.jpg"
@@ -1363,6 +1413,23 @@
         let minImdb = parseFloat(localStorage.getItem('cinestudio_min_imdb') || '6.3');
         let minMymovies = parseFloat(localStorage.getItem('cinestudio_min_mymovies') || '3.3');
         let customDnaItems = JSON.parse(localStorage.getItem('cinestudio_custom_dna') || '[]');
+        let radarItems = JSON.parse(localStorage.getItem('cinestudio_radar_movies') || 'null');
+        if (!radarItems) {
+            radarItems = [
+                {
+                    id: 'prime-i-guerrieri',
+                    title: "I guerrieri (Kelly's Heroes)",
+                    year: 1970,
+                    director: "Brian G. Hutton",
+                    cast: "Clint Eastwood, Telly Savalas, Donald Sutherland",
+                    imdb: 7.6,
+                    mymovies: 3.5,
+                    status: "Attualmente solo a noleggio (€ 3.99 su Prime/Apple)",
+                    note: "In monitoraggio attivo: ti avviserò non appena diventerà disponibile gratis (RaiPlay) o incluso in abbonamento senza costi extra."
+                }
+            ];
+            localStorage.setItem('cinestudio_radar_movies', JSON.stringify(radarItems));
+        }
 
         function getAllMovies() {
             const userCustom = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
@@ -1376,6 +1443,7 @@
             document.getElementById('cfg-imdb-min').value = minImdb;
             document.getElementById('cfg-mymovies-min').value = minMymovies;
             updateWatchlistCount();
+            updateRadarCount();
             renderCustomDnaTags();
             generateRecommendations(false);
             renderAllMatchingMovies();
@@ -1404,6 +1472,9 @@
             const maxDuration = parseInt(document.getElementById('select-duration').value, 10);
 
             return getAllMovies().filter(movie => {
+                // Escludi film a noleggio a pagamento (Regola Zero Noleggi)
+                if (movie.rentalOnly) return false;
+
                 // Piattaforma attiva
                 if (!activePlatforms.has(movie.platform)) return false;
 
@@ -1690,6 +1761,85 @@
 
         function closeMovieDetailsModal() {
             document.getElementById('modal-movie-details').classList.add('hidden');
+        }
+
+        // Radar Film Cercati
+        function updateRadarCount() {
+            const el = document.getElementById('radar-count');
+            if (!el) return;
+            if (radarItems.length > 0) {
+                el.textContent = radarItems.length;
+                el.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden');
+            }
+        }
+
+        function toggleRadarModal() {
+            const modal = document.getElementById('modal-radar');
+            if (modal.classList.contains('hidden')) {
+                renderRadarItems();
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function renderRadarItems() {
+            const container = document.getElementById('radar-items');
+            if (!container) return;
+            if (radarItems.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">Nessun film nel Radar. Aggiungi qui i titoli che cerchi per tenerli sotto controllo!</p>`;
+                return;
+            }
+            container.innerHTML = radarItems.map(item => `
+                <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 flex items-start justify-between gap-3 text-xs">
+                    <div class="space-y-1 flex-1">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-black uppercase flex items-center gap-1">
+                                <i class="fa-solid fa-tag"></i> ${escapeHtml(item.status || 'Solo a Noleggio')}
+                            </span>
+                            <h4 class="font-bold text-white text-[13px]">${escapeHtml(item.title)}</h4>
+                            <span class="text-slate-400 text-[11px]">(${item.year || 'Anno n.d.'})</span>
+                        </div>
+                        <p class="text-slate-400 text-[11px]"><i class="fa-solid fa-clapperboard text-slate-500 mr-1"></i>${escapeHtml(item.director || '')} &bull; ${escapeHtml(item.cast || '')}</p>
+                        <p class="text-sky-300 text-[11px] mt-1 bg-sky-950/40 border border-sky-900/40 p-2 rounded-lg leading-relaxed"><i class="fa-solid fa-satellite-dish mr-1 text-sky-400"></i> ${escapeHtml(item.note || 'In attesa che diventi disponibile gratuitamente o in abbonamento.')}</p>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button onclick="removeRadarItem('${item.id}')" class="p-2 rounded-xl bg-slate-800 hover:bg-rose-950 hover:text-rose-400 text-slate-400 border border-slate-700 transition cursor-pointer" title="Rimuovi dal Radar">
+                            <i class="fa-solid fa-trash text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            updateRadarCount();
+        }
+
+        function addRadarItem() {
+            const input = document.getElementById('input-new-radar-title');
+            const title = input.value.trim();
+            if (!title) return;
+
+            const newItem = {
+                id: 'radar-' + Date.now(),
+                title: title,
+                year: 'Cercato',
+                director: 'Segnalato da te',
+                cast: '',
+                status: 'In ricerca streaming free / incluso',
+                note: 'In attesa di disponibilità senza noleggio a pagamento.'
+            };
+
+            radarItems.unshift(newItem);
+            localStorage.setItem('cinestudio_radar_movies', JSON.stringify(radarItems));
+            input.value = '';
+            renderRadarItems();
+        }
+
+        function removeRadarItem(id) {
+            radarItems = radarItems.filter(item => item.id !== id);
+            localStorage.setItem('cinestudio_radar_movies', JSON.stringify(radarItems));
+            renderRadarItems();
         }
 
         function openDnaModal() { document.getElementById('modal-dna').classList.remove('hidden'); }
