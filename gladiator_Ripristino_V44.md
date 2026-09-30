@@ -47,6 +47,21 @@ Creata l'applicazione autonoma **CineStudio** (`CineStudio.html` e script `avvia
    - **Modale "+ Aggiungi Film"**: form per inserire nuovi titoli nel catalogo personale (`cinestudio_user_movies`), integrati senza soluzione di continuità nel motore di raccomandazione via `getAllMovies()`.
    - **Nuovo Mood dedicato**: *"🏆 Festival, Autore & Premi (Venezia, Oscar, Moretti, Fandango)"*.
 
+7. **Integrazione Piattaforme Free (Discovery+, La7), Categoria Novità & Titoli Ricercati**:
+   - **Nuove Piattaforme Streaming**: integrate nei filtri rapidi, nei badge e nel form di aggiunta **Discovery+ (Gratuito)** e **La7 (Gratuito)** per arricchire l'offerta di documentari, cinema d'inchiesta e rassegne televisive libere.
+   - **Nuova Categoria Mood**: *"🆕 Novità & Gemme Recenti (2022-2026)"* per isolare al volo i titoli recenti acclamati dalla critica senza proporre film d'annata già visti.
+   - **Film Aggiunti al Catalogo**:
+     - *Piccole cose come queste* (2024, RaiPlay, Orso d'Argento Berlino, Cillian Murphy).
+     - *E i figli dopo di loro* (2024, RaiPlay, Concorso Venezia, Premio Mastroianni).
+     - *Margini* (2022, RaiPlay, Premio Pubblico Settimana della Critica Venezia).
+     - *Worth - Il patto* (2021, Netflix, Michael Keaton, Stanley Tucci, dramma sull'11 settembre).
+     - *I guerrieri - Kelly's Heroes* (1970, Prime Video / Noleggio, Clint Eastwood, cult avventura/bellico).
+     - *La società della neve* (2023, Netflix, J.A. Bayona, Chiusura Venezia).
+     - *Past Lives* (2023, Prime Video, Celine Song, Berlino/Sundance).
+     - *Anatomia di una caduta* (2023, Prime Video, Palma d'Oro Cannes & Oscar).
+     - *Il caso Spotlight* (2015, La7, Oscar Miglior Film, Michael Keaton).
+     - *Navalny* (2022, Discovery+, Oscar Miglior Documentario).
+
 ## Ripristino
 
 Per rimuovere la nuova web-app qualora non desiderata:

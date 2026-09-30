@@ -56,6 +56,8 @@
         .badge-prime { background: #00a8e1; color: white; }
         .badge-disney { background: #113ccf; color: white; }
         .badge-raiplay { background: #0056b3; color: white; }
+        .badge-discovery { background: #0284c7; color: white; }
+        .badge-la7 { background: #1d4ed8; color: white; }
 
         .btn-platform {
             transition: all 0.2s ease;
@@ -129,17 +131,23 @@
                         <i class="fa-solid fa-tv text-sky-400"></i> Piattaforme della Serata
                     </label>
                     <div class="flex items-center gap-2 flex-wrap" id="platform-toggles">
-                        <button type="button" onclick="togglePlatform('netflix')" id="btn-plat-netflix" class="btn-platform active px-3 py-1.5 rounded-xl badge-netflix text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
+                        <button type="button" onclick="togglePlatform('netflix')" id="btn-plat-netflix" class="btn-platform active px-2.5 py-1.5 rounded-xl badge-netflix text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
                             <i class="fa-solid fa-n"></i> Netflix
                         </button>
-                        <button type="button" onclick="togglePlatform('prime')" id="btn-plat-prime" class="btn-platform active px-3 py-1.5 rounded-xl badge-prime text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
+                        <button type="button" onclick="togglePlatform('prime')" id="btn-plat-prime" class="btn-platform active px-2.5 py-1.5 rounded-xl badge-prime text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
                             <i class="fa-brands fa-amazon"></i> Prime
                         </button>
-                        <button type="button" onclick="togglePlatform('disney')" id="btn-plat-disney" class="btn-platform active px-3 py-1.5 rounded-xl badge-disney text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
+                        <button type="button" onclick="togglePlatform('disney')" id="btn-plat-disney" class="btn-platform active px-2.5 py-1.5 rounded-xl badge-disney text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
                             <i class="fa-solid fa-d"></i> Disney+
                         </button>
-                        <button type="button" onclick="togglePlatform('raiplay')" id="btn-plat-raiplay" class="btn-platform active px-3 py-1.5 rounded-xl badge-raiplay text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
+                        <button type="button" onclick="togglePlatform('raiplay')" id="btn-plat-raiplay" class="btn-platform active px-2.5 py-1.5 rounded-xl badge-raiplay text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
                             <i class="fa-solid fa-play"></i> RaiPlay
+                        </button>
+                        <button type="button" onclick="togglePlatform('discovery')" id="btn-plat-discovery" class="btn-platform active px-2.5 py-1.5 rounded-xl badge-discovery text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
+                            <i class="fa-solid fa-compass"></i> Discovery+
+                        </button>
+                        <button type="button" onclick="togglePlatform('la7')" id="btn-plat-la7" class="btn-platform active px-2.5 py-1.5 rounded-xl badge-la7 text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
+                            <i class="fa-solid fa-tower-broadcast"></i> La7
                         </button>
                     </div>
                 </div>
@@ -152,6 +160,7 @@
                         </label>
                         <select id="select-mood" onchange="generateRecommendations()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-amber-500">
                             <option value="all">🌟 Qualsiasi (Ispirami)</option>
+                            <option value="novita">🆕 Novità & Gemme Recenti (2022-2026)</option>
                             <option value="autore">🏆 Festival, Autore & Premi (Venezia, Oscar, Moretti, Fandango)</option>
                             <option value="cuore">🎭 Cuore, Emozione & Troisi/Benigni/La La Land</option>
                             <option value="mente">🧠 Mente, Ritmo & Ingegno</option>
@@ -407,6 +416,8 @@
                             <option value="netflix">Netflix</option>
                             <option value="raiplay">RaiPlay</option>
                             <option value="disney">Disney+</option>
+                            <option value="discovery">Discovery+ (Gratuito)</option>
+                            <option value="la7">La7 (Gratuito)</option>
                         </select>
                     </div>
                 </div>
@@ -414,7 +425,7 @@
                 <div class="grid grid-cols-3 gap-3">
                     <div>
                         <label class="block text-slate-300 font-bold mb-1">Anno</label>
-                        <input type="number" id="add-movie-year" value="2020" min="1930" max="2030" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono">
+                        <input type="number" id="add-movie-year" value="2024" min="1930" max="2030" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono">
                     </div>
                     <div>
                         <label class="block text-slate-300 font-bold mb-1">Durata (min)</label>
@@ -423,6 +434,7 @@
                     <div>
                         <label class="block text-slate-300 font-bold mb-1">Mood</label>
                         <select id="add-movie-mood" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-white font-bold">
+                            <option value="novita">🆕 Novità/Gemme</option>
                             <option value="autore">🏆 Festival/Autore</option>
                             <option value="cuore">🎭 Cuore/Commedia</option>
                             <option value="mente">🧠 Mente/Ritmo</option>
@@ -1126,11 +1138,171 @@
                 why: "Produzione Fandango presentata a Cannes: Nanni Moretti si interroga sul futuro del cinema con ironia, musica e calore.",
                 synopsis: "Un regista sta girando un film ambientato nel 1956 tra Roma e il circo ungherese, mentre la sua vita familiare attraversa una crisi.",
                 poster: "https://image.tmdb.org/t/p/w500/5501928k20m9j2k0j92k3o0j2.jpg"
+            },
+            {
+                id: 'raiplay-piccole-cose',
+                title: "Piccole cose come queste",
+                year: 2024,
+                duration: 96,
+                director: "Tim Mielants",
+                cast: "Cillian Murphy, Emily Watson, Eileen Walsh",
+                platform: "raiplay",
+                link: "https://www.raiplay.it/programmi/piccolecosecomequeste",
+                imdb: 7.2,
+                mymovies: 3.4,
+                mood: "novita",
+                why: "Film d'apertura al Festival di Berlino (Orso d'Argento): un maestoso Cillian Murphy in un dramma morale profondo e toccante, stile Le ali della libertà.",
+                synopsis: "Nell'Irlanda del 1985, un commerciante di carbone scopre i segreti oscuri custoditi dal convento locale, trovandosi davanti a una scelta di coscienza.",
+                poster: "https://image.tmdb.org/t/p/w500/b34m2uv3677x5R75H47wK77l6J4k.jpg"
+            },
+            {
+                id: 'raiplay-figli-dopo',
+                title: "E i figli dopo di loro",
+                year: 2024,
+                duration: 146,
+                director: "Ludovic Boukherma, Zoran Boukherma",
+                cast: "Paul Kircher, Angelina Woreth, Sayyid El Alami",
+                platform: "raiplay",
+                link: "https://www.raiplay.it/programmi/eifiglidopodiloro",
+                imdb: 7.0,
+                mymovies: 3.4,
+                mood: "novita",
+                why: "In concorso alla Mostra di Venezia (Premio Marcello Mastroianni): grande affresco generazionale dal romanzo premio Goncourt, regia energica e appassionante.",
+                synopsis: "Nella provincia industriale francese degli anni '90, un gruppo di adolescenti vive amori, ribellioni e sogni di fuga in quattro estati decisive.",
+                poster: "https://image.tmdb.org/t/p/w500/y6P0zB9i1r1k1j2k0l92k3o0j.jpg"
+            },
+            {
+                id: 'raiplay-margini',
+                title: "Margini",
+                year: 2022,
+                duration: 91,
+                director: "Niccolò Falsetti",
+                cast: "Francesco Turbanti, Emanuele Linfatti, Matteo Creatini, Silvia D'Amico",
+                platform: "raiplay",
+                link: "https://www.raiplay.it/programmi/margini",
+                imdb: 7.0,
+                mymovies: 3.4,
+                mood: "novita",
+                why: "Premio del Pubblico alla Mostra di Venezia (Settimana della Critica) e candidato David di Donatello: commedia brillante, autentica e lontana dai cliché demenziali.",
+                synopsis: "Tre giovani musicisti di Grosseto cercano di organizzare il concerto di una famosa band punk americana, scontrandosi con la burocrazia e l'apatia della provincia.",
+                poster: "https://image.tmdb.org/t/p/w500/3939uqIpLd408P2p0m9j2k0j92.jpg"
+            },
+            {
+                id: 'netflix-worth',
+                title: "Worth - Il patto",
+                year: 2021,
+                duration: 118,
+                director: "Sara Colangelo",
+                cast: "Michael Keaton, Stanley Tucci, Amy Ryan",
+                platform: "netflix",
+                link: "https://www.netflix.com/title/80226212",
+                imdb: 6.8,
+                mymovies: 3.3,
+                mood: "mente",
+                why: "Il film sull'11 settembre che cercavi: Michael Keaton e Stanley Tucci in un intenso confronto etico e umano sulla stima del valore della vita.",
+                synopsis: "Dopo gli attentati dell'11 settembre, l'avvocato Kenneth Feinberg è incaricato dal Congresso di calcolare i risarcimenti per le famiglie delle vittime.",
+                poster: "https://image.tmdb.org/t/p/w500/4c55490PqM5K9S2348k0iO1M1yK.jpg"
+            },
+            {
+                id: 'prime-i-guerrieri',
+                title: "I guerrieri (Kelly's Heroes)",
+                year: 1970,
+                duration: 144,
+                director: "Brian G. Hutton",
+                cast: "Clint Eastwood, Telly Savalas, Donald Sutherland, Don Rickles",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 7.6,
+                mymovies: 3.5,
+                mood: "epica",
+                why: "Il cult con Clint Eastwood che avevi iniziato: avventura, colpo grosso dietro le linee nemiche, umorismo cinico e grandissimo ritmo.",
+                synopsis: "Durante la Seconda Guerra Mondiale, un soldato americano scopre che in una banca dietro le linee tedesche sono custoditi milioni in lingotti d'oro e organizza un blitz.",
+                poster: "https://image.tmdb.org/t/p/w500/i0enk5i0U08B4u3S3vV1kO0Lz2j.jpg"
+            },
+            {
+                id: 'netflix-societa-neve',
+                title: "La società della neve",
+                year: 2023,
+                duration: 144,
+                director: "J.A. Bayona",
+                cast: "Enzo Vogrincic, Agustín Pardella, Matías Recalt",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 7.8,
+                mymovies: 3.9,
+                mood: "novita",
+                why: "Film di chiusura alla Mostra di Venezia e 2 nomination Oscar: regia monumentale, commozione autentica e grandissimo inno alla fratellanza umana.",
+                synopsis: "Nel 1972, una squadra di rugby uruguaiana precipita sulle Ande: i superstiti affrontano condizioni estreme fidandosi unicamente l'uno dell'altro.",
+                poster: "https://image.tmdb.org/t/p/w500/9871029k20m9j2k0j92k3o0j1.jpg"
+            },
+            {
+                id: 'prime-past-lives',
+                title: "Past Lives",
+                year: 2023,
+                duration: 105,
+                director: "Celine Song",
+                cast: "Greta Lee, Teo Yoo, John Magaro",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 7.8,
+                mymovies: 3.8,
+                mood: "novita",
+                why: "2 nomination Oscar e acclamato a Berlino: opera prima sublime sul destino, l'anima, i bivi della vita e gli amori che attraversano il tempo.",
+                synopsis: "Nora e Hae Sung, amici d'infanzia a Seul, si separano quando la famiglia di lei emigra. Vent'anni dopo si ritrovano per una settimana a New York.",
+                poster: "https://image.tmdb.org/t/p/w500/tLz8W8sC6jXQpX00oR93Kk0l72W.jpg"
+            },
+            {
+                id: 'prime-anatomia-caduta',
+                title: "Anatomia di una caduta",
+                year: 2023,
+                duration: 151,
+                director: "Justine Triet",
+                cast: "Sandra Hüller, Swann Arlaud, Milo Machado-Graner",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 7.7,
+                mymovies: 3.9,
+                mood: "novita",
+                why: "Palma d'Oro a Cannes e Premio Oscar per la miglior sceneggiatura: thriller giudiziario e scandaglio chirurgico della coppia con una Sandra Hüller magnetica.",
+                synopsis: "Una scrittrice tedesca viene accusata dell'omicidio del marito, precipitato dallo chalet di montagna in cui vivevano con il figlio ipovedente.",
+                poster: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg"
+            },
+            {
+                id: 'la7-spotlight',
+                title: "Il caso Spotlight",
+                year: 2015,
+                duration: 129,
+                director: "Tom McCarthy",
+                cast: "Mark Ruffalo, Michael Keaton, Rachel McAdams, Stanley Tucci",
+                platform: "la7",
+                link: "https://www.la7.it",
+                imdb: 8.1,
+                mymovies: 4.1,
+                mood: "mente",
+                why: "Premio Oscar per il Miglior Film e grande cinema d'inchiesta civile (in pieno stile La7): ritmo incalzante, tensione morale e cast formidabile.",
+                synopsis: "La squadra di giornalisti investigativi del Boston Globe scoperchia un silenzio decennale su abusi all'interno dell'arcidiocesi di Boston.",
+                poster: "https://image.tmdb.org/t/p/w500/bABCBKYBK7A7GZ0t4OehgWap8Za.jpg"
+            },
+            {
+                id: 'discovery-navalny',
+                title: "Navalny",
+                year: 2022,
+                duration: 98,
+                director: "Daniel Roher",
+                cast: "Alexei Navalny, Yulia Navalnaya, Christo Grozev",
+                platform: "discovery",
+                link: "https://www.discoveryplus.com",
+                imdb: 7.7,
+                mymovies: 3.8,
+                mood: "novita",
+                why: "Premio Oscar per il Miglior Documentario: ritmo da thriller mozzafiato, indagine investigativa e coraggio civile impressionante.",
+                synopsis: "L'indagine in tempo reale sull'avvelenamento del leader dell'opposizione russa Alexei Navalny e il complotto per metterlo a tacere.",
+                poster: "https://image.tmdb.org/t/p/w500/mXp7pC7iLgT23S35h1fR03J39bF.jpg"
             }
         ];
 
         // State & LocalStorage
-        let activePlatforms = new Set(['netflix', 'prime', 'disney', 'raiplay']);
+        let activePlatforms = new Set(['netflix', 'prime', 'disney', 'raiplay', 'discovery', 'la7']);
         let seenIds = new Set(JSON.parse(localStorage.getItem('cinestudio_seen') || '[]'));
         let watchlistIds = new Set(JSON.parse(localStorage.getItem('cinestudio_watchlist') || '[]'));
         let minImdb = parseFloat(localStorage.getItem('cinestudio_min_imdb') || '6.3');
@@ -1192,7 +1364,15 @@
                 if (maxDuration > 0 && movie.duration > maxDuration) return false;
 
                 // Filtro Mood
-                if (mood !== 'all' && movie.mood !== mood) return false;
+                if (mood !== 'all') {
+                    if (mood === 'novita') {
+                        const isRecent = (movie.year >= 2022 || movie.mood === 'novita' || (Array.isArray(movie.mood) && movie.mood.includes('novita')));
+                        if (!isRecent) return false;
+                    } else {
+                        const hasMood = (movie.mood === mood || (Array.isArray(movie.mood) && movie.mood.includes(mood)));
+                        if (!hasMood) return false;
+                    }
+                }
 
                 return true;
             });
@@ -1329,7 +1509,9 @@
                 case 'prime': return `<span class="badge-prime ${size} rounded-lg font-black uppercase flex items-center gap-1"><i class="fa-brands fa-amazon"></i> Prime Video</span>`;
                 case 'disney': return `<span class="badge-disney ${size} rounded-lg font-black uppercase flex items-center gap-1"><i class="fa-solid fa-d"></i> Disney+</span>`;
                 case 'raiplay': return `<span class="badge-raiplay ${size} rounded-lg font-black uppercase flex items-center gap-1"><i class="fa-solid fa-play"></i> RaiPlay</span>`;
-                default: return '';
+                case 'discovery': return `<span class="badge-discovery ${size} rounded-lg font-black uppercase flex items-center gap-1"><i class="fa-solid fa-compass"></i> Discovery+</span>`;
+                case 'la7': return `<span class="badge-la7 ${size} rounded-lg font-black uppercase flex items-center gap-1"><i class="fa-solid fa-tower-broadcast"></i> La7</span>`;
+                default: return `<span class="bg-slate-700 text-white ${size} rounded-lg font-black uppercase">${plat}</span>`;
             }
         }
 
