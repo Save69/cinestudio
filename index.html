@@ -274,9 +274,14 @@
                 <h2 class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
                     <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> Le Tue 3 Opzioni per Stasera
                 </h2>
-                <div class="flex items-center gap-2">
-                    <span class="text-xs text-slate-400 hidden sm:inline">Nessuna indecisione: scegli una di queste 3 o ri-tira i dadi</span>
-                    <button onclick="generateRecommendations(true); scrollToCards();" class="md:hidden px-3 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1 active:scale-95 transition">
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <!-- Barra di Ricerca Rapida Globale -->
+                    <div class="relative flex-1 sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+                        <input type="text" id="input-global-search" placeholder="Cerca film (es. Oppenheimer)..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-7 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500" oninput="handleGlobalSearch(this.value)">
+                        <button type="button" id="btn-clear-global-search" onclick="clearGlobalSearch()" class="hidden absolute right-2.5 top-2 text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <button onclick="generateRecommendations(true); scrollToCards();" class="md:hidden px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1 active:scale-95 transition shrink-0">
                         <i class="fa-solid fa-dice text-[11px]"></i> <span>Cambia</span>
                     </button>
                 </div>
@@ -546,6 +551,11 @@
                     <input type="url" id="add-movie-link" placeholder="https://..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono">
                 </div>
 
+                <div class="flex items-center gap-2 pt-1">
+                    <input type="checkbox" id="add-movie-auto-watchlist" checked class="w-4 h-4 rounded border-slate-700 bg-slate-900 text-amber-500 focus:ring-0 cursor-pointer">
+                    <label for="add-movie-auto-watchlist" class="text-xs text-slate-300 cursor-pointer">Aggiungi subito anche alla mia <strong>Watchlist</strong> 🔖</label>
+                </div>
+
                 <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
                     <button type="button" onclick="closeAddMovieModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold cursor-pointer">Annulla</button>
                     <button type="submit" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black cursor-pointer flex items-center gap-1.5">
@@ -608,6 +618,18 @@
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
+
+            <!-- Cerca e Aggiungi Rapido a Watchlist -->
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2">
+                <div class="relative w-full">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+                    <input type="text" id="input-search-watchlist" placeholder="Cerca un film da aggiungere (es. Oppenheimer, Interstellar...)" class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-9 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500" oninput="searchMoviesForWatchlist(this.value)">
+                </div>
+                <div id="watchlist-search-results" class="max-h-48 overflow-y-auto space-y-1.5 hidden border-t border-slate-800/80 pt-2">
+                    <!-- Risultati della ricerca istantanea -->
+                </div>
+            </div>
+
             <div id="watchlist-items" class="flex-1 overflow-y-auto space-y-2.5 pr-1">
                 <!-- Elementi Watchlist -->
             </div>
@@ -1708,6 +1730,11 @@
         let activePlatforms = new Set(['netflix', 'prime', 'disney', 'raiplay', 'discovery', 'la7']);
         let seenIds = new Set(JSON.parse(localStorage.getItem('cinestudio_seen') || '[]'));
         let watchlistIds = new Set(JSON.parse(localStorage.getItem('cinestudio_watchlist') || '[]'));
+        // Inserimento automatico di Oppenheimer (Netflix) su richiesta dell'utente
+        if (!watchlistIds.has('netflix-6')) {
+            watchlistIds.add('netflix-6');
+            localStorage.setItem('cinestudio_watchlist', JSON.stringify(Array.from(watchlistIds)));
+        }
         let minImdb = parseFloat(localStorage.getItem('cinestudio_min_imdb') || '6.3');
         let minMymovies = parseFloat(localStorage.getItem('cinestudio_min_mymovies') || '3.3');
         let customDnaItems = JSON.parse(localStorage.getItem('cinestudio_custom_dna') || '[]');
@@ -1868,10 +1895,17 @@
         function getFilteredPool() {
             const mood = document.getElementById('select-mood').value;
             const maxDuration = parseInt(document.getElementById('select-duration').value, 10);
+            const globalSearch = (document.getElementById('input-global-search')?.value || '').toLowerCase().trim();
 
             return getAllMovies().filter(movie => {
                 // Escludi film a noleggio a pagamento (Regola Zero Noleggi)
                 if (movie.rentalOnly) return false;
+
+                // Ricerca globale rapida: se l'utente cerca esplicitamente un film (es. Oppenheimer), bypassa i filtri restrittivi per trovarlo all'istante!
+                if (globalSearch) {
+                    const text = `${movie.title} ${movie.director} ${movie.cast} ${movie.platform}`.toLowerCase();
+                    return text.includes(globalSearch);
+                }
 
                 // Piattaforma attiva
                 if (!activePlatforms.has(movie.platform)) return false;
@@ -1929,27 +1963,34 @@
                     <div class="col-span-3 text-center py-12 glass-panel rounded-2xl p-6 text-slate-400">
                         <i class="fa-solid fa-film-slash text-3xl mb-3 text-slate-500"></i>
                         <h3 class="text-base font-bold text-white mb-1">Nessun film trovato con questi filtri</h3>
-                        <p class="text-xs">Prova ad allargare le piattaforme o rimuovere il limite di durata.</p>
+                        <p class="text-xs">Prova ad allargare le piattaforme o rimuovere il limite di durata o la ricerca.</p>
                     </div>
                 `;
                 return;
             }
 
             // Scoring pesato con affinità DNA + varietà controllata ad ogni lancio
-            const scoredPool = pool.map(movie => {
-                const dnaMatches = calculateDnaMatch(movie);
-                let score = (movie.imdb * 10) + (movie.mymovies * 15);
-                // Forte premialità se il film riflette il DNA cinefilo o i Punti Cardinali
-                if (dnaMatches.length > 0) {
-                    score += (dnaMatches.length * 35) + 20;
-                }
-                // Variazione randomica per garantire che ad ogni tiro di dadi escano proposte fresche e variegate
-                score += Math.random() * 30;
-                return { movie, score, dnaMatches };
-            });
+            const globalSearch = (document.getElementById('input-global-search')?.value || '').trim();
+            let selected;
+            if (globalSearch) {
+                // In modalità ricerca specifica, mostra direttamente i film trovati (fino a 3)
+                selected = pool.slice(0, 3);
+            } else {
+                const scoredPool = pool.map(movie => {
+                    const dnaMatches = calculateDnaMatch(movie);
+                    let score = (movie.imdb * 10) + (movie.mymovies * 15);
+                    // Forte premialità se il film riflette il DNA cinefilo o i Punti Cardinali
+                    if (dnaMatches.length > 0) {
+                        score += (dnaMatches.length * 35) + 20;
+                    }
+                    // Variazione randomica per garantire che ad ogni tiro di dadi escano proposte fresche e variegate
+                    score += Math.random() * 30;
+                    return { movie, score, dnaMatches };
+                });
 
-            scoredPool.sort((a, b) => b.score - a.score);
-            const selected = scoredPool.slice(0, 3).map(item => item.movie);
+                scoredPool.sort((a, b) => b.score - a.score);
+                selected = scoredPool.slice(0, 3).map(item => item.movie);
+            }
 
             selected.forEach((movie, index) => {
                 const card = document.createElement('div');
@@ -2319,6 +2360,10 @@
             const modal = document.getElementById('modal-watchlist');
             if (modal.classList.contains('hidden')) {
                 renderWatchlistItems();
+                const searchInput = document.getElementById('input-search-watchlist');
+                if (searchInput) searchInput.value = '';
+                const searchResults = document.getElementById('watchlist-search-results');
+                if (searchResults) { searchResults.classList.add('hidden'); searchResults.innerHTML = ''; }
                 modal.classList.remove('hidden');
             } else {
                 modal.classList.add('hidden');
@@ -2329,7 +2374,7 @@
             const container = document.getElementById('watchlist-items');
             const items = getAllMovies().filter(m => watchlistIds.has(m.id));
             if (items.length === 0) {
-                container.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">Nessun film salvato in Watchlist.</p>`;
+                container.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">Nessun film salvato in Watchlist. Usa la barra di ricerca in alto per aggiungere subito i tuoi titoli preferiti!</p>`;
                 return;
             }
             container.innerHTML = items.map(m => `
@@ -2351,6 +2396,88 @@
                     </div>
                 </div>
             `).join('');
+        }
+
+        function searchMoviesForWatchlist(query) {
+            const resultsContainer = document.getElementById('watchlist-search-results');
+            if (!resultsContainer) return;
+            const q = query.trim().toLowerCase();
+            if (!q) {
+                resultsContainer.classList.add('hidden');
+                resultsContainer.innerHTML = '';
+                return;
+            }
+
+            const allMovies = getAllMovies();
+            const matches = allMovies.filter(m => 
+                m.title.toLowerCase().includes(q) || 
+                (m.director && m.director.toLowerCase().includes(q)) || 
+                (m.cast && m.cast.toLowerCase().includes(q))
+            ).slice(0, 6);
+
+            if (matches.length === 0) {
+                resultsContainer.classList.remove('hidden');
+                resultsContainer.innerHTML = `
+                    <div class="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+                        <span>Nessun film trovato per "<strong>${escapeHtml(query)}</strong>".</span>
+                        <button onclick="toggleWatchlistModal(); openAddMovieModal(); document.getElementById('add-movie-title').value='${escapeHtml(query)}';" class="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] cursor-pointer">
+                            + Aggiungi Nuovo
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            resultsContainer.classList.remove('hidden');
+            resultsContainer.innerHTML = matches.map(m => {
+                const inWatchlist = watchlistIds.has(m.id);
+                return `
+                    <div class="p-2 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between gap-2 text-xs hover:border-slate-700 transition">
+                        <div class="flex items-center gap-2 min-w-0">
+                            ${getPlatformBadge(m.platform, true)}
+                            <span class="font-bold text-white truncate text-[12px]">${escapeHtml(m.title)}</span>
+                            <span class="text-slate-400 text-[10px]">(${m.year} &bull; ${escapeHtml(m.director)})</span>
+                        </div>
+                        <button onclick="addMovieToWatchlistFromSearch('${m.id}')" class="px-2.5 py-1 rounded-lg ${inWatchlist ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold'} text-[11px] shrink-0 transition cursor-pointer">
+                            ${inWatchlist ? '<i class="fa-solid fa-check"></i> In Watchlist' : '<i class="fa-solid fa-plus"></i> Aggiungi'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addMovieToWatchlistFromSearch(id) {
+            if (watchlistIds.has(id)) {
+                watchlistIds.delete(id);
+            } else {
+                watchlistIds.add(id);
+            }
+            localStorage.setItem('cinestudio_watchlist', JSON.stringify(Array.from(watchlistIds)));
+            updateWatchlistCount();
+            renderWatchlistItems();
+            searchMoviesForWatchlist(document.getElementById('input-search-watchlist').value);
+            generateRecommendations(false);
+            renderAllMatchingMovies();
+        }
+
+        function handleGlobalSearch(val) {
+            const clearBtn = document.getElementById('btn-clear-global-search');
+            if (val.trim()) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+            generateRecommendations(false);
+            renderAllMatchingMovies();
+        }
+
+        function clearGlobalSearch() {
+            const input = document.getElementById('input-global-search');
+            if (input) input.value = '';
+            const clearBtn = document.getElementById('btn-clear-global-search');
+            if (clearBtn) clearBtn.classList.add('hidden');
+            generateRecommendations(false);
+            renderAllMatchingMovies();
         }
 
         function toggleSeenModal() {
@@ -2459,10 +2586,17 @@
             customMovies.push(newMovie);
             localStorage.setItem('cinestudio_user_movies', JSON.stringify(customMovies));
 
+            const alsoWatchlist = document.getElementById('add-movie-auto-watchlist')?.checked;
+            if (alsoWatchlist) {
+                watchlistIds.add(newMovie.id);
+                localStorage.setItem('cinestudio_watchlist', JSON.stringify(Array.from(watchlistIds)));
+                updateWatchlistCount();
+            }
+
             closeAddMovieModal();
             generateRecommendations(false);
             renderAllMatchingMovies();
-            alert(`"${newMovie.title}" è stato aggiunto con successo al catalogo!`);
+            alert(`"${newMovie.title}" è stato aggiunto con successo al catalogo${alsoWatchlist ? ' e alla tua Watchlist' : ''}!`);
         }
 
         // ==========================================
