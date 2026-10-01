@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CineStudio — Il Tuo Assistente Cinema Serale</title>
+    <!-- Anti-Cache Meta Tags per Aggiornamento Istantaneo su Smartphone -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <!-- Mobile PWA Meta Tags per Smartphone Full-Screen -->
     <meta name="theme-color" content="#0b0f19">
     <meta name="mobile-web-app-capable" content="yes">
@@ -618,9 +622,14 @@
                 <h3 class="text-lg font-black text-white flex items-center gap-2">
                     <i class="fa-solid fa-bookmark text-amber-400"></i> La Tua Watchlist
                 </h3>
-                <button onclick="toggleWatchlistModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="shareWatchlistLink()" class="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition active:scale-95" title="Sincronizza istantaneamente la tua Watchlist sul cellulare o condividila su WhatsApp">
+                        <i class="fa-solid fa-mobile-screen-button text-amber-400"></i> <span id="label-share-wl">Sincronizza Cellulare</span>
+                    </button>
+                    <button onclick="toggleWatchlistModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Cerca e Aggiungi Rapido a Watchlist -->
@@ -1822,11 +1831,34 @@
         let activePlatforms = new Set(['netflix', 'prime', 'disney', 'raiplay', 'discovery', 'la7']);
         let seenIds = new Set(JSON.parse(localStorage.getItem('cinestudio_seen') || '[]'));
         let watchlistIds = new Set(JSON.parse(localStorage.getItem('cinestudio_watchlist') || '[]'));
-        // Inserimento automatico di Oppenheimer (Netflix) su richiesta dell'utente
-        if (!watchlistIds.has('netflix-6')) {
-            watchlistIds.add('netflix-6');
-            localStorage.setItem('cinestudio_watchlist', JSON.stringify(Array.from(watchlistIds)));
+        
+        // Film predefiniti della Watchlist (sincronizzati automaticamente su smartphone Netlify e PC)
+        const defaultWatchlist = [
+            'netflix-6',                    // Oppenheimer (Top 250 #56)
+            'raiplay-margini',              // Margini (RaiPlay)
+            'disney-5',                     // WALL-E (Top 250 #55)
+            'prime-parasite',               // Parasite (Top 250 #32)
+            'raiplay-piccole-cose',         // Le piccole cose della vita (RaiPlay)
+            'netflix-societa-neve',         // La società della neve (Netflix)
+            'raiplay-volevo-nascondermi',   // Volevo nascondermi (RaiPlay)
+            'prime-sound-of-metal',         // Sound of Metal (Prime Video)
+            'netflix-if-anything'           // Se succede qualcosa, vi voglio bene (Netflix)
+        ];
+        defaultWatchlist.forEach(id => {
+            watchlistIds.add(id);
+        });
+
+        // Sincronizzazione automatica tramite parametro URL (?wl=id1,id2) per trasferire liste istantaneamente
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('wl')) {
+                const incoming = urlParams.get('wl').split(',').map(s => s.trim()).filter(Boolean);
+                incoming.forEach(id => watchlistIds.add(id));
+            }
+        } catch (e) {
+            console.warn('URL params parsing error:', e);
         }
+        localStorage.setItem('cinestudio_watchlist', JSON.stringify(Array.from(watchlistIds)));
         let minImdb = parseFloat(localStorage.getItem('cinestudio_min_imdb') || '6.3');
         let minMymovies = parseFloat(localStorage.getItem('cinestudio_min_mymovies') || '3.3');
         let customDnaItems = JSON.parse(localStorage.getItem('cinestudio_custom_dna') || '[]');
@@ -2598,6 +2630,23 @@
                     </div>
                 </div>
             `).join('');
+        }
+
+        function shareWatchlistLink() {
+            const ids = Array.from(watchlistIds).join(',');
+            const syncUrl = `https://cinestudio-app.netlify.app?wl=${encodeURIComponent(ids)}`;
+            const btnLabel = document.getElementById('label-share-wl');
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(syncUrl).then(() => {
+                    if (btnLabel) btnLabel.textContent = 'Link Copiato!';
+                    setTimeout(() => { if (btnLabel) btnLabel.textContent = 'Sincronizza Cellulare'; }, 3000);
+                }).catch(() => {
+                    prompt("Copia questo link e aprilo sul cellulare per sincronizzare la Watchlist:", syncUrl);
+                });
+            } else {
+                prompt("Copia questo link e aprilo sul cellulare per sincronizzare la Watchlist:", syncUrl);
+            }
         }
 
         function searchMoviesForWatchlist(query) {
