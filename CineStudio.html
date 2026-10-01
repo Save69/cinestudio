@@ -1430,22 +1430,6 @@
                 poster: "https://image.tmdb.org/t/p/w500/22cLMYk02m9j2k0j92k3o0j.jpg"
             },
             {
-                id: 'prime-parasite',
-                title: "Parasite",
-                year: 2019,
-                duration: 132,
-                director: "Bong Joon-ho",
-                cast: "Song Kang-ho, Lee Sun-kyun, Cho Yeo-jeong, Choi Woo-shik, Park So-dam",
-                platform: "prime",
-                link: "https://www.primevideo.com",
-                imdb: 8.5,
-                mymovies: 4.4,
-                mood: "mente",
-                why: "Palma d'Oro a Cannes e 4 Premi Oscar storici: ritmo millimetrico, tensione continua, ingegno e zero tempi morti.",
-                synopsis: "La famiglia Kim vive in uno squallido seminterrato a Seul sbarcando il lunario con lavoretti precari. Quando il figlio maggiore riesce a farsi assumere come tutor d'inglese per la figlia dei ricchissimi Park, architetta un piano geniale per far assumere l'intera famiglia (sorella, padre e madre) sostituendo il personale di servizio all'insaputa dei padroni. Quella che sembra una commedia brillante e una truffa perfetta si trasforma gradualmente in un thriller tesissimo, imprevedibile e travolgente, con un ritmo serratissimo fino all'ultimo secondo.",
-                poster: "https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg"
-            },
-            {
                 id: 'disney-nomadland',
                 title: "Nomadland",
                 year: 2020,
@@ -1789,22 +1773,6 @@
                 poster: "https://image.tmdb.org/t/p/w500/soundmetal2020Poster.jpg"
             },
             {
-                id: 'prime-favolacce',
-                title: "Favolacce",
-                year: 2020,
-                duration: 98,
-                director: "Damiano e Fabio D'Innocenzo",
-                cast: "Elio Germano, Tommaso Di Cola, Giulietta Rebeggiani, Gabriel Montesi, Barbara Chichiarelli",
-                platform: "prime",
-                link: "https://www.primevideo.com",
-                imdb: 6.8,
-                mymovies: 3.6,
-                mood: "autore",
-                why: "Orso d'Argento per la miglior sceneggiatura a Berlino e 5 Nastri d'Argento: favola nera grottesca e tagliente con una monumentale prova d'attore di Elio Germano.",
-                synopsis: "In un quartiere residenziale della periferia romana di Spinaceto, alcune famiglie apparentemente perbene covano un sordo risentimento e una sottile disperazione. I bambini, testimoni silenziosi dell'ipocrisia degli adulti, matureranno una reazione tragica e inaspettata.",
-                poster: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=500"
-            },
-            {
                 id: 'raiplay-volevo-nascondermi',
                 title: "Volevo nascondermi",
                 year: 2020,
@@ -1877,22 +1845,22 @@
         
         // Film predefiniti della Watchlist (sincronizzati automaticamente su smartphone Netlify e PC)
         const defaultWatchlist = [
-            'raiplay-margini',              // Margini (RaiPlay)
-            'disney-walle',                 // WALL-E (Top 250 #55)
-            'prime-parasite',               // Parasite (Top 250 #32)
-            'netflix-societa-neve',         // La società della neve (Netflix)
-            'raiplay-volevo-nascondermi',   // Volevo nascondermi (RaiPlay)
-            'prime-sound-of-metal',         // Sound of Metal (Prime Video)
-            'netflix-if-anything',          // Se succede qualcosa, vi voglio bene (Netflix)
-            'prime-favolacce',              // Favolacce (Prime Video - Elio Germano)
-            'netflix-ce-ancora-domani'      // C'è ancora domani (Netflix - Paola Cortellesi)
+            'raiplay-margini',              // Margini (RaiPlay - gratis)
+            'disney-walle',                 // WALL-E (Disney+)
+            'netflix-societa-neve',         // La società della neve (Netflix Original)
+            'raiplay-volevo-nascondermi',   // Volevo nascondermi (RaiPlay - gratis)
+            'prime-sound-of-metal',         // Sound of Metal (Prime Video - Original incluso con Prime)
+            'netflix-if-anything',          // Se succede qualcosa, vi voglio bene (Netflix Original)
+            'netflix-ce-ancora-domani'      // C'è ancora domani (Netflix)
         ];
         defaultWatchlist.forEach(id => {
             watchlistIds.add(id);
         });
 
-        // Rimuovi esplicitamente titoli non inclusi in flat o a noleggio da sessioni precedenti
+        // Rimuovi esplicitamente titoli a noleggio / a pagamento da sessioni precedenti
         watchlistIds.delete('netflix-6');
+        watchlistIds.delete('prime-parasite');
+        watchlistIds.delete('prime-favolacce');
         watchlistIds.delete('raiplay-piccole-cose');
         watchlistIds.delete('raiplay-figli-dopo');
 
@@ -1952,6 +1920,28 @@
                 mymovies: 3.4,
                 status: "Attualmente al cinema / noleggio VOD (Non presente su RaiPlay)",
                 note: "Tratto dal romanzo di Claire Keegan: austero, silenzioso e rigoroso dramma morale sull'omertà di una comunità irlandese nel 1985 e lo scandalo delle Magdalene Laundries. Cillian Murphy magistrale in un'interpretazione trattenuta e intimista."
+            },
+            {
+                id: 'radar-parasite',
+                title: "Parasite",
+                year: 2019,
+                director: "Bong Joon-ho",
+                cast: "Song Kang-ho, Lee Sun-kyun, Cho Yeo-jeong, Choi Woo-shik, Park So-dam",
+                imdb: 8.5,
+                mymovies: 4.4,
+                status: "Attualmente solo a noleggio Store (€ 2,99 / € 3,99 su Prime/Apple)",
+                note: "Palma d'Oro a Cannes e 4 Premi Oscar. Licenza flat scaduta: presente su Prime Video solo come noleggio a pagamento. Nel Radar per monitorare il rientro in catalogo flat senza costi extra."
+            },
+            {
+                id: 'radar-favolacce',
+                title: "Favolacce",
+                year: 2020,
+                director: "Damiano e Fabio D'Innocenzo",
+                cast: "Elio Germano, Tommaso Di Cola, Giulietta Rebeggiani, Gabriel Montesi, Barbara Chichiarelli",
+                imdb: 6.8,
+                mymovies: 3.6,
+                status: "Attualmente solo a noleggio Store su Prime/Apple",
+                note: "Orso d'Argento a Berlino. Su Prime Video è presente unicamente a noleggio a pagamento (€ 3.99). Spostato in Radar per monitorarne l'arrivo in abbonamento flat libero."
             },
             {
                 id: 'prime-i-guerrieri',
@@ -2088,7 +2078,6 @@
                 'disney-3',        // Il signore degli anelli: La compagnia dell'anello (#9)
                 'disney-6',        // La La Land (#220)
                 'prime-manifesti',  // Tre manifesti a Ebbing (#161)
-                'prime-parasite',   // Parasite (#32)
                 'disney-walle',     // WALL-E (#55)
                 'disney-coco',      // Coco (#71)
                 'disney-re-leone',  // Il re leone (#37)
@@ -2732,7 +2721,7 @@
                     { title: "Il giovane favoloso", year: 2014, status: "flat", platform: "RaiPlay", inCatalogId: "raiplay-giovane-favoloso", imdb: 7.0, mymovies: 4.0, note: "Giacomo Leopardi portato sullo schermo con grazia e tormento indimenticabili." },
                     { title: "L'incredibile storia dell'Isola delle Rose", year: 2020, status: "flat", platform: "Netflix", inCatalogId: "netflix-isola-rose", imdb: 7.0, mymovies: 3.5, note: "La geniale utopia libertaria dell'ingegner Giorgio Rosa al largo di Rimini." },
                     { title: "Mio fratello è figlio unico", year: 2007, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.1, mymovies: 3.5, note: "Con Riccardo Scamarcio: crescita e ideali nell'Italia degli anni Sessanta e Settanta." },
-                    { title: "Favolacce", year: 2020, status: "flat", platform: "Prime Video", inCatalogId: "prime-favolacce", imdb: 6.8, mymovies: 3.6, note: "Orso d'Argento alla sceneggiatura a Berlino dei fratelli D'Innocenzo con Elio Germano." },
+                    { title: "Favolacce", year: 2020, status: "rental", platform: "Store / Noleggio", imdb: 6.8, mymovies: 3.6, note: "Orso d'Argento a Berlino dei fratelli D'Innocenzo con Elio Germano. Attualmente a noleggio nello store Prime/Apple." },
                     { title: "La nostra vita", year: 2010, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.9, mymovies: 3.4, note: "Premio Miglior Attore a Cannes (ex aequo con Javier Bardem)." },
                     { title: "Suburra", year: 2015, status: "flat", platform: "Netflix", link: "https://www.netflix.com", imdb: 7.3, mymovies: 3.6, note: "Diretto da Stefano Sollima con Pierfrancesco Favino e Claudio Amendola." }
                 ]
