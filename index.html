@@ -1177,22 +1177,6 @@
                 synopsis: "Dopo la perdita della madre durante la guerra, Mahito entra in una misteriosa torre guidato da un airone cenerino parlante.",
                 poster: "https://image.tmdb.org/t/p/w500/9871029k20m9j2k0j92k3o0j1.jpg"
             },
-            {
-                id: 'netflix-6',
-                title: "Oppenheimer",
-                year: 2023,
-                duration: 180,
-                director: "Christopher Nolan",
-                cast: "Cillian Murphy, Emily Blunt, Matt Damon, Robert Downey Jr.",
-                platform: "netflix",
-                link: "https://www.netflix.com",
-                imdb: 8.8,
-                mymovies: 4.1,
-                mood: "mente",
-                why: "Nolan ai massimi livelli storici con un formidabile Matt Damon nel ruolo del generale Groves: montaggio e tensione magistrali.",
-                synopsis: "La complessa parabola scientifica, politica e morale di J. Robert Oppenheimer alla guida del Progetto Manhattan.",
-                poster: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg"
-            },
 
             // Disney+
             {
@@ -1492,38 +1476,6 @@
                 why: "Produzione Fandango presentata a Cannes: Nanni Moretti si interroga sul futuro del cinema con ironia, musica e calore.",
                 synopsis: "Un regista sta girando un film ambientato nel 1956 tra Roma e il circo ungherese, mentre la sua vita familiare attraversa una crisi.",
                 poster: "https://image.tmdb.org/t/p/w500/5501928k20m9j2k0j92k3o0j2.jpg"
-            },
-            {
-                id: 'raiplay-piccole-cose',
-                title: "Piccole cose come queste",
-                year: 2024,
-                duration: 96,
-                director: "Tim Mielants",
-                cast: "Cillian Murphy, Emily Watson, Eileen Walsh",
-                platform: "raiplay",
-                link: "https://www.raiplay.it/programmi/piccolecosecomequeste",
-                imdb: 7.2,
-                mymovies: 3.4,
-                mood: "novita",
-                why: "Film d'apertura al Festival di Berlino (Orso d'Argento): un maestoso Cillian Murphy in un dramma morale profondo e toccante, stile Le ali della libertà.",
-                synopsis: "Nell'Irlanda del 1985, un commerciante di carbone scopre i segreti oscuri custoditi dal convento locale, trovandosi davanti a una scelta di coscienza.",
-                poster: "https://image.tmdb.org/t/p/w500/b34m2uv3677x5R75H47wK77l6J4k.jpg"
-            },
-            {
-                id: 'raiplay-figli-dopo',
-                title: "E i figli dopo di loro",
-                year: 2024,
-                duration: 146,
-                director: "Ludovic Boukherma, Zoran Boukherma",
-                cast: "Paul Kircher, Angelina Woreth, Sayyid El Alami",
-                platform: "raiplay",
-                link: "https://www.raiplay.it/programmi/eifiglidopodiloro",
-                imdb: 7.0,
-                mymovies: 3.4,
-                mood: "novita",
-                why: "In concorso alla Mostra di Venezia (Premio Marcello Mastroianni): grande affresco generazionale dal romanzo premio Goncourt, regia energica e appassionante.",
-                synopsis: "Nella provincia industriale francese degli anni '90, un gruppo di adolescenti vive amori, ribellioni e sogni di fuga in quattro estati decisive.",
-                poster: "https://image.tmdb.org/t/p/w500/y6P0zB9i1r1k1j2k0l92k3o0j.jpg"
             },
             {
                 id: 'raiplay-margini',
@@ -1925,20 +1877,24 @@
         
         // Film predefiniti della Watchlist (sincronizzati automaticamente su smartphone Netlify e PC)
         const defaultWatchlist = [
-            'netflix-6',                    // Oppenheimer (Top 250 #56)
             'raiplay-margini',              // Margini (RaiPlay)
-            'disney-5',                     // WALL-E (Top 250 #55)
+            'disney-walle',                 // WALL-E (Top 250 #55)
             'prime-parasite',               // Parasite (Top 250 #32)
-            'raiplay-piccole-cose',         // Le piccole cose della vita (RaiPlay)
             'netflix-societa-neve',         // La società della neve (Netflix)
             'raiplay-volevo-nascondermi',   // Volevo nascondermi (RaiPlay)
             'prime-sound-of-metal',         // Sound of Metal (Prime Video)
             'netflix-if-anything',          // Se succede qualcosa, vi voglio bene (Netflix)
-            'prime-favolacce'               // Favolacce (Prime Video - Elio Germano)
+            'prime-favolacce',              // Favolacce (Prime Video - Elio Germano)
+            'netflix-ce-ancora-domani'      // C'è ancora domani (Netflix - Paola Cortellesi)
         ];
         defaultWatchlist.forEach(id => {
             watchlistIds.add(id);
         });
+
+        // Rimuovi esplicitamente titoli non inclusi in flat o a noleggio da sessioni precedenti
+        watchlistIds.delete('netflix-6');
+        watchlistIds.delete('raiplay-piccole-cose');
+        watchlistIds.delete('raiplay-figli-dopo');
 
         // Sincronizzazione automatica tramite parametro URL (?wl=id1,id2) per trasferire liste istantaneamente
         try {
@@ -1975,6 +1931,28 @@
 
         let radarItems = JSON.parse(localStorage.getItem('cinestudio_radar_movies') || '[]');
         const defaultRadar = [
+            {
+                id: 'radar-oppenheimer',
+                title: "Oppenheimer",
+                year: 2023,
+                director: "Christopher Nolan",
+                cast: "Cillian Murphy, Emily Blunt, Matt Damon, Robert Downey Jr.",
+                imdb: 8.8,
+                mymovies: 4.1,
+                status: "Attualmente solo a noleggio Store / Sky NOW (Non su Netflix)",
+                note: "7 Premi Oscar. Attualmente disponibile solo a noleggio/acquisto a pagamento su Prime/Apple/Google o con abbonamento Sky Cinema / NOW. Nel Radar per monitorare l'arrivo futuro in streaming flat libero."
+            },
+            {
+                id: 'radar-piccole-cose',
+                title: "Piccole cose come queste (Small Things Like These)",
+                year: 2024,
+                director: "Tim Mielants",
+                cast: "Cillian Murphy, Emily Watson, Eileen Walsh",
+                imdb: 7.2,
+                mymovies: 3.4,
+                status: "Attualmente al cinema / noleggio VOD (Non presente su RaiPlay)",
+                note: "Tratto dal romanzo di Claire Keegan: austero, silenzioso e rigoroso dramma morale sull'omertà di una comunità irlandese nel 1985 e lo scandalo delle Magdalene Laundries. Cillian Murphy magistrale in un'interpretazione trattenuta e intimista."
+            },
             {
                 id: 'prime-i-guerrieri',
                 title: "I guerrieri (Kelly's Heroes)",
@@ -2107,7 +2085,6 @@
                 'netflix-5',        // The Wolf of Wall Street (#134)
                 'netflix-ghibli-1', // La città incantata (#30)
                 'netflix-ghibli-2', // Il castello errante di Howl (#150)
-                'netflix-6',        // Oppenheimer (#56)
                 'disney-3',        // Il signore degli anelli: La compagnia dell'anello (#9)
                 'disney-6',        // La La Land (#220)
                 'prime-manifesti',  // Tre manifesti a Ebbing (#161)
