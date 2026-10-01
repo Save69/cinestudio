@@ -57,6 +57,18 @@
             background: #334155;
         }
 
+        /* Mobile horizontal carousel & safe area */
+        .scrollbar-none::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-none {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .safe-area-bottom {
+            padding-bottom: max(0.6rem, env(safe-area-inset-bottom));
+        }
+
         /* Platform Badges */
         .badge-netflix { background: #e50914; color: white; }
         .badge-prime { background: #00a8e1; color: white; }
@@ -90,31 +102,32 @@
 <body class="p-3 sm:p-6 lg:p-8 flex flex-col items-center">
 
     <!-- Top Navigation / Header -->
-    <header class="w-full max-w-6xl flex flex-wrap items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-rose-600 flex items-center justify-center shadow-lg shadow-amber-500/20 text-white text-lg font-black">
+    <header class="w-full max-w-6xl flex items-center justify-between gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800">
+        <div class="flex items-center gap-2.5 sm:gap-3">
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-500 to-rose-600 flex items-center justify-center shadow-lg shadow-amber-500/20 text-white text-base sm:text-lg font-black shrink-0">
                 <i class="fa-solid fa-film"></i>
             </div>
             <div>
-                <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
-                    CineStudio <span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold tracking-normal">Bussola Serale</span>
+                <h1 class="text-lg sm:text-2xl font-black tracking-tight text-white flex items-center gap-1.5 sm:gap-2">
+                    CineStudio <span class="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold tracking-normal">Bussola Serale</span>
                 </h1>
-                <p class="text-xs text-slate-400">Zero scrolling infinito: solo film calibrati sui tuoi gusti con guardrail IMDb & MyMovies.</p>
+                <p class="text-[11px] sm:text-xs text-slate-400 hidden sm:block">Zero scrolling infinito: solo film calibrati sui tuoi gusti con guardrail IMDb & MyMovies.</p>
             </div>
         </div>
 
-        <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Desktop Navigation Buttons -->
+        <div class="hidden md:flex items-center gap-2 sm:gap-3">
             <button onclick="openAddMovieModal()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-bold border border-amber-500/40 transition flex items-center gap-1.5 cursor-pointer">
                 <i class="fa-solid fa-plus"></i>
-                <span class="hidden sm:inline">Aggiungi</span> Film
+                <span>Aggiungi Film</span>
             </button>
             <button onclick="openDnaModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition flex items-center gap-1.5 cursor-pointer">
                 <i class="fa-solid fa-dna text-purple-400"></i>
-                <span class="hidden sm:inline">Il Tuo</span> DNA Cinefilo
+                <span>Il Tuo DNA</span>
             </button>
-            <button onclick="toggleRadarModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition flex items-center gap-1.5 cursor-pointer relative" title="Film cercati / In attesa di streaming gratuito o incluso">
+            <button onclick="toggleRadarModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition flex items-center gap-1.5 cursor-pointer relative" title="Film cercati">
                 <i class="fa-solid fa-satellite-dish text-sky-400"></i>
-                <span class="hidden sm:inline">Radar</span> Cercati
+                <span>Radar</span>
                 <span id="radar-count" class="ml-1 px-1.5 py-0.2 rounded-full bg-sky-500 text-slate-950 text-[10px] font-black">1</span>
             </button>
             <button onclick="toggleWatchlistModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition flex items-center gap-1.5 cursor-pointer relative">
@@ -124,16 +137,38 @@
             </button>
             <button onclick="toggleSeenModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition flex items-center gap-1.5 cursor-pointer" title="Film già visti">
                 <i class="fa-solid fa-check-double text-emerald-400"></i>
-                <span class="hidden sm:inline">Già Visti</span>
+                <span>Già Visti</span>
+            </button>
+        </div>
+
+        <!-- Mobile Header Quick Action (Aggiungi Film rapido) -->
+        <div class="flex items-center gap-2 md:hidden">
+            <button onclick="openAddMovieModal()" class="py-1.5 px-2.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1 cursor-pointer active:scale-95" title="Aggiungi Film">
+                <i class="fa-solid fa-plus text-[10px]"></i><span>Film</span>
+            </button>
+            <button onclick="toggleSeenModal()" class="py-1.5 px-2.5 rounded-xl bg-slate-800 text-emerald-400 border border-slate-700 text-xs font-bold cursor-pointer active:scale-95" title="Film già visti">
+                <i class="fa-solid fa-check-double text-[11px]"></i>
             </button>
         </div>
     </header>
 
     <!-- Main Control Console -->
-    <main class="w-full max-w-6xl space-y-6">
+    <main class="w-full max-w-6xl space-y-5 pb-24 md:pb-8">
 
-        <!-- Console Filtri & Decisione Rapida -->
-        <div class="glass-panel rounded-2xl p-4 sm:p-6 shadow-xl">
+        <!-- Mobile Quick Bar (Visibile solo su smartphone per accesso immediato) -->
+        <div class="md:hidden glass-panel rounded-2xl p-3 shadow-lg flex items-center justify-between gap-2.5 border border-slate-800 mb-2">
+            <button onclick="generateRecommendations(true); scrollToCards();" class="flex-1 py-3 px-3 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-amber-600 text-slate-950 font-black text-xs shadow-md shadow-amber-500/25 flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition">
+                <i class="fa-solid fa-dice text-base"></i>
+                <span>3 SCELTE PER STASERA</span>
+            </button>
+            <button onclick="toggleMobileFilterDrawer()" class="py-3 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer active:scale-95 transition shrink-0">
+                <i class="fa-solid fa-sliders text-amber-400"></i>
+                <span id="mobile-filter-btn-label">Filtri</span>
+            </button>
+        </div>
+
+        <!-- Console Filtri & Decisione Rapida (Desktop sempre visibile, mobile a scomparsa) -->
+        <div id="main-filter-console" class="hidden md:block glass-panel rounded-2xl p-4 sm:p-6 shadow-xl animate-fade-in">
             <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
                 
                 <!-- Piattaforme Streaming -->
@@ -234,16 +269,35 @@
         </div>
 
         <!-- Sezione Risultati: 3 Scelte Secche -->
-        <section id="recommendations-container" class="space-y-4">
-            <div class="flex items-center justify-between">
-                <h2 class="text-lg font-black tracking-tight text-white flex items-center gap-2">
+        <section id="recommendations-container" class="space-y-3.5">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+                <h2 class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
                     <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> Le Tue 3 Opzioni per Stasera
                 </h2>
-                <span class="text-xs text-slate-400">Nessuna indecisione: scegli una di queste 3 o ri-tira i dadi</span>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-slate-400 hidden sm:inline">Nessuna indecisione: scegli una di queste 3 o ri-tira i dadi</span>
+                    <button onclick="generateRecommendations(true); scrollToCards();" class="md:hidden px-3 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1 active:scale-95 transition">
+                        <i class="fa-solid fa-dice text-[11px]"></i> <span>Cambia</span>
+                    </button>
+                </div>
             </div>
 
-            <div id="cards-grid" class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <!-- Hint Swipe su Mobile -->
+            <div class="flex items-center justify-between text-[11px] text-slate-400 md:hidden px-1">
+                <span class="flex items-center gap-1.5 text-amber-400 font-bold"><i class="fa-solid fa-arrows-left-right text-xs"></i> Scorri con il dito tra le 3 schede</span>
+                <span class="text-slate-500 font-mono text-[10px]">3 scelte calibrate</span>
+            </div>
+
+            <div id="cards-grid" class="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 px-1 -mx-2 sm:mx-0 sm:px-0 md:grid md:grid-cols-3 md:gap-5 md:overflow-visible scrollbar-none">
                 <!-- Inserite dinamicamente via JS -->
+            </div>
+
+            <!-- Pulsante mobile per cambiare terna dopo lo swipe -->
+            <div class="md:hidden pt-1 pb-1">
+                <button onclick="generateRecommendations(true); scrollToCards();" class="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 font-bold text-xs flex items-center justify-center gap-2 active:scale-95 transition">
+                    <i class="fa-solid fa-dice text-sm"></i>
+                    <span>Tira i dadi per altre 3 opzioni</span>
+                </button>
             </div>
         </section>
 
@@ -1713,7 +1767,7 @@
 
             selected.forEach((movie, index) => {
                 const card = document.createElement('div');
-                card.className = `glass-panel rounded-2xl overflow-hidden border border-slate-700/80 flex flex-col justify-between hover:border-amber-500/50 transition duration-300 ${showAnimation ? 'animate-fade-in' : ''}`;
+                card.className = `w-[86vw] max-w-[340px] shrink-0 snap-center glass-panel rounded-2xl overflow-hidden border border-slate-700/80 flex flex-col justify-between hover:border-amber-500/50 transition duration-300 md:w-auto md:max-w-none ${showAnimation ? 'animate-fade-in' : ''}`;
                 card.style.animationDelay = `${index * 80}ms`;
 
                 const platformBadge = getPlatformBadge(movie.platform);
@@ -1771,16 +1825,16 @@
 
                     <!-- Footer Card: Azioni -->
                     <div class="p-4 pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
-                        <a href="${movie.link}" target="_blank" rel="noopener noreferrer" class="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs text-center border border-slate-700 transition flex items-center justify-center gap-1.5">
+                        <a href="${movie.link}" target="_blank" rel="noopener noreferrer" class="flex-1 py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs text-center border border-slate-700 transition flex items-center justify-center gap-1.5 active:scale-95">
                             <i class="fa-solid fa-play text-amber-400 text-[10px]"></i> Guarda Ora
                         </a>
-                        <button onclick="openRemindModal('${movie.id}')" class="p-2 rounded-xl bg-slate-800 hover:bg-sky-950 hover:text-sky-400 border border-slate-700 text-slate-300 transition text-xs cursor-pointer" title="Imposta Promemoria (WhatsApp / Google Calendar)">
+                        <button onclick="openRemindModal('${movie.id}')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-sky-950 hover:text-sky-400 border border-slate-700 text-slate-300 transition text-xs cursor-pointer active:scale-95" title="Imposta Promemoria (WhatsApp / Google Calendar)">
                             <i class="fa-solid fa-bell text-sky-400"></i>
                         </button>
-                        <button onclick="toggleWatchlist('${movie.id}')" class="p-2 rounded-xl border ${isWatchlisted ? 'bg-amber-500 text-slate-950 border-amber-500' : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'} transition text-xs cursor-pointer" title="${isWatchlisted ? 'Rimuovi da Watchlist' : 'Aggiungi a Watchlist'}">
+                        <button onclick="toggleWatchlist('${movie.id}')" class="p-2.5 rounded-xl border ${isWatchlisted ? 'bg-amber-500 text-slate-950 border-amber-500' : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'} transition text-xs cursor-pointer active:scale-95" title="${isWatchlisted ? 'Rimuovi da Watchlist' : 'Aggiungi a Watchlist'}">
                             <i class="fa-solid fa-bookmark"></i>
                         </button>
-                        <button onclick="markAsSeen('${movie.id}')" class="p-2 rounded-xl bg-slate-800 hover:bg-emerald-950 hover:text-emerald-400 border border-slate-700 text-slate-300 transition text-xs cursor-pointer" title="Segna come Già Visto">
+                        <button onclick="markAsSeen('${movie.id}')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-emerald-950 hover:text-emerald-400 border border-slate-700 text-slate-300 transition text-xs cursor-pointer active:scale-95" title="Segna come Già Visto">
                             <i class="fa-solid fa-check"></i>
                         </button>
                     </div>
@@ -1873,11 +1927,36 @@
 
         function updateWatchlistCount() {
             const el = document.getElementById('watchlist-count');
-            if (watchlistIds.size > 0) {
-                el.textContent = watchlistIds.size;
-                el.classList.remove('hidden');
+            const navEl = document.getElementById('nav-watchlist-count');
+            const count = watchlistIds.size;
+            if (count > 0) {
+                if (el) { el.textContent = count; el.classList.remove('hidden'); }
+                if (navEl) { navEl.textContent = count; navEl.classList.remove('hidden'); }
             } else {
-                el.classList.add('hidden');
+                if (el) el.classList.add('hidden');
+                if (navEl) navEl.classList.add('hidden');
+            }
+        }
+
+        function toggleMobileFilterDrawer() {
+            const consoleEl = document.getElementById('main-filter-console');
+            const btnLabel = document.getElementById('mobile-filter-btn-label');
+            if (!consoleEl) return;
+            const isHidden = consoleEl.classList.contains('hidden');
+            if (isHidden) {
+                consoleEl.classList.remove('hidden');
+                if (btnLabel) btnLabel.textContent = 'Chiudi';
+                consoleEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                consoleEl.classList.add('hidden');
+                if (btnLabel) btnLabel.textContent = 'Filtri';
+            }
+        }
+
+        function scrollToCards() {
+            const target = document.getElementById('recommendations-container');
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
 
@@ -1964,12 +2043,14 @@
         // Radar Film Cercati
         function updateRadarCount() {
             const el = document.getElementById('radar-count');
-            if (!el) return;
-            if (radarItems.length > 0) {
-                el.textContent = radarItems.length;
-                el.classList.remove('hidden');
+            const navEl = document.getElementById('nav-radar-count');
+            const count = radarItems.length;
+            if (count > 0) {
+                if (el) { el.textContent = count; el.classList.remove('hidden'); }
+                if (navEl) { navEl.textContent = count; navEl.classList.remove('hidden'); }
             } else {
-                el.classList.add('hidden');
+                if (el) el.classList.add('hidden');
+                if (navEl) navEl.classList.add('hidden');
             }
         }
 
@@ -2332,5 +2413,41 @@
             });
         }
     </script>
+
+    <!-- Mobile Fixed Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-lg border-t border-slate-800/80 px-2 py-2 flex items-center justify-around md:hidden shadow-2xl safe-area-bottom">
+        <button onclick="generateRecommendations(true); scrollToCards();" class="flex flex-col items-center gap-1 text-amber-400 font-bold text-[10px] cursor-pointer py-1 px-2.5 rounded-xl hover:bg-slate-900 active:scale-95 transition">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 text-slate-950 flex items-center justify-center text-sm shadow-md shadow-amber-500/20">
+                <i class="fa-solid fa-dice"></i>
+            </div>
+            <span>Stasera</span>
+        </button>
+        <button onclick="toggleMobileFilterDrawer()" id="btn-nav-filter" class="flex flex-col items-center gap-1 text-slate-300 font-bold text-[10px] cursor-pointer py-1 px-2.5 rounded-xl hover:bg-slate-900 active:scale-95 transition">
+            <div class="w-8 h-8 rounded-xl bg-slate-800 text-sky-400 flex items-center justify-center text-sm border border-slate-700">
+                <i class="fa-solid fa-sliders"></i>
+            </div>
+            <span>Filtri</span>
+        </button>
+        <button onclick="toggleWatchlistModal()" class="flex flex-col items-center gap-1 text-slate-300 font-bold text-[10px] cursor-pointer py-1 px-2.5 rounded-xl hover:bg-slate-900 active:scale-95 transition relative">
+            <div class="w-8 h-8 rounded-xl bg-slate-800 text-amber-400 flex items-center justify-center text-sm border border-slate-700 relative">
+                <i class="fa-solid fa-bookmark"></i>
+                <span id="nav-watchlist-count" class="absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 text-[9px] font-black hidden">0</span>
+            </div>
+            <span>Watchlist</span>
+        </button>
+        <button onclick="toggleRadarModal()" class="flex flex-col items-center gap-1 text-slate-300 font-bold text-[10px] cursor-pointer py-1 px-2.5 rounded-xl hover:bg-slate-900 active:scale-95 transition relative">
+            <div class="w-8 h-8 rounded-xl bg-slate-800 text-sky-400 flex items-center justify-center text-sm border border-slate-700 relative">
+                <i class="fa-solid fa-satellite-dish"></i>
+                <span id="nav-radar-count" class="absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full bg-sky-500 text-slate-950 text-[9px] font-black hidden">0</span>
+            </div>
+            <span>Radar</span>
+        </button>
+        <button onclick="openDnaModal()" class="flex flex-col items-center gap-1 text-slate-300 font-bold text-[10px] cursor-pointer py-1 px-2.5 rounded-xl hover:bg-slate-900 active:scale-95 transition">
+            <div class="w-8 h-8 rounded-xl bg-slate-800 text-purple-400 flex items-center justify-center text-sm border border-slate-700">
+                <i class="fa-solid fa-dna"></i>
+            </div>
+            <span>DNA</span>
+        </button>
+    </nav>
 </body>
 </html>
