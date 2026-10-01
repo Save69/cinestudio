@@ -206,6 +206,7 @@
                         </label>
                         <select id="select-mood" onchange="generateRecommendations()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-amber-500">
                             <option value="all">🌟 Qualsiasi (Ispirami)</option>
+                            <option value="top250">🏆 I Giganti della Storia (IMDb Top 250)</option>
                             <option value="novita">🆕 Novità & Gemme Recenti (2022-2026)</option>
                             <option value="motivazionali">🥊 Fuoco & Riscatto (tipo Rocky, Whiplash, Air)</option>
                             <option value="corti">🎬 Cortometraggi & Gioielli Brevi (Oscar & Festival)</option>
@@ -1203,6 +1204,60 @@
                 synopsis: "Un avvocato assicurativo di New York viene incaricato di negoziare lo scambio tra una spia sovietica e un pilota americano.",
                 poster: "https://image.tmdb.org/t/p/w500/5501928k20m9j2k0j92k3o0j.jpg"
             },
+            {
+                id: 'disney-walle',
+                title: "WALL-E",
+                year: 2008,
+                duration: 98,
+                director: "Andrew Stanton",
+                cast: "Ben Burtt, Elissa Knight, Jeff Garlin, Sigourney Weaver",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 8.4,
+                mymovies: 4.2,
+                mood: "meraviglia",
+                isTop250: true,
+                top250Rank: 55,
+                why: "Top 250 IMDb (#55) e Premio Oscar: capolavoro poetico sull'amore, la solitudine e il risveglio dell'umanità. Cinema puro.",
+                synopsis: "L'ultimo robot rimasto a ripulire una Terra abbandonata s'innamora di una sonda sofisticata e la segue attraverso la galassia.",
+                poster: "https://image.tmdb.org/t/p/w500/hbhFnRzzg6ZDmm8YAmxBnQAcqeh.jpg"
+            },
+            {
+                id: 'disney-coco',
+                title: "Coco",
+                year: 2017,
+                duration: 105,
+                director: "Lee Unkrich, Adrian Molina",
+                cast: "Anthony Gonzalez, Gael García Bernal, Benjamin Bratt",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 8.4,
+                mymovies: 4.0,
+                mood: "cuore",
+                isTop250: true,
+                top250Rank: 71,
+                why: "Top 250 IMDb (#71) e 2 Premi Oscar: una delle vette emotive più alte della storia del cinema sulla famiglia, la musica e la memoria.",
+                synopsis: "Il giovane Miguel sogna di diventare un musicista ed entra accidentalmente nella colorata Terra dell'Aldilà alla scoperta della verità sulle sue radici.",
+                poster: "https://image.tmdb.org/t/p/w500/gGEsBPAijhVUFoiNpgZXqRVWJt2.jpg"
+            },
+            {
+                id: 'disney-re-leone',
+                title: "Il re leone",
+                year: 1994,
+                duration: 88,
+                director: "Roger Allers, Rob Minkoff",
+                cast: "Matthew Broderick, James Earl Jones, Jeremy Irons, Vittorio Gassman",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 8.5,
+                mymovies: 4.1,
+                mood: "epica",
+                isTop250: true,
+                top250Rank: 37,
+                why: "Top 250 IMDb (#37) e 2 Premi Oscar: tragedia shakespeariana in terra africana, colonna sonora monumentale di Hans Zimmer e doppiaggio italiano leggendario.",
+                synopsis: "Il cucciolo di leone Simba fugge dal regno dopo la morte del padre, ma dovrà trovare il coraggio di affrontare il passato e reclamare il proprio destino.",
+                poster: "https://image.tmdb.org/t/p/w500/sKCr78MXSLixwmZ8DyJLrpMsd15.jpg"
+            },
 
             // Nuovi Aggiunti: Festival, Autore, Fandango, Moretti, La La Land
             {
@@ -1811,6 +1866,39 @@
                 mymovies: 3.5,
                 status: "Punto Cardinale • Streaming su Prime / Rakuten",
                 note: "Capolavoro assoluto della commedia filosofica e dell'anima partenopea (2 David di Donatello). Nei tuoi Punti Cardinali: in monitoraggio attivo per la disponibilità diretta flat su RaiPlay/Prime."
+            },
+            {
+                id: 'radar-forrest-gump',
+                title: "Forrest Gump",
+                year: 1994,
+                director: "Robert Zemeckis",
+                cast: "Tom Hanks, Robin Wright, Gary Sinise",
+                imdb: 8.8,
+                mymovies: 4.0,
+                status: "Top 250 (#11) • Attualmente a noleggio Store",
+                note: "6 Premi Oscar con il tuo attore DNA Tom Hanks. In radar per l'arrivo in streaming flat senza costi extra."
+            },
+            {
+                id: 'radar-gladiatore',
+                title: "Il gladiatore",
+                year: 2000,
+                director: "Ridley Scott",
+                cast: "Russell Crowe, Joaquin Phoenix, Connie Nielsen",
+                imdb: 8.5,
+                mymovies: 4.1,
+                status: "Top 250 (#36) • Attualmente a noleggio Store",
+                note: "5 Premi Oscar, capolavoro assoluto del cinema epico ed emozionale. In monitoraggio attivo per l'inclusione flat."
+            },
+            {
+                id: 'radar-miglio-verde',
+                title: "Il miglio verde (The Green Mile)",
+                year: 1999,
+                director: "Frank Darabont (regista di Le ali della libertà)",
+                cast: "Tom Hanks, Michael Clarke Duncan, David Morse",
+                imdb: 8.6,
+                mymovies: 4.0,
+                status: "Top 250 (#27) • Attualmente a noleggio Store",
+                note: "Dal regista del tuo punto cardinale 'Le ali della libertà' e con Tom Hanks. In monitoraggio per l'arrivo flat."
             }
         ];
         defaultRadar.forEach(def => {
@@ -1819,6 +1907,33 @@
             }
         });
         localStorage.setItem('cinestudio_radar_movies', JSON.stringify(radarItems));
+
+        // Helper per identificare i capolavori della Top 250 di IMDb
+        function isImdbTop250(movie) {
+            if (!movie) return false;
+            if (movie.isTop250) return true;
+            const top250Ids = new Set([
+                'prime-1',          // C'era una volta in America (#73)
+                'prime-3',          // Good Will Hunting (#84)
+                'prime-4',          // Interstellar (#21)
+                'netflix-1',        // Le ali della libertà (#1)
+                'raiplay-1',        // Nuovo Cinema Paradiso (#52)
+                'raiplay-3',        // La vita è bella (#26)
+                'netflix-5',        // The Wolf of Wall Street (#134)
+                'netflix-ghibli-1', // La città incantata (#30)
+                'netflix-ghibli-2', // Il castello errante di Howl (#150)
+                'netflix-6',        // Oppenheimer (#56)
+                'disney-3',        // Il signore degli anelli: La compagnia dell'anello (#9)
+                'disney-6',        // La La Land (#220)
+                'prime-manifesti',  // Tre manifesti a Ebbing (#161)
+                'prime-parasite',   // Parasite (#32)
+                'disney-walle',     // WALL-E (#55)
+                'disney-coco',      // Coco (#71)
+                'disney-re-leone'   // Il re leone (#37)
+            ]);
+            if (top250Ids.has(movie.id)) return true;
+            return (movie.imdb >= 8.3 && movie.mymovies >= 3.8);
+        }
 
         // Motore di Calcolo Affinità DNA (Punti Cardinali + Autori/Attori preferiti)
         function calculateDnaMatch(movie) {
@@ -1935,7 +2050,9 @@
 
                 // Filtro Mood
                 if (mood !== 'all') {
-                    if (mood === 'novita') {
+                    if (mood === 'top250') {
+                        if (!isImdbTop250(movie)) return false;
+                    } else if (mood === 'novita') {
                         const isRecent = (movie.year >= 2022 || movie.mood === 'novita' || (Array.isArray(movie.mood) && movie.mood.includes('novita')));
                         if (!isRecent) return false;
                     } else if (mood === 'corti') {
@@ -1983,7 +2100,6 @@
                     if (dnaMatches.length > 0) {
                         score += (dnaMatches.length * 35) + 20;
                     }
-                    // Variazione randomica per garantire che ad ogni tiro di dadi escano proposte fresche e variegate
                     score += Math.random() * 30;
                     return { movie, score, dnaMatches };
                 });
@@ -2007,6 +2123,7 @@
                         <div class="p-4 pb-2 flex items-center justify-between">
                             ${platformBadge}
                             <span class="text-xs text-slate-400 font-mono flex items-center gap-1.5 flex-wrap justify-end">
+                                ${isImdbTop250(movie) ? `<span class="bg-amber-950/80 text-amber-300 border border-amber-600/70 text-[10px] px-2 py-0.5 rounded-lg font-black uppercase flex items-center gap-1 shadow-sm" title="Presente nella prestigiosa Top 250 di IMDb"><i class="fa-solid fa-trophy text-amber-400"></i> Top 250</span>` : ''}
                                 ${movie.isShort || movie.duration <= 40 ? '<span class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase"><i class="fa-solid fa-bolt"></i> Corto</span>' : ''}
                                 ${movie.mood === 'motivazionali' ? '<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase"><i class="fa-solid fa-fire"></i> Riscatto</span>' : ''}
                                 ${dnaMatches.length > 0 ? `<span class="bg-purple-950/80 text-purple-300 border border-purple-700/60 text-[10px] px-2 py-0.5 rounded-lg font-bold flex items-center gap-1" title="In sintonia con il tuo DNA cinefilo"><i class="fa-solid fa-dna text-purple-400"></i> ${escapeHtml(dnaMatches[0])}</span>` : ''}
@@ -2084,6 +2201,7 @@
                         <div class="flex items-center gap-1.5 mb-1 flex-wrap">
                             ${getPlatformBadge(m.platform, true)}
                             <span class="font-bold text-white group-hover:text-amber-300 transition text-[13px]">${escapeHtml(m.title)}</span>
+                            ${isImdbTop250(m) ? '<span class="bg-amber-950/80 text-amber-300 border border-amber-600/70 text-[9px] px-1.5 py-0.2 rounded font-black flex items-center gap-1" title="Presente nella Top 250 di IMDb"><i class="fa-solid fa-trophy text-[8px] text-amber-400"></i> Top 250</span>' : ''}
                             ${m.isShort || m.duration <= 40 ? '<span class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[9px] px-1.5 py-0.2 rounded font-bold uppercase">Corto</span>' : ''}
                             ${m.mood === 'motivazionali' ? '<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[9px] px-1.5 py-0.2 rounded font-bold uppercase">Riscatto</span>' : ''}
                             ${calculateDnaMatch(m).length > 0 ? `<span class="bg-purple-950/80 text-purple-300 border border-purple-700/60 text-[9px] px-1.5 py-0.2 rounded font-bold flex items-center gap-1" title="In sintonia con il tuo DNA"><i class="fa-solid fa-dna text-purple-400 text-[8px]"></i> DNA: ${escapeHtml(calculateDnaMatch(m)[0])}</span>` : ''}
@@ -2231,6 +2349,7 @@
             const modalDnaMatches = calculateDnaMatch(movie);
             document.getElementById('detail-badges').innerHTML = `
                 ${getPlatformBadge(movie.platform)}
+                ${isImdbTop250(movie) ? `<span class="text-xs px-2.5 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 font-black uppercase flex items-center gap-1"><i class="fa-solid fa-trophy text-amber-400"></i>IMDb Top 250</span>` : ''}
                 ${movie.isShort || movie.duration <= 40 ? '<span class="text-xs px-2 py-0.5 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-bold uppercase"><i class="fa-solid fa-bolt mr-1"></i>Cortometraggio</span>' : ''}
                 ${movie.mood === 'motivazionali' ? '<span class="text-xs px-2 py-0.5 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold uppercase"><i class="fa-solid fa-fire mr-1"></i>Motivazionale</span>' : ''}
                 ${modalDnaMatches.length > 0 ? `<span class="text-xs px-2 py-0.5 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/40 font-bold uppercase flex items-center gap-1"><i class="fa-solid fa-dna text-purple-400"></i> DNA: ${escapeHtml(modalDnaMatches.join(', '))}</span>` : ''}
