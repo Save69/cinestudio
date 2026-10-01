@@ -404,6 +404,9 @@
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Mediterraneo</span>
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Whiplash</span>
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Così parlò Bellavista</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">L'attimo fuggente</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Il favoloso mondo di Amélie</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Inside Out</span>
                     </div>
                 </div>
 
@@ -1258,6 +1261,40 @@
                 synopsis: "Il cucciolo di leone Simba fugge dal regno dopo la morte del padre, ma dovrà trovare il coraggio di affrontare il passato e reclamare il proprio destino.",
                 poster: "https://image.tmdb.org/t/p/w500/sKCr78MXSLixwmZ8DyJLrpMsd15.jpg"
             },
+            {
+                id: 'disney-attimo-fuggente',
+                title: "L'attimo fuggente",
+                year: 1989,
+                duration: 128,
+                director: "Peter Weir",
+                cast: "Robin Williams, Robert Sean Leonard, Ethan Hawke",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 8.1,
+                mymovies: 4.1,
+                mood: "anima",
+                why: "Punto Cardinale assoluto e Premio Oscar: Robin Williams indimenticabile, inno eterno alla libertà di pensiero, alla poesia e alla vita autentica.",
+                synopsis: "Nell'austero collegio di Welton nel 1959, un anticonformista professore d'inglese insegna ai suoi studenti a pensare con la propria testa e a cogliere l'attimo.",
+                poster: "https://image.tmdb.org/t/p/w500/ai48N2yqE7hO4pD8g8h6o90k93.jpg"
+            },
+            {
+                id: 'disney-inside-out',
+                title: "Inside Out",
+                year: 2015,
+                duration: 95,
+                director: "Pete Docter",
+                cast: "Amy Poehler, Phyllis Smith, Richard Kind, Bill Hader",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 8.1,
+                mymovies: 4.2,
+                mood: "cuore",
+                isTop250: true,
+                top250Rank: 174,
+                why: "Punto Cardinale e Top 250 IMDb (#174): Premio Oscar e capolavoro rivoluzionario sulle emozioni umane, la crescita e l'importanza della tristezza per comprendere la gioia.",
+                synopsis: "Nel quartier generale della mente dell'undicenne Riley, Gioia, Tristezza, Rabbia, Paura e Disgusto guidano le sue scelte quotidiane in un momento di grande cambiamento.",
+                poster: "https://image.tmdb.org/t/p/w500/lRHE0vzf3oYJrhbsQjia8CvhZiE.jpg"
+            },
 
             // Nuovi Aggiunti: Festival, Autore, Fandango, Moretti, La La Land
             {
@@ -1899,6 +1936,17 @@
                 mymovies: 4.0,
                 status: "Top 250 (#27) • Attualmente a noleggio Store",
                 note: "Dal regista del tuo punto cardinale 'Le ali della libertà' e con Tom Hanks. In monitoraggio per l'arrivo flat."
+            },
+            {
+                id: 'radar-amelie',
+                title: "Il favoloso mondo di Amélie",
+                year: 2001,
+                director: "Jean-Pierre Jeunet",
+                cast: "Audrey Tautou, Mathieu Kassovitz, Jamel Debbouze",
+                imdb: 8.3,
+                mymovies: 4.2,
+                status: "Punto Cardinale & Top 250 (#111) • Attualmente Store/Channel",
+                note: "Nei tuoi Punti Cardinali e 5 nomination agli Oscar. In monitoraggio attivo per l'arrivo in streaming flat senza costi extra."
             }
         ];
         defaultRadar.forEach(def => {
@@ -1929,7 +1977,8 @@
                 'prime-parasite',   // Parasite (#32)
                 'disney-walle',     // WALL-E (#55)
                 'disney-coco',      // Coco (#71)
-                'disney-re-leone'   // Il re leone (#37)
+                'disney-re-leone',  // Il re leone (#37)
+                'disney-inside-out' // Inside Out (#174)
             ]);
             if (top250Ids.has(movie.id)) return true;
             return (movie.imdb >= 8.3 && movie.mymovies >= 3.8);
@@ -1954,6 +2003,15 @@
                 { term: 'whiplash', label: 'Whiplash' },
                 { term: 'bellavista', label: 'Così parlò Bellavista' },
                 { term: 'de crescenzo', label: 'Luciano De Crescenzo' },
+                { term: 'attimo fuggente', label: "L'attimo fuggente" },
+                { term: 'robin williams', label: 'Robin Williams' },
+                { term: 'weir', label: 'Peter Weir' },
+                { term: 'amelie', label: "Il favoloso mondo di Amélie" },
+                { term: 'amélie', label: "Il favoloso mondo di Amélie" },
+                { term: 'jeunet', label: 'Jean-Pierre Jeunet' },
+                { term: 'tautou', label: 'Audrey Tautou' },
+                { term: 'inside out', label: 'Inside Out' },
+                { term: 'docter', label: 'Pete Docter' },
                 { term: 'chazelle', label: 'Damien Chazelle' },
                 { term: 'sorrentino', label: 'Paolo Sorrentino' },
                 { term: 'scorsese', label: 'Martin Scorsese' },
