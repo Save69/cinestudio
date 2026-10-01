@@ -397,6 +397,7 @@
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">La La Land</span>
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Mediterraneo</span>
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Whiplash</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Così parlò Bellavista</span>
                     </div>
                 </div>
 
@@ -1772,6 +1773,17 @@
                 mymovies: 3.4,
                 status: "Diritti streaming flat Netflix Italia attualmente scaduti",
                 note: "Dramma civile post 11 settembre. Spostato in Radar in attesa che rientri in catalogo flat o arrivi gratis su RaiPlay."
+            },
+            {
+                id: 'radar-bellavista',
+                title: "Così parlò Bellavista",
+                year: 1984,
+                director: "Luciano De Crescenzo",
+                cast: "Luciano De Crescenzo, Renato Scarpa, Isa Danieli, Marina Confalone, Sergio Solli",
+                imdb: 7.7,
+                mymovies: 3.5,
+                status: "Punto Cardinale • Streaming su Prime / Rakuten",
+                note: "Capolavoro assoluto della commedia filosofica e dell'anima partenopea (2 David di Donatello). Nei tuoi Punti Cardinali: in monitoraggio attivo per la disponibilità diretta flat su RaiPlay/Prime."
             }
         ];
         defaultRadar.forEach(def => {
@@ -1798,6 +1810,8 @@
             const resonances = [
                 { term: 'mediterraneo', label: 'Mediterraneo' },
                 { term: 'whiplash', label: 'Whiplash' },
+                { term: 'bellavista', label: 'Così parlò Bellavista' },
+                { term: 'de crescenzo', label: 'Luciano De Crescenzo' },
                 { term: 'chazelle', label: 'Damien Chazelle' },
                 { term: 'sorrentino', label: 'Paolo Sorrentino' },
                 { term: 'scorsese', label: 'Martin Scorsese' },

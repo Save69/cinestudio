@@ -13,8 +13,9 @@
 ## Modifiche Implementate: Consacrazione Punti Cardinali & Sincronizzazione Universale DNA
 
 ### 1. Consacrazione Ufficiale Punti Cardinali
-Su esplicita richiesta e autorizzazione dell'utente, i capolavori cardine della vita passano da 11 a 13:
-- Aggiunti **Mediterraneo** (Gabriele Salvatores, Premio Oscar) e **Whiplash** (Damien Chazelle, 3 Premi Oscar) nell'elenco sacro "I Tuoi Punti Cardinali" (box verde `#dna-milestones`).
+Su esplicita richiesta e autorizzazione dell'utente, i capolavori cardine della vita sono stati aggiornati (14 pietre miliari):
+- Aggiunti **Mediterraneo** (Gabriele Salvatores, Premio Oscar), **Whiplash** (Damien Chazelle, 3 Premi Oscar) e **Così parlò Bellavista** (Luciano De Crescenzo, 2 David di Donatello) nell'elenco sacro "I Tuoi Punti Cardinali" (box verde `#dna-milestones`).
+- Integrati nel motore di risonanza DNA i temi di De Crescenzo e dell'umanità partenopea, e aggiunto Bellavista al Radar Film Cercati per monitorarne la disponibilità flat continua su RaiPlay/Prime.
 
 ### 2. Sincronizzazione Automatica DNA su Smartphone e Multi-Device
 Risolto il limite del `localStorage` locale del singolo browser:
