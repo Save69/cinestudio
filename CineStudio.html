@@ -1836,6 +1836,22 @@
                 poster: "https://image.tmdb.org/t/p/w500/soundmetal2020Poster.jpg"
             },
             {
+                id: 'prime-favolacce',
+                title: "Favolacce",
+                year: 2020,
+                duration: 98,
+                director: "Damiano e Fabio D'Innocenzo",
+                cast: "Elio Germano, Tommaso Di Cola, Giulietta Rebeggiani, Gabriel Montesi, Barbara Chichiarelli",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 6.8,
+                mymovies: 3.6,
+                mood: "autore",
+                why: "Orso d'Argento per la miglior sceneggiatura a Berlino e 5 Nastri d'Argento: favola nera grottesca e tagliente con una monumentale prova d'attore di Elio Germano.",
+                synopsis: "In un quartiere residenziale della periferia romana di Spinaceto, alcune famiglie apparentemente perbene covano un sordo risentimento e una sottile disperazione. I bambini, testimoni silenziosi dell'ipocrisia degli adulti, matureranno una reazione tragica e inaspettata.",
+                poster: "https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=500"
+            },
+            {
                 id: 'raiplay-volevo-nascondermi',
                 title: "Volevo nascondermi",
                 year: 2020,
@@ -1900,7 +1916,8 @@
             'netflix-societa-neve',         // La società della neve (Netflix)
             'raiplay-volevo-nascondermi',   // Volevo nascondermi (RaiPlay)
             'prime-sound-of-metal',         // Sound of Metal (Prime Video)
-            'netflix-if-anything'           // Se succede qualcosa, vi voglio bene (Netflix)
+            'netflix-if-anything',          // Se succede qualcosa, vi voglio bene (Netflix)
+            'prime-favolacce'               // Favolacce (Prime Video - Elio Germano)
         ];
         defaultWatchlist.forEach(id => {
             watchlistIds.add(id);
@@ -2721,7 +2738,7 @@
                     { title: "Il giovane favoloso", year: 2014, status: "flat", platform: "RaiPlay", inCatalogId: "raiplay-giovane-favoloso", imdb: 7.0, mymovies: 4.0, note: "Giacomo Leopardi portato sullo schermo con grazia e tormento indimenticabili." },
                     { title: "L'incredibile storia dell'Isola delle Rose", year: 2020, status: "flat", platform: "Netflix", inCatalogId: "netflix-isola-rose", imdb: 7.0, mymovies: 3.5, note: "La geniale utopia libertaria dell'ingegner Giorgio Rosa al largo di Rimini." },
                     { title: "Mio fratello è figlio unico", year: 2007, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.1, mymovies: 3.5, note: "Con Riccardo Scamarcio: crescita e ideali nell'Italia degli anni Sessanta e Settanta." },
-                    { title: "Favolacce", year: 2020, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 6.8, mymovies: 3.6, note: "Orso d'Argento alla sceneggiatura a Berlino dei fratelli D'Innocenzo." },
+                    { title: "Favolacce", year: 2020, status: "flat", platform: "Prime Video", inCatalogId: "prime-favolacce", imdb: 6.8, mymovies: 3.6, note: "Orso d'Argento alla sceneggiatura a Berlino dei fratelli D'Innocenzo con Elio Germano." },
                     { title: "La nostra vita", year: 2010, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.9, mymovies: 3.4, note: "Premio Miglior Attore a Cannes (ex aequo con Javier Bardem)." },
                     { title: "Suburra", year: 2015, status: "flat", platform: "Netflix", link: "https://www.netflix.com", imdb: 7.3, mymovies: 3.6, note: "Diretto da Stefano Sollima con Pierfrancesco Favino e Claudio Amendola." }
                 ]
@@ -2840,7 +2857,7 @@
                             <i class="fa-solid fa-list-check text-purple-400"></i> Filmografia & Disponibilità Streaming
                         </h5>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                            ${author.films.map(f => {
+                            ${author.films.map((f, filmIdx) => {
                                 const inCatalog = f.inCatalogId ? getAllMovies().find(m => m.id === f.inCatalogId) : getAllMovies().find(m => m.title.toLowerCase() === f.title.toLowerCase());
                                 const inRadar = radarItems.some(r => r.title.toLowerCase() === f.title.toLowerCase());
                                 const inWatchlist = inCatalog ? watchlistIds.has(inCatalog.id) : false;
@@ -2869,21 +2886,21 @@
                                         </div>
                                         <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
                                             ${inCatalog ? `
-                                                <button onclick="toggleScoutModal(); openMovieDetailsModal('${inCatalog.id}')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-bold cursor-pointer transition">
+                                                <button type="button" onclick="toggleScoutModal(); openMovieDetailsModal('${inCatalog.id}')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-bold cursor-pointer transition">
                                                     Scheda
                                                 </button>
-                                                <button onclick="toggleWatchlist('${inCatalog.id}'); renderScoutResults('${escapeHtml(query)}');" class="px-2.5 py-1 rounded-lg border ${inWatchlist ? 'bg-amber-500/20 text-amber-300 border-amber-500/50' : 'bg-slate-800 text-slate-300 border-slate-700'} font-bold text-[11px] flex items-center gap-1 cursor-pointer transition active:scale-95">
+                                                <button type="button" onclick="toggleWatchlist('${inCatalog.id}'); refreshScoutResults();" class="px-2.5 py-1 rounded-lg border ${inWatchlist ? 'bg-amber-500/20 text-amber-300 border-amber-500/50' : 'bg-slate-800 text-slate-300 border-slate-700'} font-bold text-[11px] flex items-center gap-1 cursor-pointer transition active:scale-95">
                                                     <i class="fa-solid fa-bookmark ${inWatchlist ? 'text-amber-400' : ''}"></i> ${inWatchlist ? 'In Watchlist' : '+ Watchlist'}
                                                 </button>
                                             ` : f.status === 'flat' ? `
                                                 <a href="${f.link || '#'}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold text-[11px] flex items-center gap-1">
                                                     <i class="fa-solid fa-play"></i> Guarda
                                                 </a>
-                                                <button onclick="addMovieToWatchlistFromScout('${escapeHtml(f.title)}', ${f.year}, '${escapeHtml(author.name)}', '${f.platform.toLowerCase()}', '${f.link || '#'}', ${f.imdb}, ${f.mymovies}, '${escapeHtml(f.note)}')" class="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold text-[11px] flex items-center gap-1 cursor-pointer transition">
+                                                <button type="button" onclick="addFilmFromScout('${matchedAuthorKey}', ${filmIdx})" class="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold text-[11px] flex items-center gap-1 cursor-pointer transition active:scale-95">
                                                     <i class="fa-solid fa-plus"></i> Catalogo & Watchlist
                                                 </button>
                                             ` : `
-                                                <button onclick="addMovieToRadarFromScout('${escapeHtml(f.title)}', ${f.year}, '${escapeHtml(author.name)}', ${f.imdb}, ${f.mymovies})" class="px-2.5 py-1 rounded-lg ${inRadar ? 'bg-sky-950/60 text-sky-400 border border-sky-800' : 'bg-sky-600 hover:bg-sky-500 text-slate-950 font-bold'} text-[11px] flex items-center gap-1 cursor-pointer transition">
+                                                <button type="button" onclick="addFilmToRadarFromScout('${matchedAuthorKey}', ${filmIdx})" class="px-2.5 py-1 rounded-lg ${inRadar ? 'bg-sky-950/60 text-sky-400 border border-sky-800' : 'bg-sky-600 hover:bg-sky-500 text-slate-950 font-bold'} text-[11px] flex items-center gap-1 cursor-pointer transition active:scale-95">
                                                     <i class="fa-solid fa-satellite-dish"></i> ${inRadar ? 'Nel Radar ✓' : '+ Metti in Radar'}
                                                 </button>
                                                 <a href="https://www.justwatch.com/it/cerca?q=${encodeURIComponent(f.title)}" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-sky-300 text-[11px] flex items-center gap-1">
@@ -2915,7 +2932,7 @@
                                         </div>
                                         <p class="text-slate-400 text-[11px] truncate">${escapeHtml(m.director)}</p>
                                     </div>
-                                    <button onclick="toggleWatchlist('${m.id}'); renderScoutResults('${escapeHtml(query)}');" class="p-2 rounded-lg border ${watchlistIds.has(m.id) ? 'bg-amber-500/20 text-amber-400 border-amber-500/50' : 'bg-slate-800 text-slate-400 border-slate-700'} cursor-pointer">
+                                    <button type="button" onclick="toggleWatchlist('${m.id}'); refreshScoutResults();" class="p-2 rounded-lg border ${watchlistIds.has(m.id) ? 'bg-amber-500/20 text-amber-400 border-amber-500/50' : 'bg-slate-800 text-slate-400 border-slate-700'} cursor-pointer">
                                         <i class="fa-solid fa-bookmark ${watchlistIds.has(m.id) ? 'text-amber-400' : ''}"></i>
                                     </button>
                                 </div>
@@ -2950,6 +2967,31 @@
             container.innerHTML = html;
         }
 
+        function refreshScoutResults() {
+            const input = document.getElementById('input-scout-search');
+            if (input) renderScoutResults(input.value);
+        }
+
+        function addFilmFromScout(authorKey, filmIdx) {
+            const author = SCOUT_FILMOGRAPHIES[authorKey];
+            if (!author || !author.films || !author.films[filmIdx]) return;
+            const f = author.films[filmIdx];
+            let plat = (f.platform || 'prime').toLowerCase();
+            if (plat.includes('prime')) plat = 'prime';
+            else if (plat.includes('netflix')) plat = 'netflix';
+            else if (plat.includes('disney')) plat = 'disney';
+            else if (plat.includes('raiplay')) plat = 'raiplay';
+
+            addMovieToWatchlistFromScout(f.title, f.year, author.name, plat, f.link || '#', f.imdb, f.mymovies, f.note);
+        }
+
+        function addFilmToRadarFromScout(authorKey, filmIdx) {
+            const author = SCOUT_FILMOGRAPHIES[authorKey];
+            if (!author || !author.films || !author.films[filmIdx]) return;
+            const f = author.films[filmIdx];
+            addMovieToRadarFromScout(f.title, f.year, author.name, f.imdb, f.mymovies);
+        }
+
         function addMovieToRadarFromScout(title, year, director, imdb, mymovies) {
             const exists = radarItems.some(r => r.title.toLowerCase() === title.toLowerCase());
             if (!exists) {
@@ -2971,44 +3013,47 @@
             } else {
                 alert(`"${title}" è già presente nel tuo Radar.`);
             }
-            const input = document.getElementById('input-scout-search');
-            if (input) renderScoutResults(input.value);
+            refreshScoutResults();
         }
 
         function addMovieToWatchlistFromScout(title, year, director, platform, link, imdb, mymovies, why) {
             const userCustom = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
-            const id = 'custom-' + title.toLowerCase().replace(/[^a-z0-9]/g, '-');
+            const customId = 'custom-' + title.toLowerCase().replace(/[^a-z0-9]/g, '-');
+            let targetMovie = getAllMovies().find(m => m.id === customId || m.title.toLowerCase() === title.toLowerCase());
             
-            if (!getAllMovies().some(m => m.id === id || m.title.toLowerCase() === title.toLowerCase())) {
+            let finalId = customId;
+            if (!targetMovie) {
                 const newMovie = {
-                    id: id,
+                    id: customId,
                     title: title,
                     year: year || 2000,
                     duration: 110,
                     director: director || 'Regista',
                     cast: 'Cast in corso',
-                    platform: platform || 'raiplay',
-                    link: link || 'https://www.raiplay.it',
+                    platform: platform || 'prime',
+                    link: link || 'https://www.primevideo.com',
                     imdb: imdb || 7.0,
                     mymovies: mymovies || 3.5,
                     mood: 'autore',
                     why: why || 'Aggiunto tramite CineScout',
-                    synopsis: 'Film aggiunto tramite l Esploratore Registi & Attori.',
+                    synopsis: 'Film aggiunto tramite l\'Esploratore Registi & Attori.',
                     poster: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500'
                 };
                 userCustom.push(newMovie);
                 localStorage.setItem('cinestudio_user_movies', JSON.stringify(userCustom));
+                finalId = customId;
+            } else {
+                finalId = targetMovie.id;
             }
             
-            watchlistIds.add(id);
+            watchlistIds.add(finalId);
             localStorage.setItem('cinestudio_watchlist', JSON.stringify(Array.from(watchlistIds)));
             updateWatchlistCount();
             generateRecommendations(false);
             renderAllMatchingMovies();
             
             alert(`"${title}" è stato inserito nel tuo catalogo e nella tua Watchlist!`);
-            const input = document.getElementById('input-scout-search');
-            if (input) renderScoutResults(input.value);
+            refreshScoutResults();
         }
 
         // Radar Film Cercati
