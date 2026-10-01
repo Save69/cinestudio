@@ -797,7 +797,7 @@
                 imdb: 8.3,
                 mymovies: 4.5,
                 mood: "epica",
-                why: "Il capolavoro assoluto di Sergio Leone, colonna sonora immortale di Morricone e narrazione potente.",
+                why: "Il capolavoro assoluto di Sergio Leone, colonna sonora immortale di Ennio Morricone e narrazione potente.",
                 synopsis: "Cinquant'anni di storia della criminalità newyorkese attraverso i ricordi, l'amicizia e il tradimento di Noodles.",
                 poster: "https://image.tmdb.org/t/p/w500/i0enk5i0U08B4u3S3vV1kO0Lz2j.jpg"
             },
@@ -927,7 +927,7 @@
                 imdb: 8.5,
                 mymovies: 4.5,
                 mood: "cuore",
-                why: "Uno dei tuoi fari: l'omaggio definitivo alla magia del cinema, alla memoria e alla nostalgia dolce.",
+                why: "Uno dei tuoi fari e Premio Oscar: l'omaggio definitivo alla magia del cinema con la colonna sonora immortale di Ennio Morricone, memoria e nostalgia pura.",
                 synopsis: "L'amicizia tra il piccolo Totò e il proiezionista Alfredo nel cinema parrocchiale di un paesino siciliano del dopoguerra.",
                 poster: "https://image.tmdb.org/t/p/w500/6yqA5X7s7330u0w29kF02j82vj9.jpg"
             },
@@ -959,7 +959,7 @@
                 imdb: 8.6,
                 mymovies: 4.5,
                 mood: "cuore",
-                why: "Roberto Benigni al suo vertice: commuove, fa sorridere e tocca le corde più nobili dell'amore paterno.",
+                why: "Roberto Benigni al suo vertice e 3 Premi Oscar: commuove ed emoziona con l'indimenticabile colonna sonora da Oscar di Nicola Piovani e il tema dell'amore paterno.",
                 synopsis: "Un padre protegge il figlio dagli orrori del campo di concentramento trasformando la prigionia in un grande gioco.",
                 poster: "https://image.tmdb.org/t/p/w500/74hLDKjD5aGYOotO6esUVaeISa2.jpg"
             },
@@ -1007,7 +1007,7 @@
                 imdb: 7.8,
                 mymovies: 3.7,
                 mood: "mente",
-                why: "Tornatore in una veste thriller d'alta classe con musica di Morricone: inganno, arte e mistero.",
+                why: "Tornatore in una veste thriller d'alta classe con musica di Ennio Morricone: inganno, arte e mistero.",
                 synopsis: "Un eccentrico battitore d'aste viene ingaggiato da una misteriosa ereditiera agorafobica per valutare la villa di famiglia.",
                 poster: "https://image.tmdb.org/t/p/w500/uF8yZ6u6V1r0w9k29o20k92v3.jpg"
             },
@@ -1325,7 +1325,7 @@
                 imdb: 7.3,
                 mymovies: 4.0,
                 mood: "autore",
-                why: "Palma d'Oro a Cannes e produzione Fandango: il capolavoro umano di Nanni Moretti, struggente, sobrio e mai ricattatorio.",
+                why: "Palma d'Oro a Cannes e produzione Fandango: il capolavoro umano di Nanni Moretti con le toccanti musiche di Nicola Piovani, struggente, sobrio e mai ricattatorio.",
                 synopsis: "La vita serena di uno psicanalista di Ancona viene sconvolta dall'improvvisa perdita del figlio diciassettenne.",
                 poster: "https://image.tmdb.org/t/p/w500/z6lK9wK80l92k3o0j2k0j92k3.jpg"
             },
@@ -1341,7 +1341,7 @@
                 imdb: 7.2,
                 mymovies: 3.9,
                 mood: "autore",
-                why: "Premio per la Miglior Regia a Cannes: Nanni Moretti sulla Vespa per le strade estive di Roma, tra cinema, isole e autoironia.",
+                why: "Premio per la Miglior Regia a Cannes: Nanni Moretti sulla Vespa con le musiche iconiche di Nicola Piovani, tra cinema, isole e autoironia.",
                 synopsis: "In tre capitoli (In vespa, Le isole, Medici), Moretti racconta le sue passioni, i suoi tic e la sua personale odissea sanitaria.",
                 poster: "https://image.tmdb.org/t/p/w500/c72019k02m9j2k0j92k3o0j.jpg"
             },
@@ -1838,7 +1838,9 @@
             "Ettore Scola",
             "Elio Germano",
             "Toni Servillo",
-            "Black Mirror"
+            "Black Mirror",
+            "Ennio Morricone",
+            "Nicola Piovani"
         ];
         defaultCustomDna.forEach(tag => {
             if (!customDnaItems.includes(tag)) {
@@ -1947,6 +1949,17 @@
                 mymovies: 4.2,
                 status: "Punto Cardinale & Top 250 (#111) • Attualmente Store/Channel",
                 note: "Nei tuoi Punti Cardinali e 5 nomination agli Oscar. In monitoraggio attivo per l'arrivo in streaming flat senza costi extra."
+            },
+            {
+                id: 'radar-pianista-oceano',
+                title: "La leggenda del pianista sull'oceano",
+                year: 1998,
+                director: "Giuseppe Tornatore",
+                cast: "Tim Roth, Pruitt Taylor Vince, Mélanie Thierry",
+                imdb: 8.0,
+                mymovies: 3.9,
+                status: "Attualmente solo a noleggio Store (€ 2.99 / € 3.99 su Prime/Apple)",
+                note: "Capolavoro di Tornatore con la monumentale colonna sonora di Ennio Morricone (Golden Globe). In radar attivo per l'arrivo in streaming flat senza costi extra."
             }
         ];
         defaultRadar.forEach(def => {
@@ -2018,7 +2031,9 @@
                 { term: 'hanks', label: 'Tom Hanks' },
                 { term: 'servillo', label: 'Toni Servillo' },
                 { term: 'germano', label: 'Elio Germano' },
-                { term: 'scola', label: 'Ettore Scola' }
+                { term: 'scola', label: 'Ettore Scola' },
+                { term: 'morricone', label: 'Ennio Morricone' },
+                { term: 'piovani', label: 'Nicola Piovani' }
             ];
             resonances.forEach(r => {
                 if (textToSearch.includes(r.term) && !matches.some(m => m.toLowerCase().includes(r.term))) {
