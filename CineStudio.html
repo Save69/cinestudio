@@ -2196,6 +2196,7 @@
                         <div class="p-4 pb-2 flex items-center justify-between">
                             ${platformBadge}
                             <span class="text-xs text-slate-400 font-mono flex items-center gap-1.5 flex-wrap justify-end">
+                                ${isWatchlisted ? `<span class="bg-amber-500/20 text-amber-300 border border-amber-500/50 text-[10px] px-2 py-0.5 rounded-lg font-bold flex items-center gap-1 shadow-sm"><i class="fa-solid fa-bookmark text-amber-400"></i> In Watchlist</span>` : ''}
                                 ${isImdbTop250(movie) ? `<span class="bg-amber-950/80 text-amber-300 border border-amber-600/70 text-[10px] px-2 py-0.5 rounded-lg font-black uppercase flex items-center gap-1 shadow-sm" title="Presente nella prestigiosa Top 250 di IMDb"><i class="fa-solid fa-trophy text-amber-400"></i> Top 250</span>` : ''}
                                 ${movie.isShort || movie.duration <= 40 ? '<span class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase"><i class="fa-solid fa-bolt"></i> Corto</span>' : ''}
                                 ${movie.mood === 'motivazionali' ? '<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase"><i class="fa-solid fa-fire"></i> Riscatto</span>' : ''}
@@ -2250,8 +2251,8 @@
                         <button onclick="openRemindModal('${movie.id}')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-sky-950 hover:text-sky-400 border border-slate-700 text-slate-300 transition text-xs cursor-pointer active:scale-95" title="Imposta Promemoria (WhatsApp / Google Calendar)">
                             <i class="fa-solid fa-bell text-sky-400"></i>
                         </button>
-                        <button onclick="toggleWatchlist('${movie.id}')" class="p-2.5 rounded-xl border ${isWatchlisted ? 'bg-amber-500 text-slate-950 border-amber-500' : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'} transition text-xs cursor-pointer active:scale-95" title="${isWatchlisted ? 'Rimuovi da Watchlist' : 'Aggiungi a Watchlist'}">
-                            <i class="fa-solid fa-bookmark"></i>
+                        <button onclick="toggleWatchlist('${movie.id}')" class="p-2.5 rounded-xl border ${isWatchlisted ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-md shadow-amber-500/30' : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'} transition text-xs cursor-pointer active:scale-95" title="${isWatchlisted ? 'Rimuovi da Watchlist' : 'Aggiungi a Watchlist'}">
+                            <i class="fa-solid fa-bookmark ${isWatchlisted ? 'text-slate-950' : ''}"></i>
                         </button>
                         <button onclick="markAsSeen('${movie.id}')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-emerald-950 hover:text-emerald-400 border border-slate-700 text-slate-300 transition text-xs cursor-pointer active:scale-95" title="Segna come Già Visto">
                             <i class="fa-solid fa-check"></i>
@@ -2268,12 +2269,15 @@
             const container = document.getElementById('all-movies-table');
             document.getElementById('all-matching-count').textContent = pool.length;
 
-            container.innerHTML = pool.map(m => `
-                <div class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/50 flex items-start justify-between gap-2 text-xs transition group">
+            container.innerHTML = pool.map(m => {
+                const inWatchlist = watchlistIds.has(m.id);
+                return `
+                <div class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800/80 border ${inWatchlist ? 'border-amber-500/40 bg-slate-900/90' : 'border-slate-800'} hover:border-amber-500/50 flex items-start justify-between gap-2 text-xs transition group">
                     <div class="flex-1 min-w-0 cursor-pointer" onclick="openMovieDetailsModal('${m.id}')" title="Clicca per leggere la trama e i dettagli di ${escapeHtml(m.title)}">
                         <div class="flex items-center gap-1.5 mb-1 flex-wrap">
                             ${getPlatformBadge(m.platform, true)}
                             <span class="font-bold text-white group-hover:text-amber-300 transition text-[13px]">${escapeHtml(m.title)}</span>
+                            ${inWatchlist ? '<span class="bg-amber-500/20 text-amber-300 border border-amber-500/50 text-[9px] px-1.5 py-0.2 rounded font-black flex items-center gap-1 shadow-sm"><i class="fa-solid fa-bookmark text-amber-400 text-[8px]"></i> Watchlist</span>' : ''}
                             ${isImdbTop250(m) ? '<span class="bg-amber-950/80 text-amber-300 border border-amber-600/70 text-[9px] px-1.5 py-0.2 rounded font-black flex items-center gap-1" title="Presente nella Top 250 di IMDb"><i class="fa-solid fa-trophy text-[8px] text-amber-400"></i> Top 250</span>' : ''}
                             ${m.isShort || m.duration <= 40 ? '<span class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[9px] px-1.5 py-0.2 rounded font-bold uppercase">Corto</span>' : ''}
                             ${m.mood === 'motivazionali' ? '<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[9px] px-1.5 py-0.2 rounded font-bold uppercase">Riscatto</span>' : ''}
@@ -2290,15 +2294,16 @@
                         <button onclick="openRemindModal('${m.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:bg-sky-950 hover:text-sky-400 text-slate-400 transition cursor-pointer" title="Imposta Promemoria (WhatsApp / Calendar)">
                             <i class="fa-solid fa-bell text-sky-400"></i>
                         </button>
-                        <button onclick="toggleWatchlist('${m.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:text-amber-400 text-slate-400 transition cursor-pointer" title="Aggiungi / Rimuovi Watchlist">
-                            <i class="fa-solid fa-bookmark ${watchlistIds.has(m.id) ? 'text-amber-400' : ''}"></i>
+                        <button onclick="toggleWatchlist('${m.id}')" class="p-1.5 rounded-lg border ${inWatchlist ? 'bg-amber-500/20 text-amber-400 border-amber-500/60 shadow-sm' : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-amber-400'} transition cursor-pointer active:scale-95" title="${inWatchlist ? 'Rimuovi da Watchlist' : 'Aggiungi a Watchlist'}">
+                            <i class="fa-solid fa-bookmark ${inWatchlist ? 'text-amber-400' : ''}"></i>
                         </button>
                         <button onclick="markAsSeen('${m.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:bg-emerald-950 hover:text-emerald-400 text-slate-400 transition cursor-pointer" title="Segna come Già Visto">
                             <i class="fa-solid fa-check"></i>
                         </button>
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function getPlatformBadge(plat, mini = false) {
@@ -2344,6 +2349,11 @@
             localStorage.setItem('cinestudio_watchlist', JSON.stringify(Array.from(watchlistIds)));
             updateWatchlistCount();
             generateRecommendations(false);
+            renderAllMatchingMovies();
+            const watchlistModal = document.getElementById('modal-watchlist');
+            if (watchlistModal && !watchlistModal.classList.contains('hidden')) {
+                renderWatchlistItems();
+            }
         }
 
         function updateWatchlistCount() {
@@ -2639,17 +2649,11 @@
         }
 
         function addMovieToWatchlistFromSearch(id) {
-            if (watchlistIds.has(id)) {
-                watchlistIds.delete(id);
-            } else {
-                watchlistIds.add(id);
+            toggleWatchlist(id);
+            const searchInput = document.getElementById('input-search-watchlist');
+            if (searchInput) {
+                searchMoviesForWatchlist(searchInput.value);
             }
-            localStorage.setItem('cinestudio_watchlist', JSON.stringify(Array.from(watchlistIds)));
-            updateWatchlistCount();
-            renderWatchlistItems();
-            searchMoviesForWatchlist(document.getElementById('input-search-watchlist').value);
-            generateRecommendations(false);
-            renderAllMatchingMovies();
         }
 
         function handleGlobalSearch(val) {
