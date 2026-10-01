@@ -1,0 +1,2453 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineStudio — Il Tuo Assistente Cinema Serale</title>
+    <!-- Mobile PWA Meta Tags per Smartphone Full-Screen -->
+    <meta name="theme-color" content="#0b0f19">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CineStudio">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: #131b2e;
+            --bg-card-hover: #1c2742;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --gold-accent: #f59e0b;
+            --imdb-yellow: #f5c518;
+            --mymovies-red: #e11d48;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: #f1f5f9;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Glassmorphism effects */
+        .glass-panel {
+            background: rgba(19, 27, 46, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .gold-glow {
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.2);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+
+        /* Mobile horizontal carousel & safe area */
+        .scrollbar-none::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-none {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .safe-area-bottom {
+            padding-bottom: max(0.6rem, env(safe-area-inset-bottom));
+        }
+
+        /* Platform Badges */
+        .badge-netflix { background: #e50914; color: white; }
+        .badge-prime { background: #00a8e1; color: white; }
+        .badge-disney { background: #113ccf; color: white; }
+        .badge-raiplay { background: #0056b3; color: white; }
+        .badge-discovery { background: #0284c7; color: white; }
+        .badge-la7 { background: #1d4ed8; color: white; }
+
+        .btn-platform {
+            transition: all 0.2s ease;
+        }
+        .btn-platform.active {
+            filter: drop-shadow(0 0 8px currentColor);
+            transform: translateY(-1px);
+        }
+        .btn-platform:not(.active) {
+            opacity: 0.35;
+            filter: grayscale(80%);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body class="p-3 sm:p-6 lg:p-8 flex flex-col items-center">
+
+    <!-- Top Navigation / Header -->
+    <header class="w-full max-w-6xl flex items-center justify-between gap-3 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800">
+        <div class="flex items-center gap-2.5 sm:gap-3">
+            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-500 to-rose-600 flex items-center justify-center shadow-lg shadow-amber-500/20 text-white text-base sm:text-lg font-black shrink-0">
+                <i class="fa-solid fa-film"></i>
+            </div>
+            <div>
+                <h1 class="text-lg sm:text-2xl font-black tracking-tight text-white flex items-center gap-1.5 sm:gap-2">
+                    CineStudio <span class="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold tracking-normal">Bussola Serale</span>
+                </h1>
+                <p class="text-[11px] sm:text-xs text-slate-400 hidden sm:block">Zero scrolling infinito: solo film calibrati sui tuoi gusti con guardrail IMDb & MyMovies.</p>
+            </div>
+        </div>
+
+        <!-- Desktop Navigation Buttons -->
+        <div class="hidden md:flex items-center gap-2 sm:gap-3">
+            <button onclick="openAddMovieModal()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-bold border border-amber-500/40 transition flex items-center gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-plus"></i>
+                <span>Aggiungi Film</span>
+            </button>
+            <button onclick="openDnaModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition flex items-center gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-dna text-purple-400"></i>
+                <span>Il Tuo DNA</span>
+            </button>
+            <button onclick="toggleRadarModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition flex items-center gap-1.5 cursor-pointer relative" title="Film cercati">
+                <i class="fa-solid fa-satellite-dish text-sky-400"></i>
+                <span>Radar</span>
+                <span id="radar-count" class="ml-1 px-1.5 py-0.2 rounded-full bg-sky-500 text-slate-950 text-[10px] font-black">1</span>
+            </button>
+            <button onclick="toggleWatchlistModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition flex items-center gap-1.5 cursor-pointer relative">
+                <i class="fa-solid fa-bookmark text-amber-400"></i>
+                <span>Watchlist</span>
+                <span id="watchlist-count" class="ml-1 px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black hidden">0</span>
+            </button>
+            <button onclick="toggleSeenModal()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition flex items-center gap-1.5 cursor-pointer" title="Film già visti">
+                <i class="fa-solid fa-check-double text-emerald-400"></i>
+                <span>Già Visti</span>
+            </button>
+        </div>
+
+        <!-- Mobile Header Quick Action (Aggiungi Film rapido) -->
+        <div class="flex items-center gap-2 md:hidden">
+            <button onclick="openAddMovieModal()" class="py-1.5 px-2.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1 cursor-pointer active:scale-95" title="Aggiungi Film">
+                <i class="fa-solid fa-plus text-[10px]"></i><span>Film</span>
+            </button>
+            <button onclick="toggleSeenModal()" class="py-1.5 px-2.5 rounded-xl bg-slate-800 text-emerald-400 border border-slate-700 text-xs font-bold cursor-pointer active:scale-95" title="Film già visti">
+                <i class="fa-solid fa-check-double text-[11px]"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Control Console -->
+    <main class="w-full max-w-6xl space-y-5 pb-24 md:pb-8">
+
+        <!-- Mobile Quick Bar (Visibile solo su smartphone per accesso immediato) -->
+        <div class="md:hidden glass-panel rounded-2xl p-3 shadow-lg flex items-center justify-between gap-2.5 border border-slate-800 mb-2">
+            <button onclick="generateRecommendations(true); scrollToCards();" class="flex-1 py-3 px-3 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-amber-600 text-slate-950 font-black text-xs shadow-md shadow-amber-500/25 flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition">
+                <i class="fa-solid fa-dice text-base"></i>
+                <span>3 SCELTE PER STASERA</span>
+            </button>
+            <button onclick="toggleMobileFilterDrawer()" class="py-3 px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1.5 cursor-pointer active:scale-95 transition shrink-0">
+                <i class="fa-solid fa-sliders text-amber-400"></i>
+                <span id="mobile-filter-btn-label">Filtri</span>
+            </button>
+        </div>
+
+        <!-- Console Filtri & Decisione Rapida (Desktop sempre visibile, mobile a scomparsa) -->
+        <div id="main-filter-console" class="hidden md:block glass-panel rounded-2xl p-4 sm:p-6 shadow-xl animate-fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
+                
+                <!-- Piattaforme Streaming -->
+                <div class="md:col-span-4 space-y-2">
+                    <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-tv text-sky-400"></i> Piattaforme della Serata
+                    </label>
+                    <div class="flex items-center gap-2 flex-wrap" id="platform-toggles">
+                        <button type="button" onclick="togglePlatform('netflix')" id="btn-plat-netflix" class="btn-platform active px-2.5 py-1.5 rounded-xl badge-netflix text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
+                            <i class="fa-solid fa-n"></i> Netflix
+                        </button>
+                        <button type="button" onclick="togglePlatform('prime')" id="btn-plat-prime" class="btn-platform active px-2.5 py-1.5 rounded-xl badge-prime text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
+                            <i class="fa-brands fa-amazon"></i> Prime
+                        </button>
+                        <button type="button" onclick="togglePlatform('disney')" id="btn-plat-disney" class="btn-platform active px-2.5 py-1.5 rounded-xl badge-disney text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
+                            <i class="fa-solid fa-d"></i> Disney+
+                        </button>
+                        <button type="button" onclick="togglePlatform('raiplay')" id="btn-plat-raiplay" class="btn-platform active px-2.5 py-1.5 rounded-xl badge-raiplay text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
+                            <i class="fa-solid fa-play"></i> RaiPlay
+                        </button>
+                        <button type="button" onclick="togglePlatform('discovery')" id="btn-plat-discovery" class="btn-platform active px-2.5 py-1.5 rounded-xl badge-discovery text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
+                            <i class="fa-solid fa-compass"></i> Discovery+
+                        </button>
+                        <button type="button" onclick="togglePlatform('la7')" id="btn-plat-la7" class="btn-platform active px-2.5 py-1.5 rounded-xl badge-la7 text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
+                            <i class="fa-solid fa-tower-broadcast"></i> La7
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mood & Tempo a disposizione -->
+                <div class="md:col-span-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-masks-theater text-amber-400"></i> Mood Serale
+                        </label>
+                        <select id="select-mood" onchange="generateRecommendations()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-amber-500">
+                            <option value="all">🌟 Qualsiasi (Ispirami)</option>
+                            <option value="novita">🆕 Novità & Gemme Recenti (2022-2026)</option>
+                            <option value="motivazionali">🥊 Fuoco & Riscatto (tipo Rocky, Whiplash, Air)</option>
+                            <option value="corti">🎬 Cortometraggi & Gioielli Brevi (Oscar & Festival)</option>
+                            <option value="autore">🏆 Festival, Autore & Premi (Venezia, Oscar, Moretti, Fandango)</option>
+                            <option value="cuore">🎭 Cuore, Emozione & Troisi/Benigni/La La Land</option>
+                            <option value="mente">🧠 Mente, Ritmo & Ingegno</option>
+                            <option value="anima">🚶 Viaggio, Spiritualità & Anima</option>
+                            <option value="epica">🎬 Grande Regia, Leone & Epica</option>
+                            <option value="meraviglia">✨ Meraviglia & Fantasia (Miyazaki/Hugo)</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                            <i class="fa-regular fa-clock text-emerald-400"></i> Durata Massima
+                        </label>
+                        <select id="select-duration" onchange="generateRecommendations()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-amber-500">
+                            <option value="0">Qualsiasi durata</option>
+                            <option value="40">⏱️ Cortometraggi (≤ 40 min)</option>
+                            <option value="105">⚡ Stasera sono stanco (≤ 1h 45m)</option>
+                            <option value="125">☕ Durata standard (≤ 2 ore)</option>
+                            <option value="180">🍿 Serata kolossal (oltre 2 ore)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Pulsante Azione Risolutiva -->
+                <div class="md:col-span-3 flex flex-col justify-end">
+                    <button onclick="generateRecommendations(true)" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-amber-600 hover:from-amber-400 hover:to-rose-500 text-slate-950 font-black text-sm shadow-lg shadow-amber-500/25 transition duration-200 transform hover:-translate-y-0.5 cursor-pointer flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-dice text-base"></i>
+                        <span>3 SCELTE PER STASERA</span>
+                    </button>
+                    <p class="text-[10px] text-center text-slate-400 mt-1.5">Genera una terna fresca e mirata</p>
+                </div>
+
+            </div>
+
+            <!-- Guardrail Indicator Bar -->
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
+                <div class="flex items-center gap-4 flex-wrap">
+                    <span class="inline-flex items-center gap-1.5 font-bold text-amber-400">
+                        <i class="fa-solid fa-shield-halved"></i> Guardrail Attivi:
+                    </span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 text-slate-200 font-mono text-[11px]">
+                        <span class="text-[#f5c518] font-black">IMDb</span> &ge; <span id="label-imdb-val">6.3</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 text-slate-200 font-mono text-[11px]">
+                        <span class="text-rose-400 font-black">MYmovies</span> &ge; <span id="label-mymovies-val">3.3</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-950/70 text-emerald-300 border border-emerald-800/70 font-mono text-[11px] font-bold">
+                        <i class="fa-solid fa-circle-check text-emerald-400"></i> Zero Noleggi (Solo inclusi in abbonamento o 100% Free)
+                    </span>
+                    <span class="text-slate-400 text-[11px]">
+                        <i class="fa-solid fa-ban text-rose-500"></i> Horror, demenziali, lenti senza trama, musical esclusi.
+                    </span>
+                </div>
+                <div class="text-[11px] text-slate-400">
+                    <span id="filtered-pool-count">--</span> capolavori disponibili nel database
+                </div>
+            </div>
+        </div>
+
+        <!-- Sezione Risultati: 3 Scelte Secche -->
+        <section id="recommendations-container" class="space-y-3.5">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+                <h2 class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> Le Tue 3 Opzioni per Stasera
+                </h2>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-slate-400 hidden sm:inline">Nessuna indecisione: scegli una di queste 3 o ri-tira i dadi</span>
+                    <button onclick="generateRecommendations(true); scrollToCards();" class="md:hidden px-3 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1 active:scale-95 transition">
+                        <i class="fa-solid fa-dice text-[11px]"></i> <span>Cambia</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Hint Swipe su Mobile -->
+            <div class="flex items-center justify-between text-[11px] text-slate-400 md:hidden px-1">
+                <span class="flex items-center gap-1.5 text-amber-400 font-bold"><i class="fa-solid fa-arrows-left-right text-xs"></i> Scorri con il dito tra le 3 schede</span>
+                <span class="text-slate-500 font-mono text-[10px]">3 scelte calibrate</span>
+            </div>
+
+            <div id="cards-grid" class="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 px-1 -mx-2 sm:mx-0 sm:px-0 md:grid md:grid-cols-3 md:gap-5 md:overflow-visible scrollbar-none">
+                <!-- Inserite dinamicamente via JS -->
+            </div>
+
+            <!-- Pulsante mobile per cambiare terna dopo lo swipe -->
+            <div class="md:hidden pt-1 pb-1">
+                <button onclick="generateRecommendations(true); scrollToCards();" class="w-full py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 font-bold text-xs flex items-center justify-center gap-2 active:scale-95 transition">
+                    <i class="fa-solid fa-dice text-sm"></i>
+                    <span>Tira i dadi per altre 3 opzioni</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Sezione Esplora Tutto il Catalogo Filtrato -->
+        <section class="mt-8 pt-6 border-t border-slate-800">
+            <details class="group">
+                <summary class="flex items-center justify-between cursor-pointer list-none p-3 rounded-xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 text-slate-300 text-xs font-bold">
+                    <span class="flex items-center gap-2">
+                        <i class="fa-solid fa-list-ul text-sky-400"></i>
+                        <span>Sfoglia tutti i film disponibili conformi ai tuoi parametri (<span id="all-matching-count">0</span>)</span>
+                    </span>
+                    <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
+                </summary>
+                <div id="all-movies-table" class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <!-- Film list completo -->
+                </div>
+            </details>
+        </section>
+
+    </main>
+
+    <!-- Modal: DNA Cinefilo Personale -->
+    <div id="modal-dna" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-2xl rounded-2xl p-6 space-y-5 border border-slate-700 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-purple-600 flex items-center justify-center text-white text-sm">
+                        <i class="fa-solid fa-dna"></i>
+                    </div>
+                    <h3 class="text-lg font-black text-white">Il Tuo DNA Cinefilo Calibrato</h3>
+                </div>
+                <button onclick="closeDnaModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4 text-xs">
+                <!-- Registi e Autori -->
+                <div>
+                    <h4 class="font-bold text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-clapperboard"></i> Maestri & Registi di Riferimento
+                    </h4>
+                    <div class="flex flex-wrap gap-1.5" id="dna-directors">
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 border border-slate-700">Steven Spielberg</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 border border-slate-700">Christopher Nolan</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 border border-slate-700">Hayao Miyazaki</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 border border-slate-700">Paolo Sorrentino</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 border border-slate-700">Sergio Leone</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 border border-slate-700">Giuseppe Tornatore</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 border border-slate-700">Massimo Troisi</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 border border-slate-700">Roberto Benigni</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 border border-slate-700">Nanni Moretti</span>
+                    </div>
+                </div>
+
+                <!-- Festival, Premi & Autorialità -->
+                <div>
+                    <h4 class="font-bold text-amber-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-trophy"></i> Festival, Premi & Autorialità
+                    </h4>
+                    <div class="flex flex-wrap gap-1.5">
+                        <span class="px-2.5 py-1 rounded-lg bg-amber-950/60 text-amber-300 border border-amber-800/60">Mostra del Cinema di Venezia (Leone d'Oro)</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-amber-950/60 text-amber-300 border border-amber-800/60">Festival di Berlino (Orso d'Oro)</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-amber-950/60 text-amber-300 border border-amber-800/60">Vincitori Premi Oscar</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-amber-950/60 text-amber-300 border border-amber-800/60">Produzioni Fandango (Domenico Procacci)</span>
+                    </div>
+                </div>
+
+                <!-- Attori & Icone -->
+                <div>
+                    <h4 class="font-bold text-sky-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-star"></i> Attori e Presenze Chiave
+                    </h4>
+                    <div class="flex flex-wrap gap-1.5">
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 border border-slate-700">Leonardo DiCaprio</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 border border-slate-700">Matt Damon</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-slate-200 border border-slate-700">Robin Williams</span>
+                    </div>
+                </div>
+
+                <!-- Pietre Miliari -->
+                <div>
+                    <h4 class="font-bold text-emerald-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-gem"></i> I Tuoi Punti Cardinali
+                    </h4>
+                    <div class="flex flex-wrap gap-1.5" id="dna-milestones">
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">C'era una volta in America</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Nuovo Cinema Paradiso</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Le ali della libertà</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Il signore degli anelli</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Il cammino per Santiago</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Hereafter</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Hugo Cabret</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">The Wolf of Wall Street</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Vita di Pi</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Limitless</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">La La Land</span>
+                    </div>
+                </div>
+
+                <!-- Elementi Aggiunti dall'Utente al DNA -->
+                <div class="pt-2 border-t border-slate-800">
+                    <h4 class="font-bold text-purple-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-plus-circle"></i> Aggiungi al tuo DNA (Film o Autori)</span>
+                    </h4>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-new-dna-item" placeholder="Es. David Fincher, Whiplash, Martin Scorsese..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-200" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomDnaItem();}">
+                        <button onclick="addCustomDnaItem()" class="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-xs cursor-pointer flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Aggiungi
+                        </button>
+                    </div>
+                    <div id="custom-dna-tags" class="flex flex-wrap gap-1.5 mt-2">
+                        <!-- Tag inseriti dall'utente -->
+                    </div>
+                </div>
+
+                <!-- I Blacklistati -->
+                <div class="pt-2 border-t border-slate-800">
+                    <h4 class="font-bold text-rose-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-ban"></i> Cosa Escludere Sempre
+                    </h4>
+                    <div class="flex flex-wrap gap-1.5">
+                        <span class="px-2.5 py-1 rounded-lg bg-rose-950/60 text-rose-300 border border-rose-800/60">Horror & Splatter</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-rose-950/60 text-rose-300 border border-rose-800/60">Commedie demenziali</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-rose-950/60 text-rose-300 border border-rose-800/60">Film lenti senza trama</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-rose-950/60 text-rose-300 border border-rose-800/60">Musical canzonettistici (esclusi capolavori come La La Land)</span>
+                    </div>
+                </div>
+
+                <!-- Taratura Soglie -->
+                <div class="pt-3 border-t border-slate-800 grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-300 mb-1">Soglia Minima IMDb</label>
+                        <input type="number" id="cfg-imdb-min" step="0.1" min="5.0" max="9.0" value="6.3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200" onchange="updateGuardrailSettings()">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-300 mb-1">Soglia Minima MYmovies</label>
+                        <input type="number" id="cfg-mymovies-min" step="0.1" min="2.5" max="4.8" value="3.3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200" onchange="updateGuardrailSettings()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-800 flex justify-end">
+                <button onclick="closeDnaModal()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black cursor-pointer">
+                    Salva & Chiudi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Aggiungi Nuovo Film al Catalogo Personale -->
+    <div id="modal-add-movie" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-lg rounded-2xl p-6 space-y-4 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto animate-fade-in">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 text-sm font-black">
+                        <i class="fa-solid fa-plus"></i>
+                    </div>
+                    <h3 class="text-lg font-black text-white">Aggiungi Film al Catalogo</h3>
+                </div>
+                <button onclick="closeAddMovieModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <form id="form-add-movie" onsubmit="saveCustomMovie(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-300 font-bold mb-1">Titolo del Film *</label>
+                    <input type="text" id="add-movie-title" required placeholder="Es. La stanza del figlio" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1">Regista</label>
+                        <input type="text" id="add-movie-director" placeholder="Es. Nanni Moretti" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1">Piattaforma Streaming *</label>
+                        <select id="add-movie-platform" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold">
+                            <option value="prime">Prime Video</option>
+                            <option value="netflix">Netflix</option>
+                            <option value="raiplay">RaiPlay</option>
+                            <option value="disney">Disney+</option>
+                            <option value="discovery">Discovery+ (Gratuito)</option>
+                            <option value="la7">La7 (Gratuito)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1">Anno</label>
+                        <input type="number" id="add-movie-year" value="2024" min="1930" max="2030" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1">Durata (min)</label>
+                        <input type="number" id="add-movie-duration" value="110" min="1" max="300" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1">Mood</label>
+                        <select id="add-movie-mood" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-white font-bold">
+                            <option value="novita">🆕 Novità/Gemme</option>
+                            <option value="motivazionali">🥊 Motivazione & Riscatto</option>
+                            <option value="corti">🎬 Cortometraggio</option>
+                            <option value="autore">🏆 Festival/Autore</option>
+                            <option value="cuore">🎭 Cuore/Commedia</option>
+                            <option value="mente">🧠 Mente/Ritmo</option>
+                            <option value="anima">🚶 Anima/Viaggio</option>
+                            <option value="epica">🎬 Grande Epica</option>
+                            <option value="meraviglia">✨ Meraviglia</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1">Voto IMDb</label>
+                        <input type="number" step="0.1" id="add-movie-imdb" value="7.5" min="1" max="10" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-slate-300 font-bold mb-1">Voto MYmovies</label>
+                        <input type="number" step="0.1" id="add-movie-mymovies" value="3.8" min="1" max="5" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 font-bold mb-1">Cast / Attori principali</label>
+                    <input type="text" id="add-movie-cast" placeholder="Es. Nanni Moretti, Laura Morante, Silvio Orlando" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 font-bold mb-1">Perché è adatto a te</label>
+                    <input type="text" id="add-movie-why" placeholder="Es. Palma d'Oro a Cannes, produzione Fandango, cinema d'autore toccante" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 font-bold mb-1">Breve Sinossi (opzionale)</label>
+                    <textarea id="add-movie-synopsis" rows="2" placeholder="Di cosa parla la storia..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 font-bold mb-1">Link Piattaforma (opzionale)</label>
+                    <input type="url" id="add-movie-link" placeholder="https://..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono">
+                </div>
+
+                <div class="pt-3 border-t border-slate-800 flex justify-end gap-2">
+                    <button type="button" onclick="closeAddMovieModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold cursor-pointer">Annulla</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Salva nel Catalogo
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Radar Film Cercati (In attesa di streaming gratuito / incluso) -->
+    <div id="modal-radar" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-2xl rounded-2xl p-6 space-y-4 border border-slate-700 max-h-[85vh] flex flex-col shadow-2xl animate-fade-in">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center text-sm font-black">
+                        <i class="fa-solid fa-satellite-dish"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-white">Radar Film Cercati & Desiderati</h3>
+                        <p class="text-[11px] text-slate-400">Titoli che desideri vedere ma attualmente solo a noleggio a pagamento o non ancora in streaming.</p>
+                    </div>
+                </div>
+                <button onclick="toggleRadarModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Box aggiunta nuovo titolo al radar -->
+            <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
+                <label class="block text-[11px] font-bold text-slate-300">Aggiungi un titolo al Radar per monitorarlo:</label>
+                <div class="flex gap-2">
+                    <input type="text" id="input-new-radar-title" placeholder="Es. I guerrieri, Barry Lyndon, ecc..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white" onkeydown="if(event.key==='Enter'){event.preventDefault();addRadarItem();}">
+                    <button onclick="addRadarItem()" class="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-xs cursor-pointer flex items-center gap-1">
+                        <i class="fa-solid fa-plus"></i> Monitora
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lista Titoli nel Radar -->
+            <div id="radar-items" class="flex-1 overflow-y-auto space-y-2.5 pr-1">
+                <!-- Compilato dinamicamente via JS -->
+            </div>
+            
+            <div class="pt-2 border-t border-slate-800 flex justify-between items-center text-[11px] text-slate-500">
+                <span class="flex items-center gap-1"><i class="fa-solid fa-shield-halved text-emerald-400"></i> Zero Noleggi: questi film non vengono proposti nella scelta serale finché non sono gratuiti/inclusi.</span>
+                <button onclick="toggleRadarModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 font-bold hover:text-white cursor-pointer">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Watchlist -->
+    <div id="modal-watchlist" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-2xl rounded-2xl p-6 space-y-4 border border-slate-700 max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <h3 class="text-lg font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-bookmark text-amber-400"></i> La Tua Watchlist
+                </h3>
+                <button onclick="toggleWatchlistModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="watchlist-items" class="flex-1 overflow-y-auto space-y-2.5 pr-1">
+                <!-- Elementi Watchlist -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Già Visti -->
+    <div id="modal-seen" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-2xl rounded-2xl p-6 space-y-4 border border-slate-700 max-h-[85vh] flex flex-col">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <h3 class="text-lg font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-check-double text-emerald-400"></i> Film Segnati come Già Visti
+                </h3>
+                <button onclick="toggleSeenModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-400">Questi film vengono automaticamente esclusi dai tuoi suggerimenti serali.</p>
+            <div id="seen-items" class="flex-1 overflow-y-auto space-y-2 pr-1">
+                <!-- Elementi Già Visti -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Promemoria Serata (WhatsApp & Google Calendar) -->
+    <div id="modal-remind" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-lg rounded-2xl p-6 space-y-5 border border-slate-700 shadow-2xl animate-fade-in">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-500 to-indigo-600 flex items-center justify-center text-white text-sm">
+                        <i class="fa-solid fa-bell"></i>
+                    </div>
+                    <h3 class="text-lg font-black text-white">Imposta Promemoria Serata</h3>
+                </div>
+                <button onclick="closeRemindModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Anteprima Film Selezionato -->
+            <div id="remind-movie-preview" class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 flex items-start gap-3">
+                <!-- Info film compilate dinamicamente via JS -->
+            </div>
+
+            <!-- Selezione Data & Orario -->
+            <div class="space-y-3">
+                <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                    <i class="fa-regular fa-clock text-amber-400"></i> Quando hai intenzione di guardarlo?
+                </label>
+                
+                <!-- Preset rapidi -->
+                <div class="grid grid-cols-3 gap-2">
+                    <button type="button" onclick="setRemindPreset('tonight-2100')" id="preset-tonight-2100" class="remind-preset-btn py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-center text-slate-200 cursor-pointer transition">
+                        Stasera 21:00
+                    </button>
+                    <button type="button" onclick="setRemindPreset('tonight-2130')" id="preset-tonight-2130" class="remind-preset-btn py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-center text-slate-200 cursor-pointer transition">
+                        Stasera 21:30
+                    </button>
+                    <button type="button" onclick="setRemindPreset('tomorrow-2115')" id="preset-tomorrow-2115" class="remind-preset-btn py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-center text-slate-200 cursor-pointer transition">
+                        Domani 21:15
+                    </button>
+                </div>
+
+                <!-- Input orario personalizzato -->
+                <div class="pt-1">
+                    <label class="text-[10px] text-slate-400 block mb-1">Oppure scegli data e ora specifica:</label>
+                    <input type="datetime-local" id="remind-custom-datetime" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 font-mono" onchange="onCustomDateTimeChange()">
+                </div>
+            </div>
+
+            <!-- Pulsanti Canali: WhatsApp & Google Calendar -->
+            <div class="space-y-2.5 pt-3 border-t border-slate-800">
+                <button type="button" onclick="sendWhatsAppRemind()" class="w-full py-3 px-4 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 transition cursor-pointer flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    <span>Invia Promemoria su WhatsApp</span>
+                </button>
+                <button type="button" onclick="sendGoogleCalendarRemind()" class="w-full py-3 px-4 rounded-xl bg-[#4285F4] hover:bg-[#3367d6] text-white font-black text-xs shadow-lg shadow-blue-500/20 transition cursor-pointer flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-google text-base"></i>
+                    <span>Aggiungi a Google Calendar (con alert)</span>
+                </button>
+            </div>
+            
+            <p class="text-[10px] text-center text-slate-500 leading-tight">Google Calendar calcola in automatico la durata del film &bull; WhatsApp prepara un messaggio formattato con voti, scheda e link streaming.</p>
+        </div>
+    </div>
+
+    <!-- Modal: Dettagli Film & Trama Estesa -->
+    <div id="modal-movie-details" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-xl rounded-2xl p-6 space-y-4 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto animate-fade-in flex flex-col">
+            <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-800">
+                <div class="space-y-1">
+                    <div id="detail-badges" class="flex items-center gap-2 flex-wrap">
+                        <!-- Badge piattaforma, anno, durata -->
+                    </div>
+                    <h3 id="detail-title" class="text-xl font-black text-white leading-tight"></h3>
+                    <p id="detail-director" class="text-xs text-slate-400"></p>
+                </div>
+                <button onclick="closeMovieDetailsModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3.5">
+                <!-- Voti Guardrail -->
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                        <span class="bg-[#f5c518] text-slate-950 font-black text-[10px] px-1 rounded font-mono">IMDb</span>
+                        <span id="detail-imdb" class="text-amber-300 font-black text-xs"></span>
+                    </div>
+                    <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30">
+                        <span class="text-rose-400 font-black text-[10px] uppercase font-mono">MYmovies</span>
+                        <span id="detail-mymovies" class="text-rose-300 font-black text-xs"></span>
+                    </div>
+                </div>
+
+                <!-- Cast -->
+                <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                        <i class="fa-solid fa-user-group text-sky-400 mr-1"></i> Cast Principale:
+                    </span>
+                    <p id="detail-cast" class="text-slate-200"></p>
+                </div>
+
+                <!-- Di cosa parla (Trama) -->
+                <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-700/80 text-xs space-y-1.5">
+                    <span class="text-[11px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-open"></i> Di cosa parla (Trama Completa):
+                    </span>
+                    <p id="detail-synopsis" class="text-slate-200 leading-relaxed text-xs sm:text-sm font-normal"></p>
+                </div>
+
+                <!-- Perché è per te -->
+                <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-xs">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5 mb-1">
+                        <i class="fa-solid fa-sparkles"></i> Perché è consigliato per te:
+                    </span>
+                    <p id="detail-why" class="text-slate-300 leading-relaxed"></p>
+                </div>
+            </div>
+
+            <!-- Footer Azioni -->
+            <div id="detail-actions" class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2 flex-wrap">
+                <!-- Inserito dinamicamente via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Database Cinefilo Curato -->
+    <script>
+        const INITIAL_CATALOG = [
+            // Prime Video
+            {
+                id: 'prime-1',
+                title: "C'era una volta in America",
+                year: 1984,
+                duration: 229,
+                director: "Sergio Leone",
+                cast: "Robert De Niro, James Woods, Elizabeth McGovern",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 8.3,
+                mymovies: 4.5,
+                mood: "epica",
+                why: "Il capolavoro assoluto di Sergio Leone, colonna sonora immortale di Morricone e narrazione potente.",
+                synopsis: "Cinquant'anni di storia della criminalità newyorkese attraverso i ricordi, l'amicizia e il tradimento di Noodles.",
+                poster: "https://image.tmdb.org/t/p/w500/i0enk5i0U08B4u3S3vV1kO0Lz2j.jpg"
+            },
+            {
+                id: 'prime-2',
+                title: "Il cammino per Santiago",
+                year: 2010,
+                duration: 123,
+                director: "Emilio Estevez",
+                cast: "Martin Sheen, Emilio Estevez, Deborah Kara Unger",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 7.3,
+                mymovies: 3.5,
+                mood: "anima",
+                why: "Uno dei tuoi preferiti: viaggio interiore, riscoperta della vita, calore umano e passo lento ma profondo.",
+                synopsis: "Un padre decide di percorrere il cammino di Santiago per onorare il figlio scomparso, incontrando compagni indimenticabili.",
+                poster: "https://image.tmdb.org/t/p/w500/tLz8W8sC6jXQpX00oR93Kk0l72W.jpg"
+            },
+            {
+                id: 'prime-3',
+                title: "Good Will Hunting - Genio ribelle",
+                year: 1997,
+                duration: 126,
+                director: "Gus Van Sant",
+                cast: "Robin Williams, Matt Damon, Ben Affleck",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 8.3,
+                mymovies: 3.9,
+                mood: "cuore",
+                why: "Coppia d'oro dei tuoi attori preferiti: Matt Damon giovanissimo e uno straordinario Robin Williams da Oscar.",
+                synopsis: "Un giovane genio matematico ribelle trova la sua strada grazie all'aiuto di un professore e di un terapeuta empatico.",
+                poster: "https://image.tmdb.org/t/p/w500/bABCBKYBK7A7GZ0t4OehgWap8Za.jpg"
+            },
+            {
+                id: 'prime-4',
+                title: "Limitless",
+                year: 2011,
+                duration: 105,
+                director: "Neil Burger",
+                cast: "Bradley Cooper, Robert De Niro, Abbie Cornish",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 7.4,
+                mymovies: 3.4,
+                mood: "mente",
+                why: "Tra i tuoi titoli di riferimento: ritmo incalzante, potenziamento mentale, trama senza un attimo di tregua.",
+                synopsis: "Uno scrittore in crisi assume una pillola sperimentale che gli permette di utilizzare il 100% delle sue capacità cerebrali.",
+                poster: "https://image.tmdb.org/t/p/w500/4c55490PqM5K9S2348k0iO1M1yK.jpg"
+            },
+            {
+                id: 'prime-5',
+                title: "Hereafter",
+                year: 2010,
+                duration: 129,
+                director: "Clint Eastwood",
+                cast: "Matt Damon, Cécile de France, Frankie McLaren",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 6.5,
+                mymovies: 3.4,
+                mood: "anima",
+                why: "Uno dei tuoi titoli indicati: Eastwood dirige Matt Damon in una riflessione delicata e intima sul dopo e sulle connessioni.",
+                synopsis: "Tre storie parallele di persone toccate dalla morte convergono a Londra alla ricerca di significato.",
+                poster: "https://image.tmdb.org/t/p/w500/mXp7pC7iLgT23S35h1fR03J39bF.jpg"
+            },
+            {
+                id: 'prime-6',
+                title: "Interstellar",
+                year: 2014,
+                duration: 169,
+                director: "Christopher Nolan",
+                cast: "Matthew McConaughey, Anne Hathaway, Matt Damon",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 8.7,
+                mymovies: 3.9,
+                mood: "mente",
+                why: "La maestria di Christopher Nolan con un'apparizione memorabile di Matt Damon: mente, fisica, amore paterno.",
+                synopsis: "Un gruppo di esploratori intraprende il viaggio più importante della storia dell'umanità attraverso un wormhole.",
+                poster: "https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg"
+            },
+            {
+                id: 'prime-7',
+                title: "Prova a prendermi (Catch Me If You Can)",
+                year: 2002,
+                duration: 141,
+                director: "Steven Spielberg",
+                cast: "Leonardo DiCaprio, Tom Hanks, Christopher Walken",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 8.1,
+                mymovies: 3.7,
+                mood: "mente",
+                why: "L'incontro perfetto tra Spielberg alla regia e DiCaprio protagonista: ritmo brioso, ingegno puro ed eleganza.",
+                synopsis: "La vera storia del geniale truffatore Frank Abagnale Jr. e dell'agente FBI che gli dà la caccia in tutto il mondo.",
+                poster: "https://image.tmdb.org/t/p/w500/ctjLkUbdtR42whj2Wj944kFqV9c.jpg"
+            },
+            {
+                id: 'prime-8',
+                title: "Le ali della libertà",
+                year: 1994,
+                duration: 142,
+                director: "Frank Darabont",
+                cast: "Tim Robbins, Morgan Freeman",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 9.3,
+                mymovies: 4.3,
+                mood: "anima",
+                why: "Il film #1 di sempre: narrazione impeccabile, speranza incrollabile e grande amicizia virile.",
+                synopsis: "Accusato ingiustamente dell'omicidio della moglie, il banchiere Andy Dufresne trasforma il carcere di Shawshank.",
+                poster: "https://image.tmdb.org/t/p/w500/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg"
+            },
+
+            // RaiPlay (Grande Cinema Italiano d'Autore & Troisi / Tornatore / Benigni)
+            {
+                id: 'raiplay-1',
+                title: "Nuovo Cinema Paradiso",
+                year: 1988,
+                duration: 124,
+                director: "Giuseppe Tornatore",
+                cast: "Philippe Noiret, Salvatore Cascio, Jacques Perrin",
+                platform: "raiplay",
+                link: "https://www.raiplay.it",
+                imdb: 8.5,
+                mymovies: 4.5,
+                mood: "cuore",
+                why: "Uno dei tuoi fari: l'omaggio definitivo alla magia del cinema, alla memoria e alla nostalgia dolce.",
+                synopsis: "L'amicizia tra il piccolo Totò e il proiezionista Alfredo nel cinema parrocchiale di un paesino siciliano del dopoguerra.",
+                poster: "https://image.tmdb.org/t/p/w500/6yqA5X7s7330u0w29kF02j82vj9.jpg"
+            },
+            {
+                id: 'raiplay-2',
+                title: "Il Postino",
+                year: 1994,
+                duration: 108,
+                director: "Michael Radford & Massimo Troisi",
+                cast: "Massimo Troisi, Philippe Noiret, Maria Grazia Cucinotta",
+                platform: "raiplay",
+                link: "https://www.raiplay.it",
+                imdb: 7.7,
+                mymovies: 4.1,
+                mood: "cuore",
+                why: "L'opera testamentaria di Massimo Troisi: poesia, mare, timidezza e una delicatezza senza eguali.",
+                synopsis: "In un'isola del Sud Italia, il postino Mario stringe un legame sincero con il poeta cileno Pablo Neruda in esilio.",
+                poster: "https://image.tmdb.org/t/p/w500/bL3B9k6gN3mZ6179o2k90t283j.jpg"
+            },
+            {
+                id: 'raiplay-3',
+                title: "La vita è bella",
+                year: 1997,
+                duration: 116,
+                director: "Roberto Benigni",
+                cast: "Roberto Benigni, Nicoletta Braschi, Giorgio Cantarini",
+                platform: "raiplay",
+                link: "https://www.raiplay.it",
+                imdb: 8.6,
+                mymovies: 4.5,
+                mood: "cuore",
+                why: "Roberto Benigni al suo vertice: commuove, fa sorridere e tocca le corde più nobili dell'amore paterno.",
+                synopsis: "Un padre protegge il figlio dagli orrori del campo di concentramento trasformando la prigionia in un grande gioco.",
+                poster: "https://image.tmdb.org/t/p/w500/74hLDKjD5aGYOotO6esUVaeISa2.jpg"
+            },
+            {
+                id: 'raiplay-4',
+                title: "Ricomincio da tre",
+                year: 1981,
+                duration: 107,
+                director: "Massimo Troisi",
+                cast: "Massimo Troisi, Fiorenza Marchegiani, Lello Arena",
+                platform: "raiplay",
+                link: "https://www.raiplay.it",
+                imdb: 7.6,
+                mymovies: 4.0,
+                mood: "cuore",
+                why: "Il debutto folgorante di Troisi: dialoghi indimenticabili, comicità mai demenziale ma di fine intelligenza.",
+                synopsis: "Gaetano lascia la provincia di San Giorgio a Cremano per cercare fortuna e nuove prospettive a Firenze.",
+                poster: "https://image.tmdb.org/t/p/w500/y1m3o9M9p4r5t8k0l22k04j2v.jpg"
+            },
+            {
+                id: 'raiplay-5',
+                title: "Non ci resta che piangere",
+                year: 1984,
+                duration: 111,
+                director: "Massimo Troisi & Roberto Benigni",
+                cast: "Massimo Troisi, Roberto Benigni, Amanda Sandrelli",
+                platform: "raiplay",
+                link: "https://www.raiplay.it",
+                imdb: 7.8,
+                mymovies: 4.0,
+                mood: "cuore",
+                why: "La coppia dei tuoi sogni: Troisi e Benigni insieme, chimica irripetibile e battute entrate nella storia.",
+                synopsis: "Un maestro elementare e un bidello si ritrovano catapultati per magia nel 1492, decisi a fermare Cristoforo Colombo.",
+                poster: "https://image.tmdb.org/t/p/w500/w0w2v8M7m2k0j0k20o90j92k3.jpg"
+            },
+            {
+                id: 'raiplay-6',
+                title: "La migliore offerta",
+                year: 2013,
+                duration: 124,
+                director: "Giuseppe Tornatore",
+                cast: "Geoffrey Rush, Jim Sturgess, Sylvia Hoeks, Donald Sutherland",
+                platform: "raiplay",
+                link: "https://www.raiplay.it",
+                imdb: 7.8,
+                mymovies: 3.7,
+                mood: "mente",
+                why: "Tornatore in una veste thriller d'alta classe con musica di Morricone: inganno, arte e mistero.",
+                synopsis: "Un eccentrico battitore d'aste viene ingaggiato da una misteriosa ereditiera agorafobica per valutare la villa di famiglia.",
+                poster: "https://image.tmdb.org/t/p/w500/uF8yZ6u6V1r0w9k29o20k92v3.jpg"
+            },
+            {
+                id: 'raiplay-7',
+                title: "Ennio",
+                year: 2021,
+                duration: 156,
+                director: "Giuseppe Tornatore",
+                cast: "Ennio Morricone, Clint Eastwood, Quentin Tarantino",
+                platform: "raiplay",
+                link: "https://www.raiplay.it",
+                imdb: 8.2,
+                mymovies: 4.4,
+                mood: "epica",
+                why: "Tornatore celebra il genio di Morricone: un viaggio emozionante nel cinema di Sergio Leone e dei più grandi maestri.",
+                synopsis: "Il ritratto intimo e completo del musicista più amato e celebrato della storia del cinema.",
+                poster: "https://image.tmdb.org/t/p/w500/e33i7t0k90m9j2k0j92k3o0k9.jpg"
+            },
+
+            // Netflix
+            {
+                id: 'netflix-1',
+                title: "È stata la mano di Dio",
+                year: 2021,
+                duration: 130,
+                director: "Paolo Sorrentino",
+                cast: "Filippo Scotti, Toni Servillo, Teresa Saponangelo",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 7.3,
+                mymovies: 3.9,
+                mood: "cuore",
+                why: "Sorrentino al suo film più sincero ed emozionante: Napoli, famiglia, destino e nascita di una vocazione.",
+                synopsis: "Nella Napoli degli anni Ottanta, il giovane Fabietto Schisa cresce tra passioni familiari e l'arrivo epocale di Maradona.",
+                poster: "https://image.tmdb.org/t/p/w500/y6P0zB9i1r1k1j2k0l92k3o0j.jpg"
+            },
+            {
+                id: 'netflix-2',
+                title: "The Wolf of Wall Street",
+                year: 2013,
+                duration: 180,
+                director: "Martin Scorsese",
+                cast: "Leonardo DiCaprio, Jonah Hill, Margot Robbie",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 8.2,
+                mymovies: 4.0,
+                mood: "mente",
+                why: "Uno dei tuoi preferiti dichiarati: DiCaprio in uno stato di grazia travolgente, ritmo indiavolato e satira feroce.",
+                synopsis: "L'ascesa e la caduta del broker Jordan Belfort tra eccessi, finanza spregiudicata e la caccia dell'FBI.",
+                poster: "https://image.tmdb.org/t/p/w500/34m2uv3677x5R75H47wK77l6J4k.jpg"
+            },
+            {
+                id: 'netflix-3',
+                title: "La città incantata",
+                year: 2001,
+                duration: 125,
+                director: "Hayao Miyazaki",
+                cast: "Rumi Hiiragi, Miyu Irino (Studio Ghibli)",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 8.6,
+                mymovies: 4.6,
+                mood: "meraviglia",
+                why: "Il capolavoro di Miyazaki: pura meraviglia visiva, profondità filosofica, immaginazione senza confini.",
+                synopsis: "La piccola Chihiro deve salvare i genitori trasformati in maiali lavorando nelle terme degli spiriti della strega Yubaba.",
+                poster: "https://image.tmdb.org/t/p/w500/3939uqIpLd408P2p0m9j2k0j92.jpg"
+            },
+            {
+                id: 'netflix-4',
+                title: "Il castello errante di Howl",
+                year: 2004,
+                duration: 119,
+                director: "Hayao Miyazaki",
+                cast: "Chieko Baisho, Takuya Kimura (Studio Ghibli)",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 8.2,
+                mymovies: 4.3,
+                mood: "meraviglia",
+                why: "Miyazaki al massimo splendore romantico e visionario: castelli semoventi, magie e riflessione pacifista.",
+                synopsis: "Trasformata in una novantenne da una maledizione, la giovane Sophie trova rifugio nel castello del mago Howl.",
+                poster: "https://image.tmdb.org/t/p/w500/67210x9M8l20k92j0k92k3o0j.jpg"
+            },
+            {
+                id: 'netflix-5',
+                title: "Il ragazzo e l'airone",
+                year: 2023,
+                duration: 124,
+                director: "Hayao Miyazaki",
+                cast: "Soma Santoki, Masaki Suda (Studio Ghibli)",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 7.5,
+                mymovies: 4.2,
+                mood: "meraviglia",
+                why: "L'ultimo trionfo da Oscar di Miyazaki: un testamento spirituale di rara bellezza ed eleganza compositiva.",
+                synopsis: "Dopo la perdita della madre durante la guerra, Mahito entra in una misteriosa torre guidato da un airone cenerino parlante.",
+                poster: "https://image.tmdb.org/t/p/w500/9871029k20m9j2k0j92k3o0j1.jpg"
+            },
+            {
+                id: 'netflix-6',
+                title: "Oppenheimer",
+                year: 2023,
+                duration: 180,
+                director: "Christopher Nolan",
+                cast: "Cillian Murphy, Emily Blunt, Matt Damon, Robert Downey Jr.",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 8.8,
+                mymovies: 4.1,
+                mood: "mente",
+                why: "Nolan ai massimi livelli storici con un formidabile Matt Damon nel ruolo del generale Groves: montaggio e tensione magistrali.",
+                synopsis: "La complessa parabola scientifica, politica e morale di J. Robert Oppenheimer alla guida del Progetto Manhattan.",
+                poster: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg"
+            },
+
+            // Disney+
+            {
+                id: 'disney-1',
+                title: "Hugo Cabret",
+                year: 2011,
+                duration: 126,
+                director: "Martin Scorsese",
+                cast: "Asa Butterfield, Ben Kingsley, Chloë Grace Moretz",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 7.5,
+                mymovies: 4.0,
+                mood: "meraviglia",
+                why: "Tra i tuoi capisaldi: una lettera d'amore al cinema delle origini di Georges Méliès, visivamente incantevole.",
+                synopsis: "Un orfano che vive nascosto nell'orologio della stazione di Parigi tenta di riparare un automa lasciatogli dal padre.",
+                poster: "https://image.tmdb.org/t/p/w500/p410k92j0k92k3o0j2k0j92k3.jpg"
+            },
+            {
+                id: 'disney-2',
+                title: "Vita di Pi",
+                year: 2012,
+                duration: 127,
+                director: "Ang Lee",
+                cast: "Suraj Sharma, Irrfan Khan, Tabu",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 7.9,
+                mymovies: 4.1,
+                mood: "anima",
+                why: "Uno dei tuoi titoli indicati: spiritualità, sopravvivenza, fede e una tigre del Bengala in mare aperto.",
+                synopsis: "Sopravvissuto a un naufragio, il giovane Pi Patel condivide una scialuppa di salvataggio per 227 giorni con una tigre reale.",
+                poster: "https://image.tmdb.org/t/p/w500/m8761029k20m9j2k0j92k3o0j.jpg"
+            },
+            {
+                id: 'disney-3',
+                title: "Il signore degli anelli: La compagnia dell'anello",
+                year: 2001,
+                duration: 178,
+                director: "Peter Jackson",
+                cast: "Elijah Wood, Ian McKellen, Viggo Mortensen",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 8.8,
+                mymovies: 4.5,
+                mood: "epica",
+                why: "Il fantasy epico definitivo: maestosità, fratellanza, viaggio epocale e regia senza tempo.",
+                synopsis: "Un timido hobbit riceve in custodia un anello fatale e intraprende una missione epica per distruggerlo sul Monte Fato.",
+                poster: "https://image.tmdb.org/t/p/w500/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg"
+            },
+            {
+                id: 'disney-4',
+                title: "Ford v Ferrari - Le Mans '66",
+                year: 2019,
+                duration: 152,
+                director: "James Mangold",
+                cast: "Matt Damon, Christian Bale, Jon Bernthal",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 8.1,
+                mymovies: 3.8,
+                mood: "mente",
+                why: "Matt Damon in stato di grazia: ingegno ingegneristico, amicizia autentica e ritmo cinematografico travolgente.",
+                synopsis: "Il progettista Carroll Shelby e il pilota Ken Miles sfidano la Ferrari alla leggendaria 24 Ore di Le Mans del 1966.",
+                poster: "https://image.tmdb.org/t/p/w500/6ApOp00c3D7q3S73k0j0k20o9.jpg"
+            },
+            {
+                id: 'disney-5',
+                title: "Il ponte delle spie",
+                year: 2015,
+                duration: 141,
+                director: "Steven Spielberg",
+                cast: "Tom Hanks, Mark Rylance, Amy Ryan",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 7.6,
+                mymovies: 3.8,
+                mood: "epica",
+                why: "La maestria artigianale e classica di Spielberg: eleganza, valori morali solidi e tensione da Guerra Fredda.",
+                synopsis: "Un avvocato assicurativo di New York viene incaricato di negoziare lo scambio tra una spia sovietica e un pilota americano.",
+                poster: "https://image.tmdb.org/t/p/w500/5501928k20m9j2k0j92k3o0j.jpg"
+            },
+
+            // Nuovi Aggiunti: Festival, Autore, Fandango, Moretti, La La Land
+            {
+                id: 'netflix-lalaland',
+                title: "La La Land",
+                year: 2016,
+                duration: 128,
+                director: "Damien Chazelle",
+                cast: "Ryan Gosling, Emma Stone, John Legend",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 8.0,
+                mymovies: 4.1,
+                mood: "cuore",
+                why: "L'eccezione d'autore assoluta: 6 Premi Oscar, aperto a Venezia, amore per il grande cinema, melodia e malinconia pura.",
+                synopsis: "Un pianista jazz e un'aspirante attrice si innamorano a Los Angeles inseguendo i loro sogni artistici.",
+                poster: "https://image.tmdb.org/t/p/w500/uDO8zWDhfWwoFdKS4fzkVJt0Rf0.jpg"
+            },
+            {
+                id: 'raiplay-moretti-stanza',
+                title: "La stanza del figlio",
+                year: 2001,
+                duration: 99,
+                director: "Nanni Moretti",
+                cast: "Nanni Moretti, Laura Morante, Silvio Orlando, Jasmine Trinca",
+                platform: "raiplay",
+                link: "https://www.raiplay.it",
+                imdb: 7.3,
+                mymovies: 4.0,
+                mood: "autore",
+                why: "Palma d'Oro a Cannes e produzione Fandango: il capolavoro umano di Nanni Moretti, struggente, sobrio e mai ricattatorio.",
+                synopsis: "La vita serena di uno psicanalista di Ancona viene sconvolta dall'improvvisa perdita del figlio diciassettenne.",
+                poster: "https://image.tmdb.org/t/p/w500/z6lK9wK80l92k3o0j2k0j92k3.jpg"
+            },
+            {
+                id: 'raiplay-moretti-diario',
+                title: "Caro diario",
+                year: 1993,
+                duration: 100,
+                director: "Nanni Moretti",
+                cast: "Nanni Moretti, Renato Carpentieri, Jennifer Beals",
+                platform: "raiplay",
+                link: "https://www.raiplay.it",
+                imdb: 7.2,
+                mymovies: 3.9,
+                mood: "autore",
+                why: "Premio per la Miglior Regia a Cannes: Nanni Moretti sulla Vespa per le strade estive di Roma, tra cinema, isole e autoironia.",
+                synopsis: "In tre capitoli (In vespa, Le isole, Medici), Moretti racconta le sue passioni, i suoi tic e la sua personale odissea sanitaria.",
+                poster: "https://image.tmdb.org/t/p/w500/c72019k02m9j2k0j92k3o0j.jpg"
+            },
+            {
+                id: 'prime-sorrentino-conseguenze',
+                title: "Le conseguenze dell'amore",
+                year: 2004,
+                duration: 100,
+                director: "Paolo Sorrentino",
+                cast: "Toni Servillo, Olivia Magnani, Adriano Giannini",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 7.5,
+                mymovies: 4.1,
+                mood: "autore",
+                why: "Prodotto da Fandango e rivelazione al Festival di Cannes: regia geometrica di Sorrentino e un Toni Servillo magistrale.",
+                synopsis: "Titta Di Girolamo vive da dieci anni in una camera d'albergo in Svizzera, prigioniero di una routine rigida e di un segreto pericoloso.",
+                poster: "https://image.tmdb.org/t/p/w500/872019k02m9j2k0j92k3o0j.jpg"
+            },
+            {
+                id: 'disney-tre-manifesti',
+                title: "Tre manifesti a Ebbing, Missouri",
+                year: 2017,
+                duration: 115,
+                director: "Martin McDonagh",
+                cast: "Frances McDormand, Woody Harrelson, Sam Rockwell",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 8.1,
+                mymovies: 4.1,
+                mood: "autore",
+                why: "Trionfo alla Mostra di Venezia e 2 Premi Oscar: scrittura straordinaria, ritmo tagliente, dolore e redenzione umana.",
+                synopsis: "Dopo sette mesi dall'omicidio e dallo stupro della figlia Angela senza che la polizia locale abbia trovato colpevoli, Mildred Hayes decide di scuotere la comunità: affitta tre giganteschi cartelloni pubblicitari all'ingresso del paese con scritte accusatorie dirette allo stimato sceriffo Willoughby. Il gesto scatena una reazione a catena di rabbia, conflitti e inaspettata empatia, affrontando il dolore senza retorica e con dialoghi memorabili.",
+                poster: "https://image.tmdb.org/t/p/w500/22cLMYk02m9j2k0j92k3o0j.jpg"
+            },
+            {
+                id: 'prime-parasite',
+                title: "Parasite",
+                year: 2019,
+                duration: 132,
+                director: "Bong Joon-ho",
+                cast: "Song Kang-ho, Lee Sun-kyun, Cho Yeo-jeong, Choi Woo-shik, Park So-dam",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 8.5,
+                mymovies: 4.4,
+                mood: "mente",
+                why: "Palma d'Oro a Cannes e 4 Premi Oscar storici: ritmo millimetrico, tensione continua, ingegno e zero tempi morti.",
+                synopsis: "La famiglia Kim vive in uno squallido seminterrato a Seul sbarcando il lunario con lavoretti precari. Quando il figlio maggiore riesce a farsi assumere come tutor d'inglese per la figlia dei ricchissimi Park, architetta un piano geniale per far assumere l'intera famiglia (sorella, padre e madre) sostituendo il personale di servizio all'insaputa dei padroni. Quella che sembra una commedia brillante e una truffa perfetta si trasforma gradualmente in un thriller tesissimo, imprevedibile e travolgente, con un ritmo serratissimo fino all'ultimo secondo.",
+                poster: "https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg"
+            },
+            {
+                id: 'disney-nomadland',
+                title: "Nomadland",
+                year: 2020,
+                duration: 107,
+                director: "Chloé Zhao",
+                cast: "Frances McDormand, David Strathairn, Linda May",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 7.3,
+                mymovies: 3.8,
+                mood: "anima",
+                why: "Leone d'Oro a Venezia e 3 Premi Oscar (Miglior Film e Regia): poesia visiva, libertà interiore e viaggio nell'Ovest americano.",
+                synopsis: "Dopo la morte del marito e il collasso economico della cittadina mineraria di Empire nel Nevada, la sessantenne Fern decide di caricare le poche cose rimaste su un furgone attrezzato e mettersi in viaggio lungo l'Ovest americano. Vivendo da moderna nomade, svolgendo lavori stagionali e incontrando una comunità solidale di persone fuori dagli schemi convenzionali, Fern compie un viaggio intimo di rinascita, lutto e sconfinata libertà interiore.",
+                poster: "https://image.tmdb.org/t/p/w500/66A9MqX20k92j0k92k3o0j.jpg"
+            },
+            {
+                id: 'netflix-moretti-avvenire',
+                title: "Il sol dell'avvenire",
+                year: 2023,
+                duration: 95,
+                director: "Nanni Moretti",
+                cast: "Nanni Moretti, Margherita Buy, Silvio Orlando, Barbora Bobulova",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 6.8,
+                mymovies: 3.7,
+                mood: "autore",
+                why: "Produzione Fandango presentata a Cannes: Nanni Moretti si interroga sul futuro del cinema con ironia, musica e calore.",
+                synopsis: "Un regista sta girando un film ambientato nel 1956 tra Roma e il circo ungherese, mentre la sua vita familiare attraversa una crisi.",
+                poster: "https://image.tmdb.org/t/p/w500/5501928k20m9j2k0j92k3o0j2.jpg"
+            },
+            {
+                id: 'raiplay-piccole-cose',
+                title: "Piccole cose come queste",
+                year: 2024,
+                duration: 96,
+                director: "Tim Mielants",
+                cast: "Cillian Murphy, Emily Watson, Eileen Walsh",
+                platform: "raiplay",
+                link: "https://www.raiplay.it/programmi/piccolecosecomequeste",
+                imdb: 7.2,
+                mymovies: 3.4,
+                mood: "novita",
+                why: "Film d'apertura al Festival di Berlino (Orso d'Argento): un maestoso Cillian Murphy in un dramma morale profondo e toccante, stile Le ali della libertà.",
+                synopsis: "Nell'Irlanda del 1985, un commerciante di carbone scopre i segreti oscuri custoditi dal convento locale, trovandosi davanti a una scelta di coscienza.",
+                poster: "https://image.tmdb.org/t/p/w500/b34m2uv3677x5R75H47wK77l6J4k.jpg"
+            },
+            {
+                id: 'raiplay-figli-dopo',
+                title: "E i figli dopo di loro",
+                year: 2024,
+                duration: 146,
+                director: "Ludovic Boukherma, Zoran Boukherma",
+                cast: "Paul Kircher, Angelina Woreth, Sayyid El Alami",
+                platform: "raiplay",
+                link: "https://www.raiplay.it/programmi/eifiglidopodiloro",
+                imdb: 7.0,
+                mymovies: 3.4,
+                mood: "novita",
+                why: "In concorso alla Mostra di Venezia (Premio Marcello Mastroianni): grande affresco generazionale dal romanzo premio Goncourt, regia energica e appassionante.",
+                synopsis: "Nella provincia industriale francese degli anni '90, un gruppo di adolescenti vive amori, ribellioni e sogni di fuga in quattro estati decisive.",
+                poster: "https://image.tmdb.org/t/p/w500/y6P0zB9i1r1k1j2k0l92k3o0j.jpg"
+            },
+            {
+                id: 'raiplay-margini',
+                title: "Margini",
+                year: 2022,
+                duration: 91,
+                director: "Niccolò Falsetti",
+                cast: "Francesco Turbanti, Emanuele Linfatti, Matteo Creatini, Silvia D'Amico",
+                platform: "raiplay",
+                link: "https://www.raiplay.it/programmi/margini",
+                imdb: 7.0,
+                mymovies: 3.4,
+                mood: "novita",
+                why: "Premio del Pubblico alla Mostra di Venezia (Settimana della Critica) e candidato David di Donatello: commedia brillante, autentica e lontana dai cliché demenziali.",
+                synopsis: "Tre giovani musicisti di Grosseto cercano di organizzare il concerto di una famosa band punk americana, scontrandosi con la burocrazia e l'apatia della provincia.",
+                poster: "https://image.tmdb.org/t/p/w500/3939uqIpLd408P2p0m9j2k0j92.jpg"
+            },
+
+            {
+                id: 'prime-i-guerrieri',
+                title: "I guerrieri (Kelly's Heroes)",
+                year: 1970,
+                duration: 144,
+                director: "Brian G. Hutton",
+                cast: "Clint Eastwood, Telly Savalas, Donald Sutherland, Don Rickles",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 7.6,
+                mymovies: 3.5,
+                mood: "epica",
+                rentalOnly: true,
+                why: "Il cult con Clint Eastwood che avevi iniziato: avventura, colpo grosso dietro le linee nemiche, umorismo cinico e grandissimo ritmo.",
+                synopsis: "Durante la Seconda Guerra Mondiale, un soldato americano scopre che in una banca dietro le linee tedesche sono custoditi milioni in lingotti d'oro e organizza un blitz.",
+                poster: "https://image.tmdb.org/t/p/w500/i0enk5i0U08B4u3S3vV1kO0Lz2j.jpg"
+            },
+            {
+                id: 'netflix-societa-neve',
+                title: "La società della neve",
+                year: 2023,
+                duration: 144,
+                director: "J.A. Bayona",
+                cast: "Enzo Vogrincic, Agustín Pardella, Matías Recalt",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 7.8,
+                mymovies: 3.9,
+                mood: "novita",
+                why: "Film di chiusura alla Mostra di Venezia e 2 nomination Oscar: regia monumentale, commozione autentica e grandissimo inno alla fratellanza umana.",
+                synopsis: "Nel 1972, una squadra di rugby uruguaiana precipita sulle Ande: i superstiti affrontano condizioni estreme fidandosi unicamente l'uno dell'altro.",
+                poster: "https://image.tmdb.org/t/p/w500/9871029k20m9j2k0j92k3o0j1.jpg"
+            },
+            {
+                id: 'prime-past-lives',
+                title: "Past Lives",
+                year: 2023,
+                duration: 105,
+                director: "Celine Song",
+                cast: "Greta Lee, Teo Yoo, John Magaro",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 7.8,
+                mymovies: 3.8,
+                mood: "novita",
+                why: "2 nomination Oscar e acclamato a Berlino: opera prima sublime sul destino, l'anima, i bivi della vita e gli amori che attraversano il tempo.",
+                synopsis: "Nora e Hae Sung, amici d'infanzia a Seul, si separano quando la famiglia di lei emigra. Vent'anni dopo si ritrovano per una settimana a New York.",
+                poster: "https://image.tmdb.org/t/p/w500/tLz8W8sC6jXQpX00oR93Kk0l72W.jpg"
+            },
+            {
+                id: 'prime-anatomia-caduta',
+                title: "Anatomia di una caduta",
+                year: 2023,
+                duration: 151,
+                director: "Justine Triet",
+                cast: "Sandra Hüller, Swann Arlaud, Milo Machado-Graner",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 7.7,
+                mymovies: 3.9,
+                mood: "novita",
+                why: "Palma d'Oro a Cannes e Premio Oscar per la miglior sceneggiatura: thriller giudiziario e scandaglio chirurgico della coppia con una Sandra Hüller magnetica.",
+                synopsis: "Una scrittrice tedesca viene accusata dell'omicidio del marito, precipitato dallo chalet di montagna in cui vivevano con il figlio ipovedente.",
+                poster: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg"
+            },
+            {
+                id: 'la7-spotlight',
+                title: "Il caso Spotlight",
+                year: 2015,
+                duration: 129,
+                director: "Tom McCarthy",
+                cast: "Mark Ruffalo, Michael Keaton, Rachel McAdams, Stanley Tucci",
+                platform: "la7",
+                link: "https://www.la7.it",
+                imdb: 8.1,
+                mymovies: 4.1,
+                mood: "mente",
+                why: "Premio Oscar per il Miglior Film e grande cinema d'inchiesta civile (in pieno stile La7): ritmo incalzante, tensione morale e cast formidabile.",
+                synopsis: "La squadra di giornalisti investigativi del Boston Globe scoperchia un silenzio decennale su abusi all'interno dell'arcidiocesi di Boston.",
+                poster: "https://image.tmdb.org/t/p/w500/bABCBKYBK7A7GZ0t4OehgWap8Za.jpg"
+            },
+            {
+                id: 'discovery-navalny',
+                title: "Navalny",
+                year: 2022,
+                duration: 98,
+                director: "Daniel Roher",
+                cast: "Alexei Navalny, Yulia Navalnaya, Christo Grozev",
+                platform: "discovery",
+                link: "https://www.discoveryplus.com",
+                imdb: 7.7,
+                mymovies: 3.8,
+                mood: "novita",
+                why: "Premio Oscar per il Miglior Documentario: ritmo da thriller mozzafiato, indagine investigativa e coraggio civile impressionante.",
+                synopsis: "L'indagine in tempo reale sull'avvelenamento del leader dell'opposizione russa Alexei Navalny e il complotto per metterlo a tacere.",
+                poster: "https://image.tmdb.org/t/p/w500/mXp7pC7iLgT23S35h1fR03J39bF.jpg"
+            },
+            {
+                id: 'prime-air',
+                title: "Air - La storia del grande salto",
+                year: 2023,
+                duration: 112,
+                director: "Ben Affleck",
+                cast: "Matt Damon, Ben Affleck, Jason Bateman, Viola Davis",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 7.4,
+                mymovies: 3.6,
+                mood: "motivazionali",
+                why: "Il tuo attore feticcio Matt Damon in una cavalcata elettrizzante di riscatto, tenacia e visione: dialoghi brillanti, ritmo incalzante e pura motivazione.",
+                synopsis: "Nel 1984 il manager Sonny Vaccaro punta tutto ciò che ha per convincere un giovane esordiente di nome Michael Jordan a legarsi alla divisione basket di Nike.",
+                poster: "https://image.tmdb.org/t/p/w500/76GDa99d0k2wz3c5v8gq7eLg6gT.jpg"
+            },
+            {
+                id: 'netflix-hustle',
+                title: "Hustle",
+                year: 2022,
+                duration: 117,
+                director: "Jeremiah Zagar",
+                cast: "Adam Sandler, Juancho Hernangómez, Queen Latifah, Robert Duvall",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 7.3,
+                mymovies: 3.5,
+                mood: "motivazionali",
+                why: "Puro spirito 'Rocky' applicato al basket: grande interpretazione di Adam Sandler, riscatto umano, etica ferrea del sacrificio e cuore enorme.",
+                synopsis: "Uno scout di pallacanestro in crisi scopre nei campetti di periferia di Madrid un talento grezzo e decide di scommettere tutto per portarlo in NBA.",
+                poster: "https://image.tmdb.org/t/p/w500/x26m8m2v8gq7eLg6gT0f2wz3c5v.jpg"
+            },
+            {
+                id: 'disney-titans',
+                title: "Il sapore della vittoria (Remember the Titans)",
+                year: 2000,
+                duration: 113,
+                director: "Boaz Yakin",
+                cast: "Denzel Washington, Will Patton, Ryan Gosling",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 7.8,
+                mymovies: 3.5,
+                mood: "motivazionali",
+                why: "Classico immortale del cinema di riscatto e coesione: un carismatico Denzel Washington guida una squadra oltre ogni pregiudizio verso la leggenda.",
+                synopsis: "Nel 1971 in Virginia, un coach afroamericano unisce ragazzi bianchi e neri in una squadra di football liceale, trasformando l'ostilità in fratellanza.",
+                poster: "https://image.tmdb.org/t/p/w500/y3m9k2wz3c5v8gq7eLg6gT0f2.jpg"
+            },
+            {
+                id: 'netflix-nyad',
+                title: "Nyad - Oltre l'oceano",
+                year: 2023,
+                duration: 121,
+                director: "Elizabeth Chai Vasarhelyi, Jimmy Chin",
+                cast: "Annette Bening, Jodie Foster, Rhys Ifans",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 7.1,
+                mymovies: 3.4,
+                mood: "motivazionali",
+                why: "2 nomination Oscar: inno straordinario alla resilienza in cui 'non è mai troppo tardi per compiere l'impossibile', con due attrici leggendarie.",
+                synopsis: "A 60 anni, Diana Nyad si prepara per l'impresa titanica della sua vita: nuotare in mare aperto per 177 km da Cuba alla Florida senza gabbia protettiva.",
+                poster: "https://image.tmdb.org/t/p/w500/Nyad2023PosterTmdb500x.jpg"
+            },
+            {
+                id: 'netflix-henry-sugar',
+                title: "La meravigliosa storia di Henry Sugar",
+                year: 2023,
+                duration: 37,
+                isShort: true,
+                director: "Wes Anderson",
+                cast: "Benedict Cumberbatch, Ralph Fiennes, Dev Patel, Ben Kingsley",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 7.4,
+                mymovies: 3.7,
+                mood: "corti",
+                why: "Premio Oscar 2024 Miglior Cortometraggio: 37 minuti di pura inventiva visiva di Wes Anderson da Roald Dahl con un cast stellare.",
+                synopsis: "Un ricco aristocratico scopre l'esistenza di un guru capace di vedere senza usare gli occhi e decide di carpirne il segreto per dominare al casinò.",
+                poster: "https://image.tmdb.org/t/p/w500/vQ507tX8zW03Vq8Yq7eLg6gT0f2.jpg"
+            },
+            {
+                id: 'netflix-if-anything',
+                title: "Se succede qualcosa, vi voglio bene",
+                year: 2020,
+                duration: 12,
+                isShort: true,
+                director: "Michael Govier, Will McCormack",
+                cast: "Animazione d'autore (Laura Dern prod.)",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 7.8,
+                mymovies: 3.9,
+                mood: "corti",
+                why: "Premio Oscar Miglior Corto Animato: soli 12 minuti di commozione e delicatezza straordinarie sull'amore e il ricordo che supera il lutto.",
+                synopsis: "Due genitori affrontano il silenzio e il vuoto della perdita, guidati dalle ombre dei ricordi felici con la loro amata bambina.",
+                poster: "https://image.tmdb.org/t/p/w500/9e0x5t2k9y1m0k1j2l3o4p5q6r.jpg"
+            },
+            {
+                id: 'disney-kitbull',
+                title: "Kitbull",
+                year: 2019,
+                duration: 9,
+                isShort: true,
+                director: "Rosana Sullivan",
+                cast: "Pixar SparkShorts",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 8.0,
+                mymovies: 4.0,
+                mood: "corti",
+                why: "Nomination al Premio Oscar: gioiello Pixar in animazione 2D tradizionale sulla nascita dell'amicizia e della fiducia tra un gattino randagio e un pitbull.",
+                synopsis: "Un fiero e diffidente gattino di strada si ritrova a condividere un cortile con un pitbull: la solitudine iniziale si trasforma in un legame protettivo e indissolubile.",
+                poster: "https://image.tmdb.org/t/p/w500/kItbUL918237498234710293.jpg"
+            },
+            {
+                id: 'disney-bao',
+                title: "Bao",
+                year: 2018,
+                duration: 8,
+                isShort: true,
+                director: "Domee Shi",
+                cast: "Pixar Animation Studios",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 7.5,
+                mymovies: 3.8,
+                mood: "corti",
+                why: "Premio Oscar Miglior Corto Animato Pixar: una parabola tenera, geniale e commovente sul legame genitoriale e l'accettazione della crescita dei figli.",
+                synopsis: "Una madre sola riceve un'inattesa seconda chance di maternità quando uno dei suoi ravioli fatti a mano prende miracolosamente vita.",
+                poster: "https://image.tmdb.org/t/p/w500/mDwd9h6v3qK9lZ1v1m2n3b4c5.jpg"
+            },
+            {
+                id: 'disney-piper',
+                title: "Piper",
+                year: 2016,
+                duration: 6,
+                isShort: true,
+                director: "Alan Barillaro",
+                cast: "Pixar Animation Studios",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 8.3,
+                mymovies: 4.1,
+                mood: "corti",
+                why: "Premio Oscar Miglior Corto Animato: virtuosismo tecnico prodigioso e poesia pura sul coraggio di superare le proprie paure.",
+                synopsis: "Un cucciolo di piovanello affamato impara ad affrontare le onde del mare per scoprire il meraviglioso mondo nascosto sotto la battigia.",
+                poster: "https://image.tmdb.org/t/p/w500/piPEr98127391827391823719.jpg"
+            }
+        ];
+
+        // State & LocalStorage
+        let activePlatforms = new Set(['netflix', 'prime', 'disney', 'raiplay', 'discovery', 'la7']);
+        let seenIds = new Set(JSON.parse(localStorage.getItem('cinestudio_seen') || '[]'));
+        let watchlistIds = new Set(JSON.parse(localStorage.getItem('cinestudio_watchlist') || '[]'));
+        let minImdb = parseFloat(localStorage.getItem('cinestudio_min_imdb') || '6.3');
+        let minMymovies = parseFloat(localStorage.getItem('cinestudio_min_mymovies') || '3.3');
+        let customDnaItems = JSON.parse(localStorage.getItem('cinestudio_custom_dna') || '[]');
+        let radarItems = JSON.parse(localStorage.getItem('cinestudio_radar_movies') || '[]');
+        const defaultRadar = [
+            {
+                id: 'prime-i-guerrieri',
+                title: "I guerrieri (Kelly's Heroes)",
+                year: 1970,
+                director: "Brian G. Hutton",
+                cast: "Clint Eastwood, Telly Savalas, Donald Sutherland",
+                imdb: 7.6,
+                mymovies: 3.5,
+                status: "Attualmente solo a noleggio (€ 3.99 su Prime/Apple)",
+                note: "In monitoraggio attivo: ti avviserò non appena diventerà disponibile gratis (RaiPlay) o incluso in abbonamento senza costi extra."
+            },
+            {
+                id: 'radar-whiplash',
+                title: "Whiplash",
+                year: 2014,
+                director: "Damien Chazelle (regista di La La Land)",
+                cast: "Miles Teller, J.K. Simmons, Paul Reiser",
+                imdb: 8.5,
+                mymovies: 4.2,
+                status: "Attualmente solo a noleggio/acquisto Store (Apple/Prime/Chili)",
+                note: "Capolavoro assoluto su ambizione e dedizione (3 Premi Oscar). Prototipo del mood 'Motivazionali': in monitoraggio attivo per l'arrivo in streaming flat senza costi extra."
+            },
+            {
+                id: 'radar-worth',
+                title: "Worth - Il patto",
+                year: 2021,
+                director: "Sara Colangelo",
+                cast: "Michael Keaton, Stanley Tucci, Amy Ryan",
+                imdb: 6.8,
+                mymovies: 3.4,
+                status: "Diritti streaming flat Netflix Italia attualmente scaduti",
+                note: "Dramma civile post 11 settembre. Spostato in Radar in attesa che rientri in catalogo flat o arrivi gratis su RaiPlay."
+            }
+        ];
+        defaultRadar.forEach(def => {
+            if (!radarItems.some(item => item.id === def.id || item.title.toLowerCase() === def.title.toLowerCase())) {
+                radarItems.push(def);
+            }
+        });
+        localStorage.setItem('cinestudio_radar_movies', JSON.stringify(radarItems));
+
+        function getAllMovies() {
+            const userCustom = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
+            return [...INITIAL_CATALOG, ...userCustom];
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('label-imdb-val').textContent = minImdb;
+            document.getElementById('label-mymovies-val').textContent = minMymovies;
+            document.getElementById('cfg-imdb-min').value = minImdb;
+            document.getElementById('cfg-mymovies-min').value = minMymovies;
+            updateWatchlistCount();
+            updateRadarCount();
+            renderCustomDnaTags();
+            generateRecommendations(false);
+            renderAllMatchingMovies();
+        });
+
+        function togglePlatform(plat) {
+            const btn = document.getElementById(`btn-plat-${plat}`);
+            if (activePlatforms.has(plat)) {
+                if (activePlatforms.size > 1) {
+                    activePlatforms.delete(plat);
+                    btn.classList.remove('active');
+                } else {
+                    alert("Mantieni almeno una piattaforma attiva!");
+                    return;
+                }
+            } else {
+                activePlatforms.add(plat);
+                btn.classList.add('active');
+            }
+            generateRecommendations(false);
+            renderAllMatchingMovies();
+        }
+
+        function getFilteredPool() {
+            const mood = document.getElementById('select-mood').value;
+            const maxDuration = parseInt(document.getElementById('select-duration').value, 10);
+
+            return getAllMovies().filter(movie => {
+                // Escludi film a noleggio a pagamento (Regola Zero Noleggi)
+                if (movie.rentalOnly) return false;
+
+                // Piattaforma attiva
+                if (!activePlatforms.has(movie.platform)) return false;
+
+                // Escludi già visti
+                if (seenIds.has(movie.id)) return false;
+
+                // Guardrail: Voto IMDb >= soglia OPPURE MYmovies >= soglia
+                const passesImdb = (movie.imdb >= minImdb);
+                const passesMymovies = (movie.mymovies >= minMymovies);
+                if (!passesImdb && !passesMymovies) return false;
+
+                // Filtro Durata
+                if (maxDuration > 0) {
+                    if (maxDuration === 40) {
+                        // Solo cortometraggi
+                        if (movie.duration > 40 && !movie.isShort) return false;
+                    } else if (maxDuration === 180) {
+                        // Kolossal: oltre 2 ore (> 120 min)
+                        if (movie.duration <= 120) return false;
+                    } else {
+                        // Film serale (≤ 1h45m o ≤ 2h): escludi cortometraggi inferiori a 40 min a meno di selezione esplicita
+                        if (movie.duration > maxDuration) return false;
+                        if ((movie.duration <= 40 || movie.isShort) && mood !== 'corti') return false;
+                    }
+                }
+
+                // Filtro Mood
+                if (mood !== 'all') {
+                    if (mood === 'novita') {
+                        const isRecent = (movie.year >= 2022 || movie.mood === 'novita' || (Array.isArray(movie.mood) && movie.mood.includes('novita')));
+                        if (!isRecent) return false;
+                    } else if (mood === 'corti') {
+                        const isShort = (movie.isShort || movie.mood === 'corti' || (Array.isArray(movie.mood) && movie.mood.includes('corti')) || movie.duration <= 40);
+                        if (!isShort) return false;
+                    } else {
+                        const hasMood = (movie.mood === mood || (Array.isArray(movie.mood) && movie.mood.includes(mood)));
+                        if (!hasMood) return false;
+                    }
+                }
+
+                return true;
+            });
+        }
+
+        function generateRecommendations(showAnimation = true) {
+            const pool = getFilteredPool();
+            document.getElementById('filtered-pool-count').textContent = pool.length;
+
+            const grid = document.getElementById('cards-grid');
+            grid.innerHTML = '';
+
+            if (pool.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-3 text-center py-12 glass-panel rounded-2xl p-6 text-slate-400">
+                        <i class="fa-solid fa-film-slash text-3xl mb-3 text-slate-500"></i>
+                        <h3 class="text-base font-bold text-white mb-1">Nessun film trovato con questi filtri</h3>
+                        <p class="text-xs">Prova ad allargare le piattaforme o rimuovere il limite di durata.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Shuffle pool and pick 3
+            const shuffled = [...pool].sort(() => 0.5 - Math.random());
+            const selected = shuffled.slice(0, 3);
+
+            selected.forEach((movie, index) => {
+                const card = document.createElement('div');
+                card.className = `w-[86vw] max-w-[340px] shrink-0 snap-center glass-panel rounded-2xl overflow-hidden border border-slate-700/80 flex flex-col justify-between hover:border-amber-500/50 transition duration-300 md:w-auto md:max-w-none ${showAnimation ? 'animate-fade-in' : ''}`;
+                card.style.animationDelay = `${index * 80}ms`;
+
+                const platformBadge = getPlatformBadge(movie.platform);
+                const isWatchlisted = watchlistIds.has(movie.id);
+
+                card.innerHTML = `
+                    <div>
+                        <!-- Header Card con Badge Piattaforma e Anno -->
+                        <div class="p-4 pb-2 flex items-center justify-between">
+                            ${platformBadge}
+                            <span class="text-xs text-slate-400 font-mono flex items-center gap-1.5">
+                                ${movie.isShort || movie.duration <= 40 ? '<span class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase"><i class="fa-solid fa-bolt"></i> Corto</span>' : ''}
+                                ${movie.mood === 'motivazionali' ? '<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase"><i class="fa-solid fa-fire"></i> Riscatto</span>' : ''}
+                                <span>${movie.year} &bull; ${formatDuration(movie.duration)}</span>
+                            </span>
+                        </div>
+
+                        <!-- Titolo e Regista -->
+                        <div class="px-4 py-2">
+                            <h3 onclick="openMovieDetailsModal('${movie.id}')" class="text-lg font-black text-white leading-tight mb-1 cursor-pointer hover:text-amber-300 transition flex items-center justify-between group" title="Clicca per leggere dettagli e trama completa">
+                                <span>${escapeHtml(movie.title)}</span>
+                                <i class="fa-solid fa-circle-info text-xs text-slate-500 group-hover:text-amber-400 transition ml-2"></i>
+                            </h3>
+                            <p class="text-xs text-slate-400"><i class="fa-solid fa-clapperboard text-slate-500 mr-1"></i> ${escapeHtml(movie.director)}</p>
+                            <p class="text-[11px] text-slate-400 truncate"><i class="fa-solid fa-user-group text-slate-500 mr-1"></i> ${escapeHtml(movie.cast)}</p>
+                        </div>
+
+                        <!-- Voti Guardrail (IMDb & MYmovies) -->
+                        <div class="px-4 py-2 flex items-center gap-3">
+                            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                                <span class="bg-[#f5c518] text-slate-950 font-black text-[10px] px-1 rounded font-mono">IMDb</span>
+                                <span class="text-amber-300 font-black text-xs">${movie.imdb.toFixed(1)}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30">
+                                <span class="text-rose-400 font-black text-[10px] uppercase font-mono">MYmovies</span>
+                                <span class="text-rose-300 font-black text-xs">${movie.mymovies.toFixed(1)} <i class="fa-solid fa-star text-[9px]"></i></span>
+                            </div>
+                        </div>
+
+                        <!-- Perché fa per te (Motivazione DNA) -->
+                        <div class="px-4 py-2 mt-1">
+                            <div class="p-2.5 rounded-xl bg-amber-500/5 border border-amber-500/20 text-xs">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400 block mb-0.5">
+                                    <i class="fa-solid fa-sparkles"></i> Perché è per te:
+                                </span>
+                                <p class="text-slate-300 leading-relaxed text-[11px]">${escapeHtml(movie.why)}</p>
+                            </div>
+                        </div>
+
+                        <!-- Sinossi -->
+                        <div class="px-4 py-2">
+                            <p onclick="openMovieDetailsModal('${movie.id}')" class="text-xs text-slate-400 leading-relaxed line-clamp-3 cursor-pointer hover:text-slate-200 transition" title="Clicca per leggere la trama completa">${escapeHtml(movie.synopsis)}</p>
+                        </div>
+                    </div>
+
+                    <!-- Footer Card: Azioni -->
+                    <div class="p-4 pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                        <a href="${movie.link}" target="_blank" rel="noopener noreferrer" class="flex-1 py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs text-center border border-slate-700 transition flex items-center justify-center gap-1.5 active:scale-95">
+                            <i class="fa-solid fa-play text-amber-400 text-[10px]"></i> Guarda Ora
+                        </a>
+                        <button onclick="openRemindModal('${movie.id}')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-sky-950 hover:text-sky-400 border border-slate-700 text-slate-300 transition text-xs cursor-pointer active:scale-95" title="Imposta Promemoria (WhatsApp / Google Calendar)">
+                            <i class="fa-solid fa-bell text-sky-400"></i>
+                        </button>
+                        <button onclick="toggleWatchlist('${movie.id}')" class="p-2.5 rounded-xl border ${isWatchlisted ? 'bg-amber-500 text-slate-950 border-amber-500' : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'} transition text-xs cursor-pointer active:scale-95" title="${isWatchlisted ? 'Rimuovi da Watchlist' : 'Aggiungi a Watchlist'}">
+                            <i class="fa-solid fa-bookmark"></i>
+                        </button>
+                        <button onclick="markAsSeen('${movie.id}')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-emerald-950 hover:text-emerald-400 border border-slate-700 text-slate-300 transition text-xs cursor-pointer active:scale-95" title="Segna come Già Visto">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function renderAllMatchingMovies() {
+            const pool = getFilteredPool();
+            const container = document.getElementById('all-movies-table');
+            document.getElementById('all-matching-count').textContent = pool.length;
+
+            container.innerHTML = pool.map(m => `
+                <div class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/50 flex items-start justify-between gap-2 text-xs transition group">
+                    <div class="flex-1 min-w-0 cursor-pointer" onclick="openMovieDetailsModal('${m.id}')" title="Clicca per leggere la trama e i dettagli di ${escapeHtml(m.title)}">
+                        <div class="flex items-center gap-1.5 mb-1 flex-wrap">
+                            ${getPlatformBadge(m.platform, true)}
+                            <span class="font-bold text-white group-hover:text-amber-300 transition text-[13px]">${escapeHtml(m.title)}</span>
+                            ${m.isShort || m.duration <= 40 ? '<span class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[9px] px-1.5 py-0.2 rounded font-bold uppercase">Corto</span>' : ''}
+                            ${m.mood === 'motivazionali' ? '<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[9px] px-1.5 py-0.2 rounded font-bold uppercase">Riscatto</span>' : ''}
+                            <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30 opacity-80 group-hover:opacity-100 flex items-center gap-1"><i class="fa-solid fa-book-open text-[9px]"></i> Trama & Dettagli</span>
+                        </div>
+                        <p class="text-slate-400 text-[11px] truncate"><i class="fa-solid fa-clapperboard text-slate-500 mr-1"></i>${escapeHtml(m.director)} &bull; ${m.year} &bull; ${formatDuration(m.duration)}</p>
+                        <div class="flex items-center gap-3 mt-1.5 font-mono text-[10px]">
+                            <span class="text-[#f5c518] font-bold">IMDb ${m.imdb.toFixed(1)}</span>
+                            <span class="text-rose-400 font-bold">MYmovies ${m.mymovies.toFixed(1)}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 pl-1">
+                        <button onclick="openRemindModal('${m.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:bg-sky-950 hover:text-sky-400 text-slate-400 transition cursor-pointer" title="Imposta Promemoria (WhatsApp / Calendar)">
+                            <i class="fa-solid fa-bell text-sky-400"></i>
+                        </button>
+                        <button onclick="toggleWatchlist('${m.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:text-amber-400 text-slate-400 transition cursor-pointer" title="Aggiungi / Rimuovi Watchlist">
+                            <i class="fa-solid fa-bookmark ${watchlistIds.has(m.id) ? 'text-amber-400' : ''}"></i>
+                        </button>
+                        <button onclick="markAsSeen('${m.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:bg-emerald-950 hover:text-emerald-400 text-slate-400 transition cursor-pointer" title="Segna come Già Visto">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getPlatformBadge(plat, mini = false) {
+            const size = mini ? 'text-[10px] px-1.5 py-0.5' : 'text-xs px-2.5 py-1';
+            switch (plat) {
+                case 'netflix': return `<span class="badge-netflix ${size} rounded-lg font-black uppercase flex items-center gap-1"><i class="fa-solid fa-n"></i> Netflix</span>`;
+                case 'prime': return `<span class="badge-prime ${size} rounded-lg font-black uppercase flex items-center gap-1"><i class="fa-brands fa-amazon"></i> Prime Video</span>`;
+                case 'disney': return `<span class="badge-disney ${size} rounded-lg font-black uppercase flex items-center gap-1"><i class="fa-solid fa-d"></i> Disney+</span>`;
+                case 'raiplay': return `<span class="badge-raiplay ${size} rounded-lg font-black uppercase flex items-center gap-1"><i class="fa-solid fa-play"></i> RaiPlay</span>`;
+                case 'discovery': return `<span class="badge-discovery ${size} rounded-lg font-black uppercase flex items-center gap-1"><i class="fa-solid fa-compass"></i> Discovery+</span>`;
+                case 'la7': return `<span class="badge-la7 ${size} rounded-lg font-black uppercase flex items-center gap-1"><i class="fa-solid fa-tower-broadcast"></i> La7</span>`;
+                default: return `<span class="bg-slate-700 text-white ${size} rounded-lg font-black uppercase">${plat}</span>`;
+            }
+        }
+
+        function formatDuration(mins) {
+            const h = Math.floor(mins / 60);
+            const m = mins % 60;
+            return h > 0 ? `${h}h ${m}m` : `${m}m`;
+        }
+
+        function markAsSeen(id) {
+            seenIds.add(id);
+            localStorage.setItem('cinestudio_seen', JSON.stringify(Array.from(seenIds)));
+            generateRecommendations(false);
+            renderAllMatchingMovies();
+        }
+
+        function unmarkSeen(id) {
+            seenIds.delete(id);
+            localStorage.setItem('cinestudio_seen', JSON.stringify(Array.from(seenIds)));
+            renderSeenItems();
+            generateRecommendations(false);
+            renderAllMatchingMovies();
+        }
+
+        function toggleWatchlist(id) {
+            if (watchlistIds.has(id)) {
+                watchlistIds.delete(id);
+            } else {
+                watchlistIds.add(id);
+            }
+            localStorage.setItem('cinestudio_watchlist', JSON.stringify(Array.from(watchlistIds)));
+            updateWatchlistCount();
+            generateRecommendations(false);
+        }
+
+        function updateWatchlistCount() {
+            const el = document.getElementById('watchlist-count');
+            const navEl = document.getElementById('nav-watchlist-count');
+            const count = watchlistIds.size;
+            if (count > 0) {
+                if (el) { el.textContent = count; el.classList.remove('hidden'); }
+                if (navEl) { navEl.textContent = count; navEl.classList.remove('hidden'); }
+            } else {
+                if (el) el.classList.add('hidden');
+                if (navEl) navEl.classList.add('hidden');
+            }
+        }
+
+        function toggleMobileFilterDrawer() {
+            const consoleEl = document.getElementById('main-filter-console');
+            const btnLabel = document.getElementById('mobile-filter-btn-label');
+            if (!consoleEl) return;
+            const isHidden = consoleEl.classList.contains('hidden');
+            if (isHidden) {
+                consoleEl.classList.remove('hidden');
+                if (btnLabel) btnLabel.textContent = 'Chiudi';
+                consoleEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                consoleEl.classList.add('hidden');
+                if (btnLabel) btnLabel.textContent = 'Filtri';
+            }
+        }
+
+        function scrollToCards() {
+            const target = document.getElementById('recommendations-container');
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function updateGuardrailSettings() {
+            minImdb = parseFloat(document.getElementById('cfg-imdb-min').value) || 6.3;
+            minMymovies = parseFloat(document.getElementById('cfg-mymovies-min').value) || 3.3;
+            localStorage.setItem('cinestudio_min_imdb', minImdb);
+            localStorage.setItem('cinestudio_min_mymovies', minMymovies);
+            document.getElementById('label-imdb-val').textContent = minImdb;
+            document.getElementById('label-mymovies-val').textContent = minMymovies;
+            generateRecommendations(false);
+            renderAllMatchingMovies();
+        }
+
+        // Modals & Details
+        function getPlatformName(plat) {
+            switch(plat) {
+                case 'netflix': return 'Netflix';
+                case 'prime': return 'Prime Video';
+                case 'disney': return 'Disney+';
+                case 'raiplay': return 'RaiPlay';
+                case 'discovery': return 'Discovery+';
+                case 'la7': return 'La7';
+                default: return plat;
+            }
+        }
+
+        function openMovieDetailsModal(id) {
+            const movie = getAllMovies().find(m => m.id === id);
+            if (!movie) return;
+
+            const modal = document.getElementById('modal-movie-details');
+            document.getElementById('detail-title').textContent = movie.title;
+            document.getElementById('detail-director').innerHTML = `<i class="fa-solid fa-clapperboard text-slate-500 mr-1"></i> Regia di <strong>${escapeHtml(movie.director)}</strong>`;
+            document.getElementById('detail-imdb').textContent = movie.imdb.toFixed(1);
+            document.getElementById('detail-mymovies').innerHTML = `${movie.mymovies.toFixed(1)} <i class="fa-solid fa-star text-[9px]"></i>`;
+            document.getElementById('detail-cast').textContent = movie.cast || 'Non specificato';
+            document.getElementById('detail-synopsis').textContent = movie.synopsis || 'Nessuna trama disponibile.';
+            document.getElementById('detail-why').textContent = movie.why || '';
+
+            // Badges
+            document.getElementById('detail-badges').innerHTML = `
+                ${getPlatformBadge(movie.platform)}
+                ${movie.isShort || movie.duration <= 40 ? '<span class="text-xs px-2 py-0.5 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-bold uppercase"><i class="fa-solid fa-bolt mr-1"></i>Cortometraggio</span>' : ''}
+                ${movie.mood === 'motivazionali' ? '<span class="text-xs px-2 py-0.5 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold uppercase"><i class="fa-solid fa-fire mr-1"></i>Motivazionale</span>' : ''}
+                <span class="text-xs px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 font-mono">${movie.year}</span>
+                <span class="text-xs px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 font-mono"><i class="fa-regular fa-clock mr-1 text-emerald-400"></i>${formatDuration(movie.duration)}</span>
+            `;
+
+            // Actions footer
+            const isWatchlisted = watchlistIds.has(movie.id);
+            const isSeen = seenIds.has(movie.id);
+
+            document.getElementById('detail-actions').innerHTML = `
+                <div class="flex items-center gap-2 flex-wrap w-full justify-between">
+                    <a href="${movie.link}" target="_blank" rel="noopener noreferrer" class="py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center gap-1.5 shadow-lg shadow-amber-500/20 cursor-pointer">
+                        <i class="fa-solid fa-play"></i> Guarda su ${getPlatformName(movie.platform)}
+                    </a>
+                    <a href="https://www.justwatch.com/it/cerca?q=${encodeURIComponent(movie.title)}" target="_blank" rel="noopener noreferrer" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-400 hover:text-sky-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer" title="Verifica in tempo reale su JustWatch se le licenze streaming sono cambiate">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> <span>Verifica Licenza Streaming</span>
+                    </a>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap pt-2 border-t border-slate-800/80 w-full">
+                    <button onclick="closeMovieDetailsModal(); openRemindModal('${movie.id}')" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-sky-950 hover:text-sky-400 border border-slate-700 text-slate-300 transition text-xs font-bold flex items-center gap-1.5 cursor-pointer" title="Promemoria WhatsApp / Calendar">
+                        <i class="fa-solid fa-bell text-sky-400"></i> <span>Promemoria</span>
+                    </button>
+                    <button onclick="toggleWatchlist('${movie.id}'); openMovieDetailsModal('${movie.id}')" class="py-2 px-3 rounded-xl border ${isWatchlisted ? 'bg-amber-500/20 text-amber-300 border-amber-500/50' : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'} transition text-xs font-bold flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-bookmark ${isWatchlisted ? 'text-amber-400' : ''}"></i>
+                        <span>${isWatchlisted ? 'In Watchlist' : '+ Watchlist'}</span>
+                    </button>
+                    <button onclick="markAsSeen('${movie.id}'); closeMovieDetailsModal()" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-emerald-950 hover:text-emerald-400 border border-slate-700 text-slate-300 transition text-xs font-bold flex items-center gap-1.5 cursor-pointer" title="Segna come Già Visto">
+                        <i class="fa-solid fa-check text-emerald-400"></i> <span>${isSeen ? 'Visto' : 'Già Visto'}</span>
+                    </button>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeMovieDetailsModal() {
+            document.getElementById('modal-movie-details').classList.add('hidden');
+        }
+
+        // Radar Film Cercati
+        function updateRadarCount() {
+            const el = document.getElementById('radar-count');
+            const navEl = document.getElementById('nav-radar-count');
+            const count = radarItems.length;
+            if (count > 0) {
+                if (el) { el.textContent = count; el.classList.remove('hidden'); }
+                if (navEl) { navEl.textContent = count; navEl.classList.remove('hidden'); }
+            } else {
+                if (el) el.classList.add('hidden');
+                if (navEl) navEl.classList.add('hidden');
+            }
+        }
+
+        function toggleRadarModal() {
+            const modal = document.getElementById('modal-radar');
+            if (modal.classList.contains('hidden')) {
+                renderRadarItems();
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function renderRadarItems() {
+            const container = document.getElementById('radar-items');
+            if (!container) return;
+            if (radarItems.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">Nessun film nel Radar. Aggiungi qui i titoli che cerchi per tenerli sotto controllo!</p>`;
+                return;
+            }
+            container.innerHTML = radarItems.map(item => `
+                <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 flex items-start justify-between gap-3 text-xs">
+                    <div class="space-y-1 flex-1">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-black uppercase flex items-center gap-1">
+                                <i class="fa-solid fa-tag"></i> ${escapeHtml(item.status || 'Solo a Noleggio')}
+                            </span>
+                            <h4 class="font-bold text-white text-[13px]">${escapeHtml(item.title)}</h4>
+                            <span class="text-slate-400 text-[11px]">(${item.year || 'Anno n.d.'})</span>
+                        </div>
+                        <p class="text-slate-400 text-[11px]"><i class="fa-solid fa-clapperboard text-slate-500 mr-1"></i>${escapeHtml(item.director || '')} &bull; ${escapeHtml(item.cast || '')}</p>
+                        <p class="text-sky-300 text-[11px] mt-1 bg-sky-950/40 border border-sky-900/40 p-2 rounded-lg leading-relaxed"><i class="fa-solid fa-satellite-dish mr-1 text-sky-400"></i> ${escapeHtml(item.note || 'In attesa che diventi disponibile gratuitamente o in abbonamento.')}</p>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button onclick="removeRadarItem('${item.id}')" class="p-2 rounded-xl bg-slate-800 hover:bg-rose-950 hover:text-rose-400 text-slate-400 border border-slate-700 transition cursor-pointer" title="Rimuovi dal Radar">
+                            <i class="fa-solid fa-trash text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            updateRadarCount();
+        }
+
+        function addRadarItem() {
+            const input = document.getElementById('input-new-radar-title');
+            const title = input.value.trim();
+            if (!title) return;
+
+            const newItem = {
+                id: 'radar-' + Date.now(),
+                title: title,
+                year: 'Cercato',
+                director: 'Segnalato da te',
+                cast: '',
+                status: 'In ricerca streaming free / incluso',
+                note: 'In attesa di disponibilità senza noleggio a pagamento.'
+            };
+
+            radarItems.unshift(newItem);
+            localStorage.setItem('cinestudio_radar_movies', JSON.stringify(radarItems));
+            input.value = '';
+            renderRadarItems();
+        }
+
+        function removeRadarItem(id) {
+            radarItems = radarItems.filter(item => item.id !== id);
+            localStorage.setItem('cinestudio_radar_movies', JSON.stringify(radarItems));
+            renderRadarItems();
+        }
+
+        function openDnaModal() { document.getElementById('modal-dna').classList.remove('hidden'); }
+        function closeDnaModal() { document.getElementById('modal-dna').classList.add('hidden'); }
+
+        function toggleWatchlistModal() {
+            const modal = document.getElementById('modal-watchlist');
+            if (modal.classList.contains('hidden')) {
+                renderWatchlistItems();
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function renderWatchlistItems() {
+            const container = document.getElementById('watchlist-items');
+            const items = getAllMovies().filter(m => watchlistIds.has(m.id));
+            if (items.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">Nessun film salvato in Watchlist.</p>`;
+                return;
+            }
+            container.innerHTML = items.map(m => `
+                <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs hover:border-amber-500/40 transition">
+                    <div class="cursor-pointer flex-1 mr-2" onclick="toggleWatchlistModal(); openMovieDetailsModal('${m.id}')" title="Clicca per visualizzare la scheda completa">
+                        <div class="flex items-center gap-2">
+                            ${getPlatformBadge(m.platform, true)}
+                            <h4 class="font-bold text-white hover:text-amber-300 transition">${escapeHtml(m.title)}</h4>
+                            <span class="text-slate-400 text-[11px]">(${m.year})</span>
+                        </div>
+                        <p class="text-slate-400 text-[11px] mt-0.5 line-clamp-1">${escapeHtml(m.why)}</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="openRemindModal('${m.id}')" class="px-2 py-1 rounded-lg bg-sky-950 hover:bg-sky-900 text-sky-300 border border-sky-800 font-bold text-[11px] flex items-center gap-1 cursor-pointer" title="Imposta Promemoria">
+                            <i class="fa-solid fa-bell"></i> Promemoria
+                        </button>
+                        <a href="${m.link}" target="_blank" class="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold text-[11px]">Guarda</a>
+                        <button onclick="toggleWatchlist('${m.id}'); renderWatchlistItems();" class="text-rose-400 hover:text-rose-300 p-1 cursor-pointer" title="Rimuovi"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleSeenModal() {
+            const modal = document.getElementById('modal-seen');
+            if (modal.classList.contains('hidden')) {
+                renderSeenItems();
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function renderSeenItems() {
+            const container = document.getElementById('seen-items');
+            const items = getAllMovies().filter(m => seenIds.has(m.id));
+            if (items.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">Nessun film segnato come già visto.</p>`;
+                return;
+            }
+            container.innerHTML = items.map(m => `
+                <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
+                    <div>
+                        <span class="font-bold text-white">${escapeHtml(m.title)}</span>
+                        <span class="text-slate-400 text-[11px]">(${m.year} &bull; ${escapeHtml(m.director)})</span>
+                    </div>
+                    <button onclick="unmarkSeen('${m.id}')" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:text-white text-[11px] cursor-pointer" title="Riporta tra i disponibili">
+                        Ripristina
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // ==========================================
+        // DNA CINEFILO PERSONALIZZATO (AGGIUNTE UTENTE)
+        // ==========================================
+        function renderCustomDnaTags() {
+            const container = document.getElementById('custom-dna-tags');
+            if (!container) return;
+            if (customDnaItems.length === 0) {
+                container.innerHTML = `<span class="text-[11px] text-slate-500 italic">Nessun elemento personalizzato ancora aggiunto. Inserisci sopra i tuoi registi o film preferiti!</span>`;
+                return;
+            }
+            container.innerHTML = customDnaItems.map((item, index) => `
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-950/60 text-purple-300 border border-purple-800/60 text-xs">
+                    <span>${escapeHtml(item)}</span>
+                    <button type="button" onclick="removeCustomDnaItem(${index})" class="hover:text-rose-400 cursor-pointer ml-0.5 text-[11px]">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </span>
+            `).join('');
+        }
+
+        function addCustomDnaItem() {
+            const input = document.getElementById('input-new-dna-item');
+            const val = input.value.trim();
+            if (!val) return;
+            if (!customDnaItems.includes(val)) {
+                customDnaItems.push(val);
+                localStorage.setItem('cinestudio_custom_dna', JSON.stringify(customDnaItems));
+                renderCustomDnaTags();
+            }
+            input.value = '';
+        }
+
+        function removeCustomDnaItem(idx) {
+            customDnaItems.splice(idx, 1);
+            localStorage.setItem('cinestudio_custom_dna', JSON.stringify(customDnaItems));
+            renderCustomDnaTags();
+        }
+
+        // ==========================================
+        // AGGIUNTA FILM PERSONALIZZATO AL CATALOGO
+        // ==========================================
+        function openAddMovieModal() {
+            document.getElementById('modal-add-movie').classList.remove('hidden');
+        }
+
+        function closeAddMovieModal() {
+            document.getElementById('modal-add-movie').classList.add('hidden');
+            document.getElementById('form-add-movie').reset();
+        }
+
+        function saveCustomMovie(e) {
+            e.preventDefault();
+            const title = document.getElementById('add-movie-title').value.trim();
+            if (!title) return;
+
+            const customMovies = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
+            const newMovie = {
+                id: 'custom-' + Date.now(),
+                title: title,
+                year: parseInt(document.getElementById('add-movie-year').value, 10) || 2020,
+                duration: parseInt(document.getElementById('add-movie-duration').value, 10) || 110,
+                director: document.getElementById('add-movie-director').value.trim() || 'Regista',
+                cast: document.getElementById('add-movie-cast').value.trim() || '',
+                platform: document.getElementById('add-movie-platform').value,
+                link: document.getElementById('add-movie-link').value.trim() || 'https://www.google.com/search?q=' + encodeURIComponent(title + ' film streaming'),
+                imdb: parseFloat(document.getElementById('add-movie-imdb').value) || 7.0,
+                mymovies: parseFloat(document.getElementById('add-movie-mymovies').value) || 3.5,
+                mood: document.getElementById('add-movie-mood').value,
+                why: document.getElementById('add-movie-why').value.trim() || 'Aggiunto manualmente alla tua collezione personale.',
+                synopsis: document.getElementById('add-movie-synopsis').value.trim() || 'Film inserito tra i tuoi preferiti.',
+                poster: 'https://via.placeholder.com/300x450/1e293b/f59e0b?text=' + encodeURIComponent(title)
+            };
+
+            customMovies.push(newMovie);
+            localStorage.setItem('cinestudio_user_movies', JSON.stringify(customMovies));
+
+            closeAddMovieModal();
+            generateRecommendations(false);
+            renderAllMatchingMovies();
+            alert(`"${newMovie.title}" è stato aggiunto con successo al catalogo!`);
+        }
+
+        // ==========================================
+        // PROMEMORIA / REMIND: WHATSAPP & GOOGLE CALENDAR
+        // ==========================================
+        let currentRemindMovie = null;
+        let currentRemindDate = new Date();
+
+        function openRemindModal(movieId) {
+            const movie = getAllMovies().find(m => m.id === movieId);
+            if (!movie) return;
+            currentRemindMovie = movie;
+
+            // Render preview
+            const preview = document.getElementById('remind-movie-preview');
+            preview.innerHTML = `
+                <div class="w-12 h-16 rounded-lg bg-slate-800 overflow-hidden flex-shrink-0 border border-slate-700">
+                    <img src="${movie.poster}" alt="${escapeHtml(movie.title)}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150x225?text=Cinema';">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1 flex-wrap">
+                        ${getPlatformBadge(movie.platform, true)}
+                        <h4 class="font-black text-white text-sm truncate">${escapeHtml(movie.title)}</h4>
+                        <span class="text-xs text-slate-400 font-mono">(${movie.year})</span>
+                    </div>
+                    <p class="text-xs text-slate-400"><i class="fa-solid fa-clapperboard text-slate-500 mr-1"></i> ${escapeHtml(movie.director)} &bull; ${formatDuration(movie.duration)}</p>
+                    <div class="flex items-center gap-3 mt-1 font-mono text-[11px]">
+                        <span class="text-[#f5c518] font-black">IMDb ${movie.imdb.toFixed(1)}</span>
+                        <span class="text-rose-400 font-black">MYmovies ${movie.mymovies.toFixed(1)}</span>
+                    </div>
+                </div>
+            `;
+
+            // Default: stasera alle 21:00 (o 21:30 se sono già passate le 20:30)
+            const now = new Date();
+            if (now.getHours() >= 21) {
+                setRemindPreset('tonight-2130');
+            } else {
+                setRemindPreset('tonight-2100');
+            }
+
+            document.getElementById('modal-remind').classList.remove('hidden');
+        }
+
+        function closeRemindModal() {
+            document.getElementById('modal-remind').classList.add('hidden');
+            currentRemindMovie = null;
+        }
+
+        function setRemindPreset(preset) {
+            let target = new Date();
+
+            document.querySelectorAll('.remind-preset-btn').forEach(btn => {
+                btn.classList.remove('border-amber-500', 'text-amber-300', 'bg-amber-500/10');
+                btn.classList.add('border-slate-700', 'text-slate-200', 'bg-slate-800');
+            });
+
+            const activeBtn = document.getElementById(`preset-${preset}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('border-slate-700', 'text-slate-200', 'bg-slate-800');
+                activeBtn.classList.add('border-amber-500', 'text-amber-300', 'bg-amber-500/10');
+            }
+
+            if (preset === 'tonight-2100') {
+                target.setHours(21, 0, 0, 0);
+            } else if (preset === 'tonight-2130') {
+                target.setHours(21, 30, 0, 0);
+            } else if (preset === 'tomorrow-2115') {
+                target.setDate(target.getDate() + 1);
+                target.setHours(21, 15, 0, 0);
+            }
+
+            currentRemindDate = target;
+
+            // Aggiorna l'input personalizzato
+            const pad = n => String(n).padStart(2, '0');
+            const localIso = `${target.getFullYear()}-${pad(target.getMonth()+1)}-${pad(target.getDate())}T${pad(target.getHours())}:${pad(target.getMinutes())}`;
+            document.getElementById('remind-custom-datetime').value = localIso;
+        }
+
+        function onCustomDateTimeChange() {
+            const val = document.getElementById('remind-custom-datetime').value;
+            if (val) {
+                currentRemindDate = new Date(val);
+                document.querySelectorAll('.remind-preset-btn').forEach(btn => {
+                    btn.classList.remove('border-amber-500', 'text-amber-300', 'bg-amber-500/10');
+                    btn.classList.add('border-slate-700', 'text-slate-200', 'bg-slate-800');
+                });
+            }
+        }
+
+        function formatHumanDateTime(d) {
+            const days = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
+            const pad = n => String(n).padStart(2, '0');
+            return `${days[d.getDay()]} ${pad(d.getDate())}/${pad(d.getMonth()+1)} alle ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        }
+
+        function sendWhatsAppRemind() {
+            if (!currentRemindMovie) return;
+            const m = currentRemindMovie;
+            const when = formatHumanDateTime(currentRemindDate);
+
+            const msg = `🎬 *PROMEMORIA SERATA CINEMA*\n\n` +
+                        `*${m.title}* (${m.year})\n` +
+                        `📺 *Piattaforma:* ${m.platform.toUpperCase()}\n` +
+                        `⏱️ *Durata:* ${formatDuration(m.duration)}\n` +
+                        `⭐ *IMDb:* ${m.imdb.toFixed(1)} | 🎬 *MYmovies:* ${m.mymovies.toFixed(1)}/5\n` +
+                        `🎥 *Regia:* ${m.director}\n\n` +
+                        `💡 *Perché vederlo:* ${m.why}\n\n` +
+                        `⏰ *In programma per:* ${when}\n` +
+                        `🔗 *Link streaming:* ${m.link}`;
+
+            const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+        }
+
+        function sendGoogleCalendarRemind() {
+            if (!currentRemindMovie) return;
+            const m = currentRemindMovie;
+            const start = new Date(currentRemindDate);
+            const end = new Date(start.getTime() + (m.duration || 120) * 60 * 1000);
+
+            const pad = n => String(n).padStart(2, '0');
+            const formatGCal = d => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+
+            const title = `🎬 Film: ${m.title} (${m.year}) su ${m.platform.toUpperCase()}`;
+            const details = `Piattaforma: ${m.platform.toUpperCase()}\nRegia: ${m.director}\nCast: ${m.cast}\nDurata: ${formatDuration(m.duration)}\n\n⭐ IMDb: ${m.imdb.toFixed(1)} | 🎬 MYmovies: ${m.mymovies.toFixed(1)}/5\n\n💡 Perché vederlo:\n${m.why}\n\n📖 Sinossi:\n${m.synopsis}\n\n🔗 Guarda ora: ${m.link}`;
+            const location = `${m.platform.toUpperCase()} Streaming`;
+            const dates = `${formatGCal(start)}/${formatGCal(end)}`;
+
+            const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location)}&dates=${dates}`;
+            window.open(url, '_blank');
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+            });
+        }
+    </script>
+
+    <!-- Mobile Fixed Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-lg border-t border-slate-800/80 px-2 py-2 flex items-center justify-around md:hidden shadow-2xl safe-area-bottom">
+        <button onclick="generateRecommendations(true); scrollToCards();" class="flex flex-col items-center gap-1 text-amber-400 font-bold text-[10px] cursor-pointer py-1 px-2.5 rounded-xl hover:bg-slate-900 active:scale-95 transition">
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 text-slate-950 flex items-center justify-center text-sm shadow-md shadow-amber-500/20">
+                <i class="fa-solid fa-dice"></i>
+            </div>
+            <span>Stasera</span>
+        </button>
+        <button onclick="toggleMobileFilterDrawer()" id="btn-nav-filter" class="flex flex-col items-center gap-1 text-slate-300 font-bold text-[10px] cursor-pointer py-1 px-2.5 rounded-xl hover:bg-slate-900 active:scale-95 transition">
+            <div class="w-8 h-8 rounded-xl bg-slate-800 text-sky-400 flex items-center justify-center text-sm border border-slate-700">
+                <i class="fa-solid fa-sliders"></i>
+            </div>
+            <span>Filtri</span>
+        </button>
+        <button onclick="toggleWatchlistModal()" class="flex flex-col items-center gap-1 text-slate-300 font-bold text-[10px] cursor-pointer py-1 px-2.5 rounded-xl hover:bg-slate-900 active:scale-95 transition relative">
+            <div class="w-8 h-8 rounded-xl bg-slate-800 text-amber-400 flex items-center justify-center text-sm border border-slate-700 relative">
+                <i class="fa-solid fa-bookmark"></i>
+                <span id="nav-watchlist-count" class="absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full bg-amber-500 text-slate-950 text-[9px] font-black hidden">0</span>
+            </div>
+            <span>Watchlist</span>
+        </button>
+        <button onclick="toggleRadarModal()" class="flex flex-col items-center gap-1 text-slate-300 font-bold text-[10px] cursor-pointer py-1 px-2.5 rounded-xl hover:bg-slate-900 active:scale-95 transition relative">
+            <div class="w-8 h-8 rounded-xl bg-slate-800 text-sky-400 flex items-center justify-center text-sm border border-slate-700 relative">
+                <i class="fa-solid fa-satellite-dish"></i>
+                <span id="nav-radar-count" class="absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full bg-sky-500 text-slate-950 text-[9px] font-black hidden">0</span>
+            </div>
+            <span>Radar</span>
+        </button>
+        <button onclick="openDnaModal()" class="flex flex-col items-center gap-1 text-slate-300 font-bold text-[10px] cursor-pointer py-1 px-2.5 rounded-xl hover:bg-slate-900 active:scale-95 transition">
+            <div class="w-8 h-8 rounded-xl bg-slate-800 text-purple-400 flex items-center justify-center text-sm border border-slate-700">
+                <i class="fa-solid fa-dna"></i>
+            </div>
+            <span>DNA</span>
+        </button>
+    </nav>
+</body>
+</html>
