@@ -121,6 +121,10 @@
 
         <!-- Desktop Navigation Buttons -->
         <div class="hidden md:flex items-center gap-2 sm:gap-3">
+            <button onclick="toggleScoutModal()" class="px-3 py-1.5 rounded-xl bg-purple-950/60 hover:bg-purple-900/80 text-purple-300 text-xs font-bold border border-purple-700/60 transition flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95" title="Esplora Filmografie Registi & Attori">
+                <i class="fa-solid fa-binoculars text-purple-400"></i>
+                <span>Esploratore</span>
+            </button>
             <button onclick="openAddMovieModal()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-bold border border-amber-500/40 transition flex items-center gap-1.5 cursor-pointer">
                 <i class="fa-solid fa-plus"></i>
                 <span>Aggiungi Film</span>
@@ -145,12 +149,15 @@
             </button>
         </div>
 
-        <!-- Mobile Header Quick Action (Aggiungi Film rapido) -->
-        <div class="flex items-center gap-2 md:hidden">
-            <button onclick="openAddMovieModal()" class="py-1.5 px-2.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1 cursor-pointer active:scale-95" title="Aggiungi Film">
+        <!-- Mobile Header Quick Action (Esploratore, Aggiungi Film rapido) -->
+        <div class="flex items-center gap-1.5 md:hidden">
+            <button onclick="toggleScoutModal()" class="py-1.5 px-2 rounded-xl bg-purple-950/60 text-purple-300 border border-purple-700/60 text-xs font-bold flex items-center gap-1 cursor-pointer active:scale-95" title="Esploratore Registi & Attori">
+                <i class="fa-solid fa-binoculars text-[11px] text-purple-400"></i><span>Esplora</span>
+            </button>
+            <button onclick="openAddMovieModal()" class="py-1.5 px-2 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1 cursor-pointer active:scale-95" title="Aggiungi Film">
                 <i class="fa-solid fa-plus text-[10px]"></i><span>Film</span>
             </button>
-            <button onclick="toggleSeenModal()" class="py-1.5 px-2.5 rounded-xl bg-slate-800 text-emerald-400 border border-slate-700 text-xs font-bold cursor-pointer active:scale-95" title="Film già visti">
+            <button onclick="toggleSeenModal()" class="py-1.5 px-2 rounded-xl bg-slate-800 text-emerald-400 border border-slate-700 text-xs font-bold cursor-pointer active:scale-95" title="Film già visti">
                 <i class="fa-solid fa-check-double text-[11px]"></i>
             </button>
         </div>
@@ -283,7 +290,7 @@
                     <!-- Barra di Ricerca Rapida Globale -->
                     <div class="relative flex-1 sm:w-64">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
-                        <input type="text" id="input-global-search" placeholder="Cerca film (es. Oppenheimer)..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-7 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500" oninput="handleGlobalSearch(this.value)">
+                        <input type="text" id="input-global-search" placeholder="Cerca film, regista, attore (es. Salvatores, Servillo)..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-7 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500" oninput="handleGlobalSearch(this.value)">
                         <button type="button" id="btn-clear-global-search" onclick="clearGlobalSearch()" class="hidden absolute right-2.5 top-2 text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
                     </div>
                     <button onclick="generateRecommendations(true); scrollToCards();" class="md:hidden px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1 active:scale-95 transition shrink-0">
@@ -611,6 +618,57 @@
             <div class="pt-2 border-t border-slate-800 flex justify-between items-center text-[11px] text-slate-500">
                 <span class="flex items-center gap-1"><i class="fa-solid fa-shield-halved text-emerald-400"></i> Zero Noleggi: questi film non vengono proposti nella scelta serale finché non sono gratuiti/inclusi.</span>
                 <button onclick="toggleRadarModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 font-bold hover:text-white cursor-pointer">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: CineScout - Esploratore Registi & Attori -->
+    <div id="modal-scout" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="glass-panel w-full max-w-3xl rounded-2xl p-5 sm:p-6 space-y-4 border border-purple-500/40 shadow-2xl shadow-purple-950/40 max-h-[90vh] flex flex-col">
+            <!-- Header Modal -->
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white text-base shadow-md shadow-purple-500/20">
+                        <i class="fa-solid fa-binoculars"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                            CineScout <span class="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">Esploratore Registi & Attori</span>
+                        </h3>
+                        <p class="text-[11px] text-slate-400">Verifica filmografie e disponibilità in streaming (RaiPlay, Prime, Netflix, Disney+, Store).</p>
+                    </div>
+                </div>
+                <button onclick="toggleScoutModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Input Ricerca & Suggeriti -->
+            <div class="space-y-2">
+                <div class="relative w-full">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-purple-400 text-xs"></i>
+                    <input type="text" id="input-scout-search" placeholder="Cerca regista, attore o titolo (es. Salvatores, Servillo, Moretti, Tornatore...)" class="w-full bg-slate-950 border border-purple-500/50 rounded-xl pl-9 pr-9 py-2 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-400 focus:ring-1 focus:ring-purple-400/40 transition" oninput="handleScoutSearch(this.value)">
+                    <button type="button" onclick="clearScoutSearch()" id="btn-clear-scout-search" class="hidden absolute right-3 top-2.5 text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <!-- Chips Consigliati Rapidi (DNA & Grandi Autori) -->
+                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 pt-0.5 scrollbar-none text-[11px]">
+                    <span class="text-slate-500 font-bold uppercase text-[9px] shrink-0 mr-1"><i class="fa-solid fa-fire text-amber-400 mr-1"></i>I Tuoi Fari:</span>
+                    <button type="button" onclick="applyScoutChip('Gabriele Salvatores')" class="scout-chip px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-purple-950/60 text-slate-300 hover:text-purple-300 border border-slate-700 hover:border-purple-600/50 cursor-pointer shrink-0 transition font-medium">🎬 Salvatores</button>
+                    <button type="button" onclick="applyScoutChip('Toni Servillo')" class="scout-chip px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-purple-950/60 text-slate-300 hover:text-purple-300 border border-slate-700 hover:border-purple-600/50 cursor-pointer shrink-0 transition font-medium">🎭 Toni Servillo</button>
+                    <button type="button" onclick="applyScoutChip('Paolo Sorrentino')" class="scout-chip px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-purple-950/60 text-slate-300 hover:text-purple-300 border border-slate-700 hover:border-purple-600/50 cursor-pointer shrink-0 transition font-medium">🎬 Sorrentino</button>
+                    <button type="button" onclick="applyScoutChip('Nanni Moretti')" class="scout-chip px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-purple-950/60 text-slate-300 hover:text-purple-300 border border-slate-700 hover:border-purple-600/50 cursor-pointer shrink-0 transition font-medium">🎬 Moretti</button>
+                    <button type="button" onclick="applyScoutChip('Giuseppe Tornatore')" class="scout-chip px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-purple-950/60 text-slate-300 hover:text-purple-300 border border-slate-700 hover:border-purple-600/50 cursor-pointer shrink-0 transition font-medium">🎬 Tornatore</button>
+                    <button type="button" onclick="applyScoutChip('Tom Hanks')" class="scout-chip px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-purple-950/60 text-slate-300 hover:text-purple-300 border border-slate-700 hover:border-purple-600/50 cursor-pointer shrink-0 transition font-medium">🎭 Tom Hanks</button>
+                    <button type="button" onclick="applyScoutChip('Elio Germano')" class="scout-chip px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-purple-950/60 text-slate-300 hover:text-purple-300 border border-slate-700 hover:border-purple-600/50 cursor-pointer shrink-0 transition font-medium">🎭 Elio Germano</button>
+                    <button type="button" onclick="applyScoutChip('Martin Scorsese')" class="scout-chip px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-purple-950/60 text-slate-300 hover:text-purple-300 border border-slate-700 hover:border-purple-600/50 cursor-pointer shrink-0 transition font-medium">🎬 Scorsese</button>
+                    <button type="button" onclick="applyScoutChip('Ettore Scola')" class="scout-chip px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-purple-950/60 text-slate-300 hover:text-purple-300 border border-slate-700 hover:border-purple-600/50 cursor-pointer shrink-0 transition font-medium">🎬 Ettore Scola</button>
+                </div>
+            </div>
+
+            <!-- Contenitore Risultati Scout -->
+            <div id="scout-results-container" class="flex-1 overflow-y-auto space-y-4 pr-1">
+                <!-- Compilato dinamicamente via JS -->
             </div>
         </div>
     </div>
@@ -2301,7 +2359,45 @@
             const container = document.getElementById('all-movies-table');
             document.getElementById('all-matching-count').textContent = pool.length;
 
-            container.innerHTML = pool.map(m => {
+            const searchInputVal = (document.getElementById('input-global-search')?.value || '').trim();
+            let scoutBanner = '';
+            if (searchInputVal) {
+                const safeQuery = escapeHtml(searchInputVal).replace(/'/g, "\\'");
+                scoutBanner = `
+                <div class="p-3 mb-3 rounded-xl bg-gradient-to-r from-purple-950/80 via-slate-900 to-purple-950/80 border border-purple-500/40 flex items-center justify-between gap-3 text-xs shadow-lg">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-8 h-8 rounded-lg bg-purple-600/30 border border-purple-500/50 flex items-center justify-center text-purple-300 shrink-0">
+                            <i class="fa-solid fa-binoculars text-sm"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="font-bold text-white text-xs truncate">Filmografie complete o piattaforme per <span class="text-purple-300">"${escapeHtml(searchInputVal)}"</span>?</p>
+                            <p class="text-[11px] text-slate-400 truncate">Verifica licenze su Netflix, Prime, Disney+, RaiPlay e JustWatch</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="openScoutWithQuery('${safeQuery}')" class="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1.5 shrink-0 transition active:scale-95 shadow cursor-pointer">
+                        <i class="fa-solid fa-compass"></i> <span>Apri Esploratore</span>
+                    </button>
+                </div>`;
+            }
+
+            if (pool.length === 0) {
+                if (searchInputVal) {
+                    const safeQuery = escapeHtml(searchInputVal).replace(/'/g, "\\'");
+                    container.innerHTML = scoutBanner + `
+                    <div class="p-8 text-center rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3">
+                        <p class="text-slate-300 text-sm font-medium">Nessun film trovato nel catalogo attivo per <span class="text-amber-400 font-bold">"${escapeHtml(searchInputVal)}"</span>.</p>
+                        <p class="text-slate-500 text-xs">Potrebbe trovarsi su altre piattaforme (RaiPlay, Disney+, noleggio) o in attesa di licenza flat.</p>
+                        <button type="button" onclick="openScoutWithQuery('${safeQuery}')" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs inline-flex items-center gap-2 transition active:scale-95 shadow cursor-pointer">
+                            <i class="fa-solid fa-binoculars"></i> <span>Verifica in Esploratore Registi & Attori</span>
+                        </button>
+                    </div>`;
+                } else {
+                    container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">Nessun film corrisponde ai filtri selezionati.</div>`;
+                }
+                return;
+            }
+
+            container.innerHTML = scoutBanner + pool.map(m => {
                 const inWatchlist = watchlistIds.has(m.id);
                 return `
                 <div class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800/80 border ${inWatchlist ? 'border-amber-500/40 bg-slate-900/90' : 'border-slate-800'} hover:border-amber-500/50 flex items-start justify-between gap-2 text-xs transition group">
@@ -2504,6 +2600,415 @@
 
         function closeMovieDetailsModal() {
             document.getElementById('modal-movie-details').classList.add('hidden');
+        }
+
+        // ==========================================
+        // CINESCOUT: Esploratore Registi & Attori
+        // ==========================================
+        const SCOUT_FILMOGRAPHIES = {
+            'salvatores': {
+                name: "Gabriele Salvatores",
+                role: "Regista",
+                badge: "Premio Oscar",
+                bio: "Maestro della fuga, dell'amicizia e del viaggio generazionale. Premio Oscar per Mediterraneo.",
+                films: [
+                    { title: "Mediterraneo", year: 1991, status: "flat", platform: "Prime Video", imdb: 7.3, mymovies: 4.1, inCatalogId: "prime-mediterraneo", note: "Premio Oscar Miglior Film Straniero. Nei tuoi Punti Cardinali." },
+                    { title: "Tutto il mio folle amore", year: 2019, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.5, mymovies: 3.2, note: "Road movie con Claudio Santamaria, Valeria Golino e Diego Abatantuono." },
+                    { title: "Il ritorno di Casanova", year: 2023, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.3, mymovies: 3.1, note: "Con Toni Servillo e Fabrizio Bentivoglio: il tempo che scorre e la passione del cinema." },
+                    { title: "Marrakech Express", year: 1989, status: "rental", platform: "Store / Noleggio", imdb: 7.2, mymovies: 3.8, note: "Cult generazionale con Abatantuono, Bentivoglio, Cederna." },
+                    { title: "Io non ho paura", year: 2003, status: "rental", platform: "Store / Noleggio", imdb: 7.4, mymovies: 3.8, note: "Dal capolavoro di Ammaniti, thriller di struggente tensione e bellezza solare." },
+                    { title: "Turné", year: 1990, status: "rental", platform: "Store / Noleggio", imdb: 6.8, mymovies: 3.5, note: "Commedia teatrale on the road con Bentivoglio e Abatantuono." },
+                    { title: "Nirvana", year: 1997, status: "rental", platform: "Store / Noleggio", imdb: 6.9, mymovies: 3.5, note: "Il cult sci-fi/cyberpunk all'italiana con Christopher Lambert." },
+                    { title: "Sud", year: 1993, status: "rental", platform: "Store / Noleggio", imdb: 6.6, mymovies: 3.4, note: "Dramma civile e politico con Silvio Orlando e Francesca Neri." }
+                ]
+            },
+            'servillo': {
+                name: "Toni Servillo",
+                role: "Attore",
+                badge: "4 David di Donatello",
+                bio: "Uno dei più grandi interpreti della storia del cinema e del teatro italiano. Cardine del tuo DNA cinefilo.",
+                films: [
+                    { title: "Le conseguenze dell'amore", year: 2004, status: "flat", platform: "Prime Video", imdb: 7.5, mymovies: 4.1, inCatalogId: "prime-sorrentino-conseguenze", note: "Paolo Sorrentino alla regia: un Toni Servillo magnetico e monumentale." },
+                    { title: "È stata la mano di Dio", year: 2021, status: "flat", platform: "Netflix", imdb: 7.3, mymovies: 3.9, inCatalogId: "netflix-1", note: "Saverio Schisa nel ritratto sincero e nostalgico di Paolo Sorrentino." },
+                    { title: "Il giovane favoloso", year: 2014, status: "flat", platform: "RaiPlay", imdb: 7.0, mymovies: 4.0, inCatalogId: "raiplay-giovane-favoloso", note: "Monaldo Leopardi: straordinaria recitazione e rigore storico." },
+                    { title: "La stranezza", year: 2022, status: "flat", platform: "Netflix", link: "https://www.netflix.com", imdb: 6.9, mymovies: 3.4, note: "Luigi Pirandello alle prese con Ficarra e Picone (4 David di Donatello)." },
+                    { title: "La grande bellezza", year: 2013, status: "rental", platform: "Mediaset Infinity / Store", imdb: 7.7, mymovies: 4.2, note: "Jep Gambardella e il Premio Oscar a Paolo Sorrentino." },
+                    { title: "Il divo", year: 2008, status: "rental", platform: "Store / Prime", imdb: 7.3, mymovies: 4.0, note: "Premio della Giuria a Cannes: Giulio Andreotti secondo Sorrentino." },
+                    { title: "Qui rido io", year: 2021, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.0, mymovies: 3.6, note: "Eduardo Scarpetta nella Napoli teatrale d'inizio Novecento (regia Mario Martone)." },
+                    { title: "L'uomo del labirinto", year: 2019, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 6.0, mymovies: 3.0, note: "Thriller psicologico di Donato Carrisi al fianco di Dustin Hoffman." },
+                    { title: "La ragazza nella nebbia", year: 2017, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 6.8, mymovies: 3.2, note: "L'ispettore Vogel tra i monti innevati con Jean Reno." },
+                    { title: "Il ritorno di Casanova", year: 2023, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.3, mymovies: 3.1, note: "Regia di Gabriele Salvatores con Fabrizio Bentivoglio." }
+                ]
+            },
+            'sorrentino': {
+                name: "Paolo Sorrentino",
+                role: "Regista",
+                badge: "Premio Oscar",
+                bio: "Stile visivo inconfondibile, malinconia metafisica, Napoli e la grande bellezza dell'esistenza.",
+                films: [
+                    { title: "È stata la mano di Dio", year: 2021, status: "flat", platform: "Netflix", imdb: 7.3, mymovies: 3.9, inCatalogId: "netflix-1", note: "Leone d'Argento a Venezia: il film più intimo e viscerale di Sorrentino." },
+                    { title: "Le conseguenze dell'amore", year: 2004, status: "flat", platform: "Prime Video", imdb: 7.5, mymovies: 4.1, inCatalogId: "prime-sorrentino-conseguenze", note: "Il capolavoro che ha rivelato Sorrentino al Festival di Cannes." },
+                    { title: "La grande bellezza", year: 2013, status: "rental", platform: "Mediaset Infinity / Store", imdb: 7.7, mymovies: 4.2, note: "Premio Oscar al Miglior Film Straniero: la Roma decadente e sublime." },
+                    { title: "Il divo", year: 2008, status: "rental", platform: "Store / Prime", imdb: 7.3, mymovies: 4.0, note: "Premio della Giuria a Cannes: grottesco, potente e ritmato." },
+                    { title: "Youth - La giovinezza", year: 2015, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 7.3, mymovies: 3.8, note: "Michael Caine e Harvey Keitel sulle Alpi svizzere." },
+                    { title: "L'uomo in più", year: 2001, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.0, mymovies: 3.5, note: "L'esordio folgorante con Toni Servillo e Andrea Renzi." }
+                ]
+            },
+            'moretti': {
+                name: "Nanni Moretti",
+                role: "Regista & Attore",
+                badge: "Palma d'Oro Cannes",
+                bio: "Ironia tagliente, impegno civile, Vespa d'estate e le sublimi musiche di Nicola Piovani.",
+                films: [
+                    { title: "La stanza del figlio", year: 2001, status: "flat", platform: "RaiPlay", imdb: 7.3, mymovies: 4.0, inCatalogId: "raiplay-moretti-stanza", note: "Palma d'Oro a Cannes: musica di Nicola Piovani, dolore sobrio e commovente." },
+                    { title: "Caro diario", year: 1993, status: "flat", platform: "RaiPlay", imdb: 7.2, mymovies: 3.9, inCatalogId: "raiplay-moretti-diario", note: "Premio Regia a Cannes: Roma estiva, le isole e le note di Piovani." },
+                    { title: "Il sol dell'avvenire", year: 2023, status: "flat", platform: "Netflix", imdb: 6.7, mymovies: 3.8, inCatalogId: "netflix-moretti-avvenire", note: "In concorso a Cannes: inno al cinema che cambia e fa sperare." },
+                    { title: "Palombella rossa", year: 1989, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.1, mymovies: 3.8, note: "Michele Apicella e la pallanuoto tra memoria e politica." },
+                    { title: "Bianca", year: 1984, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.4, mymovies: 3.9, note: "Michele Apicella professore ossessionato dalla perfezione amorosa." },
+                    { title: "Habemus Papam", year: 2011, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.0, mymovies: 3.5, note: "Michel Piccoli eletto pontefice in preda al panico e alla tenerezza." }
+                ]
+            },
+            'tornatore': {
+                name: "Giuseppe Tornatore",
+                role: "Regista",
+                badge: "Premio Oscar",
+                bio: "Il cantore della nostalgia e dell'amore per la sala cinematografica, in simbiosi con Ennio Morricone.",
+                films: [
+                    { title: "Nuovo Cinema Paradiso", year: 1988, status: "flat", platform: "RaiPlay", imdb: 8.5, mymovies: 4.5, inCatalogId: "raiplay-1", note: "Premio Oscar. Colonna sonora immortale di Morricone. Nei tuoi Punti Cardinali." },
+                    { title: "La migliore offerta", year: 2013, status: "flat", platform: "RaiPlay", imdb: 7.8, mymovies: 3.7, inCatalogId: "raiplay-6", note: "Thriller d'arte e mistero con Geoffrey Rush e musiche di Morricone." },
+                    { title: "Ennio", year: 2021, status: "flat", platform: "RaiPlay", imdb: 8.2, mymovies: 4.4, inCatalogId: "raiplay-7", note: "Il ritratto monumentale del maestro Ennio Morricone." },
+                    { title: "La leggenda del pianista sull'oceano", year: 1998, status: "radar", platform: "Store / Noleggio", imdb: 8.0, mymovies: 3.9, inRadarId: "radar-pianista-oceano", note: "Nel tuo Radar. Tim Roth e il capolavoro musicale di Morricone." },
+                    { title: "Una pura formalità", year: 1994, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.6, mymovies: 3.7, note: "Interrogatorio psicologico claustrofobico tra Polanski e Depardieu." },
+                    { title: "Baarìa", year: 2009, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 6.9, mymovies: 3.3, note: "Affresco storico siciliano lungo cinquant'anni." }
+                ]
+            },
+            'hanks': {
+                name: "Tom Hanks",
+                role: "Attore",
+                badge: "2 Premi Oscar",
+                bio: "L'attore simbolo dell'onestà, dell'empatia e della resilienza umana. Colonna del tuo DNA cinefilo.",
+                films: [
+                    { title: "Prova a prendermi (Catch Me If You Can)", year: 2002, status: "flat", platform: "Prime Video", imdb: 8.1, mymovies: 3.7, inCatalogId: "prime-7", note: "L'agente Hanratty sulle tracce di DiCaprio diretto da Spielberg." },
+                    { title: "Forrest Gump", year: 1994, status: "radar", platform: "Store / Noleggio", imdb: 8.8, mymovies: 4.0, inRadarId: "radar-forrest-gump", note: "Nel tuo Radar. 6 Oscar e punto di riferimento cinematografico mondiale." },
+                    { title: "Il miglio verde", year: 1999, status: "radar", platform: "Store / Noleggio", imdb: 8.6, mymovies: 4.0, inRadarId: "radar-miglio-verde", note: "Nel tuo Radar. Dal regista di Le ali della libertà." },
+                    { title: "Cast Away", year: 2000, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 7.8, mymovies: 3.7, note: "Sopravvivenza, solitudine e l'amico Wilson su un'isola deserta." },
+                    { title: "The Terminal", year: 2004, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 7.4, mymovies: 3.5, note: "Viktor Navorski bloccato al JFK di New York: calore umano e dignità." },
+                    { title: "Salvate il soldato Ryan", year: 1998, status: "flat", platform: "Netflix / Prime", link: "https://www.netflix.com", imdb: 8.6, mymovies: 4.2, note: "Regia di Steven Spielberg, 5 Premi Oscar: lo sbarco in Normandia." },
+                    { title: "Apollo 13", year: 1995, status: "flat", platform: "Netflix", link: "https://www.netflix.com", imdb: 7.7, mymovies: 3.8, note: "Jim Lovell e il salvataggio spaziale più avvincente della storia." }
+                ]
+            },
+            'scorsese': {
+                name: "Martin Scorsese",
+                role: "Regista",
+                badge: "Premio Oscar",
+                bio: "Il più grande regista vivente del cinema americano: ritmo, etica, colpa e redenzione.",
+                films: [
+                    { title: "The Wolf of Wall Street", year: 2013, status: "flat", platform: "Netflix", imdb: 8.2, mymovies: 4.0, inCatalogId: "netflix-5", note: "Nei tuoi Punti Cardinali. Ritmo indiavolato con DiCaprio." },
+                    { title: "Hugo Cabret", year: 2011, status: "flat", platform: "Disney+", imdb: 7.5, mymovies: 4.0, inCatalogId: "disney-1", note: "Nei tuoi Punti Cardinali. Lettera d'amore a Georges Méliès." },
+                    { title: "The Irishman", year: 2019, status: "flat", platform: "Netflix", link: "https://www.netflix.com", imdb: 7.8, mymovies: 4.1, note: "De Niro, Al Pacino e Joe Pesci nel testamento elegiaco del gangster movie." },
+                    { title: "Shutter Island", year: 2010, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 8.2, mymovies: 3.9, note: "Thriller psicologico labirintico e inquietante con Leonardo DiCaprio." },
+                    { title: "Taxi Driver", year: 1976, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 8.2, mymovies: 4.6, note: "Palma d'Oro a Cannes: Travis Bickle nella notte alienante di New York." },
+                    { title: "Quei bravi ragazzi (Goodfellas)", year: 1990, status: "rental", platform: "Store / Noleggio", imdb: 8.7, mymovies: 4.3, note: "Il capolavoro assoluto del montaggio e della narrazione mafiosa." }
+                ]
+            },
+            'germano': {
+                name: "Elio Germano",
+                role: "Attore",
+                badge: "Prix d'interprétation Cannes",
+                bio: "Camaleontico, potente, autentico: l'interprete italiano contemporaneo più premiato a livello internazionale.",
+                films: [
+                    { title: "Volevo nascondermi", year: 2020, status: "flat", platform: "RaiPlay", inCatalogId: "raiplay-volevo-nascondermi", imdb: 7.0, mymovies: 3.8, note: "Nei tuoi film salvati. Orso d'Argento a Berlino e David di Donatello (Antonio Ligabue)." },
+                    { title: "Il giovane favoloso", year: 2014, status: "flat", platform: "RaiPlay", inCatalogId: "raiplay-giovane-favoloso", imdb: 7.0, mymovies: 4.0, note: "Giacomo Leopardi portato sullo schermo con grazia e tormento indimenticabili." },
+                    { title: "L'incredibile storia dell'Isola delle Rose", year: 2020, status: "flat", platform: "Netflix", inCatalogId: "netflix-isola-rose", imdb: 7.0, mymovies: 3.5, note: "La geniale utopia libertaria dell'ingegner Giorgio Rosa al largo di Rimini." },
+                    { title: "Mio fratello è figlio unico", year: 2007, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.1, mymovies: 3.5, note: "Con Riccardo Scamarcio: crescita e ideali nell'Italia degli anni Sessanta e Settanta." },
+                    { title: "Favolacce", year: 2020, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 6.8, mymovies: 3.6, note: "Orso d'Argento alla sceneggiatura a Berlino dei fratelli D'Innocenzo." },
+                    { title: "La nostra vita", year: 2010, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.9, mymovies: 3.4, note: "Premio Miglior Attore a Cannes (ex aequo con Javier Bardem)." },
+                    { title: "Suburra", year: 2015, status: "flat", platform: "Netflix", link: "https://www.netflix.com", imdb: 7.3, mymovies: 3.6, note: "Diretto da Stefano Sollima con Pierfrancesco Favino e Claudio Amendola." }
+                ]
+            },
+            'scola': {
+                name: "Ettore Scola",
+                role: "Regista",
+                badge: "Maestro della Commedia Umana",
+                bio: "La memoria, la tenerezza civile, l'ironia amara e l'amicizia che resiste alla disillusione del tempo.",
+                films: [
+                    { title: "Una giornata particolare", year: 1977, status: "flat", platform: "RaiPlay", inCatalogId: "raiplay-scola-giornata", imdb: 8.1, mymovies: 4.2, note: "Marcello Mastroianni e Sophia Loren nel più delicato capolavoro antifascista." },
+                    { title: "C'eravamo tanto amati", year: 1974, status: "radar", platform: "Store / Noleggio", inRadarId: "radar-scola-ceravamo-tanto-amati", imdb: 8.1, mymovies: 4.3, note: "Nel tuo Radar. Gassman, Manfredi, Sandrelli e Satta Flores." },
+                    { title: "La famiglia", year: 1987, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.7, mymovies: 4.0, note: "Un secolo di storia italiana visto attraverso le stanze di un appartamento romano." },
+                    { title: "Brutti, sporchi e cattivi", year: 1976, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.7, mymovies: 4.0, note: "Prix de la mise en scène a Cannes: Nino Manfredi in uno stato di grazia grottesco." },
+                    { title: "Che ora è?", year: 1989, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.0, mymovies: 3.5, note: "Coppa Volpi a Venezia per Marcello Mastroianni e Massimo Troisi (padre e figlio)." }
+                ]
+            }
+        };
+
+        function toggleScoutModal() {
+            const modal = document.getElementById('modal-scout');
+            if (!modal) return;
+            const isHidden = modal.classList.contains('hidden');
+            if (isHidden) {
+                modal.classList.remove('hidden');
+                const input = document.getElementById('input-scout-search');
+                if (input && !input.value.trim()) {
+                    applyScoutChip('Gabriele Salvatores');
+                }
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function openScoutWithQuery(query) {
+            const modal = document.getElementById('modal-scout');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            const input = document.getElementById('input-scout-search');
+            if (input) {
+                input.value = query || '';
+            }
+            handleScoutSearch(query || '');
+            setTimeout(() => {
+                input?.focus();
+            }, 100);
+        }
+
+        function applyScoutChip(name) {
+            const input = document.getElementById('input-scout-search');
+            if (input) input.value = name;
+            handleScoutSearch(name);
+        }
+
+        function clearScoutSearch() {
+            const input = document.getElementById('input-scout-search');
+            if (input) input.value = '';
+            handleScoutSearch('');
+        }
+
+        function handleScoutSearch(query) {
+            const clearBtn = document.getElementById('btn-clear-scout-search');
+            if (clearBtn) {
+                if (query.trim()) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+            }
+            renderScoutResults(query);
+        }
+
+        function renderScoutResults(query) {
+            const container = document.getElementById('scout-results-container');
+            if (!container) return;
+
+            const q = (query || '').trim().toLowerCase();
+            if (!q) {
+                container.innerHTML = `
+                    <div class="p-6 text-center text-slate-400 space-y-3">
+                        <div class="w-12 h-12 rounded-2xl bg-purple-950/60 border border-purple-700/50 text-purple-400 text-xl flex items-center justify-center mx-auto">
+                            <i class="fa-solid fa-binoculars"></i>
+                        </div>
+                        <h4 class="text-sm font-bold text-white">Esplora Registi, Attori o Film Specifici</h4>
+                        <p class="text-xs max-w-md mx-auto">Seleziona uno dei maestri in alto o digita un nome nella barra per vedere subito cosa c'è in streaming flat o su JustWatch Italia.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // 1. Cerca nei dati curati
+            let matchedAuthorKey = Object.keys(SCOUT_FILMOGRAPHIES).find(k => q.includes(k) || SCOUT_FILMOGRAPHIES[k].name.toLowerCase().includes(q));
+
+            // 2. Cerca nel catalogo interno CineStudio
+            const catalogMatches = getAllMovies().filter(m => {
+                const text = `${m.title} ${m.director} ${m.cast}`.toLowerCase();
+                return text.includes(q);
+            });
+
+            let html = '';
+
+            // Se abbiamo una filmografia curata per questo autore
+            if (matchedAuthorKey) {
+                const author = SCOUT_FILMOGRAPHIES[matchedAuthorKey];
+                html += `
+                    <div class="p-4 rounded-xl bg-purple-950/30 border border-purple-600/40 space-y-2">
+                        <div class="flex items-center justify-between flex-wrap gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[10px] font-black uppercase">${escapeHtml(author.role)}</span>
+                                <h4 class="text-base font-black text-white">${escapeHtml(author.name)}</h4>
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 font-bold">${escapeHtml(author.badge)}</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-300 leading-relaxed">${escapeHtml(author.bio)}</p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h5 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-list-check text-purple-400"></i> Filmografia & Disponibilità Streaming
+                        </h5>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            ${author.films.map(f => {
+                                const inCatalog = f.inCatalogId ? getAllMovies().find(m => m.id === f.inCatalogId) : getAllMovies().find(m => m.title.toLowerCase() === f.title.toLowerCase());
+                                const inRadar = radarItems.some(r => r.title.toLowerCase() === f.title.toLowerCase());
+                                const inWatchlist = inCatalog ? watchlistIds.has(inCatalog.id) : false;
+
+                                let badgeHtml = '';
+                                if (f.status === 'flat') {
+                                    badgeHtml = `<span class="px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-700/60 text-[10px] font-bold flex items-center gap-1"><i class="fa-solid fa-circle-check text-emerald-400 text-[8px]"></i> ${escapeHtml(f.platform)}</span>`;
+                                } else if (f.status === 'radar' || inRadar) {
+                                    badgeHtml = `<span class="px-2 py-0.5 rounded bg-sky-950/80 text-sky-300 border border-sky-700/60 text-[10px] font-bold flex items-center gap-1"><i class="fa-solid fa-satellite-dish text-sky-400 text-[8px]"></i> Nel Radar</span>`;
+                                } else {
+                                    badgeHtml = `<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 text-[10px] font-bold flex items-center gap-1"><i class="fa-solid fa-tag text-slate-500 text-[8px]"></i> Solo Noleggio</span>`;
+                                }
+
+                                return `
+                                    <div class="p-3 rounded-xl bg-slate-900/90 border ${inCatalog ? 'border-slate-800 hover:border-amber-500/40' : 'border-slate-800/60'} flex flex-col justify-between gap-2 text-xs transition">
+                                        <div>
+                                            <div class="flex items-center justify-between gap-2 mb-1">
+                                                <h6 class="font-bold text-white text-[13px] leading-tight">${escapeHtml(f.title)} <span class="text-slate-500 font-normal text-[11px]">(${f.year})</span></h6>
+                                                ${badgeHtml}
+                                            </div>
+                                            <p class="text-slate-400 text-[11px] leading-relaxed">${escapeHtml(f.note)}</p>
+                                            <div class="flex items-center gap-3 mt-1.5 font-mono text-[10px]">
+                                                <span class="text-[#f5c518] font-bold">IMDb ${f.imdb.toFixed(1)}</span>
+                                                <span class="text-rose-400 font-bold">MYmovies ${f.mymovies.toFixed(1)}</span>
+                                            </div>
+                                        </div>
+                                        <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                                            ${inCatalog ? `
+                                                <button onclick="toggleScoutModal(); openMovieDetailsModal('${inCatalog.id}')" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-bold cursor-pointer transition">
+                                                    Scheda
+                                                </button>
+                                                <button onclick="toggleWatchlist('${inCatalog.id}'); renderScoutResults('${escapeHtml(query)}');" class="px-2.5 py-1 rounded-lg border ${inWatchlist ? 'bg-amber-500/20 text-amber-300 border-amber-500/50' : 'bg-slate-800 text-slate-300 border-slate-700'} font-bold text-[11px] flex items-center gap-1 cursor-pointer transition active:scale-95">
+                                                    <i class="fa-solid fa-bookmark ${inWatchlist ? 'text-amber-400' : ''}"></i> ${inWatchlist ? 'In Watchlist' : '+ Watchlist'}
+                                                </button>
+                                            ` : f.status === 'flat' ? `
+                                                <a href="${f.link || '#'}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold text-[11px] flex items-center gap-1">
+                                                    <i class="fa-solid fa-play"></i> Guarda
+                                                </a>
+                                                <button onclick="addMovieToWatchlistFromScout('${escapeHtml(f.title)}', ${f.year}, '${escapeHtml(author.name)}', '${f.platform.toLowerCase()}', '${f.link || '#'}', ${f.imdb}, ${f.mymovies}, '${escapeHtml(f.note)}')" class="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold text-[11px] flex items-center gap-1 cursor-pointer transition">
+                                                    <i class="fa-solid fa-plus"></i> Catalogo & Watchlist
+                                                </button>
+                                            ` : `
+                                                <button onclick="addMovieToRadarFromScout('${escapeHtml(f.title)}', ${f.year}, '${escapeHtml(author.name)}', ${f.imdb}, ${f.mymovies})" class="px-2.5 py-1 rounded-lg ${inRadar ? 'bg-sky-950/60 text-sky-400 border border-sky-800' : 'bg-sky-600 hover:bg-sky-500 text-slate-950 font-bold'} text-[11px] flex items-center gap-1 cursor-pointer transition">
+                                                    <i class="fa-solid fa-satellite-dish"></i> ${inRadar ? 'Nel Radar ✓' : '+ Metti in Radar'}
+                                                </button>
+                                                <a href="https://www.justwatch.com/it/cerca?q=${encodeURIComponent(f.title)}" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-sky-300 text-[11px] flex items-center gap-1">
+                                                    Store JustWatch <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                                                </a>
+                                            `}
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            } else if (catalogMatches.length > 0) {
+                // Non è un autore curato, ma abbiamo film nel catalogo interno
+                html += `
+                    <div class="space-y-2">
+                        <h5 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                            <i class="fa-solid fa-film text-amber-400"></i> Risultati nel Tuo Catalogo CineStudio (${catalogMatches.length})
+                        </h5>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            ${catalogMatches.map(m => `
+                                <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-2 text-xs">
+                                    <div class="flex-1 min-w-0 cursor-pointer" onclick="toggleScoutModal(); openMovieDetailsModal('${m.id}')">
+                                        <div class="flex items-center gap-1.5 mb-0.5">
+                                            ${getPlatformBadge(m.platform, true)}
+                                            <h6 class="font-bold text-white truncate text-[13px]">${escapeHtml(m.title)}</h6>
+                                            <span class="text-slate-500 text-[10px]">(${m.year})</span>
+                                        </div>
+                                        <p class="text-slate-400 text-[11px] truncate">${escapeHtml(m.director)}</p>
+                                    </div>
+                                    <button onclick="toggleWatchlist('${m.id}'); renderScoutResults('${escapeHtml(query)}');" class="p-2 rounded-lg border ${watchlistIds.has(m.id) ? 'bg-amber-500/20 text-amber-400 border-amber-500/50' : 'bg-slate-800 text-slate-400 border-slate-700'} cursor-pointer">
+                                        <i class="fa-solid fa-bookmark ${watchlistIds.has(m.id) ? 'text-amber-400' : ''}"></i>
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-center space-y-2">
+                        <p class="text-xs text-slate-300">Nessun film specifico attualmente nel catalogo interno per <strong>"${escapeHtml(query)}"</strong>.</p>
+                        <p class="text-[11px] text-slate-400">Usa il pulsante qui sotto per verificare istantaneamente tutte le licenze streaming attive in Italia!</p>
+                    </div>
+                `;
+            }
+
+            // Barra di verifica esterna live su JustWatch & Google
+            html += `
+                <div class="pt-3 border-t border-slate-800/80 space-y-2">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Verifica Licenze in Tempo Reale (Italia):</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <a href="https://www.justwatch.com/it/cerca?q=${encodeURIComponent(query)}&monetization_types=flat,free" target="_blank" rel="noopener noreferrer" class="py-2.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center justify-center gap-2 shadow-md shadow-amber-500/20">
+                            <i class="fa-solid fa-magnifying-glass"></i> Cerca Solo Streaming Gratuito / Flat su JustWatch
+                        </a>
+                        <a href="https://www.google.com/search?q=${encodeURIComponent(query + ' film streaming italia dove vederlo')}" target="_blank" rel="noopener noreferrer" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs transition flex items-center justify-center gap-2">
+                            <i class="fa-brands fa-google text-blue-400"></i> Cerca Scheda su Google Watch
+                        </a>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        function addMovieToRadarFromScout(title, year, director, imdb, mymovies) {
+            const exists = radarItems.some(r => r.title.toLowerCase() === title.toLowerCase());
+            if (!exists) {
+                const newRadarItem = {
+                    id: 'radar-' + title.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+                    title: title,
+                    year: year || 2000,
+                    director: director || 'Non specificato',
+                    cast: 'Da verificare',
+                    imdb: imdb || 7.0,
+                    mymovies: mymovies || 3.5,
+                    status: 'Attualmente solo a noleggio Store / Non flat',
+                    note: 'Aggiunto da CineScout: in monitoraggio attivo per l arrivo in streaming gratuito o incluso in abbonamento.'
+                };
+                radarItems.push(newRadarItem);
+                localStorage.setItem('cinestudio_radar_movies', JSON.stringify(radarItems));
+                updateRadarCount();
+                alert(`"${title}" è stato aggiunto al tuo Radar! Ti avviserò non appena entrerà in catalogo flat.`);
+            } else {
+                alert(`"${title}" è già presente nel tuo Radar.`);
+            }
+            const input = document.getElementById('input-scout-search');
+            if (input) renderScoutResults(input.value);
+        }
+
+        function addMovieToWatchlistFromScout(title, year, director, platform, link, imdb, mymovies, why) {
+            const userCustom = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
+            const id = 'custom-' + title.toLowerCase().replace(/[^a-z0-9]/g, '-');
+            
+            if (!getAllMovies().some(m => m.id === id || m.title.toLowerCase() === title.toLowerCase())) {
+                const newMovie = {
+                    id: id,
+                    title: title,
+                    year: year || 2000,
+                    duration: 110,
+                    director: director || 'Regista',
+                    cast: 'Cast in corso',
+                    platform: platform || 'raiplay',
+                    link: link || 'https://www.raiplay.it',
+                    imdb: imdb || 7.0,
+                    mymovies: mymovies || 3.5,
+                    mood: 'autore',
+                    why: why || 'Aggiunto tramite CineScout',
+                    synopsis: 'Film aggiunto tramite l Esploratore Registi & Attori.',
+                    poster: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=500'
+                };
+                userCustom.push(newMovie);
+                localStorage.setItem('cinestudio_user_movies', JSON.stringify(userCustom));
+            }
+            
+            watchlistIds.add(id);
+            localStorage.setItem('cinestudio_watchlist', JSON.stringify(Array.from(watchlistIds)));
+            updateWatchlistCount();
+            generateRecommendations(false);
+            renderAllMatchingMovies();
+            
+            alert(`"${title}" è stato inserito nel tuo catalogo e nella tua Watchlist!`);
+            const input = document.getElementById('input-scout-search');
+            if (input) renderScoutResults(input.value);
         }
 
         // Radar Film Cercati
