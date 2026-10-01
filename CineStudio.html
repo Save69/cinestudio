@@ -395,6 +395,8 @@
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Vita di Pi</span>
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Limitless</span>
                         <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">La La Land</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Mediterraneo</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Whiplash</span>
                     </div>
                 </div>
 
@@ -1650,6 +1652,54 @@
                 why: "2 Premi Oscar e 6 nomination: percorso emotivo devastante e rinascita interiore, con una prova d'attore magnetica di Riz Ahmed.",
                 synopsis: "Un batterista metal perde improvvisamente l'udito durante un tour: dovrà reimparare ad ascoltare il silenzio e accettare una nuova dimensione di vita.",
                 poster: "https://image.tmdb.org/t/p/w500/soundmetal2020Poster.jpg"
+            },
+            {
+                id: 'raiplay-volevo-nascondermi',
+                title: "Volevo nascondermi",
+                year: 2020,
+                duration: 118,
+                director: "Giorgio Diritti",
+                cast: "Elio Germano, Oliver Ewy, Leonardo Carrozzo",
+                platform: "raiplay",
+                link: "https://www.raiplay.it",
+                imdb: 7.3,
+                mymovies: 3.8,
+                mood: "motivazionali",
+                why: "7 David di Donatello e Orso d'Argento a Berlino: interpretazione monumentale di Elio Germano nei panni del pittore Antonio Ligabue, tra sofferenza ed estasi creativa.",
+                synopsis: "La solitudine, i rifiuti e il trionfo artistico di Antonio Ligabue: respinto dalla società, troverà nella pittura una via di riscatto universale.",
+                poster: "https://image.tmdb.org/t/p/w500/volevoNascondermi2020.jpg"
+            },
+            {
+                id: 'netflix-isola-delle-rose',
+                title: "L'incredibile storia dell'Isola delle Rose",
+                year: 2020,
+                duration: 117,
+                director: "Sydney Sibilia",
+                cast: "Elio Germano, Matilda De Angelis, Fabrizio Bentivoglio, Luca Zingaretti",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 7.0,
+                mymovies: 3.5,
+                mood: "leggerezza",
+                why: "3 David di Donatello: favola vera e visionaria sulla libertà con uno splendido Elio Germano. Ritmo impeccabile, ironia e poesia civile.",
+                synopsis: "Nel 1968 l'ingegnere Giorgio Rosa costruisce un'isola artificiale al largo di Rimini e ne proclama l'indipendenza, sfidando lo Stato italiano e il mondo intero.",
+                poster: "https://image.tmdb.org/t/p/w500/isolaDelleRose2020.jpg"
+            },
+            {
+                id: 'raiplay-giovane-favoloso',
+                title: "Il giovane favoloso",
+                year: 2014,
+                duration: 137,
+                director: "Mario Martone",
+                cast: "Elio Germano, Michele Riondino, Massimo Popolizio, Anna Mouglalis",
+                platform: "raiplay",
+                link: "https://www.raiplay.it",
+                imdb: 7.1,
+                mymovies: 3.8,
+                mood: "impegnati",
+                why: "5 David di Donatello: Giacomo Leopardi liberato dai luoghi comuni e restituito come pensatore ribelle, vivo e appassionato grazie a una prova titanica di Elio Germano.",
+                synopsis: "Dalla biblioteca paterna a Recanati alle vie di Napoli e Firenze: la traiettoria esistenziale e filosofica di uno dei più grandi spiriti liberi della letteratura.",
+                poster: "https://image.tmdb.org/t/p/w500/giovaneFavoloso2014.jpg"
             }
         ];
 
@@ -1660,6 +1710,23 @@
         let minImdb = parseFloat(localStorage.getItem('cinestudio_min_imdb') || '6.3');
         let minMymovies = parseFloat(localStorage.getItem('cinestudio_min_mymovies') || '3.3');
         let customDnaItems = JSON.parse(localStorage.getItem('cinestudio_custom_dna') || '[]');
+        
+        // Elementi predefiniti del DNA (sincronizzati automaticamente su ogni dispositivo/browser)
+        const defaultCustomDna = [
+            "Tom Hanks",
+            "Martin Scorsese",
+            "Ettore Scola",
+            "Elio Germano",
+            "Toni Servillo",
+            "Black Mirror"
+        ];
+        defaultCustomDna.forEach(tag => {
+            if (!customDnaItems.includes(tag)) {
+                customDnaItems.push(tag);
+            }
+        });
+        localStorage.setItem('cinestudio_custom_dna', JSON.stringify(customDnaItems));
+
         let radarItems = JSON.parse(localStorage.getItem('cinestudio_radar_movies') || '[]');
         const defaultRadar = [
             {
@@ -1682,7 +1749,18 @@
                 imdb: 8.5,
                 mymovies: 4.2,
                 status: "Attualmente solo a noleggio/acquisto Store (Apple/Prime/Chili)",
-                note: "Capolavoro assoluto su ambizione e dedizione (3 Premi Oscar). Prototipo del mood 'Motivazionali': in monitoraggio attivo per l'arrivo in streaming flat senza costi extra."
+                note: "Pietra miliare assoluta nei tuoi Punti Cardinali. In monitoraggio attivo per l'arrivo in streaming flat senza costi extra."
+            },
+            {
+                id: 'radar-scola-ceravamo-tanto-amati',
+                title: "C'eravamo tanto amati",
+                year: 1974,
+                director: "Ettore Scola",
+                cast: "Nino Manfredi, Vittorio Gassman, Stefania Sandrelli, Stefano Satta Flores",
+                imdb: 8.1,
+                mymovies: 4.3,
+                status: "Attualmente a noleggio / Infinity (non incluso nei flat base)",
+                note: "Capolavoro assoluto di Ettore Scola sulla memoria, gli ideali e l'amicizia perduta e ritrovata. In radar per l'arrivo gratuito su RaiPlay."
             },
             {
                 id: 'radar-worth',
@@ -1702,6 +1780,40 @@
             }
         });
         localStorage.setItem('cinestudio_radar_movies', JSON.stringify(radarItems));
+
+        // Motore di Calcolo Affinità DNA (Punti Cardinali + Autori/Attori preferiti)
+        function calculateDnaMatch(movie) {
+            const matches = [];
+            const textToSearch = `${movie.title} ${movie.director} ${movie.cast} ${movie.why} ${movie.synopsis}`.toLowerCase();
+            
+            // 1. Tag personalizzati dell'utente
+            customDnaItems.forEach(item => {
+                const term = item.toLowerCase().trim();
+                if (term && term.length > 2 && textToSearch.includes(term)) {
+                    if (!matches.includes(item)) matches.push(item);
+                }
+            });
+
+            // 2. Risonanze con i Punti Cardinali & Grandi Maestri
+            const resonances = [
+                { term: 'mediterraneo', label: 'Mediterraneo' },
+                { term: 'whiplash', label: 'Whiplash' },
+                { term: 'chazelle', label: 'Damien Chazelle' },
+                { term: 'sorrentino', label: 'Paolo Sorrentino' },
+                { term: 'scorsese', label: 'Martin Scorsese' },
+                { term: 'hanks', label: 'Tom Hanks' },
+                { term: 'servillo', label: 'Toni Servillo' },
+                { term: 'germano', label: 'Elio Germano' },
+                { term: 'scola', label: 'Ettore Scola' }
+            ];
+            resonances.forEach(r => {
+                if (textToSearch.includes(r.term) && !matches.some(m => m.toLowerCase().includes(r.term))) {
+                    matches.push(r.label);
+                }
+            });
+
+            return matches;
+        }
 
         function getAllMovies() {
             const userCustom = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
@@ -1809,9 +1921,21 @@
                 return;
             }
 
-            // Shuffle pool and pick 3
-            const shuffled = [...pool].sort(() => 0.5 - Math.random());
-            const selected = shuffled.slice(0, 3);
+            // Scoring pesato con affinità DNA + varietà controllata ad ogni lancio
+            const scoredPool = pool.map(movie => {
+                const dnaMatches = calculateDnaMatch(movie);
+                let score = (movie.imdb * 10) + (movie.mymovies * 15);
+                // Forte premialità se il film riflette il DNA cinefilo o i Punti Cardinali
+                if (dnaMatches.length > 0) {
+                    score += (dnaMatches.length * 35) + 20;
+                }
+                // Variazione randomica per garantire che ad ogni tiro di dadi escano proposte fresche e variegate
+                score += Math.random() * 30;
+                return { movie, score, dnaMatches };
+            });
+
+            scoredPool.sort((a, b) => b.score - a.score);
+            const selected = scoredPool.slice(0, 3).map(item => item.movie);
 
             selected.forEach((movie, index) => {
                 const card = document.createElement('div');
@@ -1820,15 +1944,17 @@
 
                 const platformBadge = getPlatformBadge(movie.platform);
                 const isWatchlisted = watchlistIds.has(movie.id);
+                const dnaMatches = calculateDnaMatch(movie);
 
                 card.innerHTML = `
                     <div>
                         <!-- Header Card con Badge Piattaforma e Anno -->
                         <div class="p-4 pb-2 flex items-center justify-between">
                             ${platformBadge}
-                            <span class="text-xs text-slate-400 font-mono flex items-center gap-1.5">
+                            <span class="text-xs text-slate-400 font-mono flex items-center gap-1.5 flex-wrap justify-end">
                                 ${movie.isShort || movie.duration <= 40 ? '<span class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase"><i class="fa-solid fa-bolt"></i> Corto</span>' : ''}
                                 ${movie.mood === 'motivazionali' ? '<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase"><i class="fa-solid fa-fire"></i> Riscatto</span>' : ''}
+                                ${dnaMatches.length > 0 ? `<span class="bg-purple-950/80 text-purple-300 border border-purple-700/60 text-[10px] px-2 py-0.5 rounded-lg font-bold flex items-center gap-1" title="In sintonia con il tuo DNA cinefilo"><i class="fa-solid fa-dna text-purple-400"></i> ${escapeHtml(dnaMatches[0])}</span>` : ''}
                                 <span>${movie.year} &bull; ${formatDuration(movie.duration)}</span>
                             </span>
                         </div>
@@ -1905,6 +2031,7 @@
                             <span class="font-bold text-white group-hover:text-amber-300 transition text-[13px]">${escapeHtml(m.title)}</span>
                             ${m.isShort || m.duration <= 40 ? '<span class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[9px] px-1.5 py-0.2 rounded font-bold uppercase">Corto</span>' : ''}
                             ${m.mood === 'motivazionali' ? '<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[9px] px-1.5 py-0.2 rounded font-bold uppercase">Riscatto</span>' : ''}
+                            ${calculateDnaMatch(m).length > 0 ? `<span class="bg-purple-950/80 text-purple-300 border border-purple-700/60 text-[9px] px-1.5 py-0.2 rounded font-bold flex items-center gap-1" title="In sintonia con il tuo DNA"><i class="fa-solid fa-dna text-purple-400 text-[8px]"></i> DNA: ${escapeHtml(calculateDnaMatch(m)[0])}</span>` : ''}
                             <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30 opacity-80 group-hover:opacity-100 flex items-center gap-1"><i class="fa-solid fa-book-open text-[9px]"></i> Trama & Dettagli</span>
                         </div>
                         <p class="text-slate-400 text-[11px] truncate"><i class="fa-solid fa-clapperboard text-slate-500 mr-1"></i>${escapeHtml(m.director)} &bull; ${m.year} &bull; ${formatDuration(m.duration)}</p>
@@ -2046,10 +2173,12 @@
             document.getElementById('detail-why').textContent = movie.why || '';
 
             // Badges
+            const modalDnaMatches = calculateDnaMatch(movie);
             document.getElementById('detail-badges').innerHTML = `
                 ${getPlatformBadge(movie.platform)}
                 ${movie.isShort || movie.duration <= 40 ? '<span class="text-xs px-2 py-0.5 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-bold uppercase"><i class="fa-solid fa-bolt mr-1"></i>Cortometraggio</span>' : ''}
                 ${movie.mood === 'motivazionali' ? '<span class="text-xs px-2 py-0.5 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold uppercase"><i class="fa-solid fa-fire mr-1"></i>Motivazionale</span>' : ''}
+                ${modalDnaMatches.length > 0 ? `<span class="text-xs px-2 py-0.5 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/40 font-bold uppercase flex items-center gap-1"><i class="fa-solid fa-dna text-purple-400"></i> DNA: ${escapeHtml(modalDnaMatches.join(', '))}</span>` : ''}
                 <span class="text-xs px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 font-mono">${movie.year}</span>
                 <span class="text-xs px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 font-mono"><i class="fa-regular fa-clock mr-1 text-emerald-400"></i>${formatDuration(movie.duration)}</span>
             `;
