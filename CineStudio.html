@@ -166,6 +166,8 @@
                         <select id="select-mood" onchange="generateRecommendations()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-amber-500">
                             <option value="all">🌟 Qualsiasi (Ispirami)</option>
                             <option value="novita">🆕 Novità & Gemme Recenti (2022-2026)</option>
+                            <option value="motivazionali">🥊 Fuoco & Riscatto (tipo Rocky, Whiplash, Air)</option>
+                            <option value="corti">🎬 Cortometraggi & Gioielli Brevi (Oscar & Festival)</option>
                             <option value="autore">🏆 Festival, Autore & Premi (Venezia, Oscar, Moretti, Fandango)</option>
                             <option value="cuore">🎭 Cuore, Emozione & Troisi/Benigni/La La Land</option>
                             <option value="mente">🧠 Mente, Ritmo & Ingegno</option>
@@ -181,6 +183,7 @@
                         </label>
                         <select id="select-duration" onchange="generateRecommendations()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-amber-500">
                             <option value="0">Qualsiasi durata</option>
+                            <option value="40">⏱️ Cortometraggi (≤ 40 min)</option>
                             <option value="105">⚡ Stasera sono stanco (≤ 1h 45m)</option>
                             <option value="125">☕ Durata standard (≤ 2 ore)</option>
                             <option value="180">🍿 Serata kolossal (oltre 2 ore)</option>
@@ -431,12 +434,14 @@
                     </div>
                     <div>
                         <label class="block text-slate-300 font-bold mb-1">Durata (min)</label>
-                        <input type="number" id="add-movie-duration" value="110" min="30" max="300" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono">
+                        <input type="number" id="add-movie-duration" value="110" min="1" max="300" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono">
                     </div>
                     <div>
                         <label class="block text-slate-300 font-bold mb-1">Mood</label>
                         <select id="add-movie-mood" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-white font-bold">
                             <option value="novita">🆕 Novità/Gemme</option>
+                            <option value="motivazionali">🥊 Motivazione & Riscatto</option>
+                            <option value="corti">🎬 Cortometraggio</option>
                             <option value="autore">🏆 Festival/Autore</option>
                             <option value="cuore">🎭 Cuore/Commedia</option>
                             <option value="mente">🧠 Mente/Ritmo</option>
@@ -1291,22 +1296,7 @@
                 synopsis: "Tre giovani musicisti di Grosseto cercano di organizzare il concerto di una famosa band punk americana, scontrandosi con la burocrazia e l'apatia della provincia.",
                 poster: "https://image.tmdb.org/t/p/w500/3939uqIpLd408P2p0m9j2k0j92.jpg"
             },
-            {
-                id: 'netflix-worth',
-                title: "Worth - Il patto",
-                year: 2021,
-                duration: 118,
-                director: "Sara Colangelo",
-                cast: "Michael Keaton, Stanley Tucci, Amy Ryan",
-                platform: "netflix",
-                link: "https://www.netflix.com/title/80226212",
-                imdb: 6.8,
-                mymovies: 3.3,
-                mood: "mente",
-                why: "Il film sull'11 settembre che cercavi: Michael Keaton e Stanley Tucci in un intenso confronto etico e umano sulla stima del valore della vita.",
-                synopsis: "Dopo gli attentati dell'11 settembre, l'avvocato Kenneth Feinberg è incaricato dal Congresso di calcolare i risarcimenti per le famiglie delle vittime.",
-                poster: "https://image.tmdb.org/t/p/w500/4c55490PqM5K9S2348k0iO1M1yK.jpg"
-            },
+
             {
                 id: 'prime-i-guerrieri',
                 title: "I guerrieri (Kelly's Heroes)",
@@ -1403,6 +1393,155 @@
                 why: "Premio Oscar per il Miglior Documentario: ritmo da thriller mozzafiato, indagine investigativa e coraggio civile impressionante.",
                 synopsis: "L'indagine in tempo reale sull'avvelenamento del leader dell'opposizione russa Alexei Navalny e il complotto per metterlo a tacere.",
                 poster: "https://image.tmdb.org/t/p/w500/mXp7pC7iLgT23S35h1fR03J39bF.jpg"
+            },
+            {
+                id: 'prime-air',
+                title: "Air - La storia del grande salto",
+                year: 2023,
+                duration: 112,
+                director: "Ben Affleck",
+                cast: "Matt Damon, Ben Affleck, Jason Bateman, Viola Davis",
+                platform: "prime",
+                link: "https://www.primevideo.com",
+                imdb: 7.4,
+                mymovies: 3.6,
+                mood: "motivazionali",
+                why: "Il tuo attore feticcio Matt Damon in una cavalcata elettrizzante di riscatto, tenacia e visione: dialoghi brillanti, ritmo incalzante e pura motivazione.",
+                synopsis: "Nel 1984 il manager Sonny Vaccaro punta tutto ciò che ha per convincere un giovane esordiente di nome Michael Jordan a legarsi alla divisione basket di Nike.",
+                poster: "https://image.tmdb.org/t/p/w500/76GDa99d0k2wz3c5v8gq7eLg6gT.jpg"
+            },
+            {
+                id: 'netflix-hustle',
+                title: "Hustle",
+                year: 2022,
+                duration: 117,
+                director: "Jeremiah Zagar",
+                cast: "Adam Sandler, Juancho Hernangómez, Queen Latifah, Robert Duvall",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 7.3,
+                mymovies: 3.5,
+                mood: "motivazionali",
+                why: "Puro spirito 'Rocky' applicato al basket: grande interpretazione di Adam Sandler, riscatto umano, etica ferrea del sacrificio e cuore enorme.",
+                synopsis: "Uno scout di pallacanestro in crisi scopre nei campetti di periferia di Madrid un talento grezzo e decide di scommettere tutto per portarlo in NBA.",
+                poster: "https://image.tmdb.org/t/p/w500/x26m8m2v8gq7eLg6gT0f2wz3c5v.jpg"
+            },
+            {
+                id: 'disney-titans',
+                title: "Il sapore della vittoria (Remember the Titans)",
+                year: 2000,
+                duration: 113,
+                director: "Boaz Yakin",
+                cast: "Denzel Washington, Will Patton, Ryan Gosling",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 7.8,
+                mymovies: 3.5,
+                mood: "motivazionali",
+                why: "Classico immortale del cinema di riscatto e coesione: un carismatico Denzel Washington guida una squadra oltre ogni pregiudizio verso la leggenda.",
+                synopsis: "Nel 1971 in Virginia, un coach afroamericano unisce ragazzi bianchi e neri in una squadra di football liceale, trasformando l'ostilità in fratellanza.",
+                poster: "https://image.tmdb.org/t/p/w500/y3m9k2wz3c5v8gq7eLg6gT0f2.jpg"
+            },
+            {
+                id: 'netflix-nyad',
+                title: "Nyad - Oltre l'oceano",
+                year: 2023,
+                duration: 121,
+                director: "Elizabeth Chai Vasarhelyi, Jimmy Chin",
+                cast: "Annette Bening, Jodie Foster, Rhys Ifans",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 7.1,
+                mymovies: 3.4,
+                mood: "motivazionali",
+                why: "2 nomination Oscar: inno straordinario alla resilienza in cui 'non è mai troppo tardi per compiere l'impossibile', con due attrici leggendarie.",
+                synopsis: "A 60 anni, Diana Nyad si prepara per l'impresa titanica della sua vita: nuotare in mare aperto per 177 km da Cuba alla Florida senza gabbia protettiva.",
+                poster: "https://image.tmdb.org/t/p/w500/Nyad2023PosterTmdb500x.jpg"
+            },
+            {
+                id: 'netflix-henry-sugar',
+                title: "La meravigliosa storia di Henry Sugar",
+                year: 2023,
+                duration: 37,
+                isShort: true,
+                director: "Wes Anderson",
+                cast: "Benedict Cumberbatch, Ralph Fiennes, Dev Patel, Ben Kingsley",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 7.4,
+                mymovies: 3.7,
+                mood: "corti",
+                why: "Premio Oscar 2024 Miglior Cortometraggio: 37 minuti di pura inventiva visiva di Wes Anderson da Roald Dahl con un cast stellare.",
+                synopsis: "Un ricco aristocratico scopre l'esistenza di un guru capace di vedere senza usare gli occhi e decide di carpirne il segreto per dominare al casinò.",
+                poster: "https://image.tmdb.org/t/p/w500/vQ507tX8zW03Vq8Yq7eLg6gT0f2.jpg"
+            },
+            {
+                id: 'netflix-if-anything',
+                title: "Se succede qualcosa, vi voglio bene",
+                year: 2020,
+                duration: 12,
+                isShort: true,
+                director: "Michael Govier, Will McCormack",
+                cast: "Animazione d'autore (Laura Dern prod.)",
+                platform: "netflix",
+                link: "https://www.netflix.com",
+                imdb: 7.8,
+                mymovies: 3.9,
+                mood: "corti",
+                why: "Premio Oscar Miglior Corto Animato: soli 12 minuti di commozione e delicatezza straordinarie sull'amore e il ricordo che supera il lutto.",
+                synopsis: "Due genitori affrontano il silenzio e il vuoto della perdita, guidati dalle ombre dei ricordi felici con la loro amata bambina.",
+                poster: "https://image.tmdb.org/t/p/w500/9e0x5t2k9y1m0k1j2l3o4p5q6r.jpg"
+            },
+            {
+                id: 'disney-kitbull',
+                title: "Kitbull",
+                year: 2019,
+                duration: 9,
+                isShort: true,
+                director: "Rosana Sullivan",
+                cast: "Pixar SparkShorts",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 8.0,
+                mymovies: 4.0,
+                mood: "corti",
+                why: "Nomination al Premio Oscar: gioiello Pixar in animazione 2D tradizionale sulla nascita dell'amicizia e della fiducia tra un gattino randagio e un pitbull.",
+                synopsis: "Un fiero e diffidente gattino di strada si ritrova a condividere un cortile con un pitbull: la solitudine iniziale si trasforma in un legame protettivo e indissolubile.",
+                poster: "https://image.tmdb.org/t/p/w500/kItbUL918237498234710293.jpg"
+            },
+            {
+                id: 'disney-bao',
+                title: "Bao",
+                year: 2018,
+                duration: 8,
+                isShort: true,
+                director: "Domee Shi",
+                cast: "Pixar Animation Studios",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 7.5,
+                mymovies: 3.8,
+                mood: "corti",
+                why: "Premio Oscar Miglior Corto Animato Pixar: una parabola tenera, geniale e commovente sul legame genitoriale e l'accettazione della crescita dei figli.",
+                synopsis: "Una madre sola riceve un'inattesa seconda chance di maternità quando uno dei suoi ravioli fatti a mano prende miracolosamente vita.",
+                poster: "https://image.tmdb.org/t/p/w500/mDwd9h6v3qK9lZ1v1m2n3b4c5.jpg"
+            },
+            {
+                id: 'disney-piper',
+                title: "Piper",
+                year: 2016,
+                duration: 6,
+                isShort: true,
+                director: "Alan Barillaro",
+                cast: "Pixar Animation Studios",
+                platform: "disney",
+                link: "https://www.disneyplus.com",
+                imdb: 8.3,
+                mymovies: 4.1,
+                mood: "corti",
+                why: "Premio Oscar Miglior Corto Animato: virtuosismo tecnico prodigioso e poesia pura sul coraggio di superare le proprie paure.",
+                synopsis: "Un cucciolo di piovanello affamato impara ad affrontare le onde del mare per scoprire il meraviglioso mondo nascosto sotto la battigia.",
+                poster: "https://image.tmdb.org/t/p/w500/piPEr98127391827391823719.jpg"
             }
         ];
 
@@ -1413,23 +1552,48 @@
         let minImdb = parseFloat(localStorage.getItem('cinestudio_min_imdb') || '6.3');
         let minMymovies = parseFloat(localStorage.getItem('cinestudio_min_mymovies') || '3.3');
         let customDnaItems = JSON.parse(localStorage.getItem('cinestudio_custom_dna') || '[]');
-        let radarItems = JSON.parse(localStorage.getItem('cinestudio_radar_movies') || 'null');
-        if (!radarItems) {
-            radarItems = [
-                {
-                    id: 'prime-i-guerrieri',
-                    title: "I guerrieri (Kelly's Heroes)",
-                    year: 1970,
-                    director: "Brian G. Hutton",
-                    cast: "Clint Eastwood, Telly Savalas, Donald Sutherland",
-                    imdb: 7.6,
-                    mymovies: 3.5,
-                    status: "Attualmente solo a noleggio (€ 3.99 su Prime/Apple)",
-                    note: "In monitoraggio attivo: ti avviserò non appena diventerà disponibile gratis (RaiPlay) o incluso in abbonamento senza costi extra."
-                }
-            ];
-            localStorage.setItem('cinestudio_radar_movies', JSON.stringify(radarItems));
-        }
+        let radarItems = JSON.parse(localStorage.getItem('cinestudio_radar_movies') || '[]');
+        const defaultRadar = [
+            {
+                id: 'prime-i-guerrieri',
+                title: "I guerrieri (Kelly's Heroes)",
+                year: 1970,
+                director: "Brian G. Hutton",
+                cast: "Clint Eastwood, Telly Savalas, Donald Sutherland",
+                imdb: 7.6,
+                mymovies: 3.5,
+                status: "Attualmente solo a noleggio (€ 3.99 su Prime/Apple)",
+                note: "In monitoraggio attivo: ti avviserò non appena diventerà disponibile gratis (RaiPlay) o incluso in abbonamento senza costi extra."
+            },
+            {
+                id: 'radar-whiplash',
+                title: "Whiplash",
+                year: 2014,
+                director: "Damien Chazelle (regista di La La Land)",
+                cast: "Miles Teller, J.K. Simmons, Paul Reiser",
+                imdb: 8.5,
+                mymovies: 4.2,
+                status: "Attualmente solo a noleggio/acquisto Store (Apple/Prime/Chili)",
+                note: "Capolavoro assoluto su ambizione e dedizione (3 Premi Oscar). Prototipo del mood 'Motivazionali': in monitoraggio attivo per l'arrivo in streaming flat senza costi extra."
+            },
+            {
+                id: 'radar-worth',
+                title: "Worth - Il patto",
+                year: 2021,
+                director: "Sara Colangelo",
+                cast: "Michael Keaton, Stanley Tucci, Amy Ryan",
+                imdb: 6.8,
+                mymovies: 3.4,
+                status: "Diritti streaming flat Netflix Italia attualmente scaduti",
+                note: "Dramma civile post 11 settembre. Spostato in Radar in attesa che rientri in catalogo flat o arrivi gratis su RaiPlay."
+            }
+        ];
+        defaultRadar.forEach(def => {
+            if (!radarItems.some(item => item.id === def.id || item.title.toLowerCase() === def.title.toLowerCase())) {
+                radarItems.push(def);
+            }
+        });
+        localStorage.setItem('cinestudio_radar_movies', JSON.stringify(radarItems));
 
         function getAllMovies() {
             const userCustom = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
@@ -1487,13 +1651,28 @@
                 if (!passesImdb && !passesMymovies) return false;
 
                 // Filtro Durata
-                if (maxDuration > 0 && movie.duration > maxDuration) return false;
+                if (maxDuration > 0) {
+                    if (maxDuration === 40) {
+                        // Solo cortometraggi
+                        if (movie.duration > 40 && !movie.isShort) return false;
+                    } else if (maxDuration === 180) {
+                        // Kolossal: oltre 2 ore (> 120 min)
+                        if (movie.duration <= 120) return false;
+                    } else {
+                        // Film serale (≤ 1h45m o ≤ 2h): escludi cortometraggi inferiori a 40 min a meno di selezione esplicita
+                        if (movie.duration > maxDuration) return false;
+                        if ((movie.duration <= 40 || movie.isShort) && mood !== 'corti') return false;
+                    }
+                }
 
                 // Filtro Mood
                 if (mood !== 'all') {
                     if (mood === 'novita') {
                         const isRecent = (movie.year >= 2022 || movie.mood === 'novita' || (Array.isArray(movie.mood) && movie.mood.includes('novita')));
                         if (!isRecent) return false;
+                    } else if (mood === 'corti') {
+                        const isShort = (movie.isShort || movie.mood === 'corti' || (Array.isArray(movie.mood) && movie.mood.includes('corti')) || movie.duration <= 40);
+                        if (!isShort) return false;
                     } else {
                         const hasMood = (movie.mood === mood || (Array.isArray(movie.mood) && movie.mood.includes(mood)));
                         if (!hasMood) return false;
@@ -1539,7 +1718,11 @@
                         <!-- Header Card con Badge Piattaforma e Anno -->
                         <div class="p-4 pb-2 flex items-center justify-between">
                             ${platformBadge}
-                            <span class="text-xs text-slate-400 font-mono">${movie.year} &bull; ${formatDuration(movie.duration)}</span>
+                            <span class="text-xs text-slate-400 font-mono flex items-center gap-1.5">
+                                ${movie.isShort || movie.duration <= 40 ? '<span class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase"><i class="fa-solid fa-bolt"></i> Corto</span>' : ''}
+                                ${movie.mood === 'motivazionali' ? '<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase"><i class="fa-solid fa-fire"></i> Riscatto</span>' : ''}
+                                <span>${movie.year} &bull; ${formatDuration(movie.duration)}</span>
+                            </span>
                         </div>
 
                         <!-- Titolo e Regista -->
@@ -1612,6 +1795,8 @@
                         <div class="flex items-center gap-1.5 mb-1 flex-wrap">
                             ${getPlatformBadge(m.platform, true)}
                             <span class="font-bold text-white group-hover:text-amber-300 transition text-[13px]">${escapeHtml(m.title)}</span>
+                            ${m.isShort || m.duration <= 40 ? '<span class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[9px] px-1.5 py-0.2 rounded font-bold uppercase">Corto</span>' : ''}
+                            ${m.mood === 'motivazionali' ? '<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[9px] px-1.5 py-0.2 rounded font-bold uppercase">Riscatto</span>' : ''}
                             <span class="text-[10px] px-1.5 py-0.2 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30 opacity-80 group-hover:opacity-100 flex items-center gap-1"><i class="fa-solid fa-book-open text-[9px]"></i> Trama & Dettagli</span>
                         </div>
                         <p class="text-slate-400 text-[11px] truncate"><i class="fa-solid fa-clapperboard text-slate-500 mr-1"></i>${escapeHtml(m.director)} &bull; ${m.year} &bull; ${formatDuration(m.duration)}</p>
@@ -1730,6 +1915,8 @@
             // Badges
             document.getElementById('detail-badges').innerHTML = `
                 ${getPlatformBadge(movie.platform)}
+                ${movie.isShort || movie.duration <= 40 ? '<span class="text-xs px-2 py-0.5 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 font-bold uppercase"><i class="fa-solid fa-bolt mr-1"></i>Cortometraggio</span>' : ''}
+                ${movie.mood === 'motivazionali' ? '<span class="text-xs px-2 py-0.5 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold uppercase"><i class="fa-solid fa-fire mr-1"></i>Motivazionale</span>' : ''}
                 <span class="text-xs px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 font-mono">${movie.year}</span>
                 <span class="text-xs px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 font-mono"><i class="fa-regular fa-clock mr-1 text-emerald-400"></i>${formatDuration(movie.duration)}</span>
             `;
@@ -1739,10 +1926,15 @@
             const isSeen = seenIds.has(movie.id);
 
             document.getElementById('detail-actions').innerHTML = `
-                <a href="${movie.link}" target="_blank" rel="noopener noreferrer" class="py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center gap-1.5 shadow-lg shadow-amber-500/20 cursor-pointer">
-                    <i class="fa-solid fa-play"></i> Guarda su ${getPlatformName(movie.platform)}
-                </a>
-                <div class="flex items-center gap-2 flex-wrap">
+                <div class="flex items-center gap-2 flex-wrap w-full justify-between">
+                    <a href="${movie.link}" target="_blank" rel="noopener noreferrer" class="py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center gap-1.5 shadow-lg shadow-amber-500/20 cursor-pointer">
+                        <i class="fa-solid fa-play"></i> Guarda su ${getPlatformName(movie.platform)}
+                    </a>
+                    <a href="https://www.justwatch.com/it/cerca?q=${encodeURIComponent(movie.title)}" target="_blank" rel="noopener noreferrer" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-sky-400 hover:text-sky-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer" title="Verifica in tempo reale su JustWatch se le licenze streaming sono cambiate">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> <span>Verifica Licenza Streaming</span>
+                    </a>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap pt-2 border-t border-slate-800/80 w-full">
                     <button onclick="closeMovieDetailsModal(); openRemindModal('${movie.id}')" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-sky-950 hover:text-sky-400 border border-slate-700 text-slate-300 transition text-xs font-bold flex items-center gap-1.5 cursor-pointer" title="Promemoria WhatsApp / Calendar">
                         <i class="fa-solid fa-bell text-sky-400"></i> <span>Promemoria</span>
                     </button>
