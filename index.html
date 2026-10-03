@@ -271,27 +271,44 @@
 
             </div>
 
-            <!-- Guardrail Indicator Bar -->
-            <div class="mt-4 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
-                <div class="flex items-center gap-4 flex-wrap">
+<!-- Guardrail Indicator Bar con Controlli Rapidi Voti & Preset -->
+            <div class="mt-4 pt-3 border-t border-slate-800/80 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs text-slate-400">
+                <div class="flex items-center gap-2.5 flex-wrap">
                     <span class="inline-flex items-center gap-1.5 font-bold text-amber-400">
-                        <i class="fa-solid fa-shield-halved"></i> Guardrail Attivi:
+                        <i class="fa-solid fa-sliders text-xs"></i> Filtro Qualità:
                     </span>
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 text-slate-200 font-mono text-[11px]">
-                        <span class="text-[#f5c518] font-black">IMDb</span> &ge; <span id="label-imdb-val">6.3</span>
-                    </span>
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 text-slate-200 font-mono text-[11px]">
-                        <span class="text-rose-400 font-black">MYmovies</span> &ge; <span id="label-mymovies-val">3.3</span>
-                    </span>
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-950/70 text-emerald-300 border border-emerald-800/70 font-mono text-[11px] font-bold">
-                        <i class="fa-solid fa-circle-check text-emerald-400"></i> Zero Noleggi (Solo inclusi in abbonamento o 100% Free)
-                    </span>
-                    <span class="text-slate-400 text-[11px]">
-                        <i class="fa-solid fa-ban text-rose-500"></i> Horror, demenziali, lenti senza trama, musical esclusi.
-                    </span>
+
+                    <!-- Preset Rapidi a 1-Tap -->
+                    <div class="inline-flex items-center gap-1 bg-slate-900/90 border border-slate-700/80 p-0.5 rounded-xl">
+                        <button type="button" onclick="applyRatingPreset('capolavori')" id="btn-preset-capolavori" class="px-2 py-1 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition cursor-pointer" title="Solo punteggi altissimi (IMDb ≥ 7.5)">
+                            🌟 Capolavori (7.5+)
+                        </button>
+                        <button type="button" onclick="applyRatingPreset('standard')" id="btn-preset-standard" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 transition cursor-pointer" title="Standard equilibrato (IMDb ≥ 6.3 / MYmovies ≥ 3.3)">
+                            🎯 Standard (6.3+)
+                        </button>
+                        <button type="button" onclick="applyRatingPreset('ampia')" id="btn-preset-ampia" class="px-2 py-1 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition cursor-pointer" title="Scelta più ampia: include commedie brillanti e gemme (IMDb ≥ 5.8 / MYmovies ≥ 2.8)">
+                            🌐 Scelta Ampia (5.8+)
+                        </button>
+                        <button type="button" onclick="applyRatingPreset('tutti')" id="btn-preset-tutti" class="px-2 py-1 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition cursor-pointer" title="Nessun limite minimo di voto: esplora l'intero catalogo">
+                            ✨ Tutto il Catalogo
+                        </button>
+                    </div>
+
+                    <!-- Input Stepper Diretti IMDb & MYmovies -->
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <div class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 font-mono text-[11px]" title="Regola voto minimo IMDb">
+                            <span class="text-[#f5c518] font-black">IMDb &ge;</span>
+                            <input type="number" id="quick-imdb-val" step="0.1" min="0.0" max="9.5" value="6.3" onchange="setQuickRating('imdb', this.value)" class="w-10 bg-transparent text-amber-300 font-black text-center focus:outline-none focus:border-b border-amber-400 p-0 text-xs">
+                        </div>
+                        <div class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 font-mono text-[11px]" title="Regola voto minimo MYmovies">
+                            <span class="text-rose-400 font-black">MYmovies &ge;</span>
+                            <input type="number" id="quick-mymovies-val" step="0.1" min="0.0" max="5.0" value="3.3" onchange="setQuickRating('mymovies', this.value)" class="w-10 bg-transparent text-rose-300 font-black text-center focus:outline-none focus:border-b border-rose-400 p-0 text-xs">
+                        </div>
+                    </div>
                 </div>
-                <div class="text-[11px] text-slate-400">
-                    <span id="filtered-pool-count">--</span> capolavori disponibili nel database
+
+                <div class="text-[11px] text-slate-400 shrink-0 font-medium">
+                    <span id="filtered-pool-count" class="font-bold text-amber-400 font-mono text-xs">--</span> film disponibili nel catalogo attivo
                 </div>
             </div>
         </div>
@@ -1815,6 +1832,550 @@
                 "synopsis": "Dalla biblioteca paterna a Recanati alle vie di Napoli e Firenze: la traiettoria esistenziale e filosofica di uno dei più grandi spiriti liberi della letteratura.",
                 "poster": "https://image.tmdb.org/t/p/w500/giovaneFavoloso2014.jpg",
                 "emotionalTone": "demanding"
+        },
+        {
+                "id": "prime-mediterraneo",
+                "title": "Mediterraneo",
+                "year": 1991,
+                "duration": 96,
+                "director": "Gabriele Salvatores",
+                "cast": "Diego Abatantuono, Claudio Bigagli, Giuseppe Cederna, Claudio Bisio",
+                "platform": "prime",
+                "link": "https://www.primevideo.com",
+                "imdb": 7.3,
+                "mymovies": 4.1,
+                "mood": "anima",
+                "emotionalTone": "uplifting",
+                "why": "Premio Oscar Miglior Film Straniero. Nei tuoi Punti Cardinali: inno alla fuga, alla fratellanza e alla bellezza sospesa del mare greco.",
+                "synopsis": "Seconda guerra mondiale: un manipolo di soldati italiani approda su una sperduta isola greca e scopre una dimensione di pace e calore umano dimenticati.",
+                "poster": "https://image.tmdb.org/t/p/w500/mediterraneo1991.jpg"
+        },
+        {
+                "id": "raiplay-salvatores-folle-amore",
+                "title": "Tutto il mio folle amore",
+                "year": 2019,
+                "duration": 97,
+                "director": "Gabriele Salvatores",
+                "cast": "Claudio Santamaria, Valeria Golino, Diego Abatantuono, Giulio Pranno",
+                "platform": "raiplay",
+                "link": "https://www.raiplay.it",
+                "imdb": 6.5,
+                "mymovies": 3.2,
+                "mood": "anima",
+                "emotionalTone": "uplifting",
+                "why": "Salvatores dirige Santamaria e Abatantuono: road movie vitale e toccante sul legame ritrovato tra padre e figlio.",
+                "synopsis": "Un cantante di matrimoni scopre l'esistenza del figlio autistico adolescente e decide di intraprendere con lui un viaggio avventuroso attraverso i Balcani.",
+                "poster": "https://image.tmdb.org/t/p/w500/folleAmore2019.jpg"
+        },
+        {
+                "id": "raiplay-casanova",
+                "title": "Il ritorno di Casanova",
+                "year": 2023,
+                "duration": 90,
+                "director": "Gabriele Salvatores",
+                "cast": "Toni Servillo, Fabrizio Bentivoglio, Sara Serraiocco",
+                "platform": "raiplay",
+                "link": "https://www.raiplay.it",
+                "imdb": 6.3,
+                "mymovies": 3.1,
+                "mood": "autore",
+                "emotionalTone": "uplifting",
+                "why": "Incontro tra Salvatores e Toni Servillo: una riflessione ironica e poetica sul tempo che scorre e la passione infinita per il cinema.",
+                "synopsis": "Un affermato regista alle prese con il suo nuovo film sul mito di Casanova si trova a fare i conti con la propria giovinezza e l'amore che cambia.",
+                "poster": "https://image.tmdb.org/t/p/w500/ritornoCasanova2023.jpg"
+        },
+        {
+                "id": "netflix-stranezza",
+                "title": "La stranezza",
+                "year": 2022,
+                "duration": 103,
+                "director": "Roberto Andò",
+                "cast": "Toni Servillo, Salvo Ficarra, Valentino Picone",
+                "platform": "netflix",
+                "link": "https://www.netflix.com",
+                "imdb": 6.9,
+                "mymovies": 3.4,
+                "mood": "autore",
+                "emotionalTone": "uplifting",
+                "why": "4 David di Donatello. Toni Servillo è un maestoso Luigi Pirandello che incontra la commedia popolare siciliana: intelligenza, teatro e risate.",
+                "synopsis": "Nel 1920 Pirandello torna in Sicilia e incontra due teatranti amatoriali (Ficarra e Picone): dall'incontro nascerà l'ispirazione per 'Sei personaggi in cerca d'autore'.",
+                "poster": "https://image.tmdb.org/t/p/w500/stranezza2022.jpg"
+        },
+        {
+                "id": "raiplay-qui-rido-io",
+                "title": "Qui rido io",
+                "year": 2021,
+                "duration": 133,
+                "director": "Mario Martone",
+                "cast": "Toni Servillo, Maria Nazionale, Cristiana Dell'Anna, Eduardo Scarpetta",
+                "platform": "raiplay",
+                "link": "https://www.raiplay.it",
+                "imdb": 7,
+                "mymovies": 3.6,
+                "mood": "autore",
+                "emotionalTone": "engaging",
+                "why": "Toni Servillo vulcanico nei panni di Eduardo Scarpetta: grande regia d'autore di Mario Martone e la grandezza del teatro napoletano.",
+                "synopsis": "La vita teatrale, familiare e le battaglie legali contro Gabriele D'Annunzio del commediografo Eduardo Scarpetta nella Napoli d'inizio Novecento.",
+                "poster": "https://image.tmdb.org/t/p/w500/quiRidoIo2021.jpg"
+        },
+        {
+                "id": "prime-ragazza-nebbia",
+                "title": "La ragazza nella nebbia",
+                "year": 2017,
+                "duration": 128,
+                "director": "Donato Carrisi",
+                "cast": "Toni Servillo, Jean Reno, Alessio Boni",
+                "platform": "prime",
+                "link": "https://www.primevideo.com",
+                "imdb": 6.8,
+                "mymovies": 3.2,
+                "mood": "mente",
+                "emotionalTone": "engaging",
+                "why": "David di Donatello. Toni Servillo e Jean Reno in un thriller psicologico ad alta tensione nell'atmosfera claustrofobica delle Alpi.",
+                "synopsis": "L'ispettore Vogel viene inviato in uno sperduto borgo montano per indagare sulla misteriosa scomparsa di una giovane ragazza, attirando un circo mediatico.",
+                "poster": "https://image.tmdb.org/t/p/w500/ragazzaNebbia2017.jpg"
+        },
+        {
+                "id": "prime-uomo-labirinto",
+                "title": "L'uomo del labirinto",
+                "year": 2019,
+                "duration": 130,
+                "director": "Donato Carrisi",
+                "cast": "Toni Servillo, Dustin Hoffman, Valentina Bellè",
+                "platform": "prime",
+                "link": "https://www.primevideo.com",
+                "imdb": 6,
+                "mymovies": 3,
+                "mood": "mente",
+                "emotionalTone": "engaging",
+                "why": "Incontro eccezionale tra Toni Servillo e Dustin Hoffman: ritmo teso, colpi di scena e indagine psicologica serrata.",
+                "synopsis": "Una giovane donna rapita riemerge dopo quindici anni: un investigatore privato e un profiler collaborano per scovare l'inafferrabile rapitore.",
+                "poster": "https://image.tmdb.org/t/p/w500/uomoLabirinto2019.jpg"
+        },
+        {
+                "id": "prime-youth",
+                "title": "Youth - La giovinezza",
+                "year": 2015,
+                "duration": 124,
+                "director": "Paolo Sorrentino",
+                "cast": "Michael Caine, Harvey Keitel, Rachel Weisz, Paul Dano",
+                "platform": "prime",
+                "link": "https://www.primevideo.com",
+                "imdb": 7.3,
+                "mymovies": 3.8,
+                "mood": "autore",
+                "emotionalTone": "uplifting",
+                "why": "3 European Film Awards. Sorrentino dirige Michael Caine e Harvey Keitel: immagini sfolgoranti, riflessione sull'arte e colonna sonora indimenticabile.",
+                "synopsis": "In un elegante resort delle Alpi svizzere, un compositore in pensione e un regista cinematografico guardano con ironia e malinconia al futuro e ai ricordi.",
+                "poster": "https://image.tmdb.org/t/p/w500/youth2015.jpg"
+        },
+        {
+                "id": "raiplay-uomo-in-piu",
+                "title": "L'uomo in più",
+                "year": 2001,
+                "duration": 100,
+                "director": "Paolo Sorrentino",
+                "cast": "Toni Servillo, Andrea Renzi, Nello Mascia",
+                "platform": "raiplay",
+                "link": "https://www.raiplay.it",
+                "imdb": 7,
+                "mymovies": 3.5,
+                "mood": "autore",
+                "emotionalTone": "engaging",
+                "why": "Il fulmineo esordio di Paolo Sorrentino: Toni Servillo nei panni del magnetico cantante Tony Pisapia. Grande cinema napoletano.",
+                "synopsis": "Nella Napoli degli anni Ottanta, i destini incrociati di due uomini omonimi, un cantante cocainomane e un calciatore promettente, tra ascesa e declino.",
+                "poster": "https://image.tmdb.org/t/p/w500/uomoInPiu2001.jpg"
+        },
+        {
+                "id": "raiplay-moretti-palombella",
+                "title": "Palombella rossa",
+                "year": 1989,
+                "duration": 89,
+                "director": "Nanni Moretti",
+                "cast": "Nanni Moretti, Silvio Orlando, Mariella Valentini",
+                "platform": "raiplay",
+                "link": "https://www.raiplay.it",
+                "imdb": 7.1,
+                "mymovies": 3.8,
+                "mood": "autore",
+                "emotionalTone": "uplifting",
+                "why": "Cult assoluto con Moretti e Silvio Orlando: le musiche di Nicola Piovani, le battute storiche e la passione per la pallanuoto.",
+                "synopsis": "Un parlamentare che ha perso la memoria ritrova frammenti della propria identità e dei propri ideali durante una decisiva partita di pallanuoto in Sicilia.",
+                "poster": "https://image.tmdb.org/t/p/w500/palombellaRossa1989.jpg"
+        },
+        {
+                "id": "raiplay-moretti-bianca",
+                "title": "Bianca",
+                "year": 1984,
+                "duration": 96,
+                "director": "Nanni Moretti",
+                "cast": "Nanni Moretti, Laura Morante, Roberto Vezzosi",
+                "platform": "raiplay",
+                "link": "https://www.raiplay.it",
+                "imdb": 7.4,
+                "mymovies": 3.9,
+                "mood": "autore",
+                "emotionalTone": "uplifting",
+                "why": "Uno dei vertici comico-intellettuali di Moretti con Laura Morante: la Sachertorte, il barattolo gigante di Nutella e l'amore tormentato.",
+                "synopsis": "Michele Apicella, professore di matematica ossessionato dall'ordine e dalle vite altrui, si innamora della collega Bianca mentre attorno a lui avvengono strani delitti.",
+                "poster": "https://image.tmdb.org/t/p/w500/bianca1984.jpg"
+        },
+        {
+                "id": "raiplay-moretti-habemus",
+                "title": "Habemus Papam",
+                "year": 2011,
+                "duration": 104,
+                "director": "Nanni Moretti",
+                "cast": "Michel Piccoli, Nanni Moretti, Margherita Buy, Jerzy Stuhr",
+                "platform": "raiplay",
+                "link": "https://www.raiplay.it",
+                "imdb": 7,
+                "mymovies": 3.5,
+                "mood": "autore",
+                "emotionalTone": "uplifting",
+                "why": "7 Nastri d'Argento. Il compianto Michel Piccoli regala una prova magistrale di fragilità, umanità e tenerezza.",
+                "synopsis": "Eletto nuovo pontefice in Vaticano, un cardinale è colto da un attacco di panico e rifiuta di affacciarsi su piazza San Pietro, richiedendo l'aiuto di uno psicanalista.",
+                "poster": "https://image.tmdb.org/t/p/w500/habemusPapam2011.jpg"
+        },
+        {
+                "id": "raiplay-pura-formalita",
+                "title": "Una pura formalità",
+                "year": 1994,
+                "duration": 108,
+                "director": "Giuseppe Tornatore",
+                "cast": "Gérard Depardieu, Roman Polanski, Sergio Rubini",
+                "platform": "raiplay",
+                "link": "https://www.raiplay.it",
+                "imdb": 7.6,
+                "mymovies": 3.7,
+                "mood": "mente",
+                "emotionalTone": "engaging",
+                "why": "Duello recitativo memorabile tra Gérard Depardieu e Roman Polanski, regia virtuosistica di Tornatore e musiche di Ennio Morricone.",
+                "synopsis": "Un celebre scrittore fermato senza documenti nella notte viene interrogato in una sperduta stazione di polizia da un commissario colto ed enigmatico.",
+                "poster": "https://image.tmdb.org/t/p/w500/puraFormalita1994.jpg"
+        },
+        {
+                "id": "prime-baaria",
+                "title": "Baarìa",
+                "year": 2009,
+                "duration": 150,
+                "director": "Giuseppe Tornatore",
+                "cast": "Francesco Scianna, Margareth Madè, Raoul Bova, Nicole Grimaudo",
+                "platform": "prime",
+                "link": "https://www.primevideo.com",
+                "imdb": 6.9,
+                "mymovies": 3.3,
+                "mood": "epica",
+                "emotionalTone": "uplifting",
+                "why": "Nastro d'Argento dell'Anno. Affresco monumentale siciliano lungo tre generazioni, con colonna sonora travolgente di Ennio Morricone.",
+                "synopsis": "Cinquant'anni di amori, passioni politiche e sogni nella Bagheria del Novecento attraverso la vita e gli occhi di Peppino Torrenuova.",
+                "poster": "https://image.tmdb.org/t/p/w500/baaria2009.jpg"
+        },
+        {
+                "id": "prime-cast-away",
+                "title": "Cast Away",
+                "year": 2000,
+                "duration": 143,
+                "director": "Robert Zemeckis",
+                "cast": "Tom Hanks, Helen Hunt, Nick Searcy",
+                "platform": "prime",
+                "link": "https://www.primevideo.com",
+                "imdb": 7.8,
+                "mymovies": 3.7,
+                "mood": "anima",
+                "emotionalTone": "uplifting",
+                "why": "Una delle interpretazioni più iconiche e commoventi di Tom Hanks: la sopravvivenza, la solitudine, l'amico Wilson e la forza di ricominciare.",
+                "synopsis": "Un dirigente FedEx sopravvive a un disastro aereo e rimane bloccato per anni su un'isola disabitata del Pacifico, trasformandosi nel profondo.",
+                "poster": "https://image.tmdb.org/t/p/w500/castAway2000.jpg"
+        },
+        {
+                "id": "prime-the-terminal",
+                "title": "The Terminal",
+                "year": 2004,
+                "duration": 128,
+                "director": "Steven Spielberg",
+                "cast": "Tom Hanks, Catherine Zeta-Jones, Stanley Tucci",
+                "platform": "prime",
+                "link": "https://www.primevideo.com",
+                "imdb": 7.4,
+                "mymovies": 3.5,
+                "mood": "cuore",
+                "emotionalTone": "uplifting",
+                "why": "Sodalizio d'oro Spielberg-Hanks: commedia umana irresistibile, calore, rispetto e solidarietà nell'aeroporto JFK di New York.",
+                "synopsis": "Un cittadino dell'est Europa rimane bloccato all'aeroporto di New York a causa di un colpo di stato nel suo paese d'origine che rende non valido il suo passaporto.",
+                "poster": "https://image.tmdb.org/t/p/w500/theTerminal2004.jpg"
+        },
+        {
+                "id": "netflix-ryan",
+                "title": "Salvate il soldato Ryan",
+                "year": 1998,
+                "duration": 169,
+                "director": "Steven Spielberg",
+                "cast": "Tom Hanks, Matt Damon, Tom Sizemore, Edward Burns",
+                "platform": "netflix",
+                "link": "https://www.netflix.com",
+                "imdb": 8.6,
+                "mymovies": 4.2,
+                "mood": "epica",
+                "emotionalTone": "engaging",
+                "why": "5 Premi Oscar. Spielberg dirige Tom Hanks e Matt Damon: la più grande e potente epopea sulla fratellanza e il valore della vita umana.",
+                "synopsis": "Durante lo sbarco in Normandia nel 1944, una squadra di soldati guidata dal capitano Miller attraversa le linee nemiche per salvare un paracadutista disperso.",
+                "poster": "https://image.tmdb.org/t/p/w500/soldatoRyan1998.jpg"
+        },
+        {
+                "id": "netflix-apollo13",
+                "title": "Apollo 13",
+                "year": 1995,
+                "duration": 140,
+                "director": "Ron Howard",
+                "cast": "Tom Hanks, Kevin Bacon, Bill Paxton, Ed Harris",
+                "platform": "netflix",
+                "link": "https://www.netflix.com",
+                "imdb": 7.7,
+                "mymovies": 3.8,
+                "mood": "mente",
+                "emotionalTone": "engaging",
+                "why": "2 Premi Oscar. Tom Hanks in uno dei capisaldi della tensione e dell'ingegno umano: 'Houston, abbiamo un problema'.",
+                "synopsis": "Nel 1970 un'esplosione a bordo della navicella spaziale Apollo 13 mette a rischio la vita di tre astronauti diretti sulla Luna, scatenando una disperata corsa al salvataggio.",
+                "poster": "https://image.tmdb.org/t/p/w500/apollo131995.jpg"
+        },
+        {
+                "id": "netflix-irishman",
+                "title": "The Irishman",
+                "year": 2019,
+                "duration": 209,
+                "director": "Martin Scorsese",
+                "cast": "Robert De Niro, Al Pacino, Joe Pesci, Harvey Keitel",
+                "platform": "netflix",
+                "link": "https://www.netflix.com",
+                "imdb": 7.8,
+                "mymovies": 4.1,
+                "mood": "autore",
+                "emotionalTone": "engaging",
+                "why": "Scorsese riunisce De Niro, Al Pacino e Joe Pesci in un'opera monumentale ed elegiaca su lealtà, rimorso e potere mafioso.",
+                "synopsis": "Attraverso i ricordi del sicario Frank Sheeran, la storia della scomparsa del potente sindacalista Jimmy Hoffa e mezzo secolo di crimine organizzato americano.",
+                "poster": "https://image.tmdb.org/t/p/w500/theIrishman2019.jpg"
+        },
+        {
+                "id": "prime-taxi-driver",
+                "title": "Taxi Driver",
+                "year": 1976,
+                "duration": 114,
+                "director": "Martin Scorsese",
+                "cast": "Robert De Niro, Jodie Foster, Harvey Keitel, Cybill Shepherd",
+                "platform": "prime",
+                "link": "https://www.primevideo.com",
+                "imdb": 8.2,
+                "mymovies": 4.6,
+                "mood": "autore",
+                "emotionalTone": "engaging",
+                "why": "Palma d'Oro a Cannes. Il capolavoro assoluto di Scorsese e De Niro: colonna sonora leggendaria di Bernard Herrmann.",
+                "synopsis": "Travis Bickle, reduce del Vietnam insonne e solitario, guida un taxi nella notte degradata di New York scivolando in una spirale di alienazione e riscatto.",
+                "poster": "https://image.tmdb.org/t/p/w500/taxiDriver1976.jpg"
+        },
+        {
+                "id": "prime-shutter-island",
+                "title": "Shutter Island",
+                "year": 2010,
+                "duration": 138,
+                "director": "Martin Scorsese",
+                "cast": "Leonardo DiCaprio, Mark Ruffalo, Ben Kingsley, Michelle Williams",
+                "platform": "prime",
+                "link": "https://www.primevideo.com",
+                "imdb": 8.2,
+                "mymovies": 3.9,
+                "mood": "mente",
+                "emotionalTone": "engaging",
+                "why": "Scorsese e DiCaprio in un thriller psicologico vertiginoso e labirintico, ricco di tensione e colpi di scena da maestro.",
+                "synopsis": "Due agenti federali sbarcano su un'isola-ospedale psichiatrico per criminali per indagare sulla scomparsa di un'internata, ma una fitta nebbia avvolge la verità.",
+                "poster": "https://image.tmdb.org/t/p/w500/shutterIsland2010.jpg"
+        },
+        {
+                "id": "raiplay-germano-fratello-unico",
+                "title": "Mio fratello è figlio unico",
+                "year": 2007,
+                "duration": 108,
+                "director": "Daniele Luchetti",
+                "cast": "Elio Germano, Riccardo Scamarcio, Angela Finocchiaro",
+                "platform": "raiplay",
+                "link": "https://www.raiplay.it",
+                "imdb": 7.1,
+                "mymovies": 3.5,
+                "mood": "cuore",
+                "emotionalTone": "uplifting",
+                "why": "David di Donatello a Elio Germano. Storia commovente e brillante di fratellanza, ideali e giovinezza nell'Italia degli anni '60 e '70.",
+                "synopsis": "A Latina negli anni Sessanta due fratelli molto diversi, l'introverso Accio e il carismatico Manrico, si scontrano su politica e sentimenti ma restano inseparabili.",
+                "poster": "https://image.tmdb.org/t/p/w500/fratelloUnico2007.jpg"
+        },
+        {
+                "id": "raiplay-germano-nostra-vita",
+                "title": "La nostra vita",
+                "year": 2010,
+                "duration": 98,
+                "director": "Daniele Luchetti",
+                "cast": "Elio Germano, Raoul Bova, Isabella Ragonese, Luca Zingaretti",
+                "platform": "raiplay",
+                "link": "https://www.raiplay.it",
+                "imdb": 6.9,
+                "mymovies": 3.4,
+                "mood": "cuore",
+                "emotionalTone": "uplifting",
+                "why": "Prix d'interprétation a Cannes per Elio Germano: interpretazione vibrante, commovente e piena di dignità e amore paterno.",
+                "synopsis": "Claudio, giovane operaio edile romano, affronta con determinazione feroce e generosità il compito di crescere da solo i suoi tre figli.",
+                "poster": "https://image.tmdb.org/t/p/w500/nostraVita2010.jpg"
+        },
+        {
+                "id": "netflix-suburra",
+                "title": "Suburra",
+                "year": 2015,
+                "duration": 130,
+                "director": "Stefano Sollima",
+                "cast": "Elio Germano, Pierfrancesco Favino, Claudio Amendola",
+                "platform": "netflix",
+                "link": "https://www.netflix.com",
+                "imdb": 7.3,
+                "mymovies": 3.6,
+                "mood": "mente",
+                "emotionalTone": "engaging",
+                "why": "Elio Germano e Favino in un noir potente ed energico, con colonna sonora travolgente degli M83.",
+                "synopsis": "Sette giorni prima della caduta del governo a Roma: criminalità, politici corrotti e il Vaticano si contendono la trasformazione del litorale di Ostia.",
+                "poster": "https://image.tmdb.org/t/p/w500/suburra2015.jpg"
+        },
+        {
+                "id": "raiplay-scola-giornata",
+                "title": "Una giornata particolare",
+                "year": 1977,
+                "duration": 106,
+                "director": "Ettore Scola",
+                "cast": "Marcello Mastroianni, Sophia Loren, John Vernon",
+                "platform": "raiplay",
+                "link": "https://www.raiplay.it",
+                "imdb": 8.1,
+                "mymovies": 4.2,
+                "mood": "autore",
+                "emotionalTone": "uplifting",
+                "why": "Golden Globe e 2 nomination agli Oscar. Il capolavoro più intimo e delicato di Ettore Scola con Mastroianni e Sophia Loren.",
+                "synopsis": "Il 6 maggio 1938, mentre Roma assiste alla visita di Hitler, in un caseggiato deserto una casalinga oppressa e un conduttore radiofonico antifascista si incontrano.",
+                "poster": "https://image.tmdb.org/t/p/w500/giornataParticolare1977.jpg"
+        },
+        {
+                "id": "raiplay-scola-famiglia",
+                "title": "La famiglia",
+                "year": 1987,
+                "duration": 127,
+                "director": "Ettore Scola",
+                "cast": "Vittorio Gassman, Stefania Sandrelli, Fanny Ardant, Ottavia Piccolo",
+                "platform": "raiplay",
+                "link": "https://www.raiplay.it",
+                "imdb": 7.7,
+                "mymovies": 4,
+                "mood": "autore",
+                "emotionalTone": "uplifting",
+                "why": "5 David di Donatello. Uno straordinario Vittorio Gassman in un affresco caldo e nostalgico che attraversa ottant'anni di memoria italiana.",
+                "synopsis": "Dalla Prima guerra mondiale agli anni Ottanta: la vita, gli amori, le speranze e le delusioni di una famiglia borghese attraverso le stanze di una casa romana.",
+                "poster": "https://image.tmdb.org/t/p/w500/laFamiglia1987.jpg"
+        },
+        {
+                "id": "raiplay-scola-brutti-sporchi",
+                "title": "Brutti, sporchi e cattivi",
+                "year": 1976,
+                "duration": 115,
+                "director": "Ettore Scola",
+                "cast": "Nino Manfredi, Maria Luisa Santella, Francesco Anniballi",
+                "platform": "raiplay",
+                "link": "https://www.raiplay.it",
+                "imdb": 7.7,
+                "mymovies": 4,
+                "mood": "autore",
+                "emotionalTone": "uplifting",
+                "why": "Prix de la mise en scène a Cannes. Un Nino Manfredi monumentale nella satira grottesca e indimenticabile di Ettore Scola.",
+                "synopsis": "In una baraccopoli della periferia romana, il vecchio e avaro Giacinto custodisce gelosamente un milione di lire mentre l'intera famiglia trama per derubarlo.",
+                "poster": "https://image.tmdb.org/t/p/w500/bruttiSporchi1976.jpg"
+        },
+        {
+                "id": "raiplay-scola-che-ora-e",
+                "title": "Che ora è?",
+                "year": 1989,
+                "duration": 98,
+                "director": "Ettore Scola",
+                "cast": "Marcello Mastroianni, Massimo Troisi, Anne Parillaud",
+                "platform": "raiplay",
+                "link": "https://www.raiplay.it",
+                "imdb": 7,
+                "mymovies": 3.5,
+                "mood": "cuore",
+                "emotionalTone": "uplifting",
+                "why": "Coppa Volpi a Venezia per Marcello Mastroianni e Massimo Troisi: un duetto padre-figlio di rara tenerezza, ironia e calore umano.",
+                "synopsis": "Un affermato avvocato romano va a Civitavecchia a trovare il figlio che sta svolgendo il servizio militare: una giornata trascorsa insieme per conoscersi davvero.",
+                "poster": "https://image.tmdb.org/t/p/w500/cheOraE1989.jpg"
+        },
+        {
+                "id": "netflix-cortellesi-figli",
+                "title": "Figli",
+                "year": 2020,
+                "duration": 97,
+                "director": "Giuseppe Bonito",
+                "cast": "Paola Cortellesi, Valerio Mastandrea, Babak Karimi",
+                "platform": "netflix",
+                "link": "https://www.netflix.com",
+                "imdb": 6.6,
+                "mymovies": 3.4,
+                "mood": "cuore",
+                "emotionalTone": "uplifting",
+                "why": "Scritto dal geniale Mattia Torre. Paola Cortellesi e Valerio Mastandrea in una commedia brillante, veritiera e spassosa sulla genitorialità oggi.",
+                "synopsis": "Nicola e Sara, coppia affiatata con una figlia di sei anni, vengono travolti dall'arrivo del secondo figlio, affrontando esilaranti fatiche quotidiane.",
+                "poster": "https://image.tmdb.org/t/p/w500/figli2020.jpg"
+        },
+        {
+                "id": "netflix-cortellesi-gatto-tangenziale",
+                "title": "Come un gatto in tangenziale",
+                "year": 2017,
+                "duration": 98,
+                "director": "Riccardo Milani",
+                "cast": "Paola Cortellesi, Antonio Albanese, Sonia Bergamasco, Claudio Amendola",
+                "platform": "netflix",
+                "link": "https://www.netflix.com",
+                "imdb": 6.4,
+                "mymovies": 3.3,
+                "mood": "cuore",
+                "emotionalTone": "uplifting",
+                "why": "Nastro d'Argento Miglior Commedia. Paola Cortellesi e Antonio Albanese formano una coppia comica irresistibile e intelligente.",
+                "synopsis": "Cosa succede quando i figli adolescenti di una verace popolana di Bastogi e di un intellettuale dei palazzi del centro si fidanzano? Scoppia la commedia.",
+                "poster": "https://image.tmdb.org/t/p/w500/gattoTangenziale2017.jpg"
+        },
+        {
+                "id": "raiplay-cortellesi-scusate-se-esisto",
+                "title": "Scusate se esisto!",
+                "year": 2014,
+                "duration": 103,
+                "director": "Riccardo Milani",
+                "cast": "Paola Cortellesi, Raoul Bova, Marco Giallini, Ennio Fantastichini",
+                "platform": "raiplay",
+                "link": "https://www.raiplay.it",
+                "imdb": 6.5,
+                "mymovies": 3.2,
+                "mood": "cuore",
+                "emotionalTone": "uplifting",
+                "why": "Nastro d'Argento Speciale. Paola Cortellesi affronta con verve e intelligenza il tema del talento femminile costretto a celarsi per affermarsi.",
+                "synopsis": "Serena, brillante architetto giramondo, torna a Roma per lavorare ma incontra pregiudizi: decide così di fingersi un uomo assistito dal bizzarro amico Francesco.",
+                "poster": "https://image.tmdb.org/t/p/w500/scusateSeEsisto2014.jpg"
+        },
+        {
+                "id": "raiplay-cortellesi-nessuno-mi-puo-giudicare",
+                "title": "Nessuno mi può giudicare",
+                "year": 2011,
+                "duration": 95,
+                "director": "Massimiliano Bruno",
+                "cast": "Paola Cortellesi, Raoul Bova, Rocco Papaleo, Anna Foglietta",
+                "platform": "raiplay",
+                "link": "https://www.raiplay.it",
+                "imdb": 6.1,
+                "mymovies": 3,
+                "mood": "cuore",
+                "emotionalTone": "uplifting",
+                "why": "David di Donatello Miglior Attrice a Paola Cortellesi. Commedia ad alto ritmo, solare e divertente con Rocco Papaleo e Raoul Bova.",
+                "synopsis": "Alice, ricca e superficiale donna romana, si ritrova all'improvviso sul lastrico con un figlio e deve reinventarsi totalmente scoprendo calore e umiltà.",
+                "poster": "https://image.tmdb.org/t/p/w500/nessunoGiudicare2011.jpg"
         }
 ];
 
@@ -1822,6 +2383,8 @@
         let activePlatforms = new Set(['netflix', 'prime', 'disney', 'raiplay', 'discovery', 'la7']);
         let seenIds = new Set(JSON.parse(localStorage.getItem('cinestudio_seen') || '[]'));
         let watchlistIds = new Set(JSON.parse(localStorage.getItem('cinestudio_watchlist') || '[]'));
+        let recentRecommendedIds = [];
+        window.recentRecommendedIds = recentRecommendedIds;
         
         // Film predefiniti della Watchlist (sincronizzati automaticamente su smartphone Netlify e PC)
         const defaultWatchlist = [
@@ -2164,15 +2727,31 @@
 
         function getAllMovies() {
             const userCustom = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
-            return [...INITIAL_CATALOG, ...userCustom];
+            const demotedIds = new Set(JSON.parse(localStorage.getItem('cinestudio_demoted_ids') || '[]'));
+            const all = [...INITIAL_CATALOG, ...userCustom];
+            return all.filter(m => !demotedIds.has(m.id));
         }
 
         // Init
         document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('label-imdb-val').textContent = minImdb;
-            document.getElementById('label-mymovies-val').textContent = minMymovies;
-            document.getElementById('cfg-imdb-min').value = minImdb;
-            document.getElementById('cfg-mymovies-min').value = minMymovies;
+            const qImdb = document.getElementById('quick-imdb-val');
+            if (qImdb) qImdb.value = minImdb.toFixed(1);
+            const qMym = document.getElementById('quick-mymovies-val');
+            if (qMym) qMym.value = minMymovies.toFixed(1);
+            const cfgImdb = document.getElementById('cfg-imdb-min');
+            if (cfgImdb) cfgImdb.value = minImdb;
+            const cfgMym = document.getElementById('cfg-mymovies-min');
+            if (cfgMym) cfgMym.value = minMymovies;
+            const lblImdb = document.getElementById('label-imdb-val');
+            if (lblImdb) lblImdb.textContent = minImdb.toFixed(1);
+            const lblMym = document.getElementById('label-mymovies-val');
+            if (lblMym) lblMym.textContent = minMymovies.toFixed(1);
+            if (typeof updatePresetButtonsHighlight === 'function') updatePresetButtonsHighlight();
+            const savedComfort = localStorage.getItem('cinestudio_comfort_mode');
+            const comfortEl = document.getElementById('check-comfort-mode');
+            if (comfortEl) {
+                comfortEl.checked = (savedComfort !== 'false');
+            }
             updateWatchlistCount();
             updateRadarCount();
             renderCustomDnaTags();
@@ -2349,26 +2928,60 @@
                 return;
             }
 
-            // Scoring pesato con affinità DNA + varietà controllata ad ogni lancio
+            // Scoring dinamico con memoria anti-ripetizione ed estrazione stocastica ponderata
             const globalSearch = (document.getElementById('input-global-search')?.value || '').trim();
             let selected;
             if (globalSearch) {
-                // In modalità ricerca specifica, mostra direttamente i film trovati (fino a 3)
                 selected = pool.slice(0, 3);
             } else {
-                const scoredPool = pool.map(movie => {
+                // Escludi i film appena mostrati negli ultimi lanci per garantire rotazione costante
+                if (typeof window.recentRecommendedIds === 'undefined') {
+                    window.recentRecommendedIds = [];
+                }
+                
+                let candidatePool = pool.filter(m => !window.recentRecommendedIds.includes(m.id));
+                if (candidatePool.length < 3) {
+                    // Riserva esaurita o pool piccolo: azzera la memoria recente e riparti dall'intero pool
+                    window.recentRecommendedIds = [];
+                    candidatePool = [...pool];
+                }
+
+                // Calcolo peso di estrazione (voto IMDb + MYmovies + affinità DNA)
+                const scoredPool = candidatePool.map(movie => {
                     const dnaMatches = calculateDnaMatch(movie);
-                    let score = (movie.imdb * 10) + (movie.mymovies * 15);
-                    // Forte premialità se il film riflette il DNA cinefilo o i Punti Cardinali
+                    let weight = (movie.imdb * 6) + (movie.mymovies * 8);
                     if (dnaMatches.length > 0) {
-                        score += (dnaMatches.length * 35) + 20;
+                        weight += (dnaMatches.length * 16) + 12;
                     }
-                    score += Math.random() * 30;
-                    return { movie, score, dnaMatches };
+                    weight = Math.max(10, weight);
+                    return { movie, weight };
                 });
 
-                scoredPool.sort((a, b) => b.score - a.score);
-                selected = scoredPool.slice(0, 3).map(item => item.movie);
+                // Estrazione probabilistica senza reinserimento (Weighted Lottery Sampling)
+                selected = [];
+                const tempPool = [...scoredPool];
+                const countToPick = Math.min(3, tempPool.length);
+
+                for (let i = 0; i < countToPick; i++) {
+                    const totalWeight = tempPool.reduce((acc, item) => acc + item.weight, 0);
+                    let randomVal = Math.random() * totalWeight;
+                    let pickedIdx = 0;
+                    for (let j = 0; j < tempPool.length; j++) {
+                        randomVal -= tempPool[j].weight;
+                        if (randomVal <= 0) {
+                            pickedIdx = j;
+                            break;
+                        }
+                    }
+                    selected.push(tempPool[pickedIdx].movie);
+                    tempPool.splice(pickedIdx, 1);
+                }
+
+                // Registra i titoli estratti nel buffer di memoria anti-ripetizione (massimo 15 titoli recenti)
+                selected.forEach(m => window.recentRecommendedIds.push(m.id));
+                if (window.recentRecommendedIds.length > 15) {
+                    window.recentRecommendedIds = window.recentRecommendedIds.slice(-9);
+                }
             }
 
             selected.forEach((movie, index) => {
@@ -2543,6 +3156,93 @@
                 </div>
                 `;
             }).join('');
+        }
+
+        // Gestione Rapida Voti & Preset
+        function setQuickRating(type, val) {
+            val = parseFloat(val);
+            if (isNaN(val)) return;
+            if (type === 'imdb') {
+                minImdb = Math.max(0, Math.min(9.9, val));
+                localStorage.setItem('cinestudio_min_imdb', minImdb);
+                const qEl = document.getElementById('quick-imdb-val');
+                if (qEl) qEl.value = minImdb.toFixed(1);
+                const cfgEl = document.getElementById('cfg-imdb-min');
+                if (cfgEl) cfgEl.value = minImdb;
+                const lbl = document.getElementById('label-imdb-val');
+                if (lbl) lbl.textContent = minImdb.toFixed(1);
+            } else if (type === 'mymovies') {
+                minMymovies = Math.max(0, Math.min(5.0, val));
+                localStorage.setItem('cinestudio_min_mymovies', minMymovies);
+                const qEl = document.getElementById('quick-mymovies-val');
+                if (qEl) qEl.value = minMymovies.toFixed(1);
+                const cfgEl = document.getElementById('cfg-mymovies-min');
+                if (cfgEl) cfgEl.value = minMymovies;
+                const lbl = document.getElementById('label-mymovies-val');
+                if (lbl) lbl.textContent = minMymovies.toFixed(1);
+            }
+            updatePresetButtonsHighlight();
+            generateRecommendations(false);
+            renderAllMatchingMovies();
+        }
+
+        function applyRatingPreset(preset) {
+            if (preset === 'capolavori') {
+                minImdb = 7.5;
+                minMymovies = 3.7;
+            } else if (preset === 'standard') {
+                minImdb = 6.3;
+                minMymovies = 3.3;
+            } else if (preset === 'ampia') {
+                minImdb = 5.8;
+                minMymovies = 2.8;
+            } else if (preset === 'tutti') {
+                minImdb = 0.0;
+                minMymovies = 0.0;
+            }
+
+            localStorage.setItem('cinestudio_min_imdb', minImdb);
+            localStorage.setItem('cinestudio_min_mymovies', minMymovies);
+
+            const qImdb = document.getElementById('quick-imdb-val');
+            if (qImdb) qImdb.value = minImdb.toFixed(1);
+            const qMym = document.getElementById('quick-mymovies-val');
+            if (qMym) qMym.value = minMymovies.toFixed(1);
+
+            const cfgImdb = document.getElementById('cfg-imdb-min');
+            if (cfgImdb) cfgImdb.value = minImdb;
+            const cfgMym = document.getElementById('cfg-mymovies-min');
+            if (cfgMym) cfgMym.value = minMymovies;
+
+            const lblImdb = document.getElementById('label-imdb-val');
+            if (lblImdb) lblImdb.textContent = minImdb.toFixed(1);
+            const lblMym = document.getElementById('label-mymovies-val');
+            if (lblMym) lblMym.textContent = minMymovies.toFixed(1);
+
+            updatePresetButtonsHighlight(preset);
+            generateRecommendations(true);
+            renderAllMatchingMovies();
+        }
+
+        function updatePresetButtonsHighlight(activePreset = null) {
+            ['capolavori', 'standard', 'ampia', 'tutti'].forEach(p => {
+                const btn = document.getElementById('btn-preset-' + p);
+                if (!btn) return;
+                let isActive = false;
+                if (activePreset) {
+                    isActive = (activePreset === p);
+                } else {
+                    if (p === 'capolavori' && minImdb >= 7.4) isActive = true;
+                    else if (p === 'standard' && minImdb === 6.3 && minMymovies === 3.3) isActive = true;
+                    else if (p === 'ampia' && minImdb === 5.8 && minMymovies === 2.8) isActive = true;
+                    else if (p === 'tutti' && minImdb === 0 && minMymovies === 0) isActive = true;
+                }
+                if (isActive) {
+                    btn.className = "px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 transition cursor-pointer shadow-sm";
+                } else {
+                    btn.className = "px-2 py-1 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition cursor-pointer";
+                }
+            });
         }
 
         function getPlatformBadge(plat, mini = false) {
@@ -2728,8 +3428,8 @@
                 bio: "Maestro della fuga, dell'amicizia e del viaggio generazionale. Premio Oscar per Mediterraneo.",
                 films: [
                     { title: "Mediterraneo", year: 1991, status: "flat", platform: "Prime Video", imdb: 7.3, mymovies: 4.1, inCatalogId: "prime-mediterraneo", note: "Premio Oscar Miglior Film Straniero. Nei tuoi Punti Cardinali." },
-                    { title: "Tutto il mio folle amore", year: 2019, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.5, mymovies: 3.2, note: "Road movie con Claudio Santamaria, Valeria Golino e Diego Abatantuono." },
-                    { title: "Il ritorno di Casanova", year: 2023, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.3, mymovies: 3.1, note: "Con Toni Servillo e Fabrizio Bentivoglio: il tempo che scorre e la passione del cinema." },
+                    { title: "Tutto il mio folle amore", year: 2019, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.5, mymovies: 3.2, inCatalogId: "raiplay-salvatores-folle-amore", note: "Road movie con Claudio Santamaria, Valeria Golino e Diego Abatantuono." },
+                    { title: "Il ritorno di Casanova", year: 2023, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.3, mymovies: 3.1, inCatalogId: "raiplay-casanova", note: "Con Toni Servillo e Fabrizio Bentivoglio: il tempo che scorre e la passione del cinema." },
                     { title: "Marrakech Express", year: 1989, status: "rental", platform: "Store / Noleggio", imdb: 7.2, mymovies: 3.8, note: "Cult generazionale con Abatantuono, Bentivoglio, Cederna." },
                     { title: "Io non ho paura", year: 2003, status: "rental", platform: "Store / Noleggio", imdb: 7.4, mymovies: 3.8, note: "Dal capolavoro di Ammaniti, thriller di struggente tensione e bellezza solare." },
                     { title: "Turné", year: 1990, status: "rental", platform: "Store / Noleggio", imdb: 6.8, mymovies: 3.5, note: "Commedia teatrale on the road con Bentivoglio e Abatantuono." },
@@ -2746,13 +3446,13 @@
                     { title: "Le conseguenze dell'amore", year: 2004, status: "flat", platform: "Prime Video", imdb: 7.5, mymovies: 4.1, inCatalogId: "prime-sorrentino-conseguenze", note: "Paolo Sorrentino alla regia: un Toni Servillo magnetico e monumentale." },
                     { title: "È stata la mano di Dio", year: 2021, status: "flat", platform: "Netflix", imdb: 7.3, mymovies: 3.9, inCatalogId: "netflix-1", note: "Saverio Schisa nel ritratto sincero e nostalgico di Paolo Sorrentino." },
                     { title: "Il giovane favoloso", year: 2014, status: "flat", platform: "RaiPlay", imdb: 7.0, mymovies: 4.0, inCatalogId: "raiplay-giovane-favoloso", note: "Monaldo Leopardi: straordinaria recitazione e rigore storico." },
-                    { title: "La stranezza", year: 2022, status: "flat", platform: "Netflix", link: "https://www.netflix.com", imdb: 6.9, mymovies: 3.4, note: "Luigi Pirandello alle prese con Ficarra e Picone (4 David di Donatello)." },
+                    { title: "La stranezza", year: 2022, status: "flat", platform: "Netflix", link: "https://www.netflix.com", imdb: 6.9, mymovies: 3.4, inCatalogId: "netflix-stranezza", note: "Luigi Pirandello alle prese con Ficarra e Picone (4 David di Donatello)." },
                     { title: "La grande bellezza", year: 2013, status: "rental", platform: "Mediaset Infinity / Store", imdb: 7.7, mymovies: 4.2, note: "Jep Gambardella e il Premio Oscar a Paolo Sorrentino." },
                     { title: "Il divo", year: 2008, status: "rental", platform: "Store / Prime", imdb: 7.3, mymovies: 4.0, note: "Premio della Giuria a Cannes: Giulio Andreotti secondo Sorrentino." },
-                    { title: "Qui rido io", year: 2021, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.0, mymovies: 3.6, note: "Eduardo Scarpetta nella Napoli teatrale d'inizio Novecento (regia Mario Martone)." },
-                    { title: "L'uomo del labirinto", year: 2019, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 6.0, mymovies: 3.0, note: "Thriller psicologico di Donato Carrisi al fianco di Dustin Hoffman." },
-                    { title: "La ragazza nella nebbia", year: 2017, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 6.8, mymovies: 3.2, note: "L'ispettore Vogel tra i monti innevati con Jean Reno." },
-                    { title: "Il ritorno di Casanova", year: 2023, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.3, mymovies: 3.1, note: "Regia di Gabriele Salvatores con Fabrizio Bentivoglio." }
+                    { title: "Qui rido io", year: 2021, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.0, mymovies: 3.6, inCatalogId: "raiplay-qui-rido-io", note: "Eduardo Scarpetta nella Napoli teatrale d'inizio Novecento (regia Mario Martone)." },
+                    { title: "L'uomo del labirinto", year: 2019, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 6.0, mymovies: 3.0, inCatalogId: "prime-uomo-labirinto", note: "Thriller psicologico di Donato Carrisi al fianco di Dustin Hoffman." },
+                    { title: "La ragazza nella nebbia", year: 2017, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 6.8, mymovies: 3.2, inCatalogId: "prime-ragazza-nebbia", note: "L'ispettore Vogel tra i monti innevati con Jean Reno." },
+                    { title: "Il ritorno di Casanova", year: 2023, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.3, mymovies: 3.1, inCatalogId: "raiplay-casanova", note: "Regia di Gabriele Salvatores con Fabrizio Bentivoglio." }
                 ]
             },
             'sorrentino': {
@@ -2765,8 +3465,8 @@
                     { title: "Le conseguenze dell'amore", year: 2004, status: "flat", platform: "Prime Video", imdb: 7.5, mymovies: 4.1, inCatalogId: "prime-sorrentino-conseguenze", note: "Il capolavoro che ha rivelato Sorrentino al Festival di Cannes." },
                     { title: "La grande bellezza", year: 2013, status: "rental", platform: "Mediaset Infinity / Store", imdb: 7.7, mymovies: 4.2, note: "Premio Oscar al Miglior Film Straniero: la Roma decadente e sublime." },
                     { title: "Il divo", year: 2008, status: "rental", platform: "Store / Prime", imdb: 7.3, mymovies: 4.0, note: "Premio della Giuria a Cannes: grottesco, potente e ritmato." },
-                    { title: "Youth - La giovinezza", year: 2015, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 7.3, mymovies: 3.8, note: "Michael Caine e Harvey Keitel sulle Alpi svizzere." },
-                    { title: "L'uomo in più", year: 2001, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.0, mymovies: 3.5, note: "L'esordio folgorante con Toni Servillo e Andrea Renzi." }
+                    { title: "Youth - La giovinezza", year: 2015, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 7.3, mymovies: 3.8, inCatalogId: "prime-youth", note: "Michael Caine e Harvey Keitel sulle Alpi svizzere." },
+                    { title: "L'uomo in più", year: 2001, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.0, mymovies: 3.5, inCatalogId: "raiplay-uomo-in-piu", note: "L'esordio folgorante con Toni Servillo e Andrea Renzi." }
                 ]
             },
             'moretti': {
@@ -2778,9 +3478,9 @@
                     { title: "La stanza del figlio", year: 2001, status: "flat", platform: "RaiPlay", imdb: 7.3, mymovies: 4.0, inCatalogId: "raiplay-moretti-stanza", note: "Palma d'Oro a Cannes: musica di Nicola Piovani, dolore sobrio e commovente." },
                     { title: "Caro diario", year: 1993, status: "flat", platform: "RaiPlay", imdb: 7.2, mymovies: 3.9, inCatalogId: "raiplay-moretti-diario", note: "Premio Regia a Cannes: Roma estiva, le isole e le note di Piovani." },
                     { title: "Il sol dell'avvenire", year: 2023, status: "flat", platform: "Netflix", imdb: 6.7, mymovies: 3.8, inCatalogId: "netflix-moretti-avvenire", note: "In concorso a Cannes: inno al cinema che cambia e fa sperare." },
-                    { title: "Palombella rossa", year: 1989, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.1, mymovies: 3.8, note: "Michele Apicella e la pallanuoto tra memoria e politica." },
-                    { title: "Bianca", year: 1984, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.4, mymovies: 3.9, note: "Michele Apicella professore ossessionato dalla perfezione amorosa." },
-                    { title: "Habemus Papam", year: 2011, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.0, mymovies: 3.5, note: "Michel Piccoli eletto pontefice in preda al panico e alla tenerezza." }
+                    { title: "Palombella rossa", year: 1989, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.1, mymovies: 3.8, inCatalogId: "raiplay-moretti-palombella", note: "Michele Apicella e la pallanuoto tra memoria e politica." },
+                    { title: "Bianca", year: 1984, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.4, mymovies: 3.9, inCatalogId: "raiplay-moretti-bianca", note: "Michele Apicella professore ossessionato dalla perfezione amorosa." },
+                    { title: "Habemus Papam", year: 2011, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.0, mymovies: 3.5, inCatalogId: "raiplay-moretti-habemus", note: "Michel Piccoli eletto pontefice in preda al panico e alla tenerezza." }
                 ]
             },
             'tornatore': {
@@ -2793,8 +3493,8 @@
                     { title: "La migliore offerta", year: 2013, status: "flat", platform: "RaiPlay", imdb: 7.8, mymovies: 3.7, inCatalogId: "raiplay-6", note: "Thriller d'arte e mistero con Geoffrey Rush e musiche di Morricone." },
                     { title: "Ennio", year: 2021, status: "flat", platform: "RaiPlay", imdb: 8.2, mymovies: 4.4, inCatalogId: "raiplay-7", note: "Il ritratto monumentale del maestro Ennio Morricone." },
                     { title: "La leggenda del pianista sull'oceano", year: 1998, status: "radar", platform: "Store / Noleggio", imdb: 8.0, mymovies: 3.9, inRadarId: "radar-pianista-oceano", note: "Nel tuo Radar. Tim Roth e il capolavoro musicale di Morricone." },
-                    { title: "Una pura formalità", year: 1994, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.6, mymovies: 3.7, note: "Interrogatorio psicologico claustrofobico tra Polanski e Depardieu." },
-                    { title: "Baarìa", year: 2009, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 6.9, mymovies: 3.3, note: "Affresco storico siciliano lungo cinquant'anni." }
+                    { title: "Una pura formalità", year: 1994, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.6, mymovies: 3.7, inCatalogId: "raiplay-pura-formalita", note: "Interrogatorio psicologico claustrofobico tra Polanski e Depardieu." },
+                    { title: "Baarìa", year: 2009, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 6.9, mymovies: 3.3, inCatalogId: "prime-baaria", note: "Affresco storico siciliano lungo cinquant'anni." }
                 ]
             },
             'hanks': {
@@ -2806,10 +3506,10 @@
                     { title: "Prova a prendermi (Catch Me If You Can)", year: 2002, status: "flat", platform: "Prime Video", imdb: 8.1, mymovies: 3.7, inCatalogId: "prime-7", note: "L'agente Hanratty sulle tracce di DiCaprio diretto da Spielberg." },
                     { title: "Forrest Gump", year: 1994, status: "radar", platform: "Store / Noleggio", imdb: 8.8, mymovies: 4.0, inRadarId: "radar-forrest-gump", note: "Nel tuo Radar. 6 Oscar e punto di riferimento cinematografico mondiale." },
                     { title: "Il miglio verde", year: 1999, status: "radar", platform: "Store / Noleggio", imdb: 8.6, mymovies: 4.0, inRadarId: "radar-miglio-verde", note: "Nel tuo Radar. Dal regista di Le ali della libertà." },
-                    { title: "Cast Away", year: 2000, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 7.8, mymovies: 3.7, note: "Sopravvivenza, solitudine e l'amico Wilson su un'isola deserta." },
-                    { title: "The Terminal", year: 2004, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 7.4, mymovies: 3.5, note: "Viktor Navorski bloccato al JFK di New York: calore umano e dignità." },
-                    { title: "Salvate il soldato Ryan", year: 1998, status: "flat", platform: "Netflix / Prime", link: "https://www.netflix.com", imdb: 8.6, mymovies: 4.2, note: "Regia di Steven Spielberg, 5 Premi Oscar: lo sbarco in Normandia." },
-                    { title: "Apollo 13", year: 1995, status: "flat", platform: "Netflix", link: "https://www.netflix.com", imdb: 7.7, mymovies: 3.8, note: "Jim Lovell e il salvataggio spaziale più avvincente della storia." }
+                    { title: "Cast Away", year: 2000, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 7.8, mymovies: 3.7, inCatalogId: "prime-cast-away", note: "Sopravvivenza, solitudine e l'amico Wilson su un'isola deserta." },
+                    { title: "The Terminal", year: 2004, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 7.4, mymovies: 3.5, inCatalogId: "prime-the-terminal", note: "Viktor Navorski bloccato al JFK di New York: calore umano e dignità." },
+                    { title: "Salvate il soldato Ryan", year: 1998, status: "flat", platform: "Netflix / Prime", link: "https://www.netflix.com", imdb: 8.6, mymovies: 4.2, inCatalogId: "netflix-ryan", note: "Regia di Steven Spielberg, 5 Premi Oscar: lo sbarco in Normandia." },
+                    { title: "Apollo 13", year: 1995, status: "flat", platform: "Netflix", link: "https://www.netflix.com", imdb: 7.7, mymovies: 3.8, inCatalogId: "netflix-apollo13", note: "Jim Lovell e il salvataggio spaziale più avvincente della storia." }
                 ]
             },
             'scorsese': {
@@ -2820,9 +3520,9 @@
                 films: [
                     { title: "The Wolf of Wall Street", year: 2013, status: "flat", platform: "Netflix", imdb: 8.2, mymovies: 4.0, inCatalogId: "netflix-5", note: "Nei tuoi Punti Cardinali. Ritmo indiavolato con DiCaprio." },
                     { title: "Hugo Cabret", year: 2011, status: "flat", platform: "Disney+", imdb: 7.5, mymovies: 4.0, inCatalogId: "disney-1", note: "Nei tuoi Punti Cardinali. Lettera d'amore a Georges Méliès." },
-                    { title: "The Irishman", year: 2019, status: "flat", platform: "Netflix", link: "https://www.netflix.com", imdb: 7.8, mymovies: 4.1, note: "De Niro, Al Pacino e Joe Pesci nel testamento elegiaco del gangster movie." },
-                    { title: "Shutter Island", year: 2010, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 8.2, mymovies: 3.9, note: "Thriller psicologico labirintico e inquietante con Leonardo DiCaprio." },
-                    { title: "Taxi Driver", year: 1976, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 8.2, mymovies: 4.6, note: "Palma d'Oro a Cannes: Travis Bickle nella notte alienante di New York." },
+                    { title: "The Irishman", year: 2019, status: "flat", platform: "Netflix", link: "https://www.netflix.com", imdb: 7.8, mymovies: 4.1, inCatalogId: "netflix-irishman", note: "De Niro, Al Pacino e Joe Pesci nel testamento elegiaco del gangster movie." },
+                    { title: "Shutter Island", year: 2010, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 8.2, mymovies: 3.9, inCatalogId: "prime-shutter-island", note: "Thriller psicologico labirintico e inquietante con Leonardo DiCaprio." },
+                    { title: "Taxi Driver", year: 1976, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 8.2, mymovies: 4.6, inCatalogId: "prime-taxi-driver", note: "Palma d'Oro a Cannes: Travis Bickle nella notte alienante di New York." },
                     { title: "Quei bravi ragazzi (Goodfellas)", year: 1990, status: "rental", platform: "Store / Noleggio", imdb: 8.7, mymovies: 4.3, note: "Il capolavoro assoluto del montaggio e della narrazione mafiosa." }
                 ]
             },
@@ -2835,10 +3535,10 @@
                     { title: "Volevo nascondermi", year: 2020, status: "flat", platform: "RaiPlay", inCatalogId: "raiplay-volevo-nascondermi", imdb: 7.0, mymovies: 3.8, note: "Nei tuoi film salvati. Orso d'Argento a Berlino e David di Donatello (Antonio Ligabue)." },
                     { title: "Il giovane favoloso", year: 2014, status: "flat", platform: "RaiPlay", inCatalogId: "raiplay-giovane-favoloso", imdb: 7.0, mymovies: 4.0, note: "Giacomo Leopardi portato sullo schermo con grazia e tormento indimenticabili." },
                     { title: "L'incredibile storia dell'Isola delle Rose", year: 2020, status: "flat", platform: "Netflix", inCatalogId: "netflix-isola-rose", imdb: 7.0, mymovies: 3.5, note: "La geniale utopia libertaria dell'ingegner Giorgio Rosa al largo di Rimini." },
-                    { title: "Mio fratello è figlio unico", year: 2007, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.1, mymovies: 3.5, note: "Con Riccardo Scamarcio: crescita e ideali nell'Italia degli anni Sessanta e Settanta." },
+                    { title: "Mio fratello è figlio unico", year: 2007, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.1, mymovies: 3.5, inCatalogId: "raiplay-germano-fratello-unico", note: "Con Riccardo Scamarcio: crescita e ideali nell'Italia degli anni Sessanta e Settanta." },
                     { title: "Favolacce", year: 2020, status: "rental", platform: "Store / Noleggio", imdb: 6.8, mymovies: 3.6, note: "Orso d'Argento a Berlino dei fratelli D'Innocenzo con Elio Germano. Attualmente a noleggio nello store Prime/Apple." },
-                    { title: "La nostra vita", year: 2010, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.9, mymovies: 3.4, note: "Premio Miglior Attore a Cannes (ex aequo con Javier Bardem)." },
-                    { title: "Suburra", year: 2015, status: "flat", platform: "Netflix", link: "https://www.netflix.com", imdb: 7.3, mymovies: 3.6, note: "Diretto da Stefano Sollima con Pierfrancesco Favino e Claudio Amendola." }
+                    { title: "La nostra vita", year: 2010, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.9, mymovies: 3.4, inCatalogId: "raiplay-germano-nostra-vita", note: "Premio Miglior Attore a Cannes (ex aequo con Javier Bardem)." },
+                    { title: "Suburra", year: 2015, status: "flat", platform: "Netflix", link: "https://www.netflix.com", imdb: 7.3, mymovies: 3.6, inCatalogId: "netflix-suburra", note: "Diretto da Stefano Sollima con Pierfrancesco Favino e Claudio Amendola." }
                 ]
             },
             'scola': {
@@ -2849,8 +3549,8 @@
                 films: [
                     { title: "Una giornata particolare", year: 1977, status: "flat", platform: "RaiPlay", inCatalogId: "raiplay-scola-giornata", imdb: 8.1, mymovies: 4.2, note: "Marcello Mastroianni e Sophia Loren nel più delicato capolavoro antifascista." },
                     { title: "C'eravamo tanto amati", year: 1974, status: "radar", platform: "Store / Noleggio", inRadarId: "radar-scola-ceravamo-tanto-amati", imdb: 8.1, mymovies: 4.3, note: "Nel tuo Radar. Gassman, Manfredi, Sandrelli e Satta Flores." },
-                    { title: "La famiglia", year: 1987, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.7, mymovies: 4.0, note: "Un secolo di storia italiana visto attraverso le stanze di un appartamento romano." },
-                    { title: "Brutti, sporchi e cattivi", year: 1976, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.7, mymovies: 4.0, note: "Prix de la mise en scène a Cannes: Nino Manfredi in uno stato di grazia grottesco." },
+                    { title: "La famiglia", year: 1987, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.7, mymovies: 4.0, inCatalogId: "raiplay-scola-famiglia", note: "Un secolo di storia italiana visto attraverso le stanze di un appartamento romano." },
+                    { title: "Brutti, sporchi e cattivi", year: 1976, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.7, mymovies: 4.0, inCatalogId: "raiplay-scola-brutti-sporchi", note: "Prix de la mise en scène a Cannes: Nino Manfredi in uno stato di grazia grottesco." },
                     { title: "Che ora è?", year: 1989, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.0, mymovies: 3.5, note: "Coppa Volpi a Venezia per Marcello Mastroianni e Massimo Troisi (padre e figlio)." }
                 ]
             },
@@ -2861,10 +3561,10 @@
                 bio: "Talento poliedrico, comicità brillante e profonda sensibilità civile. Con il suo debutto alla regia 'C'è ancora domani' ha firmato uno dei più grandi successi d'autore del cinema italiano contemporaneo.",
                 films: [
                     { title: "C'è ancora domani", year: 2023, status: "flat", platform: "Netflix", inCatalogId: "netflix-ce-ancora-domani", imdb: 7.9, mymovies: 4.1, note: "6 David di Donatello e Nastro d'Argento: straordinario affresco in bianco e nero sul coraggio e il riscatto femminile." },
-                    { title: "Figli", year: 2020, status: "flat", platform: "Netflix / RaiPlay", link: "https://www.raiplay.it", imdb: 6.6, mymovies: 3.4, note: "Sceneggiatura di Mattia Torre con Valerio Mastandrea: le tragicomiche fatiche della genitorialità moderna." },
-                    { title: "Come un gatto in tangenziale", year: 2017, status: "flat", platform: "Netflix / Prime", link: "https://www.netflix.com", imdb: 6.4, mymovies: 3.3, note: "Con Antonio Albanese: contrasti sociali e irresistibili risate tra la borghesia romana e la periferia di Bastogi." },
-                    { title: "Scusate se esisto!", year: 2014, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.5, mymovies: 3.2, note: "Con Raoul Bova: un brillante architetto donna costretta a celare la propria identità per farsi valere professionalmente." },
-                    { title: "Nessuno mi può giudicare", year: 2011, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.1, mymovies: 3.0, note: "David di Donatello come Miglior Attrice Protagonista, commedia diretta da Massimiliano Bruno." }
+                    { title: "Figli", year: 2020, status: "flat", platform: "Netflix / RaiPlay", link: "https://www.raiplay.it", imdb: 6.6, mymovies: 3.4, inCatalogId: "netflix-cortellesi-figli", note: "Sceneggiatura di Mattia Torre con Valerio Mastandrea: le tragicomiche fatiche della genitorialità moderna." },
+                    { title: "Come un gatto in tangenziale", year: 2017, status: "flat", platform: "Netflix / Prime", link: "https://www.netflix.com", imdb: 6.4, mymovies: 3.3, inCatalogId: "netflix-cortellesi-gatto-tangenziale", note: "Con Antonio Albanese: contrasti sociali e irresistibili risate tra la borghesia romana e la periferia di Bastogi." },
+                    { title: "Scusate se esisto!", year: 2014, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.5, mymovies: 3.2, inCatalogId: "raiplay-cortellesi-scusate-se-esisto", note: "Con Raoul Bova: un brillante architetto donna costretta a celare la propria identità per farsi valere professionalmente." },
+                    { title: "Nessuno mi può giudicare", year: 2011, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.1, mymovies: 3.0, inCatalogId: "raiplay-cortellesi-nessuno-mi-puo-giudicare", note: "David di Donatello come Miglior Attrice Protagonista, commedia diretta da Massimiliano Bruno." }
                 ]
             }
         };
