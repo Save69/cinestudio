@@ -2521,6 +2521,8 @@
         let watchlistIds = new Set(JSON.parse(localStorage.getItem('cinestudio_watchlist') || '[]'));
         let recentRecommendedIds = [];
         window.recentRecommendedIds = recentRecommendedIds;
+        let currentRecommendations = [];
+        window.currentRecommendations = currentRecommendations;
         
         // Film predefiniti della Watchlist (sincronizzati automaticamente su smartphone Netlify e PC)
         const defaultWatchlist = [
@@ -3046,7 +3048,7 @@
             });
         }
 
-        function generateRecommendations(showAnimation = true) {
+        function generateRecommendations(showAnimation = true, forceRoll = true) {
             const pool = getFilteredPool();
             document.getElementById('filtered-pool-count').textContent = pool.length;
 
@@ -3064,12 +3066,23 @@
                 return;
             }
 
-            // Scoring dinamico con memoria anti-ripetizione ed estrazione stocastica ponderata
             const globalSearch = (document.getElementById('input-global-search')?.value || '').trim();
-            let selected;
+
+            // DETERMINA SE È NECESSARIO ESTRARRE UNA NUOVA TERNA
+            let shouldPickNew = forceRoll || !currentRecommendations || currentRecommendations.length === 0;
+
+            if (!shouldPickNew) {
+                // Se non è forzato il roll, verifica se i film attualmente proposti sono ancora validi nei filtri
+                const poolIds = new Set(pool.map(m => m.id));
+                const allStillValid = currentRecommendations.every(m => poolIds.has(m.id));
+                if (!allStillValid) {
+                    shouldPickNew = true;
+                }
+            }
+
             if (globalSearch) {
-                selected = pool.slice(0, 3);
-            } else {
+                currentRecommendations = pool.slice(0, 3);
+            } else if (shouldPickNew) {
                 // Escludi i film appena mostrati negli ultimi lanci per garantire rotazione costante
                 if (typeof window.recentRecommendedIds === 'undefined') {
                     window.recentRecommendedIds = [];
@@ -3094,7 +3107,7 @@
                 });
 
                 // Estrazione probabilistica senza reinserimento (Weighted Lottery Sampling)
-                selected = [];
+                const newPicks = [];
                 const tempPool = [...scoredPool];
                 const countToPick = Math.min(3, tempPool.length);
 
@@ -3109,18 +3122,20 @@
                             break;
                         }
                     }
-                    selected.push(tempPool[pickedIdx].movie);
+                    newPicks.push(tempPool[pickedIdx].movie);
                     tempPool.splice(pickedIdx, 1);
                 }
 
+                currentRecommendations = newPicks;
+
                 // Registra i titoli estratti nel buffer di memoria anti-ripetizione (massimo 15 titoli recenti)
-                selected.forEach(m => window.recentRecommendedIds.push(m.id));
+                currentRecommendations.forEach(m => window.recentRecommendedIds.push(m.id));
                 if (window.recentRecommendedIds.length > 15) {
                     window.recentRecommendedIds = window.recentRecommendedIds.slice(-9);
                 }
             }
 
-            selected.forEach((movie, index) => {
+            currentRecommendations.forEach((movie, index) => {
                 const card = document.createElement('div');
                 card.className = `w-[86vw] max-w-[340px] shrink-0 snap-center glass-panel rounded-2xl overflow-hidden border border-slate-700/80 flex flex-col justify-between hover:border-amber-500/50 transition duration-300 md:w-auto md:max-w-none ${showAnimation ? 'animate-fade-in' : ''}`;
                 card.style.animationDelay = `${index * 80}ms`;
@@ -3403,7 +3418,17 @@
         function markAsSeen(id) {
             seenIds.add(id);
             localStorage.setItem('cinestudio_seen', JSON.stringify(Array.from(seenIds)));
-            generateRecommendations(false);
+            // Se il film visto fa parte della terna attuale, sostituisci solo quello
+            if (currentRecommendations && currentRecommendations.some(m => m.id === id)) {
+                const pool = getFilteredPool().filter(m => !currentRecommendations.some(cr => cr.id === m.id));
+                if (pool.length > 0) {
+                    const replacement = pool[Math.floor(Math.random() * pool.length)];
+                    currentRecommendations = currentRecommendations.map(m => m.id === id ? replacement : m);
+                } else {
+                    currentRecommendations = currentRecommendations.filter(m => m.id !== id);
+                }
+            }
+            generateRecommendations(false, false);
             renderAllMatchingMovies();
         }
 
@@ -3423,7 +3448,7 @@
             }
             localStorage.setItem('cinestudio_watchlist', JSON.stringify(Array.from(watchlistIds)));
             updateWatchlistCount();
-            generateRecommendations(false);
+            generateRecommendations(false, false);
             renderAllMatchingMovies();
             const watchlistModal = document.getElementById('modal-watchlist');
             if (watchlistModal && !watchlistModal.classList.contains('hidden')) {
