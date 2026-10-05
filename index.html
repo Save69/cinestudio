@@ -882,110 +882,162 @@
         </div>
     </div>
 
+    <!-- Modal: Modifica / Correggi Piattaforma Streaming -->
+    <div id="modal-change-platform" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-md rounded-2xl p-6 space-y-4 border border-indigo-500/40 shadow-2xl animate-fade-in flex flex-col">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center text-sm font-bold">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-white">Aggiorna Piattaforma</h3>
+                        <p class="text-[11px] text-slate-400">I diritti sono cambiati? Assegna la piattaforma corretta.</p>
+                    </div>
+                </div>
+                <button onclick="closeChangePlatformModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <span class="text-slate-400 block text-[11px] mb-0.5">Film selezionato:</span>
+                    <h4 id="change-platform-movie-title" class="text-sm font-bold text-white"></h4>
+                </div>
+                <div>
+                    <label class="block text-slate-300 font-bold mb-1">Seleziona la Piattaforma Corrente:</label>
+                    <select id="select-new-platform" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold">
+                        <option value="netflix">Netflix</option>
+                        <option value="prime">Prime Video</option>
+                        <option value="raiplay">RaiPlay</option>
+                        <option value="disney">Disney+</option>
+                        <option value="la7">La7 (Gratuito)</option>
+                        <option value="discovery">Discovery+ (Gratuito)</option>
+                    </select>
+                </div>
+                <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-[11px] text-slate-400 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-sky-400 shrink-0"></i>
+                    <span>La modifica sarà salvata sul tuo dispositivo e applicata immediatamente alla terna e a tutte le schede.</span>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
+                <button type="button" id="btn-reset-platform-override" onclick="resetCurrentPlatformOverride()" class="text-[11px] text-rose-400 hover:text-rose-300 underline cursor-pointer">Ripristina originale</button>
+                <div class="flex gap-2">
+                    <button type="button" onclick="closeChangePlatformModal()" class="px-3 py-2 rounded-xl bg-slate-800 text-slate-300 font-bold hover:text-white cursor-pointer">Annulla</button>
+                    <button type="button" onclick="confirmPlatformChange()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold cursor-pointer flex items-center gap-1.5 shadow-lg shadow-indigo-600/30">
+                        <i class="fa-solid fa-check"></i> Salva
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Database Cinefilo Curato -->
     <script>
         const INITIAL_CATALOG = [
         {
-                "id": "prime-1",
-                "title": "C'era una volta in America",
-                "year": 1984,
-                "duration": 229,
-                "director": "Sergio Leone",
-                "cast": "Robert De Niro, James Woods, Elizabeth McGovern",
+                "id": "prime-argentina-1985",
+                "title": "Argentina, 1985",
+                "year": 2022,
+                "duration": 140,
+                "director": "Santiago Mitre",
+                "cast": "Ricardo Darín, Peter Lanzani, Alejandra Flechner",
                 "platform": "prime",
                 "link": "https://www.primevideo.com",
-                "imdb": 8.3,
-                "mymovies": 4.5,
-                "mood": "epica",
-                "why": "Il capolavoro assoluto di Sergio Leone, colonna sonora immortale di Ennio Morricone e narrazione potente.",
-                "synopsis": "Cinquant'anni di storia della criminalità newyorkese attraverso i ricordi, l'amicizia e il tradimento di Noodles.",
-                "poster": "https://image.tmdb.org/t/p/w500/i0enk5i0U08B4u3S3vV1kO0Lz2j.jpg",
+                "imdb": 7.6,
+                "mymovies": 3.8,
+                "mood": "autore",
+                "why": "Amazon Original candidato all'Oscar. Il coraggioso processo alla giunta militare argentina con un magistrale Ricardo Darín.",
+                "synopsis": "Un gruppo di procuratori legali indaga e porta a processo i massimi responsabili della sanguinosa dittatura militare argentina degli anni '80.",
+                "poster": "https://image.tmdb.org/t/p/w500/argentina1985.jpg",
                 "emotionalTone": "engaging"
         },
         {
-                "id": "prime-2",
-                "title": "Il cammino per Santiago",
-                "year": 2010,
-                "duration": 123,
-                "director": "Emilio Estevez",
-                "cast": "Martin Sheen, Emilio Estevez, Deborah Kara Unger",
+                "id": "prime-the-report",
+                "title": "The Report",
+                "year": 2019,
+                "duration": 119,
+                "director": "Scott Z. Burns",
+                "cast": "Adam Driver, Annette Bening, Jon Hamm",
                 "platform": "prime",
                 "link": "https://www.primevideo.com",
-                "imdb": 7.3,
+                "imdb": 7.2,
                 "mymovies": 3.5,
-                "mood": "anima",
-                "why": "Uno dei tuoi preferiti: viaggio interiore, riscoperta della vita, calore umano e passo lento ma profondo.",
-                "synopsis": "Un padre decide di percorrere il cammino di Santiago per onorare il figlio scomparso, incontrando compagni indimenticabili.",
-                "poster": "https://image.tmdb.org/t/p/w500/tLz8W8sC6jXQpX00oR93Kk0l72W.jpg",
-                "emotionalTone": "uplifting"
+                "mood": "mente",
+                "why": "Amazon Original d'inchiesta potente e teso. Adam Driver in una prova asciutta, rigorosa e implacabile.",
+                "synopsis": "Un integerrimo funzionario del Senato conduce un'indagine approfondita sul programma di detenzione e interrogatorio della CIA post-11 settembre.",
+                "poster": "https://image.tmdb.org/t/p/w500/theReport2019.jpg",
+                "emotionalTone": "tense"
         },
         {
-                "id": "prime-3",
-                "title": "Good Will Hunting - Genio ribelle",
+                "id": "netflix-will-hunting",
+                "title": "Will Hunting - Genio ribelle",
                 "year": 1997,
                 "duration": 126,
                 "director": "Gus Van Sant",
-                "cast": "Robin Williams, Matt Damon, Ben Affleck",
-                "platform": "prime",
-                "link": "https://www.primevideo.com",
+                "cast": "Matt Damon, Robin Williams, Ben Affleck",
+                "platform": "netflix",
+                "link": "https://www.netflix.com",
                 "imdb": 8.3,
-                "mymovies": 3.9,
-                "mood": "cuore",
-                "why": "Coppia d'oro dei tuoi attori preferiti: Matt Damon giovanissimo e uno straordinario Robin Williams da Oscar.",
-                "synopsis": "Un giovane genio matematico ribelle trova la sua strada grazie all'aiuto di un professore e di un terapeuta empatico.",
-                "poster": "https://image.tmdb.org/t/p/w500/bABCBKYBK7A7GZ0t4OehgWap8Za.jpg",
-                "emotionalTone": "uplifting"
+                "mymovies": 4.1,
+                "mood": "motivazionali",
+                "why": "Disponibile su Netflix. Premio Oscar a Robin Williams: toccante, profondo ed emozionante sul riscatto e la comprensione di sé.",
+                "synopsis": "Un giovane inserviente del MIT con un intelletto geniale fatica a trovare la sua strada e trova guida in un empatico psicologo.",
+                "poster": "https://image.tmdb.org/t/p/w500/goodwillhunting.jpg",
+                "emotionalTone": "heartwarming"
         },
         {
-                "id": "prime-4",
-                "title": "Limitless",
-                "year": 2011,
-                "duration": 105,
-                "director": "Neil Burger",
-                "cast": "Bradley Cooper, Robert De Niro, Abbie Cornish",
+                "id": "prime-saltburn",
+                "title": "Saltburn",
+                "year": 2023,
+                "duration": 131,
+                "director": "Emerald Fennell",
+                "cast": "Barry Keoghan, Jacob Elordi, Rosamund Pike",
                 "platform": "prime",
                 "link": "https://www.primevideo.com",
-                "imdb": 7.4,
+                "imdb": 7,
                 "mymovies": 3.4,
                 "mood": "mente",
-                "why": "Tra i tuoi titoli di riferimento: ritmo incalzante, potenziamento mentale, trama senza un attimo di tregua.",
-                "synopsis": "Uno scrittore in crisi assume una pillola sperimentale che gli permette di utilizzare il 100% delle sue capacità cerebrali.",
-                "poster": "https://image.tmdb.org/t/p/w500/4c55490PqM5K9S2348k0iO1M1yK.jpg",
-                "emotionalTone": "engaging"
+                "why": "Amazon Original provocatorio e ipnotico, ambientato nell'aristocrazia inglese con un magnetico Barry Keoghan.",
+                "synopsis": "Uno studente di Oxford viene invitato nell'eccentrica tenuta di famiglia di un affascinante compagno di studi, scatenando un'ossessione viscerale.",
+                "poster": "https://image.tmdb.org/t/p/w500/saltburn2023.jpg",
+                "emotionalTone": "dark"
         },
         {
-                "id": "prime-5",
-                "title": "Hereafter",
-                "year": 2010,
-                "duration": 129,
-                "director": "Clint Eastwood",
-                "cast": "Matt Damon, Cécile de France, Frankie McLaren",
+                "id": "prime-one-night-in-miami",
+                "title": "One Night in Miami...",
+                "year": 2020,
+                "duration": 114,
+                "director": "Regina King",
+                "cast": "Kingsley Ben-Adir, Eli Goree, Aldis Hodge, Leslie Odom Jr.",
                 "platform": "prime",
                 "link": "https://www.primevideo.com",
-                "imdb": 6.5,
-                "mymovies": 3.4,
-                "mood": "anima",
-                "why": "Uno dei tuoi titoli indicati: Eastwood dirige Matt Damon in una riflessione delicata e intima sul dopo e sulle connessioni.",
-                "synopsis": "Tre storie parallele di persone toccate dalla morte convergono a Londra alla ricerca di significato.",
-                "poster": "https://image.tmdb.org/t/p/w500/mXp7pC7iLgT23S35h1fR03J39bF.jpg",
-                "emotionalTone": "uplifting"
-        },
-        {
-                "id": "prime-7",
-                "title": "Prova a prendermi (Catch Me If You Can)",
-                "year": 2002,
-                "duration": 141,
-                "director": "Steven Spielberg",
-                "cast": "Leonardo DiCaprio, Tom Hanks, Christopher Walken",
-                "platform": "prime",
-                "link": "https://www.primevideo.com",
-                "imdb": 8.1,
+                "imdb": 7.1,
                 "mymovies": 3.7,
-                "mood": "mente",
-                "why": "L'incontro perfetto tra Spielberg alla regia e DiCaprio protagonista: ritmo brioso, ingegno puro ed eleganza.",
-                "synopsis": "La vera storia del geniale truffatore Frank Abagnale Jr. e dell'agente FBI che gli dà la caccia in tutto il mondo.",
-                "poster": "https://image.tmdb.org/t/p/w500/ctjLkUbdtR42whj2Wj944kFqV9c.jpg",
+                "mood": "autore",
+                "why": "Amazon Original candidato a 3 Oscar. La storica notte del 1964 tra Cassius Clay, Malcolm X, Sam Cooke e Jim Brown.",
+                "synopsis": "Quattro icone dello sport, della musica e dei diritti civili si ritrovano in una stanza d'albergo a Miami per discutere il loro ruolo nella lotta per l'uguaglianza.",
+                "poster": "https://image.tmdb.org/t/p/w500/oneNightMiami2020.jpg",
                 "emotionalTone": "engaging"
+        },
+        {
+                "id": "prime-thirteen-lives",
+                "title": "Tredici vite (Thirteen Lives)",
+                "year": 2022,
+                "duration": 147,
+                "director": "Ron Howard",
+                "cast": "Viggo Mortensen, Colin Farrell, Joel Edgerton",
+                "platform": "prime",
+                "link": "https://www.primevideo.com",
+                "imdb": 7.8,
+                "mymovies": 3.8,
+                "mood": "epica",
+                "why": "Amazon Original diretto da Ron Howard con Viggo Mortensen. Ricostruzione tesa e spettacolare del celebre salvataggio nella grotta di Tham Luang.",
+                "synopsis": "La vera storia della missione internazionale di soccorso per salvare una squadra di giovani calciatori e il loro allenatore intrappolati in una grotta allagata in Thailandia.",
+                "poster": "https://image.tmdb.org/t/p/w500/thirteenLives2022.jpg",
+                "emotionalTone": "tense"
         },
         {
                 "id": "raiplay-1",
@@ -1124,21 +1176,21 @@
                 "emotionalTone": "uplifting"
         },
         {
-                "id": "netflix-2",
-                "title": "The Wolf of Wall Street",
-                "year": 2013,
-                "duration": 180,
-                "director": "Martin Scorsese",
-                "cast": "Leonardo DiCaprio, Jonah Hill, Margot Robbie",
+                "id": "netflix-marriage-story",
+                "title": "Storia di un matrimonio (Marriage Story)",
+                "year": 2019,
+                "duration": 137,
+                "director": "Noah Baumbach",
+                "cast": "Adam Driver, Scarlett Johansson, Laura Dern",
                 "platform": "netflix",
                 "link": "https://www.netflix.com",
-                "imdb": 8.2,
-                "mymovies": 4,
-                "mood": "mente",
-                "why": "Uno dei tuoi preferiti dichiarati: DiCaprio in uno stato di grazia travolgente, ritmo indiavolato e satira feroce.",
-                "synopsis": "L'ascesa e la caduta del broker Jordan Belfort tra eccessi, finanza spregiudicata e la caccia dell'FBI.",
-                "poster": "https://image.tmdb.org/t/p/w500/34m2uv3677x5R75H47wK77l6J4k.jpg",
-                "emotionalTone": "engaging"
+                "imdb": 7.9,
+                "mymovies": 4.2,
+                "mood": "cuore",
+                "why": "Netflix Original vincitore dell'Oscar con Laura Dern. Ritratto intimo, lucido e toccante della fine di una storia d'amore.",
+                "synopsis": "Un regista teatrale e un'attrice affrontano un doloroso divorzio che li costringe a superare i propri limiti personali e creativi.",
+                "poster": "https://image.tmdb.org/t/p/w500/marriageStory2019.jpg",
+                "emotionalTone": "bittersweet"
         },
         {
                 "id": "netflix-3",
@@ -1192,21 +1244,21 @@
                 "emotionalTone": "uplifting"
         },
         {
-                "id": "disney-1",
-                "title": "Hugo Cabret",
-                "year": 2011,
-                "duration": 126,
-                "director": "Martin Scorsese",
-                "cast": "Asa Butterfield, Ben Kingsley, Chloë Grace Moretz",
+                "id": "disney-spiriti-isola",
+                "title": "Gli spiriti dell'isola (The Banshees of Inisherin)",
+                "year": 2022,
+                "duration": 114,
+                "director": "Martin McDonagh",
+                "cast": "Colin Farrell, Brendan Gleeson, Kerry Condon",
                 "platform": "disney",
                 "link": "https://www.disneyplus.com",
-                "imdb": 7.5,
+                "imdb": 7.7,
                 "mymovies": 4,
-                "mood": "meraviglia",
-                "why": "Tra i tuoi capisaldi: una lettera d'amore al cinema delle origini di Georges Méliès, visivamente incantevole.",
-                "synopsis": "Un orfano che vive nascosto nell'orologio della stazione di Parigi tenta di riparare un automa lasciatogli dal padre.",
-                "poster": "https://image.tmdb.org/t/p/w500/p410k92j0k92k3o0j2k0j92k3.jpg",
-                "emotionalTone": "uplifting"
+                "mood": "autore",
+                "why": "Disponibile su Disney+ (Searchlight). Trionfo a Venezia e 9 candidature all'Oscar con la celebre coppia Colin Farrell e Brendan Gleeson.",
+                "synopsis": "Su una remota isola irlandese negli anni '20, due amici di una vita si trovano improvvisamente in rottura quando uno dei due decide di troncare ogni rapporto.",
+                "poster": "https://image.tmdb.org/t/p/w500/banshees2022.jpg",
+                "emotionalTone": "bittersweet"
         },
         {
                 "id": "disney-2",
@@ -1226,21 +1278,21 @@
                 "emotionalTone": "uplifting"
         },
         {
-                "id": "disney-3",
-                "title": "Il signore degli anelli: La compagnia dell'anello",
-                "year": 2001,
-                "duration": 178,
-                "director": "Peter Jackson",
-                "cast": "Elijah Wood, Ian McKellen, Viggo Mortensen",
+                "id": "disney-jojo-rabbit",
+                "title": "Jojo Rabbit",
+                "year": 2019,
+                "duration": 108,
+                "director": "Taika Waititi",
+                "cast": "Roman Griffin Davis, Thomasin McKenzie, Scarlett Johansson",
                 "platform": "disney",
                 "link": "https://www.disneyplus.com",
-                "imdb": 8.8,
-                "mymovies": 4.5,
-                "mood": "epica",
-                "why": "Il fantasy epico definitivo: maestosità, fratellanza, viaggio epocale e regia senza tempo.",
-                "synopsis": "Un timido hobbit riceve in custodia un anello fatale e intraprende una missione epica per distruggerlo sul Monte Fato.",
-                "poster": "https://image.tmdb.org/t/p/w500/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg",
-                "emotionalTone": "engaging"
+                "imdb": 7.9,
+                "mymovies": 4,
+                "mood": "cuore",
+                "why": "Disponibile su Disney+ (Searchlight). Premio Oscar per la sceneggiatura: satira affettuosa, poetica ed esilarante.",
+                "synopsis": "Un ragazzino nella Germania della Seconda Guerra Mondiale scopre che sua madre nasconde una giovane ragazza ebrea nella loro soffitta.",
+                "poster": "https://image.tmdb.org/t/p/w500/jojoRabbit2019.jpg",
+                "emotionalTone": "heartwarming"
         },
         {
                 "id": "disney-4",
@@ -1370,21 +1422,21 @@
                 "emotionalTone": "uplifting"
         },
         {
-                "id": "netflix-lalaland",
-                "title": "La La Land",
-                "year": 2016,
-                "duration": 128,
-                "director": "Damien Chazelle",
-                "cast": "Ryan Gosling, Emma Stone, John Legend",
+                "id": "netflix-all-quiet",
+                "title": "Niente di nuovo sul fronte occidentale",
+                "year": 2022,
+                "duration": 148,
+                "director": "Edward Berger",
+                "cast": "Felix Kammerer, Albrecht Schuch, Daniel Brühl",
                 "platform": "netflix",
                 "link": "https://www.netflix.com",
-                "imdb": 8,
-                "mymovies": 4.1,
-                "mood": "cuore",
-                "why": "L'eccezione d'autore assoluta: 6 Premi Oscar, aperto a Venezia, amore per il grande cinema, melodia e malinconia pura.",
-                "synopsis": "Un pianista jazz e un'aspirante attrice si innamorano a Los Angeles inseguendo i loro sogni artistici.",
-                "poster": "https://image.tmdb.org/t/p/w500/uDO8zWDhfWwoFdKS4fzkVJt0Rf0.jpg",
-                "emotionalTone": "uplifting"
+                "imdb": 7.8,
+                "mymovies": 3.8,
+                "mood": "epica",
+                "why": "Netflix Original vincitore di 4 Premi Oscar. Impressionante epopea bellica di straordinaria potenza visiva e morale.",
+                "synopsis": "Un giovane soldato tedesco affronta la cruda e disumana realtà delle trincee durante la prima guerra mondiale.",
+                "poster": "https://image.tmdb.org/t/p/w500/allQuiet2022.jpg",
+                "emotionalTone": "tense"
         },
         {
                 "id": "raiplay-moretti-stanza",
@@ -1919,38 +1971,38 @@
                 "poster": "https://image.tmdb.org/t/p/w500/quiRidoIo2021.jpg"
         },
         {
-                "id": "prime-ragazza-nebbia",
-                "title": "La ragazza nella nebbia",
-                "year": 2017,
-                "duration": 128,
-                "director": "Donato Carrisi",
-                "cast": "Toni Servillo, Jean Reno, Alessio Boni",
+                "id": "prime-beautiful-boy",
+                "title": "Beautiful Boy",
+                "year": 2018,
+                "duration": 120,
+                "director": "Felix van Groeningen",
+                "cast": "Steve Carell, Timothée Chalamet, Maura Tierney",
                 "platform": "prime",
                 "link": "https://www.primevideo.com",
-                "imdb": 6.8,
-                "mymovies": 3.2,
-                "mood": "mente",
-                "emotionalTone": "engaging",
-                "why": "David di Donatello. Toni Servillo e Jean Reno in un thriller psicologico ad alta tensione nell'atmosfera claustrofobica delle Alpi.",
-                "synopsis": "L'ispettore Vogel viene inviato in uno sperduto borgo montano per indagare sulla misteriosa scomparsa di una giovane ragazza, attirando un circo mediatico.",
-                "poster": "https://image.tmdb.org/t/p/w500/ragazzaNebbia2017.jpg"
+                "imdb": 7.4,
+                "mymovies": 3.5,
+                "mood": "cuore",
+                "why": "Disponibile su Prime Video. Intensa prova d'attore di Timothée Chalamet e Steve Carell su un toccante legame padre-figlio.",
+                "synopsis": "Un padre affronta il doloroso percorso di riabilitazione del figlio brillante caduto nel baratro della dipendenza.",
+                "poster": "https://image.tmdb.org/t/p/w500/beautifulBoy2018.jpg",
+                "emotionalTone": "bittersweet"
         },
         {
-                "id": "prime-uomo-labirinto",
-                "title": "L'uomo del labirinto",
-                "year": 2019,
-                "duration": 130,
-                "director": "Donato Carrisi",
-                "cast": "Toni Servillo, Dustin Hoffman, Valentina Bellè",
+                "id": "prime-the-burial",
+                "title": "The Burial - Il caso O'Keefe",
+                "year": 2023,
+                "duration": 126,
+                "director": "Maggie Betts",
+                "cast": "Tommy Lee Jones, Jamie Foxx, Jurnee Smollett",
                 "platform": "prime",
                 "link": "https://www.primevideo.com",
-                "imdb": 6,
-                "mymovies": 3,
+                "imdb": 7.1,
+                "mymovies": 3.5,
                 "mood": "mente",
-                "emotionalTone": "engaging",
-                "why": "Incontro eccezionale tra Toni Servillo e Dustin Hoffman: ritmo teso, colpi di scena e indagine psicologica serrata.",
-                "synopsis": "Una giovane donna rapita riemerge dopo quindici anni: un investigatore privato e un profiler collaborano per scovare l'inafferrabile rapitore.",
-                "poster": "https://image.tmdb.org/t/p/w500/uomoLabirinto2019.jpg"
+                "why": "Amazon Original appassionante legal-drama basato su una storia vera con le straordinarie interpretazioni di Tommy Lee Jones e Jamie Foxx.",
+                "synopsis": "Un proprietario di pompe funebri ingaggia un eccentrico avvocato per salvare la sua attività di famiglia contro un gigante aziendale senza scrupoli.",
+                "poster": "https://image.tmdb.org/t/p/w500/theBurial2023.jpg",
+                "emotionalTone": "engaging"
         },
         {
                 "id": "prime-youth",
@@ -1970,19 +2022,19 @@
                 "poster": "https://image.tmdb.org/t/p/w500/youth2015.jpg"
         },
         {
-                "id": "raiplay-uomo-in-piu",
+                "id": "netflix-sorrentino-uomo-in-piu",
                 "title": "L'uomo in più",
                 "year": 2001,
                 "duration": 100,
                 "director": "Paolo Sorrentino",
                 "cast": "Toni Servillo, Andrea Renzi, Nello Mascia",
-                "platform": "raiplay",
-                "link": "https://www.raiplay.it",
+                "platform": "netflix",
+                "link": "https://www.netflix.com",
                 "imdb": 7,
                 "mymovies": 3.5,
                 "mood": "autore",
                 "emotionalTone": "engaging",
-                "why": "Il fulmineo esordio di Paolo Sorrentino: Toni Servillo nei panni del magnetico cantante Tony Pisapia. Grande cinema napoletano.",
+                "why": "Disponibile su Netflix. Il fulmineo esordio di Paolo Sorrentino: Toni Servillo nei panni del magnetico cantante Tony Pisapia. Grande cinema d'autore.",
                 "synopsis": "Nella Napoli degli anni Ottanta, i destini incrociati di due uomini omonimi, un cantante cocainomane e un calciatore promettente, tra ascesa e declino.",
                 "poster": "https://image.tmdb.org/t/p/w500/uomoInPiu2001.jpg"
         },
@@ -2055,89 +2107,89 @@
                 "poster": "https://image.tmdb.org/t/p/w500/puraFormalita1994.jpg"
         },
         {
-                "id": "prime-baaria",
-                "title": "Baarìa",
-                "year": 2009,
-                "duration": 150,
-                "director": "Giuseppe Tornatore",
-                "cast": "Francesco Scianna, Margareth Madè, Raoul Bova, Nicole Grimaudo",
+                "id": "prime-cassandro",
+                "title": "Cassandro",
+                "year": 2023,
+                "duration": 107,
+                "director": "Roger Ross Williams",
+                "cast": "Gael García Bernal, Roberta Colindrez, Bad Bunny",
                 "platform": "prime",
                 "link": "https://www.primevideo.com",
-                "imdb": 6.9,
-                "mymovies": 3.3,
-                "mood": "epica",
-                "emotionalTone": "uplifting",
-                "why": "Nastro d'Argento dell'Anno. Affresco monumentale siciliano lungo tre generazioni, con colonna sonora travolgente di Ennio Morricone.",
-                "synopsis": "Cinquant'anni di amori, passioni politiche e sogni nella Bagheria del Novecento attraverso la vita e gli occhi di Peppino Torrenuova.",
-                "poster": "https://image.tmdb.org/t/p/w500/baaria2009.jpg"
+                "imdb": 7,
+                "mymovies": 3.5,
+                "mood": "motivazionali",
+                "why": "Amazon Original con una straordinaria interpretazione di Gael García Bernal: riscatto, identità e passione.",
+                "synopsis": "Un wrestler amatoriale gay di El Paso crea il personaggio esotico di Cassandro, stravolgendo il mondo machista del wrestling messicano.",
+                "poster": "https://image.tmdb.org/t/p/w500/cassandro2023.jpg",
+                "emotionalTone": "heartwarming"
         },
         {
-                "id": "prime-cast-away",
-                "title": "Cast Away",
-                "year": 2000,
-                "duration": 143,
-                "director": "Robert Zemeckis",
-                "cast": "Tom Hanks, Helen Hunt, Nick Searcy",
+                "id": "prime-cyrano",
+                "title": "Cyrano",
+                "year": 2021,
+                "duration": 124,
+                "director": "Joe Wright",
+                "cast": "Peter Dinklage, Haley Bennett, Kelvin Harrison Jr.",
                 "platform": "prime",
                 "link": "https://www.primevideo.com",
-                "imdb": 7.8,
-                "mymovies": 3.7,
-                "mood": "anima",
-                "emotionalTone": "uplifting",
-                "why": "Una delle interpretazioni più iconiche e commoventi di Tom Hanks: la sopravvivenza, la solitudine, l'amico Wilson e la forza di ricominciare.",
-                "synopsis": "Un dirigente FedEx sopravvive a un disastro aereo e rimane bloccato per anni su un'isola disabitata del Pacifico, trasformandosi nel profondo.",
-                "poster": "https://image.tmdb.org/t/p/w500/castAway2000.jpg"
-        },
-        {
-                "id": "prime-the-terminal",
-                "title": "The Terminal",
-                "year": 2004,
-                "duration": 128,
-                "director": "Steven Spielberg",
-                "cast": "Tom Hanks, Catherine Zeta-Jones, Stanley Tucci",
-                "platform": "prime",
-                "link": "https://www.primevideo.com",
-                "imdb": 7.4,
+                "imdb": 7,
                 "mymovies": 3.5,
                 "mood": "cuore",
-                "emotionalTone": "uplifting",
-                "why": "Sodalizio d'oro Spielberg-Hanks: commedia umana irresistibile, calore, rispetto e solidarietà nell'aeroporto JFK di New York.",
-                "synopsis": "Un cittadino dell'est Europa rimane bloccato all'aeroporto di New York a causa di un colpo di stato nel suo paese d'origine che rende non valido il suo passaporto.",
-                "poster": "https://image.tmdb.org/t/p/w500/theTerminal2004.jpg"
+                "why": "Disponibile su Prime Video (MGM). La celebre storia di Cyrano con la magnetica e commovente prova di Peter Dinklage.",
+                "synopsis": "Cyrano de Bergerac, convinto che il suo aspetto lo renda indegno dell'amore della devota Roxanne, aiuta un giovane cadetto a conquistarla con le sue lettere.",
+                "poster": "https://image.tmdb.org/t/p/w500/cyrano2021.jpg",
+                "emotionalTone": "bittersweet"
         },
         {
-                "id": "netflix-ryan",
-                "title": "Salvate il soldato Ryan",
-                "year": 1998,
-                "duration": 169,
-                "director": "Steven Spielberg",
-                "cast": "Tom Hanks, Matt Damon, Tom Sizemore, Edward Burns",
+                "id": "prime-boys-boat",
+                "title": "Erano ragazzi in barca (The Boys in the Boat)",
+                "year": 2023,
+                "duration": 123,
+                "director": "George Clooney",
+                "cast": "Joel Edgerton, Callum Turner, Peter Guinness",
+                "platform": "prime",
+                "link": "https://www.primevideo.com",
+                "imdb": 7,
+                "mymovies": 3.4,
+                "mood": "motivazionali",
+                "emotionalTone": "heartwarming",
+                "why": "Amazon Original diretto da George Clooney. Una coinvolgente storia vera di sport, riscatto e coesione.",
+                "synopsis": "Durante la Grande Depressione, la squadra di canottaggio dell'Università di Washington supera ogni pronostico fino alle Olimpiadi di Berlino del 1936.",
+                "poster": "https://image.tmdb.org/t/p/w500/boysBoat2023.jpg"
+        },
+        {
+                "id": "netflix-pinocchio-del-toro",
+                "title": "Pinocchio di Guillermo del Toro",
+                "year": 2022,
+                "duration": 117,
+                "director": "Guillermo del Toro, Mark Gustafson",
+                "cast": "Gregory Mann, Ewan McGregor, David Bradley",
                 "platform": "netflix",
                 "link": "https://www.netflix.com",
-                "imdb": 8.6,
-                "mymovies": 4.2,
-                "mood": "epica",
-                "emotionalTone": "engaging",
-                "why": "5 Premi Oscar. Spielberg dirige Tom Hanks e Matt Damon: la più grande e potente epopea sulla fratellanza e il valore della vita umana.",
-                "synopsis": "Durante lo sbarco in Normandia nel 1944, una squadra di soldati guidata dal capitano Miller attraversa le linee nemiche per salvare un paracadutista disperso.",
-                "poster": "https://image.tmdb.org/t/p/w500/soldatoRyan1998.jpg"
+                "imdb": 7.6,
+                "mymovies": 4,
+                "mood": "meraviglia",
+                "why": "Netflix Original vincitore del Premio Oscar per il miglior film d'animazione. Un capolavoro di stop-motion poetico e profondo.",
+                "synopsis": "Nell'Italia degli anni '30, un burattino di legno prende vita per lenire il dolore di un falegname in lutto, sfidando il conformismo e la guerra.",
+                "poster": "https://image.tmdb.org/t/p/w500/pinocchioDelToro2022.jpg",
+                "emotionalTone": "heartwarming"
         },
         {
-                "id": "netflix-apollo13",
-                "title": "Apollo 13",
-                "year": 1995,
-                "duration": 140,
-                "director": "Ron Howard",
-                "cast": "Tom Hanks, Kevin Bacon, Bill Paxton, Ed Harris",
+                "id": "netflix-chicago-7",
+                "title": "Il processo ai Chicago 7",
+                "year": 2020,
+                "duration": 129,
+                "director": "Aaron Sorkin",
+                "cast": "Eddie Redmayne, Sacha Baron Cohen, Mark Rylance",
                 "platform": "netflix",
                 "link": "https://www.netflix.com",
                 "imdb": 7.7,
-                "mymovies": 3.8,
+                "mymovies": 4,
                 "mood": "mente",
-                "emotionalTone": "engaging",
-                "why": "2 Premi Oscar. Tom Hanks in uno dei capisaldi della tensione e dell'ingegno umano: 'Houston, abbiamo un problema'.",
-                "synopsis": "Nel 1970 un'esplosione a bordo della navicella spaziale Apollo 13 mette a rischio la vita di tre astronauti diretti sulla Luna, scatenando una disperata corsa al salvataggio.",
-                "poster": "https://image.tmdb.org/t/p/w500/apollo131995.jpg"
+                "why": "Netflix Original candidato a 6 Premi Oscar con la brillante scrittura di Aaron Sorkin. Legal drama appassionante e ritmato.",
+                "synopsis": "Quello che doveva essere una protesta pacifica alla Convention Democratica del 1968 si trasforma in un violento scontro con la polizia e in uno dei processi più celebri della storia americana.",
+                "poster": "https://image.tmdb.org/t/p/w500/chicago7_2020.jpg",
+                "emotionalTone": "engaging"
         },
         {
                 "id": "netflix-irishman",
@@ -2157,37 +2209,37 @@
                 "poster": "https://image.tmdb.org/t/p/w500/theIrishman2019.jpg"
         },
         {
-                "id": "prime-taxi-driver",
-                "title": "Taxi Driver",
-                "year": 1976,
-                "duration": 114,
-                "director": "Martin Scorsese",
-                "cast": "Robert De Niro, Jodie Foster, Harvey Keitel, Cybill Shepherd",
+                "id": "prime-suspiria",
+                "title": "Suspiria",
+                "year": 2018,
+                "duration": 152,
+                "director": "Luca Guadagnino",
+                "cast": "Dakota Johnson, Tilda Swinton, Mia Goth",
                 "platform": "prime",
                 "link": "https://www.primevideo.com",
-                "imdb": 8.2,
-                "mymovies": 4.6,
+                "imdb": 6.8,
+                "mymovies": 3.8,
                 "mood": "autore",
-                "emotionalTone": "engaging",
-                "why": "Palma d'Oro a Cannes. Il capolavoro assoluto di Scorsese e De Niro: colonna sonora leggendaria di Bernard Herrmann.",
-                "synopsis": "Travis Bickle, reduce del Vietnam insonne e solitario, guida un taxi nella notte degradata di New York scivolando in una spirale di alienazione e riscatto.",
-                "poster": "https://image.tmdb.org/t/p/w500/taxiDriver1976.jpg"
+                "emotionalTone": "dark",
+                "why": "Amazon Original visionario e magnetico diretto da Luca Guadagnino con una straordinaria tripla prova di Tilda Swinton.",
+                "synopsis": "Una giovane ballerina americana si unisce a una prestigiosa accademia di danza a Berlino, scoprendo che la scuola nasconde oscuri e terrificanti segreti.",
+                "poster": "https://image.tmdb.org/t/p/w500/suspiria2018.jpg"
         },
         {
-                "id": "prime-shutter-island",
+                "id": "netflix-shutter-island",
                 "title": "Shutter Island",
                 "year": 2010,
                 "duration": 138,
                 "director": "Martin Scorsese",
-                "cast": "Leonardo DiCaprio, Mark Ruffalo, Ben Kingsley, Michelle Williams",
-                "platform": "prime",
-                "link": "https://www.primevideo.com",
+                "cast": "Leonardo DiCaprio, Mark Ruffalo, Ben Kingsley",
+                "platform": "netflix",
+                "link": "https://www.netflix.com",
                 "imdb": 8.2,
-                "mymovies": 3.9,
+                "mymovies": 4.1,
                 "mood": "mente",
-                "emotionalTone": "engaging",
-                "why": "Scorsese e DiCaprio in un thriller psicologico vertiginoso e labirintico, ricco di tensione e colpi di scena da maestro.",
-                "synopsis": "Due agenti federali sbarcano su un'isola-ospedale psichiatrico per criminali per indagare sulla scomparsa di un'internata, ma una fitta nebbia avvolge la verità.",
+                "emotionalTone": "dark",
+                "why": "Disponibile su Netflix. Thriller psicologico ad altissima tensione diretto da Martin Scorsese con Leonardo DiCaprio.",
+                "synopsis": "Due agenti federali indagano sulla misteriosa scomparsa di una paziente dall'ospedale psichiatrico criminale situato su un'isola sperduta.",
                 "poster": "https://image.tmdb.org/t/p/w500/shutterIsland2010.jpg"
         },
         {
@@ -2310,21 +2362,21 @@
                 "poster": "https://image.tmdb.org/t/p/w500/cheOraE1989.jpg"
         },
         {
-                "id": "netflix-cortellesi-figli",
-                "title": "Figli",
-                "year": 2020,
-                "duration": 97,
-                "director": "Giuseppe Bonito",
-                "cast": "Paola Cortellesi, Valerio Mastandrea, Babak Karimi",
+                "id": "netflix-mixed-by-erry",
+                "title": "Mixed by Erry",
+                "year": 2023,
+                "duration": 110,
+                "director": "Sydney Sibilia",
+                "cast": "Luigi D'Oriano, Giuseppe Arena, Emanuele Palumbo, Fabrizio Gifuni",
                 "platform": "netflix",
                 "link": "https://www.netflix.com",
-                "imdb": 6.6,
-                "mymovies": 3.4,
+                "imdb": 7,
+                "mymovies": 3.5,
                 "mood": "cuore",
-                "emotionalTone": "uplifting",
-                "why": "Scritto dal geniale Mattia Torre. Paola Cortellesi e Valerio Mastandrea in una commedia brillante, veritiera e spassosa sulla genitorialità oggi.",
-                "synopsis": "Nicola e Sara, coppia affiatata con una figlia di sei anni, vengono travolti dall'arrivo del secondo figlio, affrontando esilaranti fatiche quotidiane.",
-                "poster": "https://image.tmdb.org/t/p/w500/figli2020.jpg"
+                "why": "Disponibile su Netflix. La brillante commedia di Sydney Sibilia sulla clamorosa avventura dei fratelli Frattasio a Napoli.",
+                "synopsis": "La straordinaria ascesa e caduta di Erry e dei suoi fratelli, che da un basso di Napoli crearono un impero delle musicassette pirata diventando la prima etichetta discografica d'Italia.",
+                "poster": "https://image.tmdb.org/t/p/w500/mixedByErry2023.jpg",
+                "emotionalTone": "heartwarming"
         },
         {
                 "id": "netflix-cortellesi-gatto-tangenziale",
@@ -2866,8 +2918,22 @@
         function getAllMovies() {
             const userCustom = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
             const demotedIds = new Set(JSON.parse(localStorage.getItem('cinestudio_demoted_ids') || '[]'));
+            const platformOverrides = JSON.parse(localStorage.getItem('cinestudio_platform_overrides') || '{}');
             const all = [...INITIAL_CATALOG, ...userCustom];
-            return all.filter(m => !demotedIds.has(m.id));
+            return all.filter(m => !demotedIds.has(m.id)).map(m => {
+                const overridePlat = platformOverrides[m.id] || platformOverrides[m.title.toLowerCase().trim()];
+                if (overridePlat) {
+                    let newLink = m.link;
+                    if (overridePlat === 'netflix') newLink = 'https://www.netflix.com';
+                    else if (overridePlat === 'prime') newLink = 'https://www.primevideo.com';
+                    else if (overridePlat === 'raiplay') newLink = 'https://www.raiplay.it';
+                    else if (overridePlat === 'disney') newLink = 'https://www.disneyplus.com';
+                    else if (overridePlat === 'la7') newLink = 'https://www.la7.it';
+                    else if (overridePlat === 'discovery') newLink = 'https://www.discoveryplus.com/it';
+                    return { ...m, platform: overridePlat, link: newLink };
+                }
+                return m;
+            });
         }
 
         // Init
@@ -3562,6 +3628,9 @@
                         <i class="fa-solid fa-bookmark ${isWatchlisted ? 'text-amber-400' : ''}"></i>
                         <span>${isWatchlisted ? 'In Watchlist' : '+ Watchlist'}</span>
                     </button>
+                    <button onclick="promptChangePlatform('${movie.id}')" class="py-2 px-3 rounded-xl bg-indigo-950/60 hover:bg-indigo-900 text-indigo-300 border border-indigo-700/60 transition text-xs font-bold flex items-center gap-1.5 cursor-pointer" title="Se i diritti sono cambiati su un'altra piattaforma, modificala subito">
+                        <i class="fa-solid fa-arrows-rotate text-indigo-400"></i> <span>Cambia Piattaforma</span>
+                    </button>
                     <button onclick="demoteMovieToRadar('${movie.id}')" class="py-2 px-3 rounded-xl bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-700/60 transition text-xs font-bold flex items-center gap-1.5 cursor-pointer" title="Se è a noleggio a pagamento, spostalo nel Radar">
                         <i class="fa-solid fa-ban text-rose-400"></i> <span>È a Noleggio? Sposta in Radar</span>
                     </button>
@@ -3655,7 +3724,7 @@
                     { title: "Ennio", year: 2021, status: "flat", platform: "RaiPlay", imdb: 8.2, mymovies: 4.4, inCatalogId: "raiplay-7", note: "Il ritratto monumentale del maestro Ennio Morricone." },
                     { title: "La leggenda del pianista sull'oceano", year: 1998, status: "radar", platform: "Store / Noleggio", imdb: 8.0, mymovies: 3.9, inRadarId: "radar-pianista-oceano", note: "Nel tuo Radar. Tim Roth e il capolavoro musicale di Morricone." },
                     { title: "Una pura formalità", year: 1994, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 7.6, mymovies: 3.7, inCatalogId: "raiplay-pura-formalita", note: "Interrogatorio psicologico claustrofobico tra Polanski e Depardieu." },
-                    { title: "Baarìa", year: 2009, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 6.9, mymovies: 3.3, inCatalogId: "prime-baaria", note: "Affresco storico siciliano lungo cinquant'anni." }
+                    { title: "Baarìa", year: 2009, status: "rental", platform: "Store / NOW", imdb: 6.9, mymovies: 3.3, note: "Affresco storico siciliano lungo cinquant'anni. Disponibile per noleggio o canale NOW." }
                 ]
             },
             'hanks': {
@@ -3664,13 +3733,13 @@
                 badge: "2 Premi Oscar",
                 bio: "L'attore simbolo dell'onestà, dell'empatia e della resilienza umana. Colonna del tuo DNA cinefilo.",
                 films: [
-                    { title: "Prova a prendermi (Catch Me If You Can)", year: 2002, status: "flat", platform: "Prime Video", imdb: 8.1, mymovies: 3.7, inCatalogId: "prime-7", note: "L'agente Hanratty sulle tracce di DiCaprio diretto da Spielberg." },
+                    { title: "Prova a prendermi (Catch Me If You Can)", year: 2002, status: "rental", platform: "Store / Noleggio", imdb: 8.1, mymovies: 3.7, note: "L'agente Hanratty sulle tracce di DiCaprio diretto da Spielberg. Disponibile per noleggio/acquisto digitale." },
                     { title: "Forrest Gump", year: 1994, status: "radar", platform: "Store / Noleggio", imdb: 8.8, mymovies: 4.0, inRadarId: "radar-forrest-gump", note: "Nel tuo Radar. 6 Oscar e punto di riferimento cinematografico mondiale." },
                     { title: "Il miglio verde", year: 1999, status: "radar", platform: "Store / Noleggio", imdb: 8.6, mymovies: 4.0, inRadarId: "radar-miglio-verde", note: "Nel tuo Radar. Dal regista di Le ali della libertà." },
-                    { title: "Cast Away", year: 2000, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 7.8, mymovies: 3.7, inCatalogId: "prime-cast-away", note: "Sopravvivenza, solitudine e l'amico Wilson su un'isola deserta." },
-                    { title: "The Terminal", year: 2004, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 7.4, mymovies: 3.5, inCatalogId: "prime-the-terminal", note: "Viktor Navorski bloccato al JFK di New York: calore umano e dignità." },
-                    { title: "Salvate il soldato Ryan", year: 1998, status: "flat", platform: "Netflix / Prime", link: "https://www.netflix.com", imdb: 8.6, mymovies: 4.2, inCatalogId: "netflix-ryan", note: "Regia di Steven Spielberg, 5 Premi Oscar: lo sbarco in Normandia." },
-                    { title: "Apollo 13", year: 1995, status: "flat", platform: "Netflix", link: "https://www.netflix.com", imdb: 7.7, mymovies: 3.8, inCatalogId: "netflix-apollo13", note: "Jim Lovell e il salvataggio spaziale più avvincente della storia." }
+                    { title: "Cast Away", year: 2000, status: "rental", platform: "Store / Paramount+", imdb: 7.8, mymovies: 3.7, note: "Sopravvivenza, solitudine e l'amico Wilson su un'isola deserta." },
+                    { title: "The Terminal", year: 2004, status: "rental", platform: "Store / Paramount+", imdb: 7.4, mymovies: 3.5, note: "Viktor Navorski bloccato al JFK di New York: calore umano e dignità." },
+                    { title: "Salvate il soldato Ryan", year: 1998, status: "rental", platform: "Store / Paramount+", imdb: 8.6, mymovies: 4.2, note: "Regia di Steven Spielberg, 5 Premi Oscar: lo sbarco in Normandia." },
+                    { title: "Apollo 13", year: 1995, status: "rental", platform: "Store / Noleggio", imdb: 7.7, mymovies: 3.8, note: "Jim Lovell e il salvataggio spaziale più avvincente della storia." }
                 ]
             },
             'scorsese': {
@@ -3679,11 +3748,11 @@
                 badge: "Premio Oscar",
                 bio: "Il più grande regista vivente del cinema americano: ritmo, etica, colpa e redenzione.",
                 films: [
-                    { title: "The Wolf of Wall Street", year: 2013, status: "flat", platform: "Netflix", imdb: 8.2, mymovies: 4.0, inCatalogId: "netflix-5", note: "Nei tuoi Punti Cardinali. Ritmo indiavolato con DiCaprio." },
-                    { title: "Hugo Cabret", year: 2011, status: "flat", platform: "Disney+", imdb: 7.5, mymovies: 4.0, inCatalogId: "disney-1", note: "Nei tuoi Punti Cardinali. Lettera d'amore a Georges Méliès." },
-                    { title: "The Irishman", year: 2019, status: "flat", platform: "Netflix", link: "https://www.netflix.com", imdb: 7.8, mymovies: 4.1, inCatalogId: "netflix-irishman", note: "De Niro, Al Pacino e Joe Pesci nel testamento elegiaco del gangster movie." },
-                    { title: "Shutter Island", year: 2010, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 8.2, mymovies: 3.9, inCatalogId: "prime-shutter-island", note: "Thriller psicologico labirintico e inquietante con Leonardo DiCaprio." },
-                    { title: "Taxi Driver", year: 1976, status: "flat", platform: "Prime Video", link: "https://www.primevideo.com", imdb: 8.2, mymovies: 4.6, inCatalogId: "prime-taxi-driver", note: "Palma d'Oro a Cannes: Travis Bickle nella notte alienante di New York." },
+                    { title: "The Wolf of Wall Street", year: 2013, status: "rental", platform: "Store / Noleggio", imdb: 8.2, mymovies: 4.0, note: "Ritmo indiavolato con DiCaprio. Disponibile per noleggio o acquisto digitale." },
+                    { title: "Hugo Cabret", year: 2011, status: "rental", platform: "Store / Noleggio", imdb: 7.5, mymovies: 4.0, note: "Lettera d'amore a Georges Méliès. Disponibile per noleggio o acquisto digitale." },
+                    { title: "The Irishman", year: 2019, status: "flat", platform: "Netflix", link: "https://www.netflix.com", imdb: 7.8, mymovies: 4.1, inCatalogId: "netflix-irishman", note: "De Niro, Al Pacino e Joe Pesci nel testamento elegiaco del gangster movie. Esclusiva Netflix." },
+                    { title: "Shutter Island", year: 2010, status: "flat", platform: "Netflix", link: "https://www.netflix.com", imdb: 8.2, mymovies: 3.9, inCatalogId: "netflix-shutter-island", note: "Thriller psicologico labirintico e inquietante con Leonardo DiCaprio. Disponibile su Netflix." },
+                    { title: "Taxi Driver", year: 1976, status: "rental", platform: "Store / Noleggio", imdb: 8.2, mymovies: 4.6, note: "Palma d'Oro a Cannes: Travis Bickle nella notte alienante di New York. Disponibile per noleggio o acquisto." },
                     { title: "Quei bravi ragazzi (Goodfellas)", year: 1990, status: "rental", platform: "Store / Noleggio", imdb: 8.7, mymovies: 4.3, note: "Il capolavoro assoluto del montaggio e della narrazione mafiosa." }
                 ]
             },
@@ -3722,7 +3791,7 @@
                 bio: "Talento poliedrico, comicità brillante e profonda sensibilità civile. Con il suo debutto alla regia 'C'è ancora domani' ha firmato uno dei più grandi successi d'autore del cinema italiano contemporaneo.",
                 films: [
                     { title: "C'è ancora domani", year: 2023, status: "flat", platform: "Netflix", inCatalogId: "netflix-ce-ancora-domani", imdb: 7.9, mymovies: 4.1, note: "6 David di Donatello e Nastro d'Argento: straordinario affresco in bianco e nero sul coraggio e il riscatto femminile." },
-                    { title: "Figli", year: 2020, status: "flat", platform: "Netflix / RaiPlay", link: "https://www.raiplay.it", imdb: 6.6, mymovies: 3.4, inCatalogId: "netflix-cortellesi-figli", note: "Sceneggiatura di Mattia Torre con Valerio Mastandrea: le tragicomiche fatiche della genitorialità moderna." },
+                    { title: "Figli", year: 2020, status: "rental", platform: "Store / Noleggio", imdb: 6.6, mymovies: 3.4, note: "Sceneggiatura di Mattia Torre con Valerio Mastandrea. Disponibile a noleggio nello Store." },
                     { title: "Come un gatto in tangenziale", year: 2017, status: "flat", platform: "Netflix / Prime", link: "https://www.netflix.com", imdb: 6.4, mymovies: 3.3, inCatalogId: "netflix-cortellesi-gatto-tangenziale", note: "Con Antonio Albanese: contrasti sociali e irresistibili risate tra la borghesia romana e la periferia di Bastogi." },
                     { title: "Scusate se esisto!", year: 2014, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.5, mymovies: 3.2, inCatalogId: "raiplay-cortellesi-scusate-se-esisto", note: "Con Raoul Bova: un brillante architetto donna costretta a celare la propria identità per farsi valere professionalmente." },
                     { title: "Nessuno mi può giudicare", year: 2011, status: "flat", platform: "RaiPlay", link: "https://www.raiplay.it", imdb: 6.1, mymovies: 3.0, inCatalogId: "raiplay-cortellesi-nessuno-mi-puo-giudicare", note: "David di Donatello come Miglior Attrice Protagonista, commedia diretta da Massimiliano Bruno." }
