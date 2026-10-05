@@ -483,6 +483,24 @@
                     </div>
                 </div>
 
+                <!-- Protocollo di Controllo Settimanale (Giovedì) -->
+                <div class="pt-3 border-t border-slate-800 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-bold text-amber-400 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                            <i class="fa-solid fa-calendar-check text-amber-400"></i> Protocollo Aggiornamento Settimanale (Giovedì)
+                        </h4>
+                        <button type="button" onclick="copyWeeklyAuditPrompt()" class="px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold flex items-center gap-1 transition cursor-pointer active:scale-95">
+                            <i class="fa-solid fa-copy"></i> <span id="label-copy-prompt">Copia Prompt</span>
+                        </button>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 italic font-sans leading-relaxed">
+                        &ldquo;Esegui il controllo settimanale di CineStudio sui 6 cataloghi (Netflix, Prime, Disney+, RaiPlay, La7, Discovery+). Procedi con calma e verifica live su JustWatch Italia ogni singolo titolo. Se un film non è incluso al 100% in abbonamento flat gratuito, eliminalo o spostalo nel Radar. Preferisco avere 10 film in meno ma la certezza assoluta di zero costi extra.&rdquo;
+                    </div>
+                    <p class="text-[10px] text-slate-400 flex items-center gap-1">
+                        <i class="fa-solid fa-shield-halved text-emerald-400"></i> <strong class="text-white">Precisione (Voto 10) &gt; Velocità (Voto 1)</strong>: Tolleranza zero per film a noleggio nello Store.
+                    </p>
+                </div>
+
                 <!-- Taratura Soglie -->
                 <div class="pt-3 border-t border-slate-800 grid grid-cols-2 gap-4">
                     <div>
@@ -936,6 +954,24 @@
 
     <!-- Database Cinefilo Curato -->
     <script>
+        /* =========================================================================================
+         * PROTOCOLLO DI CONTROLLO SETTIMANALE CINESTUDIO (GIOVEDÌ) - REGOLA MANDATORIA
+         * 
+         * PROMPT OPERATIVO UFFICIALE:
+         * "Esegui il controllo settimanale di CineStudio sui 6 cataloghi (Netflix, Prime, Disney+, 
+         *  RaiPlay, La7, Discovery+). Procedi con calma e verifica live su JustWatch Italia ogni 
+         *  singolo titolo. Se un film non è incluso al 100% in abbonamento flat gratuito, eliminalo 
+         *  o spostalo nel Radar. Preferisco avere 10 film in meno ma la certezza assoluta di zero costi extra."
+         * 
+         * LINEE GUIDA PER QUALSIASI AGENTE O ASSISTENTE AI:
+         * 1. PRECISIONE (VOTO 10) > VELOCITÀ (VOTO 1): Vietata qualunque risposta frettolosa o da memoria.
+         * 2. VERIFICA LIVE PUNTUALE: Ogni singolo titolo proposto o inserito DEVE essere verificato
+         *    su JustWatch Italia per il mercato streaming italiano odierno.
+         * 3. TOLLERANZA ZERO PER NOLEGGI: Se un titolo richiede noleggio o acquisto nello Store (€ extra),
+         *    NON DEVE MAI figurare nel catalogo attivo come disponibile. Va eliminato o spostato nel Radar.
+         * 4. AGGIORNAMENTO GIOVEDÌ: Ogni giovedì eseguire audit completo dei 6 cataloghi verificando
+         *    scadenze e rotazioni mensili dei diritti streaming.
+         * ========================================================================================= */
         const INITIAL_CATALOG = [
         {
                 "id": "prime-argentina-1985",

@@ -59,3 +59,16 @@ Prima di lavorare su Agente Studio, verifica che la cartella sia
 `C:\Users\Utente\Documents\Agente studio`, controlla `git status`, non
 sovrascrivere modifiche non committate, crea un punto di ripristino prima di
 editare e riepiloga i file che intendi modificare.
+
+## Protocollo Controllo Settimanale CineStudio (Ogni Giovedì)
+
+Ogni giovedì, o ogni volta che viene richiesto l'aggiornamento o il controllo dei film, l'agente deve applicare rigorosamente questo protocollo:
+
+**Prompt Operativo Mandatorio:**
+> "Esegui il controllo settimanale di CineStudio sui 6 cataloghi (Netflix, Prime, Disney+, RaiPlay, La7, Discovery+). Procedi con calma e verifica live su JustWatch Italia ogni singolo titolo. Se un film non è incluso al 100% in abbonamento flat gratuito, eliminalo o spostalo nel Radar. Preferisco avere 10 film in meno ma la certezza assoluta di zero costi extra."
+
+**Linee guida assolute:**
+1. **Precisione (Voto 10) > Velocità (Voto 1)**: Vietata qualsiasi fretta o assunzione da memoria.
+2. **Verifica Live Puntuale**: Controllare JustWatch Italia in tempo reale per ciascun titolo sui 6 cataloghi.
+3. **Tolleranza Zero Noleggi**: Se un titolo richiede noleggio o acquisto nello Store digitale (€ extra), NON deve mai comparire come disponibile: va rimosso o spostato nel Radar.
+
