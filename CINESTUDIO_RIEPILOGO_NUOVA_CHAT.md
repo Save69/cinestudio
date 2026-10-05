@@ -114,8 +114,27 @@ Nessun database remoto necessario:
 - `cinestudio_watchlist`: Array JSON dei film salvati per le prossime sere.
 - `cinestudio_custom_dna`: Array dei tag/registi aggiunti manualmente dall'utente.
 - `cinestudio_user_movies`: Film personalizzati aggiunti tramite la modale `+ Aggiungi Film`.
-- `cinestudio_radar_movies`: Film in monitoraggio nel Radar.
+- `cinestudio_radar_movies`: Film in monitoraggio nel Radar personale.
+- `cinestudio_top250_seen`: Array JSON dei rank (1-250) dei capolavori IMDb già visti (sincronizzati bidirezionalmente con `cinestudio_seen`).
 - `cinestudio_min_imdb` e `cinestudio_min_mymovies`: Soglie guardrail salvate.
+
+---
+
+## 4.1. Sfida IMDb Top 250 & Audit Autonomo del Giovedì
+
+1. **Dataset Completo IMDb Top 250 Integrato**:
+   - Tutti i 250 capolavori della classifica IMDb (dal #1 *Le ali della libertà* al #250) sono integrati in `IMDB_TOP_250` con titolo italiano, titolo originale, anno, regista, cast, rating IMDb e genere.
+   - Accessibile direttamente dal pulsante `🏆 Top 250` nell'header e dal tab dedicato nella finestra Radar.
+   - **Tracciatore di Progresso**: barra di avanzamento e contatore dinamico `[ X / 250 Visti ] (Y%)`.
+   - **Filtri Rapidi**: `Tutti (250)`, `🟢 Disponibili Ora` (nel catalogo flat 6 piattaforme), `📡 In Attesa / Radar` (solo a noleggio), `✅ Già Visti`, `Da Vedere`.
+   - **Sincronizzazione Automatica**: contrassegnare un film come visto lo esclude anche dalla rotazione delle terne serali.
+
+2. **Audit Autonomo del Giovedì alle 09:00 (`task-1897`)**:
+   - Demone schedulato in background via cron (`0 9 * * 4`).
+   - Esegue la scansione dei 6 cataloghi (Netflix, Prime, Disney+, RaiPlay, La7, Discovery+) su JustWatch Italia con rigore assoluto ("precisione 10 > velocità 1").
+   - Sposta in Radar qualsiasi titolo passato a noleggio a pagamento.
+   - Promuove in catalogo flat qualsiasi titolo della Top 250 o del Radar che entra in streaming incluso/gratuito.
+   - Esegue sincronizzazione file e commit/push automatico su GitHub Pages.
 
 ---
 
