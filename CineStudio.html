@@ -280,16 +280,16 @@
 
                     <!-- Preset Rapidi a 1-Tap -->
                     <div class="inline-flex items-center gap-1 bg-slate-900/90 border border-slate-700/80 p-0.5 rounded-xl">
-                        <button type="button" onclick="applyRatingPreset('capolavori')" id="btn-preset-capolavori" class="px-2 py-1 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition cursor-pointer" title="Solo punteggi altissimi (IMDb ≥ 7.5)">
-                            🌟 Capolavori (7.5+)
+                        <button type="button" onclick="applyRatingPreset('capolavori')" id="btn-preset-capolavori" class="px-2 py-1 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition cursor-pointer" title="I capolavori imperdibili con punteggi altissimi (IMDb ≥ 7.7 / MYmovies ≥ 4.0)">
+                            🌟 Capolavori (7.7+)
                         </button>
-                        <button type="button" onclick="applyRatingPreset('standard')" id="btn-preset-standard" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 transition cursor-pointer" title="Standard equilibrato (IMDb ≥ 6.3 / MYmovies ≥ 3.3)">
-                            🎯 Standard (6.3+)
+                        <button type="button" onclick="applyRatingPreset('standard')" id="btn-preset-standard" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 transition cursor-pointer" title="Alta qualità cinefila (IMDb ≥ 7.2 / MYmovies ≥ 3.6)">
+                            🎯 Alta Qualità (7.2+)
                         </button>
-                        <button type="button" onclick="applyRatingPreset('ampia')" id="btn-preset-ampia" class="px-2 py-1 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition cursor-pointer" title="Scelta più ampia: include commedie brillanti e gemme (IMDb ≥ 5.8 / MYmovies ≥ 2.8)">
-                            🌐 Scelta Ampia (5.8+)
+                        <button type="button" onclick="applyRatingPreset('ampia')" id="btn-preset-ampia" class="px-2 py-1 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition cursor-pointer" title="Scelta più ampia per serate rilassate (IMDb ≥ 6.8 / MYmovies ≥ 3.3)">
+                            🌐 Scelta Ampia (6.8+)
                         </button>
-                        <button type="button" onclick="applyRatingPreset('tutti')" id="btn-preset-tutti" class="px-2 py-1 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition cursor-pointer" title="Nessun limite minimo di voto: esplora l'intero catalogo">
+                        <button type="button" onclick="applyRatingPreset('tutti')" id="btn-preset-tutti" class="px-2 py-1 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition cursor-pointer" title="Tutti i film verificati e selezionati nel catalogo">
                             ✨ Tutto il Catalogo
                         </button>
                     </div>
@@ -298,11 +298,11 @@
                     <div class="flex items-center gap-1.5 flex-wrap">
                         <div class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 font-mono text-[11px]" title="Regola voto minimo IMDb">
                             <span class="text-[#f5c518] font-black">IMDb &ge;</span>
-                            <input type="number" id="quick-imdb-val" step="0.1" min="0.0" max="9.5" value="6.3" onchange="setQuickRating('imdb', this.value)" class="w-10 bg-transparent text-amber-300 font-black text-center focus:outline-none focus:border-b border-amber-400 p-0 text-xs">
+                            <input type="number" id="quick-imdb-val" step="0.1" min="0.0" max="9.5" value="7.2" onchange="setQuickRating('imdb', this.value)" class="w-10 bg-transparent text-amber-300 font-black text-center focus:outline-none focus:border-b border-amber-400 p-0 text-xs">
                         </div>
                         <div class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 font-mono text-[11px]" title="Regola voto minimo MYmovies">
                             <span class="text-rose-400 font-black">MYmovies &ge;</span>
-                            <input type="number" id="quick-mymovies-val" step="0.1" min="0.0" max="5.0" value="3.3" onchange="setQuickRating('mymovies', this.value)" class="w-10 bg-transparent text-rose-300 font-black text-center focus:outline-none focus:border-b border-rose-400 p-0 text-xs">
+                            <input type="number" id="quick-mymovies-val" step="0.1" min="0.0" max="5.0" value="3.6" onchange="setQuickRating('mymovies', this.value)" class="w-10 bg-transparent text-rose-300 font-black text-center focus:outline-none focus:border-b border-rose-400 p-0 text-xs">
                         </div>
                     </div>
                 </div>
@@ -487,11 +487,11 @@
                 <div class="pt-3 border-t border-slate-800 grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-300 mb-1">Soglia Minima IMDb</label>
-                        <input type="number" id="cfg-imdb-min" step="0.1" min="5.0" max="9.0" value="6.3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200" onchange="updateGuardrailSettings()">
+                        <input type="number" id="cfg-imdb-min" step="0.1" min="5.0" max="9.0" value="7.2" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200" onchange="updateGuardrailSettings()">
                     </div>
                     <div>
                         <label class="block text-[11px] font-bold text-slate-300 mb-1">Soglia Minima MYmovies</label>
-                        <input type="number" id="cfg-mymovies-min" step="0.1" min="2.5" max="4.8" value="3.3" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200" onchange="updateGuardrailSettings()">
+                        <input type="number" id="cfg-mymovies-min" step="0.1" min="2.5" max="4.8" value="3.6" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200" onchange="updateGuardrailSettings()">
                     </div>
                 </div>
             </div>
@@ -2608,8 +2608,14 @@
             console.warn('URL params parsing error:', e);
         }
         localStorage.setItem('cinestudio_watchlist', JSON.stringify(Array.from(watchlistIds)));
-        let minImdb = parseFloat(localStorage.getItem('cinestudio_min_imdb') || '6.3');
-        let minMymovies = parseFloat(localStorage.getItem('cinestudio_min_mymovies') || '3.3');
+        let minImdb = parseFloat(localStorage.getItem('cinestudio_min_imdb') || '7.2');
+        let minMymovies = parseFloat(localStorage.getItem('cinestudio_min_mymovies') || '3.6');
+        if (minImdb === 6.3 && minMymovies === 3.3) {
+            minImdb = 7.2;
+            minMymovies = 3.6;
+            localStorage.setItem('cinestudio_min_imdb', minImdb);
+            localStorage.setItem('cinestudio_min_mymovies', minMymovies);
+        }
         let customDnaItems = JSON.parse(localStorage.getItem('cinestudio_custom_dna') || '[]');
         
         // Elementi predefiniti del DNA (sincronizzati automaticamente su ogni dispositivo/browser)
@@ -3405,14 +3411,14 @@
 
         function applyRatingPreset(preset) {
             if (preset === 'capolavori') {
-                minImdb = 7.5;
-                minMymovies = 3.7;
+                minImdb = 7.7;
+                minMymovies = 4.0;
             } else if (preset === 'standard') {
-                minImdb = 6.3;
-                minMymovies = 3.3;
+                minImdb = 7.2;
+                minMymovies = 3.6;
             } else if (preset === 'ampia') {
-                minImdb = 5.8;
-                minMymovies = 2.8;
+                minImdb = 6.8;
+                minMymovies = 3.3;
             } else if (preset === 'tutti') {
                 minImdb = 0.0;
                 minMymovies = 0.0;
@@ -3449,9 +3455,9 @@
                 if (activePreset) {
                     isActive = (activePreset === p);
                 } else {
-                    if (p === 'capolavori' && minImdb >= 7.4) isActive = true;
-                    else if (p === 'standard' && minImdb === 6.3 && minMymovies === 3.3) isActive = true;
-                    else if (p === 'ampia' && minImdb === 5.8 && minMymovies === 2.8) isActive = true;
+                    if (p === 'capolavori' && minImdb >= 7.6) isActive = true;
+                    else if (p === 'standard' && minImdb === 7.2 && minMymovies === 3.6) isActive = true;
+                    else if (p === 'ampia' && minImdb === 6.8 && minMymovies === 3.3) isActive = true;
                     else if (p === 'tutti' && minImdb === 0 && minMymovies === 0) isActive = true;
                 }
                 if (isActive) {
@@ -3558,8 +3564,8 @@
         }
 
         function updateGuardrailSettings() {
-            minImdb = parseFloat(document.getElementById('cfg-imdb-min').value) || 6.3;
-            minMymovies = parseFloat(document.getElementById('cfg-mymovies-min').value) || 3.3;
+            minImdb = parseFloat(document.getElementById('cfg-imdb-min').value) || 7.2;
+            minMymovies = parseFloat(document.getElementById('cfg-mymovies-min').value) || 3.6;
             localStorage.setItem('cinestudio_min_imdb', minImdb);
             localStorage.setItem('cinestudio_min_mymovies', minMymovies);
             document.getElementById('label-imdb-val').textContent = minImdb;
