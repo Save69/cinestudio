@@ -486,7 +486,8 @@
                     <div class="flex flex-wrap gap-1.5">
                         <span class="px-2.5 py-1 rounded-lg bg-rose-950/60 text-rose-300 border border-rose-800/60">Horror & Splatter</span>
                         <span class="px-2.5 py-1 rounded-lg bg-rose-950/60 text-rose-300 border border-rose-800/60">Commedie demenziali</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-rose-950/60 text-rose-300 border border-rose-800/60">Film lenti senza trama</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-rose-950/60 text-rose-300 border border-rose-800/60">Dialetti regionali stretti privi di sottotitoli</span>
+                        <span class="px-2.5 py-1 rounded-lg bg-rose-950/60 text-rose-300 border border-rose-800/60">Subculture punk/hardcore o musica sguaiata/aggressiva</span>
                         <span class="px-2.5 py-1 rounded-lg bg-rose-950/60 text-rose-300 border border-rose-800/60">Musical canzonettistici (esclusi capolavori come La La Land)</span>
                     </div>
                 </div>
@@ -839,20 +840,116 @@
         </div>
     </div>
 
-    <!-- Modal: Già Visti -->
-    <div id="modal-seen" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-2xl rounded-2xl p-6 space-y-4 border border-slate-700 max-h-[85vh] flex flex-col">
+    
+    <!-- Modal: Esperienza Negativa / Boccia Film -->
+    <div id="modal-dislike" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="glass-panel w-full max-w-lg rounded-2xl p-5 sm:p-6 space-y-4 border border-rose-700/50 shadow-2xl animate-fade-in">
             <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                <h3 class="text-lg font-black text-white flex items-center gap-2">
-                    <i class="fa-solid fa-check-double text-emerald-400"></i> Film Segnati come Già Visti
-                </h3>
-                <button onclick="toggleSeenModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center text-sm font-black">
+                        <i class="fa-solid fa-thumbs-down"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-white" id="dislike-modal-title">Segna Esperienza Negativa</h3>
+                        <p class="text-[11px] text-slate-400">Questo film verrà escluso per sempre dalle tue proposte serali.</p>
+                    </div>
+                </div>
+                <button onclick="closeDislikeModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <p class="text-xs text-slate-400">Questi film vengono automaticamente esclusi dai tuoi suggerimenti serali.</p>
-            <div id="seen-items" class="flex-1 overflow-y-auto space-y-2 pr-1">
-                <!-- Elementi Già Visti -->
+
+            <input type="hidden" id="dislike-movie-id">
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-300 font-bold mb-1.5">Cosa ti ha infastidito o deluso? (Seleziona uno o più motivi)</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-rose-500/40 cursor-pointer">
+                            <input type="checkbox" name="dislike-reason" value="Dialetto/slang incomprensibile senza sottotitoli" class="accent-rose-500 rounded">
+                            <span class="text-slate-200">🗣️ Dialetto stretto o parlata ostica senza sottotitoli</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-rose-500/40 cursor-pointer">
+                            <input type="checkbox" name="dislike-reason" value="Genere musicale respingente (punk, metal, sguaiata)" class="accent-rose-500 rounded">
+                            <span class="text-slate-200">🎸 Genere musicale o colonna sonora sgradita (es. punk, trap, sguaiata)</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-rose-500/40 cursor-pointer">
+                            <input type="checkbox" name="dislike-reason" value="Trama poco coinvolgente o priva di mordente" class="accent-rose-500 rounded">
+                            <span class="text-slate-200">🥱 Trama poco interessante o che non mi coinvolge</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-rose-500/40 cursor-pointer">
+                            <input type="checkbox" name="dislike-reason" value="Tono deprimente, sgradevole o volgare" class="accent-rose-500 rounded">
+                            <span class="text-slate-200">🌑 Tono deprimente, sgradevole o grottesco</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 font-bold mb-1">Nota personale (opzionale):</label>
+                    <textarea id="dislike-note" rows="2" placeholder="Es. Dopo 20 minuti non mi piaceva la parlata, musica troppo rumorosa..." class="w-full bg-slate-950 border border-slate-800 focus:border-rose-500 rounded-xl p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none transition"></textarea>
+                </div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-800 flex justify-between items-center gap-2">
+                <button type="button" onclick="closeDislikeModal()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer transition">Annulla</button>
+                <button type="button" onclick="confirmDislikeMovie()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs cursor-pointer flex items-center gap-1.5 transition shadow-lg shadow-rose-600/20">
+                    <i class="fa-solid fa-ban"></i> Escludi & Salva Esperienza
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Archivio Visioni (Già Visti & Esperienze Negative) -->
+    <div id="modal-seen" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="glass-panel w-full max-w-2xl rounded-2xl p-5 sm:p-6 space-y-4 border border-slate-700 max-h-[88vh] flex flex-col shadow-2xl animate-fade-in">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-sm font-black">
+                        <i class="fa-solid fa-box-archive"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-black text-white">Archivio Visioni Personale</h3>
+                        <p class="text-[11px] text-slate-400">Tutti i film già visti e le esperienze negative escluse per sempre.</p>
+                    </div>
+                </div>
+                <button onclick="toggleSeenModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Tab Switcher: Visti vs Bocciati -->
+            <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+                <button id="tab-btn-seen-positive" onclick="switchSeenTab('positive')" class="px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition cursor-pointer bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                    <i class="fa-solid fa-check-double text-emerald-400"></i>
+                    <span>Film Già Visti</span>
+                    <span id="tab-seen-positive-count" class="px-1.5 py-0.2 rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black">0</span>
+                </button>
+                <button id="tab-btn-seen-negative" onclick="switchSeenTab('negative')" class="px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition cursor-pointer bg-slate-800 text-slate-300 border border-slate-700 hover:text-rose-300">
+                    <i class="fa-solid fa-thumbs-down text-rose-400"></i>
+                    <span>Esperienze Negative / Bocciati</span>
+                    <span id="tab-seen-negative-count" class="px-1.5 py-0.2 rounded-full bg-rose-500 text-slate-950 text-[10px] font-black">0</span>
+                </button>
+            </div>
+
+            <!-- VISTA 1: Film Già Visti -->
+            <div id="view-seen-positive" class="flex-1 flex flex-col space-y-2 min-h-0">
+                <p class="text-[11px] text-slate-400">Questi film sono esclusi dalle terne serali perché li hai già visti.</p>
+                <div id="seen-items" class="flex-1 overflow-y-auto space-y-2 pr-1 max-h-[50vh]">
+                    <!-- Elementi Già Visti -->
+                </div>
+            </div>
+
+            <!-- VISTA 2: Esperienze Negative -->
+            <div id="view-seen-negative" class="flex-1 flex flex-col space-y-2 min-h-0 hidden">
+                <p class="text-[11px] text-slate-400">Film bocciati o interrotti: i motivi segnalati alimentano i criteri guardrail dell'agente.</p>
+                <div id="disliked-items" class="flex-1 overflow-y-auto space-y-2.5 pr-1 max-h-[50vh]">
+                    <!-- Elementi Esperienze Negative -->
+                </div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-800 flex justify-between items-center text-[11px] text-slate-500">
+                <span>I titoli archiviati non compariranno mai più nei consigli serali.</span>
+                <button onclick="toggleSeenModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 font-bold hover:text-white cursor-pointer">Chiudi</button>
             </div>
         </div>
     </div>
@@ -2628,7 +2725,6 @@
         
         // Film predefiniti della Watchlist (sincronizzati automaticamente su smartphone Netlify e PC)
         const defaultWatchlist = [
-            'raiplay-margini',              // Margini (RaiPlay - commedia brillante)
             'disney-walle',                 // WALL-E (Disney+ - capolavoro poetico)
             'prime-sound-of-metal',         // Sound of Metal (Prime Video - Amazon Original flat)
             'prime-air',                    // Air - La storia del grande salto (Prime Video - flat)
@@ -2645,6 +2741,7 @@
         watchlistIds.delete('prime-parasite');
         watchlistIds.delete('prime-favolacce');
         watchlistIds.delete('raiplay-piccole-cose');
+        watchlistIds.delete('raiplay-margini');
         watchlistIds.delete('raiplay-figli-dopo');
 
         // Sincronizzazione automatica tramite parametro URL (?wl=id1,id2) per trasferire liste istantaneamente
@@ -2658,6 +2755,31 @@
             console.warn('URL params parsing error:', e);
         }
         localStorage.setItem('cinestudio_watchlist', JSON.stringify(Array.from(watchlistIds)));
+
+        // Esperienze Negative & Film Bocciati
+        let dislikedMovies = JSON.parse(localStorage.getItem('cinestudio_disliked_movies') || '[]');
+        const defaultDisliked = [
+            {
+                id: 'raiplay-margini',
+                title: 'Margini',
+                year: 2022,
+                director: 'Niccolò Falsetti',
+                platform: 'raiplay',
+                reasons: ['Dialetto/slang incomprensibile senza sottotitoli', 'Genere musicale respingente (street punk)'],
+                note: 'Dialetto ostico senza sottotitoli e genere musicale punk fastidioso. Escluso dalle proposte.',
+                date: '2026-10-06'
+            }
+        ];
+        defaultDisliked.forEach(def => {
+            if (!dislikedMovies.some(d => d.id === def.id || d.title.toLowerCase() === def.title.toLowerCase())) {
+                dislikedMovies.push(def);
+            }
+            // Assicura che sia escluso dai visti/proposte
+            seenIds.add(def.id);
+        });
+        localStorage.setItem('cinestudio_disliked_movies', JSON.stringify(dislikedMovies));
+        localStorage.setItem('cinestudio_seen', JSON.stringify(Array.from(seenIds)));
+
         let minImdb = parseFloat(localStorage.getItem('cinestudio_min_imdb') || '7.2');
         let minMymovies = parseFloat(localStorage.getItem('cinestudio_min_mymovies') || '3.6');
         if (minImdb === 6.3 && minMymovies === 3.3) {
@@ -3444,6 +3566,9 @@
                         <button onclick="toggleWatchlist('${movie.id}')" class="p-2.5 rounded-xl border ${isWatchlisted ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-md shadow-amber-500/30' : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'} transition text-xs cursor-pointer active:scale-95" title="${isWatchlisted ? 'Rimuovi da Watchlist' : 'Aggiungi a Watchlist'}">
                             <i class="fa-solid fa-bookmark ${isWatchlisted ? 'text-slate-950' : ''}"></i>
                         </button>
+                        <button onclick="openDislikeModal('${movie.id}')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-rose-950 hover:text-rose-400 border border-slate-700 text-slate-300 transition text-xs cursor-pointer active:scale-95" title="Non fa per me / Esperienza Negativa (escludi per sempre)">
+                            <i class="fa-solid fa-thumbs-down text-rose-400"></i>
+                        </button>
                         <button onclick="markAsSeen('${movie.id}')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-emerald-950 hover:text-emerald-400 border border-slate-700 text-slate-300 transition text-xs cursor-pointer active:scale-95" title="Segna come Già Visto">
                             <i class="fa-solid fa-check"></i>
                         </button>
@@ -3809,8 +3934,11 @@
                     <button onclick="promptChangePlatform('${movie.id}')" class="py-2 px-3 rounded-xl bg-indigo-950/60 hover:bg-indigo-900 text-indigo-300 border border-indigo-700/60 transition text-xs font-bold flex items-center gap-1.5 cursor-pointer" title="Se i diritti sono cambiati su un'altra piattaforma, modificala subito">
                         <i class="fa-solid fa-arrows-rotate text-indigo-400"></i> <span>Cambia Piattaforma</span>
                     </button>
-                    <button onclick="demoteMovieToRadar('${movie.id}')" class="py-2 px-3 rounded-xl bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-700/60 transition text-xs font-bold flex items-center gap-1.5 cursor-pointer" title="Se è a noleggio a pagamento, spostalo nel Radar">
-                        <i class="fa-solid fa-ban text-rose-400"></i> <span>È a Noleggio? Sposta in Radar</span>
+                    <button onclick="demoteMovieToRadar('${movie.id}')" class="py-2 px-3 rounded-xl bg-indigo-950/60 hover:bg-indigo-900 text-indigo-300 border border-indigo-700/60 transition text-xs font-bold flex items-center gap-1.5 cursor-pointer" title="Se è a noleggio a pagamento, spostalo nel Radar">
+                        <i class="fa-solid fa-satellite-dish text-indigo-400"></i> <span>È a Noleggio? Radar</span>
+                    </button>
+                    <button onclick="openDislikeModal('${movie.id}')" class="py-2 px-3 rounded-xl bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-700/60 transition text-xs font-bold flex items-center gap-1.5 cursor-pointer" title="Non ti è piaciuto o l'hai interrotto? Segnalo come Esperienza Negativa">
+                        <i class="fa-solid fa-thumbs-down text-rose-400"></i> <span>Non Fa per Me</span>
                     </button>
                     <button onclick="markAsSeen('${movie.id}'); closeMovieDetailsModal()" class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-emerald-950 hover:text-emerald-400 border border-slate-700 text-slate-300 transition text-xs font-bold flex items-center gap-1.5 cursor-pointer" title="Segna come Già Visto">
                         <i class="fa-solid fa-check text-emerald-400"></i> <span>${isSeen ? 'Visto' : 'Già Visto'}</span>
@@ -4763,10 +4891,172 @@
             renderAllMatchingMovies();
         }
 
+
+        // ==========================================
+        // GESTIONE ESPERIENZE NEGATIVE & BOCCIATI (ANTI-DNA)
+        // ==========================================
+        let currentSeenTab = 'positive';
+
+        function switchSeenTab(tab) {
+            currentSeenTab = tab;
+            const btnPos = document.getElementById('tab-btn-seen-positive');
+            const btnNeg = document.getElementById('tab-btn-seen-negative');
+            const viewPos = document.getElementById('view-seen-positive');
+            const viewNeg = document.getElementById('view-seen-negative');
+
+            if (tab === 'positive') {
+                if (btnPos) btnPos.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition cursor-pointer bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+                if (btnNeg) btnNeg.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition cursor-pointer bg-slate-800 text-slate-300 border border-slate-700 hover:text-rose-300";
+                if (viewPos) viewPos.classList.remove('hidden');
+                if (viewNeg) viewNeg.classList.add('hidden');
+                renderSeenItems();
+            } else {
+                if (btnPos) btnPos.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition cursor-pointer bg-slate-800 text-slate-300 border border-slate-700 hover:text-emerald-300";
+                if (btnNeg) btnNeg.className = "px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition cursor-pointer bg-rose-500/20 text-rose-300 border border-rose-500/40";
+                if (viewPos) viewPos.classList.add('hidden');
+                if (viewNeg) viewNeg.classList.remove('hidden');
+                renderDislikedItems();
+            }
+            updateSeenCounts();
+        }
+
+        function updateSeenCounts() {
+            const countPos = getAllMovies().filter(m => seenIds.has(m.id) && !dislikedMovies.some(d => d.id === m.id)).length;
+            const countNeg = dislikedMovies.length;
+            const posBadge = document.getElementById('tab-seen-positive-count');
+            const negBadge = document.getElementById('tab-seen-negative-count');
+            if (posBadge) posBadge.textContent = countPos;
+            if (negBadge) negBadge.textContent = countNeg;
+        }
+
+        function openDislikeModal(id) {
+            const movie = getAllMovies().find(m => m.id === id);
+            if (!movie) return;
+
+            document.getElementById('dislike-movie-id').value = id;
+            document.getElementById('dislike-modal-title').textContent = `Non fa per te: "${movie.title}"`;
+            document.getElementById('dislike-note').value = '';
+            document.querySelectorAll('input[name="dislike-reason"]').forEach(cb => cb.checked = false);
+
+            document.getElementById('modal-dislike').classList.remove('hidden');
+        }
+
+        function closeDislikeModal() {
+            document.getElementById('modal-dislike').classList.add('hidden');
+        }
+
+        function confirmDislikeMovie() {
+            const id = document.getElementById('dislike-movie-id').value;
+            const movie = getAllMovies().find(m => m.id === id);
+            if (!movie) {
+                closeDislikeModal();
+                return;
+            }
+
+            const checkedBoxes = Array.from(document.querySelectorAll('input[name="dislike-reason"]:checked')).map(cb => cb.value);
+            const note = document.getElementById('dislike-note').value.trim();
+
+            const record = {
+                id: movie.id,
+                title: movie.title,
+                year: movie.year,
+                director: movie.director,
+                platform: movie.platform,
+                reasons: checkedBoxes.length > 0 ? checkedBoxes : ['Non ha convinto'],
+                note: note || 'Esperienza negativa registrata.',
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            // Rimuovi se già presente e inserisci in cima
+            dislikedMovies = dislikedMovies.filter(d => d.id !== movie.id);
+            dislikedMovies.unshift(record);
+            localStorage.setItem('cinestudio_disliked_movies', JSON.stringify(dislikedMovies));
+
+            // Escludi da visti, da watchlist e dai consigli
+            seenIds.add(movie.id);
+            localStorage.setItem('cinestudio_seen', JSON.stringify(Array.from(seenIds)));
+            if (watchlistIds.has(movie.id)) {
+                watchlistIds.delete(movie.id);
+                localStorage.setItem('cinestudio_watchlist', JSON.stringify(Array.from(watchlistIds)));
+                updateWatchlistCount();
+            }
+
+            closeDislikeModal();
+            closeMovieDetailsModal();
+
+            // Se era nella terna, rimpiazza
+            if (currentRecommendations && currentRecommendations.some(m => m.id === movie.id)) {
+                const pool = getFilteredPool().filter(m => !currentRecommendations.some(cr => cr.id === m.id));
+                if (pool.length > 0) {
+                    const replacement = pool[Math.floor(Math.random() * pool.length)];
+                    currentRecommendations = currentRecommendations.map(m => m.id === movie.id ? replacement : m);
+                } else {
+                    currentRecommendations = currentRecommendations.filter(m => m.id !== movie.id);
+                }
+                renderRecommendations();
+            }
+
+            updateSeenCounts();
+            renderAllMatchingMovies();
+            alert(`"${movie.title}" è stato escluso per sempre dalle proposte e registrato nelle tue Esperienze Negative!`);
+        }
+
+        function removeDislikedMovie(id) {
+            dislikedMovies = dislikedMovies.filter(d => d.id !== id);
+            localStorage.setItem('cinestudio_disliked_movies', JSON.stringify(dislikedMovies));
+            // Ripristina anche da seenIds se l'utente vuole
+            seenIds.delete(id);
+            localStorage.setItem('cinestudio_seen', JSON.stringify(Array.from(seenIds)));
+            renderDislikedItems();
+            updateSeenCounts();
+            generateRecommendations(false);
+            renderAllMatchingMovies();
+        }
+
+        function renderDislikedItems() {
+            const container = document.getElementById('disliked-items');
+            if (!container) return;
+
+            if (dislikedMovies.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">Nessuna esperienza negativa archiviata.</p>`;
+                return;
+            }
+
+            container.innerHTML = dislikedMovies.map(item => `
+                <div class="p-3 rounded-xl bg-slate-900 border border-rose-900/40 flex items-start justify-between gap-3 text-xs">
+                    <div class="space-y-1.5 flex-1 min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] font-black uppercase flex items-center gap-1">
+                                <i class="fa-solid fa-thumbs-down"></i> Bocciato
+                            </span>
+                            <h5 class="font-bold text-white text-[13px]">${escapeHtml(item.title)}</h5>
+                            <span class="text-slate-400 text-[11px]">(${item.year || ''} &bull; ${escapeHtml(item.director || '')})</span>
+                            <span class="text-slate-500 text-[10px]">${item.date || ''}</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1">
+                            ${(item.reasons || []).map(r => `
+                                <span class="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700 text-[10px]">
+                                    ${escapeHtml(r)}
+                                </span>
+                            `).join('')}
+                        </div>
+                        ${item.note ? `
+                            <p class="text-rose-300 text-[11px] bg-rose-950/40 border border-rose-900/40 p-2 rounded-lg leading-relaxed">
+                                <i class="fa-solid fa-quote-left mr-1 text-rose-400 text-[9px]"></i>${escapeHtml(item.note)}
+                            </p>
+                        ` : ''}
+                    </div>
+                    <button onclick="removeDislikedMovie('${item.id}')" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700 text-xs transition cursor-pointer shrink-0" title="Rimuovi dai bocciati e riabilita">
+                        <i class="fa-solid fa-arrow-rotate-left"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
         function toggleSeenModal() {
             const modal = document.getElementById('modal-seen');
             if (modal.classList.contains('hidden')) {
-                renderSeenItems();
+                switchSeenTab(currentSeenTab || 'positive');
                 modal.classList.remove('hidden');
             } else {
                 modal.classList.add('hidden');
@@ -4775,7 +5065,7 @@
 
         function renderSeenItems() {
             const container = document.getElementById('seen-items');
-            const items = getAllMovies().filter(m => seenIds.has(m.id));
+            const items = getAllMovies().filter(m => seenIds.has(m.id) && !dislikedMovies.some(d => d.id === m.id));
             if (items.length === 0) {
                 container.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">Nessun film segnato come già visto.</p>`;
                 return;

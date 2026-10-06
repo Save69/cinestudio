@@ -59,9 +59,14 @@ L'utente la sera vuole aprire l'app, indicare il tempo a disposizione e il mood 
 ### E. I Blacklistati (Cosa ESCLUDERE CATEGORICAMENTE)
 - ❌ **Horror & Splatter**
 - ❌ **Commedie demenziali / trash**
-- ❌ **Film lenti senza trama** (intellettualismi pretenziosi privi di narrazione solida)
+- ❌ **Dialetti regionali stretti privi di sottotitoli chiari** *(es. Margini: lo sforzo d'ascolto continuo infastidisce la visione serale)*
+- ❌ **Film incentrati su sottoculture punk/hardcore o musica sguaiata/aggressiva** *(l'utente ama le partiture liriche ed emotive di Morricone, Piovani, il pianoforte, non il punk rumoroso)*
 - ❌ **Musical canzonettistici commerciali**  
   *(Con eccezione esplicita per capolavori cinematografici acclamati come La La Land)*
+
+> 💡 **NOTA CRUCIALE SUL RITMO & CINEMA FRANCESE**:  
+> L'utente **NON richiede** che ci sia un "gancio hollywoodiano" o un'azione frenetica nei primi 20 minuti. Ama profondamente il **cinema francese ed europeo d'autore** (*Amélie*, *Quasi amici*, Truffaut, Jeunet), con i suoi tempi distesi, le sfumature psicologiche e le atmosfere poetiche. Il problema con *Margini* era unicamente linguistico (dialetto incomprensibile senza sottotitoli) e musicale (punk sgradito).
+
 
 ---
 
@@ -115,6 +120,7 @@ Nessun database remoto necessario:
 - `cinestudio_custom_dna`: Array dei tag/registi aggiunti manualmente dall'utente.
 - `cinestudio_user_movies`: Film personalizzati aggiunti tramite la modale `+ Aggiungi Film`.
 - `cinestudio_radar_movies`: Film in monitoraggio nel Radar personale.
+- `cinestudio_disliked_movies`: Array JSON dei film bocciati / esperienze negative con motivi (es. dialetti senza sottotitoli, punk/metal) e note personali.
 - `cinestudio_top250_seen`: Array JSON dei rank (1-250) dei capolavori IMDb già visti (sincronizzati bidirezionalmente con `cinestudio_seen`).
 - `cinestudio_min_imdb` e `cinestudio_min_mymovies`: Soglie guardrail salvate.
 
