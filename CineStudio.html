@@ -1707,23 +1707,7 @@
                 "poster": "https://image.tmdb.org/t/p/w500/bABCBKYBK7A7GZ0t4OehgWap8Za.jpg",
                 "emotionalTone": "demanding"
         },
-        {
-                "id": "discovery-navalny",
-                "title": "Navalny",
-                "year": 2022,
-                "duration": 98,
-                "director": "Daniel Roher",
-                "cast": "Alexei Navalny, Yulia Navalnaya, Christo Grozev",
-                "platform": "discovery",
-                "link": "https://www.discoveryplus.com",
-                "imdb": 7.7,
-                "mymovies": 3.8,
-                "mood": "novita",
-                "why": "Premio Oscar per il Miglior Documentario: ritmo da thriller mozzafiato, indagine investigativa e coraggio civile impressionante.",
-                "synopsis": "L'indagine in tempo reale sull'avvelenamento del leader dell'opposizione russa Alexei Navalny e il complotto per metterlo a tacere.",
-                "poster": "https://image.tmdb.org/t/p/w500/mXp7pC7iLgT23S35h1fR03J39bF.jpg",
-                "emotionalTone": "demanding"
-        },
+        
         {
                 "id": "prime-air",
                 "title": "Air - La storia del grande salto",
@@ -2613,71 +2597,21 @@
                 "synopsis": "Nella Roma del 1938 un giovane borghese accetta una missione segreta a Parigi per eliminare il suo ex professore antifascista, cercando disperatamente l'omologazione.",
                 "poster": "https://image.tmdb.org/t/p/w500/ilConformista1970.jpg"
         },
+        
         {
-                "id": "discovery-robin-williams",
-                "title": "Robin Williams: Nella mente di un genio (Come Inside My Mind)",
-                "year": 2018,
-                "duration": 117,
-                "director": "Marina Zenovich",
-                "cast": "Robin Williams, Billy Crystal, Steve Martin, Whoopi Goldberg",
-                "platform": "discovery",
-                "link": "https://www.discoveryplus.com",
-                "imdb": 7.9,
-                "mymovies": 3.8,
-                "mood": "cuore",
-                "emotionalTone": "uplifting",
-                "why": "Il ritratto più intimo, affettuoso e luminoso del tuo attore del cuore: un viaggio commovente nella vulcanica genialità e nella sconfinata generosità di Robin Williams.",
-                "synopsis": "Attraverso interviste inedite e filmati d'archivio rari, la vita, la carriera travolgente e la sensibilità unica di uno degli artisti più amati della storia del cinema.",
-                "poster": "https://image.tmdb.org/t/p/w500/robinWilliams2018.jpg"
-        },
-        {
-                "id": "discovery-senna",
-                "title": "Senna",
-                "year": 2010,
-                "duration": 106,
-                "director": "Asif Kapadia",
-                "cast": "Ayrton Senna, Alain Prost, Ron Dennis, Frank Williams",
-                "platform": "discovery",
-                "link": "https://www.discoveryplus.com",
-                "imdb": 8.5,
-                "mymovies": 4.2,
-                "mood": "motivazionali",
-                "emotionalTone": "engaging",
-                "why": "3 Premi BAFTA. Il documentario sportivo definitivo: montaggio adrenalinico, carica emotiva e la leggendaria nobiltà d'animo di Ayrton Senna.",
-                "synopsis": "La monumentale ascesa, le sfide epiche in pista contro Alain Prost e l'eredità immortale del pilota brasiliano tre volte campione del mondo di Formula 1.",
-                "poster": "https://image.tmdb.org/t/p/w500/senna2010.jpg"
-        },
-        {
-                "id": "discovery-maradona",
-                "title": "Diego Maradona",
-                "year": 2019,
-                "duration": 130,
-                "director": "Asif Kapadia",
-                "cast": "Diego Armando Maradona, Pelé, Claudia Villafañe",
-                "platform": "discovery",
-                "link": "https://www.discoveryplus.com",
-                "imdb": 7.7,
-                "mymovies": 4,
-                "mood": "epica",
-                "emotionalTone": "engaging",
-                "why": "Dall'autore premio Oscar di Amy e Senna: oltre 500 ore di filmati inediti per raccontare gli anni napoletani, il genio sportivo e il riscatto di un popolo.",
-                "synopsis": "Luglio 1984: Maradona approda a Napoli per una cifra record. Nei successivi sette anni guiderà la squadra partenopea al primo storico scudetto diventando un mito vivente.",
-                "poster": "https://image.tmdb.org/t/p/w500/diegoMaradona2019.jpg"
-        },
-        {
-                "id": "discovery-deepest-breath",
+                "id": "netflix-deepest-breath",
                 "title": "L'ultimo respiro - The Deepest Breath",
                 "year": 2023,
                 "duration": 108,
                 "director": "Laura McGann",
                 "cast": "Alessia Zecchini, Stephen Keenan",
-                "platform": "discovery",
-                "link": "https://www.discoveryplus.com",
+                "platform": "netflix",
+                "link": "https://www.netflix.com",
                 "imdb": 7.7,
                 "mymovies": 3.7,
                 "mood": "anima",
                 "emotionalTone": "engaging",
-                "why": "Tensione mozzafiato e bellezza estatica degli abissi marini: l'incredibile storia della campionessa italiana Alessia Zecchini e del suo angelo custode sott'acqua.",
+                "why": "Netflix Original documentario: tensione mozzafiato e bellezza estatica degli abissi marini con la campionessa italiana Alessia Zecchini.",
                 "synopsis": "La campionessa italiana di apnea profonda Alessia Zecchini e il sub esperto di sicurezza Stephen Keenan formano un legame speciale sfidando i limiti umani.",
                 "poster": "https://image.tmdb.org/t/p/w500/theDeepestBreath2023.jpg"
         }
@@ -2819,7 +2753,55 @@
         }
     let radarItems = JSON.parse(localStorage.getItem('cinestudio_radar_movies') || '[]');
         const defaultRadar = [
+
             {
+                id: 'radar-senna',
+                title: "Senna",
+                year: 2010,
+                director: "Asif Kapadia",
+                cast: "Ayrton Senna, Alain Prost, Ron Dennis, Frank Williams",
+                imdb: 8.5,
+                mymovies: 4.2,
+                status: "Attualmente solo a noleggio / MUBI (Non su Discovery+)",
+                note: "3 Premi BAFTA. Il documentario sportivo definitivo sulla leggenda di Ayrton Senna. Su Discovery+ non è presente (era stato inserito per errore). Spostato in Radar per monitorare l'arrivo in abbonamento flat senza costi aggiuntivi.",
+                link: "https://www.justwatch.com/it/cerca?q=Senna"
+            },
+            {
+                id: 'radar-maradona',
+                title: "Diego Maradona",
+                year: 2019,
+                director: "Asif Kapadia",
+                cast: "Diego Armando Maradona, Pelé, Claudia Villafañe",
+                imdb: 7.7,
+                mymovies: 4.0,
+                status: "Attualmente solo a noleggio Store VOD (Non su Discovery+)",
+                note: "Dall'autore premio Oscar di Amy e Senna: oltre 500 ore di filmati inediti sugli anni napoletani. Su Discovery+ e Netflix non è presente in flat. Spostato in Radar per monitorare l'arrivo in streaming flat.",
+                link: "https://www.justwatch.com/it/cerca?q=Diego%20Maradona"
+            },
+            {
+                id: 'radar-navalny',
+                title: "Navalny",
+                year: 2022,
+                director: "Daniel Roher",
+                cast: "Alexei Navalny, Yulia Navalnaya, Christo Grozev",
+                imdb: 7.7,
+                mymovies: 3.8,
+                status: "Attualmente solo a noleggio Store (Non su Discovery+)",
+                note: "Premio Oscar per il Miglior Documentario. Su Discovery+ non è presente (solo noleggio a pagamento Chili/Amazon). Spostato in Radar in attesa di arrivo flat.",
+                link: "https://www.justwatch.com/it/cerca?q=Navalny"
+            },
+            {
+                id: 'radar-robin-williams',
+                title: "Robin Williams: Nella mente di un genio (Come Inside My Mind)",
+                year: 2018,
+                director: "Marina Zenovich",
+                cast: "Robin Williams, Billy Crystal, Steve Martin, Whoopi Goldberg",
+                imdb: 7.9,
+                mymovies: 3.8,
+                status: "Attualmente non presente nei cataloghi flat italiani (Non su Discovery+)",
+                note: "Documentario HBO sul tuo attore del cuore Robin Williams. Non presente su Discovery+. In Radar per monitorare l'acquisizione dei diritti da parte di RaiPlay o Prime.",
+                link: "https://www.justwatch.com/it/cerca?q=Robin%20Williams%20Come%20Inside%20My%20Mind"
+            },            {
                 id: 'radar-oppenheimer',
                 title: "Oppenheimer",
                 year: 2023,
