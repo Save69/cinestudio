@@ -474,6 +474,19 @@
                     </div>
                 </div>
 
+                <!-- Trasferimento dati tra dispositivi / copie dell'app (V74) -->
+                <div class="pt-3 border-t border-slate-800 space-y-2">
+                    <h4 class="font-bold text-sky-400 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                        <i class="fa-solid fa-right-left text-sky-400"></i> Trasferisci i tuoi dati
+                    </h4>
+                    <p class="text-[11px] text-slate-400 leading-relaxed">Ogni dispositivo (e la copia sul Desktop rispetto alla versione online) ha una memoria separata. Copia i dati da qui e incollali nell'altra: visti, Watchlist, Radar, bocciati, Top 250 e DNA vengono <b>uniti</b>, senza cancellare nulla. La chiave TMDB non viene copiata.</p>
+                    <div class="flex gap-2 flex-wrap">
+                        <button type="button" onclick="exportUserData()" class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-copy"></i> Copia i miei dati</button>
+                        <button type="button" onclick="importUserData()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-paste"></i> Incolla dati</button>
+                    </div>
+                    <textarea id="user-data-box" class="hidden w-full h-24 bg-slate-950 border border-slate-700 rounded-xl p-2 text-[10px] font-mono text-slate-300" readonly></textarea>
+                </div>
+
                 <!-- Verifica live della disponibilità (sostituisce il vecchio "controllo del giovedì") -->
                 <div class="pt-3 border-t border-slate-800 space-y-2">
                     <h4 class="font-bold text-emerald-400 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
@@ -4781,6 +4794,129 @@
             });
         }
 
+        /* =========================================================================================
+         * GIÀ VISTI (V74): ogni film segnato come visto ricorda anche titolo e anno, così resta riconosciuto
+         * quando cambia codice (catalogo → Radar → scoperto da TMDB) o esce dal catalogo. Le proposte
+         * escludono i film visti anche per titolo, compresi quelli segnati nella sfida Top 250.
+         * ========================================================================================= */
+        const SEEN_TITLES_STORAGE = 'cinestudio_seen_titles';
+        let seenTitles = {};
+        try { seenTitles = JSON.parse(localStorage.getItem(SEEN_TITLES_STORAGE) || '{}'); } catch (e) { seenTitles = {}; }
+
+        // Trova i dati di un film a partire dal codice salvato, ovunque si trovi oggi
+        function findSeenSource(id) {
+            const fromAll = getAllMovies().find(m => m.id === id);
+            if (fromAll) return fromAll;
+            const radar = radarItems.find(r => r.id === id || r.id === 'radar-' + id);
+            if (radar) return radar;
+            if (id.startsWith('tmdb-') && discovery.films[id.slice(5)]) return discovery.films[id.slice(5)];
+            const catalog = INITIAL_CATALOG.find(m => m.id === id);
+            if (catalog) return catalog;
+            // Codici storici (es. "prime-parasite" → voce Radar "radar-parasite")
+            const slugPart = id.split('-').slice(1).join('-');
+            return slugPart.length > 3 ? radarItems.find(r => r.id.endsWith('-' + slugPart)) || null : null;
+        }
+
+        function rememberSeen(id) {
+            const src = findSeenSource(id);
+            if (!src) return;
+            seenTitles[id] = { title: src.title, originalTitle: src.originalTitle || '', year: src.year || null, director: src.director || '' };
+            try { localStorage.setItem(SEEN_TITLES_STORAGE, JSON.stringify(seenTitles)); } catch (e) { /* ignora */ }
+        }
+
+        // Completa i titoli dei "già visti" registrati prima della V74
+        function backfillSeenTitles() {
+            let changed = false;
+            seenIds.forEach(id => {
+                if (seenTitles[id]) return;
+                const src = findSeenSource(id);
+                if (src) { seenTitles[id] = { title: src.title, originalTitle: src.originalTitle || '', year: src.year || null, director: src.director || '' }; changed = true; }
+            });
+            if (changed) { try { localStorage.setItem(SEEN_TITLES_STORAGE, JSON.stringify(seenTitles)); } catch (e) { /* ignora */ } }
+        }
+
+        // Titoli già visti (lista "Già visti" + sfida Top 250), normalizzati, per escluderli dalle proposte
+        function getSeenTitleSet() {
+            const set = new Set();
+            seenIds.forEach(id => {
+                const t = seenTitles[id];
+                if (t?.title) set.add(normalizeForMatch(t.title));
+                if (t?.originalTitle) set.add(normalizeForMatch(t.originalTitle));
+            });
+            seenTop250Ranks.forEach(rank => {
+                const top = IMDB_TOP_250.find(m => m.rank === rank);
+                if (top) { set.add(normalizeForMatch(top.title)); set.add(normalizeForMatch(top.originalTitle)); }
+            });
+            set.delete('');
+            return set;
+        }
+
+        // Elenco completo dei "già visti", anche dei film non più in catalogo
+        function getSeenEntries() {
+            const disliked = new Set(dislikedMovies.map(d => d.id));
+            return [...seenIds].filter(id => !disliked.has(id)).map(id => {
+                const t = seenTitles[id] || findSeenSource(id);
+                return { id, title: t?.title || 'Film registrato (titolo non più disponibile)', year: t?.year || '', director: t?.director || '' };
+            }).sort((a, b) => a.title.localeCompare(b.title, 'it', { sensitivity: 'base' }));
+        }
+
+        // Trasferimento dati tra copie dell'app (Desktop / online / telefono): unione, mai sovrascrittura
+        const TRANSFER_LISTS = ['cinestudio_seen', 'cinestudio_watchlist', 'cinestudio_top250_seen', 'cinestudio_custom_dna',
+            'cinestudio_demoted_ids', 'cinestudio_watchlist_defaults_given'];
+        const TRANSFER_RECORDS = ['cinestudio_radar_movies', 'cinestudio_disliked_movies', 'cinestudio_user_movies'];
+        const TRANSFER_MAPS = ['cinestudio_seen_titles', 'cinestudio_platform_overrides'];
+
+        function exportUserData() {
+            const data = { app: 'CineStudio', version: 1, exportedAt: new Date().toISOString() };
+            [...TRANSFER_LISTS, ...TRANSFER_RECORDS, ...TRANSFER_MAPS].forEach(k => {
+                try { const v = localStorage.getItem(k); if (v) data[k] = JSON.parse(v); } catch (e) { /* voce illeggibile: saltata */ }
+            });
+            const text = JSON.stringify(data);
+            const box = document.getElementById('user-data-box');
+            box.value = text;
+            box.classList.remove('hidden');
+            box.select();
+            const seen = (data.cinestudio_seen || []).length;
+            const done = () => alert(`Dati copiati (${seen} film già visti, ${(data.cinestudio_watchlist || []).length} in Watchlist).\n\nOra apri l'altra copia dell'app (o il telefono), DNA → "Incolla dati".\nPer il telefono puoi mandarti il testo su WhatsApp o per email.`);
+            if (navigator.clipboard?.writeText) {
+                navigator.clipboard.writeText(text).then(done).catch(() => alert('Copia automatica non riuscita: seleziona il testo nel riquadro e copialo a mano.'));
+            } else {
+                alert('Seleziona il testo nel riquadro e copialo a mano.');
+            }
+        }
+
+        function importUserData() {
+            const text = prompt('Incolla qui i dati copiati dall\'altra copia di CineStudio:');
+            if (!text) return;
+            let data;
+            try { data = JSON.parse(text.trim()); } catch (e) { alert('Il testo incollato non è valido: ricopialo per intero.'); return; }
+            if (data?.app !== 'CineStudio') { alert('Questi non sembrano dati di CineStudio.'); return; }
+            const read = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
+            let added = 0;
+            TRANSFER_LISTS.forEach(k => {
+                if (!Array.isArray(data[k])) return;
+                const cur = read(k) || [];
+                const merged = [...new Set([...cur, ...data[k]])];
+                added += merged.length - cur.length;
+                localStorage.setItem(k, JSON.stringify(merged));
+            });
+            TRANSFER_RECORDS.forEach(k => {
+                if (!Array.isArray(data[k])) return;
+                const cur = read(k) || [];
+                const ids = new Set(cur.map(r => r.id));
+                const titles = new Set(cur.map(r => normalizeForMatch(r.title || '')));
+                const extra = data[k].filter(r => r && !ids.has(r.id) && !titles.has(normalizeForMatch(r.title || '')));
+                added += extra.length;
+                localStorage.setItem(k, JSON.stringify([...cur, ...extra]));
+            });
+            TRANSFER_MAPS.forEach(k => {
+                if (!data[k] || typeof data[k] !== 'object') return;
+                localStorage.setItem(k, JSON.stringify({ ...data[k], ...(read(k) || {}) }));
+            });
+            alert(`Dati uniti: ${added} elementi nuovi aggiunti (nulla è stato cancellato).\nL'app si ricarica.`);
+            location.reload();
+        }
+
         function getAllMovies() {
             const userCustom = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
             const demotedIds = new Set(JSON.parse(localStorage.getItem('cinestudio_demoted_ids') || '[]'));
@@ -4837,6 +4973,7 @@
                 comfortEl.checked = (savedComfort !== 'false');
             }
             updateWatchlistCount();
+            backfillSeenTitles();
             syncSeenWithTop250();
             updateRadarCount();
             renderCustomDnaTags();
@@ -4940,6 +5077,7 @@
             const maxDuration = parseInt(document.getElementById('select-duration').value, 10);
             const globalSearch = (document.getElementById('input-global-search')?.value || '').toLowerCase().trim();
             const comfortMode = document.getElementById('check-comfort-mode')?.checked ?? true;
+            const seenTitleSet = getSeenTitleSet();
             // Toni ammessi in Confort Serale (whitelist: un tono sconosciuto o nuovo viene escluso)
             const COMFORT_TONES = new Set(['uplifting', 'engaging']);
 
@@ -4962,8 +5100,9 @@
                 // Piattaforma attiva
                 if (!activePlatforms.has(movie.platform)) return false;
 
-                // Escludi già visti
+                // Escludi già visti: per codice e per titolo (stesso film arrivato dal Radar, scoperto da TMDB o visto nella Top 250)
                 if (seenIds.has(movie.id)) return false;
+                if (seenTitleSet.has(normalizeForMatch(movie.title)) || (movie.originalTitle && seenTitleSet.has(normalizeForMatch(movie.originalTitle)))) return false;
 
                 // Escludi film bocciati (Esperienze Negative)
                 if (dislikedMovies.some(d => d.id === movie.id)) return false;
@@ -5387,6 +5526,7 @@
         function markAsSeen(id) {
             seenIds.add(id);
             localStorage.setItem('cinestudio_seen', JSON.stringify(Array.from(seenIds)));
+            rememberSeen(id);
             const movie = getAllMovies().find(m => m.id === id);
             if (movie) {
                 const topMatch = findTop250MatchForMovie(movie);
@@ -5413,6 +5553,8 @@
         function unmarkSeen(id) {
             seenIds.delete(id);
             localStorage.setItem('cinestudio_seen', JSON.stringify(Array.from(seenIds)));
+            delete seenTitles[id];
+            try { localStorage.setItem(SEEN_TITLES_STORAGE, JSON.stringify(seenTitles)); } catch (e) { /* ignora */ }
             const movie = getAllMovies().find(m => m.id === id);
             if (movie) {
                 const topMatch = findTop250MatchForMovie(movie);
@@ -6607,7 +6749,7 @@
         }
 
         function updateSeenCounts() {
-            const countPos = getAllMovies().filter(m => seenIds.has(m.id) && !dislikedMovies.some(d => d.id === m.id)).length;
+            const countPos = getSeenEntries().length;
             const countNeg = dislikedMovies.length;
             const posBadge = document.getElementById('tab-seen-positive-count');
             const negBadge = document.getElementById('tab-seen-negative-count');
@@ -6661,6 +6803,7 @@
             // Escludi da visti, da watchlist e dai consigli
             seenIds.add(movie.id);
             localStorage.setItem('cinestudio_seen', JSON.stringify(Array.from(seenIds)));
+            rememberSeen(movie.id);
             if (watchlistIds.has(movie.id)) {
                 watchlistIds.delete(movie.id);
                 localStorage.setItem('cinestudio_watchlist', JSON.stringify(Array.from(watchlistIds)));
@@ -6751,7 +6894,7 @@
 
         function renderSeenItems() {
             const container = document.getElementById('seen-items');
-            const items = getAllMovies().filter(m => seenIds.has(m.id) && !dislikedMovies.some(d => d.id === m.id));
+            const items = getSeenEntries();
             if (items.length === 0) {
                 container.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">Nessun film segnato come già visto.</p>`;
                 return;
@@ -6760,7 +6903,7 @@
                 <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
                     <div>
                         <span class="font-bold text-white">${escapeHtml(m.title)}</span>
-                        <span class="text-slate-400 text-[11px]">(${m.year} &bull; ${escapeHtml(m.director)})</span>
+                        ${m.year ? `<span class="text-slate-400 text-[11px]">(${m.year}${m.director ? ` &bull; ${escapeHtml(m.director)}` : ''})</span>` : ''}
                     </div>
                     <button onclick="unmarkSeen('${m.id}')" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 hover:text-white text-[11px] cursor-pointer" title="Riporta tra i disponibili">
                         Ripristina
