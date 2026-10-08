@@ -137,8 +137,11 @@ Nessun database remoto necessario:
 
 2. **Verifica live della disponibilità (TMDB, dati JustWatch) — dalla V64**:
    - ⚠️ L'"audit autonomo del giovedì" (`task-1897`) descritto in precedenza **non è mai esistito**, e lo script
-     `scripts/weekly_cinestudio_updater.py` non verifica nulla online (aggiunge film scritti a mano).
-     Il suo avvio automatico su GitHub Actions è disattivato dalla V63.
+     `scripts/weekly_cinestudio_updater.py` non verificava nulla online (aggiungeva film scritti a mano).
+     Script e workflow GitHub Actions `weekly_scan.yml` sono stati **eliminati nella V67**: non ricrearli.
+     Il controllo manuale del giovedì descritto in `REGOLE_LAVORO.md` resta valido come verifica a campione.
+   - Film del Radar diventati inclusi entrano da soli nelle proposte (V66), esclusi i Punti Cardinali.
+   - "Guarda Ora" apre la ricerca del titolo su Netflix, Prime Video e RaiPlay; per Disney+ la pagina TMDB "dove guardarlo" (V67).
    - Ora è l'app stessa a verificare: con la chiave TMDB impostata (link "Collega TMDB" sotto "Le Tue 3 Opzioni"),
      ogni 24 ore interroga TMDB per catalogo e Radar, salvando l'esito in `cinestudio_tmdb_cache`.
    - Film non incluso in nessun abbonamento → escluso dalle proposte (elenco cliccabile "N non più inclusi").
