@@ -368,7 +368,13 @@
                     </span>
                     <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
                 </summary>
-                <div id="all-movies-table" class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <!-- Ricerca nella lista (V75): c'è? dove si vede? perché non c'è? -->
+                <div class="mt-4 relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                    <input type="search" id="input-list-search" oninput="renderAllMatchingMovies()" placeholder="Cerca un titolo, un regista o un attore: ti dico se c'è e dove si vede" class="w-full bg-slate-950 border border-slate-700 focus:border-sky-500 rounded-xl pl-8 pr-3 py-2 text-xs text-white focus:outline-none">
+                </div>
+                <div id="list-search-info" class="hidden mt-2 text-[11px] text-slate-400"></div>
+                <div id="all-movies-table" class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     <!-- Film list completo -->
                 </div>
             </details>
@@ -5336,10 +5342,136 @@
             });
         }
 
+        /* =========================================================================================
+         * RICERCA NELLA LISTA (V75): "c'è? dove si vede? perché non me lo proponi?"
+         * ========================================================================================= */
+        function movieMatchesQuery(m, q) {
+            return [m.title, m.originalTitle, m.director, m.cast].some(v => v && normalizeForMatch(v).includes(q));
+        }
+
+        // Perché un film conosciuto non è nella lista: stesse regole di getFilteredPool(), nello stesso ordine
+        function whyNotInList(movie) {
+            const where = movie.livePlatforms?.length ? movie.livePlatforms.map(getPlatformName).join(', ') : getPlatformName(movie.platform);
+            if (movie.liveUnavailable) {
+                const info = movie.liveInfo;
+                return `non è più incluso nei tuoi abbonamenti${info?.others?.length ? ` (ora su ${info.others.join(', ')})` : info?.rentOrBuy ? ' (solo noleggio o acquisto)' : ''}`;
+            }
+            if (isPuntoCardinale(movie.title)) return `è su ${where}, ma è un tuo Punto Cardinale (già visto)`;
+            if (!activePlatforms.has(movie.platform)) return `è su ${where}, piattaforma spenta nei filtri`;
+            const seenTitleSet = getSeenTitleSet();
+            if (seenIds.has(movie.id) || seenTitleSet.has(normalizeForMatch(movie.title)) || (movie.originalTitle && seenTitleSet.has(normalizeForMatch(movie.originalTitle)))) return `è su ${where}, ma l'hai segnato come già visto`;
+            if (dislikedMovies.some(d => d.id === movie.id)) return `è su ${where}, ma è tra i film bocciati`;
+            const comfortMode = document.getElementById('check-comfort-mode')?.checked ?? true;
+            if (comfortMode && movie.emotionalTone && !['uplifting', 'engaging'].includes(movie.emotionalTone)) return `è su ${where}, ma il Filtro Confort lo esclude (tono cupo o impegnativo)`;
+            if (!(movie.imdb >= minImdb)) return `è su ${where}, ma il voto (${scoreLabel(movie)} ${movie.imdb.toFixed(1)}) è sotto la soglia ${minImdb.toFixed(1)}`;
+            return `è su ${where}, ma è escluso dai filtri di durata o di mood`;
+        }
+
+        function renderListSearchMiss(query, rawQuery) {
+            const known = getAllMovies().filter(m => movieMatchesQuery(m, query)).slice(0, 4);
+            const radar = radarItems.filter(r => normalizeForMatch(r.title).includes(query)).slice(0, 3);
+            const jw = `https://www.justwatch.com/it/cerca?q=${encodeURIComponent(rawQuery)}`;
+            const card = inner => `<div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-1.5">${inner}</div>`;
+            let html = '';
+            known.forEach(m => {
+                html += card(`
+                    <div class="flex items-center gap-1.5 flex-wrap">${getPlatformBadge(m.platform, true)}<span class="font-bold text-white">${escapeHtml(m.title)}</span><span class="text-slate-500">(${m.year})</span></div>
+                    <p class="text-amber-300"><i class="fa-solid fa-circle-info mr-1"></i>Non è nella lista: ${escapeHtml(whyNotInList(m))}.</p>
+                    <div class="flex gap-2 flex-wrap">
+                        <button type="button" onclick="openMovieDetailsModal('${m.id}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold cursor-pointer">Scheda</button>
+                        ${m.liveUnavailable ? '' : `<a href="${getWatchUrl(m)}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold">Guarda su ${getPlatformName(m.platform)}</a>`}
+                    </div>`);
+            });
+            radar.forEach(r => {
+                const live = getLiveInfo(r.id);
+                const status = live?.platforms?.length ? `ora incluso su ${live.platforms.map(getPlatformName).join(', ')}` : (r.status || 'in attesa di streaming incluso');
+                html += card(`
+                    <div class="flex items-center gap-1.5 flex-wrap"><span class="px-1.5 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800 text-[10px] font-bold"><i class="fa-solid fa-satellite-dish"></i> Radar</span><span class="font-bold text-white">${escapeHtml(r.title)}</span><span class="text-slate-500">(${r.year || ''})</span></div>
+                    <p class="text-sky-300">${escapeHtml(status)}.</p>`);
+            });
+            if (!known.length && !radar.length) {
+                html += card(`
+                    <p class="text-slate-300">«${escapeHtml(rawQuery)}» non è tra i film che CineStudio conosce.</p>
+                    <div class="flex gap-2 flex-wrap">
+                        ${getTmdbKey() ? `<button type="button" onclick="lookupWhereToWatch()" class="px-2.5 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold cursor-pointer"><i class="fa-solid fa-magnifying-glass-location mr-1"></i>Cerca dove si vede</button>` : ''}
+                        <a href="${jw}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold">Apri JustWatch</a>
+                    </div>
+                    <div id="where-to-watch-result" class="space-y-1.5"></div>`);
+            }
+            return html;
+        }
+
+        // Film sconosciuto: chiede a TMDB dove si vede oggi in Italia
+        async function lookupWhereToWatch() {
+            const rawQuery = (document.getElementById('input-list-search')?.value || '').trim();
+            const box = document.getElementById('where-to-watch-result');
+            if (!rawQuery || !box) return;
+            box.innerHTML = '<p class="text-slate-400"><i class="fa-solid fa-rotate fa-spin mr-1"></i>Cerco su TMDB…</p>';
+            try {
+                const data = await tmdbFetch('/search/movie', { query: rawQuery, language: 'it-IT' });
+                const results = (data.results || []).slice(0, 3);
+                if (!results.length) { box.innerHTML = '<p class="text-slate-400">Nessun film trovato con questo titolo.</p>'; return; }
+                const platOf = name => TMDB_PROVIDER_RULES.find(r => r.re.test(name))?.plat;
+                const rows = [];
+                for (const r of results) {
+                    const d = await tmdbFetch(`/movie/${r.id}/watch/providers`);
+                    const it = d.results?.IT || {};
+                    const included = [...(it.flatrate || []), ...(it.free || []), ...(it.ads || [])];
+                    const mine = [...new Set(included.map(p => platOf(p.provider_name)).filter(p => ['netflix', 'prime', 'disney', 'raiplay'].includes(p)))];
+                    const others = [...new Set(included.map(p => p.provider_name).filter(n => !platOf(n)))];
+                    const rent = [...new Set([...(it.rent || []), ...(it.buy || [])].map(p => p.provider_name))];
+                    const year = parseInt(r.release_date, 10) || '';
+                    const verdict = mine.length
+                        ? `<span class="text-emerald-300 font-bold">✓ Incluso su ${mine.map(getPlatformName).join(', ')}</span>`
+                        : others.length ? `<span class="text-amber-300">Non nei tuoi abbonamenti: su ${escapeHtml(others.slice(0, 3).join(', '))}</span>`
+                        : rent.length ? `<span class="text-amber-300">Solo noleggio o acquisto (${escapeHtml(rent.slice(0, 3).join(', '))})</span>`
+                        : '<span class="text-slate-400">Non disponibile in streaming in Italia</span>';
+                    const safeTitle = escapeHtml(r.title).replace(/'/g, "\\'");
+                    rows.push(`<div class="flex items-center justify-between gap-2 flex-wrap p-2 rounded-lg bg-slate-950 border border-slate-800">
+                        <span><b class="text-white">${escapeHtml(r.title)}</b> <span class="text-slate-500">(${year})</span> · ${verdict}</span>
+                        ${mine.length ? `<a href="${getWatchUrl({ title: r.title, platform: mine[0], liveInfo: { link: it.link } })}" target="_blank" rel="noopener noreferrer" class="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-bold">Guarda</a>`
+                            : `<button type="button" onclick="addLookupToRadar('${safeTitle}', ${year || 'null'})" class="px-2 py-0.5 rounded bg-sky-700 hover:bg-sky-600 text-white font-bold cursor-pointer">+ Radar</button>`}
+                    </div>`);
+                }
+                box.innerHTML = rows.join('');
+            } catch (e) {
+                box.innerHTML = `<p class="text-rose-400">Ricerca non riuscita (${escapeHtml(e.message)}).</p>`;
+            }
+        }
+
+        function addLookupToRadar(title, year) {
+            if (radarItems.some(r => normalizeForMatch(r.title) === normalizeForMatch(title))) { alert(`"${title}" è già nel Radar.`); return; }
+            const item = { id: 'radar-' + Date.now(), title, year, director: 'Segnalato da te', cast: '', status: 'In ricerca streaming free / incluso', note: 'Aggiunto dalla ricerca: in attesa di disponibilità senza noleggio a pagamento.' };
+            radarItems.push(item);
+            localStorage.setItem('cinestudio_radar_movies', JSON.stringify(radarItems));
+            updateRadarCount();
+            alert(`"${title}" aggiunto al Radar: te lo segnalo quando arriva su una delle tue piattaforme.`);
+        }
+
         function renderAllMatchingMovies() {
-            const pool = getFilteredPool();
+            let pool = getFilteredPool();
             const container = document.getElementById('all-movies-table');
             document.getElementById('all-matching-count').textContent = pool.length;
+
+            // Ricerca nella lista: filtra mentre scrivi; se il film non c'è, spiega perché e dove si vede
+            const listRaw = (document.getElementById('input-list-search')?.value || '').trim();
+            const listQuery = normalizeForMatch(listRaw);
+            const listInfo = document.getElementById('list-search-info');
+            if (listQuery.length >= 2) {
+                pool = pool.filter(m => movieMatchesQuery(m, listQuery));
+                if (listInfo) {
+                    listInfo.classList.remove('hidden');
+                    listInfo.innerHTML = pool.length
+                        ? `<i class="fa-solid fa-circle-check text-emerald-400"></i> ${pool.length === 1 ? 'Trovato 1 film' : `Trovati ${pool.length} film`} nella lista per «${escapeHtml(listRaw)}».`
+                        : `<i class="fa-solid fa-circle-info text-amber-400"></i> «${escapeHtml(listRaw)}» non è nella lista dei film proposti. Ecco cosa so:`;
+                }
+                if (!pool.length) {
+                    container.innerHTML = renderListSearchMiss(listQuery, listRaw);
+                    return;
+                }
+            } else if (listInfo) {
+                listInfo.classList.add('hidden');
+            }
 
             const searchInputVal = (document.getElementById('input-global-search')?.value || '').trim();
             let scoutBanner = '';
@@ -5398,7 +5530,7 @@
                         <p class="text-slate-400 text-[11px] truncate"><i class="fa-solid fa-clapperboard text-slate-500 mr-1"></i>${escapeHtml(m.director)} &bull; ${m.year} &bull; ${formatDuration(m.duration)}</p>
                         <div class="flex items-center gap-3 mt-1.5 font-mono text-[10px]">
                             <span class="text-[#f5c518] font-bold">${scoreLabel(m)} ${m.imdb.toFixed(1)}</span>
-                            <span class="text-rose-400 font-bold">MYmovies ${fmtMym(m.mymovies)}</span>
+                            ${m.mymovies > 0 ? `<span class="text-rose-400 font-bold">MYmovies ${fmtMym(m.mymovies)}</span>` : ''}
                         </div>
                     </div>
                     <div class="flex items-center gap-1 pl-1">
