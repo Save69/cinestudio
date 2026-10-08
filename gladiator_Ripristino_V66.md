@@ -45,3 +45,11 @@ scheda e dettagli funzionanti, nessun errore in console.
 git checkout pre-v66-radar -- CineStudio.html index.html
 ```
 poi ricopiare `CineStudio.html` nelle due copie sul Desktop.
+
+## Aggiunta successiva: campo "Cerca nel Radar o aggiungi"
+- Il campo del Radar ora filtra la lista mentre si scrive e dice se il titolo è già nel Radar o nel catalogo.
+- Titoli del Radar in ordine alfabetico in entrambe le sezioni.
+- "Monitora" non crea doppioni né aggiunge film già in catalogo.
+- I titoli aggiunti a mano non salvano più l'anno "Cercato": la verifica TMDB (subito, se collegata) trova il film,
+  completa anno e titolo ufficiale e ne controlla la disponibilità. Prima non venivano mai verificati.
+- Verifica JustWatch 08/10/2026: *Storie pazzesche* (2014) è solo a noleggio/acquisto (Amazon Video, TIMvision, CHILI, Rakuten).

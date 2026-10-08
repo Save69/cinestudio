@@ -679,13 +679,14 @@
             <div id="view-radar-personal" class="flex-1 flex flex-col space-y-3 min-h-0">
                 <!-- Box aggiunta nuovo titolo al radar -->
                 <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-1.5">
-                    <label class="block text-[11px] font-bold text-slate-300">Aggiungi un titolo al Radar per monitorarlo:</label>
+                    <label class="block text-[11px] font-bold text-slate-300">Cerca nel Radar o aggiungi un titolo da monitorare:</label>
                     <div class="flex gap-2">
-                        <input type="text" id="input-new-radar-title" placeholder="Es. I guerrieri, Barry Lyndon, ecc..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white" onkeydown="if(event.key==='Enter'){event.preventDefault();addRadarItem();}">
+                        <input type="text" id="input-new-radar-title" placeholder="Es. Storie pazzesche, Barry Lyndon..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white" oninput="renderRadarItems()" onkeydown="if(event.key==='Enter'){event.preventDefault();addRadarItem();}">
                         <button onclick="addRadarItem()" class="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-xl text-xs cursor-pointer flex items-center gap-1">
                             <i class="fa-solid fa-plus"></i> Monitora
                         </button>
                     </div>
+                    <p id="radar-search-hint" class="text-[11px] text-slate-400 hidden"></p>
                 </div>
 
                 <!-- Lista Titoli nel Radar Personale -->
@@ -3324,16 +3325,29 @@
             const inParens = movie.title.match(/\(([^)]+)\)/);
             if (inParens) variants.push(inParens[1]);
             if (movie.title.includes(' - ')) variants.push(...movie.title.split(' - ').map(s => s.trim()));
+            const year = parseInt(movie.year, 10);
             for (const query of variants) {
                 const data = await tmdbFetch('/search/movie', { query, language: 'it-IT' });
-                const hit = (data.results || []).find(r => r.release_date && Math.abs(parseInt(r.release_date, 10) - movie.year) <= 1);
-                if (hit) return hit.id;
+                // Senza anno (titoli aggiunti a mano al Radar) vale il risultato più rilevante
+                const hit = (data.results || []).find(r => r.release_date && (isNaN(year) || Math.abs(parseInt(r.release_date, 10) - year) <= 1));
+                if (hit) return hit;
             }
             return null;
         }
 
         async function tmdbCheck(item) {
-            const tmdbId = tmdbCache[item.id]?.tmdbId || await tmdbFindId(item);
+            let tmdbId = tmdbCache[item.id]?.tmdbId;
+            if (!tmdbId) {
+                const hit = await tmdbFindId(item);
+                tmdbId = hit?.id;
+                // Titolo del Radar aggiunto a mano: completa anno e titolo ufficiale
+                const radarItem = radarItems.find(r => r.id === item.id);
+                if (hit && radarItem && isNaN(parseInt(radarItem.year, 10))) {
+                    radarItem.year = parseInt(hit.release_date, 10);
+                    if (hit.title) radarItem.title = hit.title;
+                    localStorage.setItem('cinestudio_radar_movies', JSON.stringify(radarItems));
+                }
+            }
             if (!tmdbId) {
                 tmdbCache[item.id] = { notFound: true, checkedAt: Date.now() };
                 return;
@@ -3358,7 +3372,7 @@
         async function refreshLiveAvailability(force = false) {
             if (!getTmdbKey() || tmdbStatus.running) return;
             const userCustom = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
-            const targets = [...INITIAL_CATALOG, ...userCustom, ...radarItems.filter(r => r.year)];
+            const targets = [...INITIAL_CATALOG, ...userCustom, ...radarItems];
             const todo = targets.filter(t => force || !tmdbCache[t.id] || Date.now() - tmdbCache[t.id].checkedAt > TMDB_REFRESH_MS);
             if (todo.length === 0) { updateLiveStatus(); return; }
 
@@ -4858,12 +4872,36 @@
                     </div>
                 </div>
             `;
-            const arrived = radarItems.filter(i => arrivedPlatforms(i).length);
-            const waiting = radarItems.filter(i => !arrivedPlatforms(i).length);
+            // Il campo "Cerca nel Radar o aggiungi" filtra la lista mentre scrivi
+            const rawQuery = (document.getElementById('input-new-radar-title')?.value || '').trim();
+            const query = normalizeForMatch(rawQuery);
+            const matchesQuery = item => !query || normalizeForMatch(item.title).includes(query);
+            const byTitle = (a, b) => a.title.localeCompare(b.title, 'it', { sensitivity: 'base' });
+            const visible = radarItems.filter(matchesQuery);
+            const arrived = visible.filter(i => arrivedPlatforms(i).length).sort(byTitle);
+            const waiting = visible.filter(i => !arrivedPlatforms(i).length).sort(byTitle);
             const heading = (icon, text) => `<h5 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 pt-1"><i class="fa-solid ${icon}"></i> ${text}</h5>`;
             container.innerHTML =
                 (arrived.length ? heading('fa-circle-check text-emerald-400', `Arrivati in streaming incluso (${arrived.length})`) + arrived.map(renderItem).join('') : '') +
                 (waiting.length ? heading('fa-satellite-dish text-sky-400', `In attesa (${waiting.length})`) + waiting.map(renderItem).join('') : '');
+
+            const hint = document.getElementById('radar-search-hint');
+            if (hint) {
+                if (!query) {
+                    hint.classList.add('hidden');
+                } else {
+                    hint.classList.remove('hidden');
+                    const inCatalog = getAllMovies().find(m => normalizeForMatch(m.title).includes(query));
+                    if (visible.length) {
+                        hint.innerHTML = `<i class="fa-solid fa-satellite-dish text-sky-400"></i> Nel Radar: ${visible.length === 1 ? 'trovato 1 titolo' : `trovati ${visible.length} titoli`}.`;
+                    } else if (inCatalog) {
+                        hint.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> <b>${escapeHtml(inCatalog.title)}</b> è già nel catalogo (${getPlatformName(inCatalog.platform)}): non serve monitorarlo.`;
+                    } else {
+                        hint.innerHTML = `<i class="fa-solid fa-circle-info text-amber-400"></i> «${escapeHtml(rawQuery)}» non è nel Radar. Premi <b>Monitora</b> per aggiungerlo.`;
+                    }
+                }
+            }
+            if (query && !visible.length) container.innerHTML = '';
             updateRadarCount();
         }
 
@@ -5079,20 +5117,39 @@
             const title = input.value.trim();
             if (!title) return;
 
+            const key = normalizeForMatch(title);
+            const already = radarItems.find(r => normalizeForMatch(r.title) === key);
+            if (already) {
+                alert(`"${already.title}" è già nel Radar.`);
+                return;
+            }
+            const inCatalog = getAllMovies().find(m => normalizeForMatch(m.title) === key);
+            if (inCatalog) {
+                alert(`"${inCatalog.title}" è già nel catalogo (${getPlatformName(inCatalog.platform)}): non serve monitorarlo.`);
+                return;
+            }
+
             const newItem = {
                 id: 'radar-' + Date.now(),
                 title: title,
-                year: 'Cercato',
+                year: null,   // lo ricava la verifica TMDB
                 director: 'Segnalato da te',
                 cast: '',
                 status: 'In ricerca streaming free / incluso',
                 note: 'In attesa di disponibilità senza noleggio a pagamento.'
             };
 
-            radarItems.unshift(newItem);
+            radarItems.push(newItem);
             localStorage.setItem('cinestudio_radar_movies', JSON.stringify(radarItems));
             input.value = '';
             renderRadarItems();
+
+            // Verifica subito il nuovo titolo, se TMDB è collegato
+            if (getTmdbKey()) {
+                tmdbCheck(newItem)
+                    .then(() => { saveTmdbCache(); renderRadarItems(); generateRecommendations(false, false); renderAllMatchingMovies(); updateLiveStatus(); })
+                    .catch(() => { /* resta in attesa: verrà ricontrollato al prossimo aggiornamento */ });
+            }
         }
 
         function removeRadarItem(id) {
