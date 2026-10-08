@@ -135,12 +135,17 @@ Nessun database remoto necessario:
    - **Filtri Rapidi**: `Tutti (250)`, `🟢 Disponibili Ora` (nel catalogo flat 6 piattaforme), `📡 In Attesa / Radar` (solo a noleggio), `✅ Già Visti`, `Da Vedere`.
    - **Sincronizzazione Automatica**: contrassegnare un film come visto lo esclude anche dalla rotazione delle terne serali.
 
-2. **Audit Autonomo del Giovedì alle 09:00 (`task-1897`)**:
-   - Demone schedulato in background via cron (`0 9 * * 4`).
-   - Esegue la scansione dei 6 cataloghi (Netflix, Prime, Disney+, RaiPlay, La7, Discovery+) su JustWatch Italia con rigore assoluto ("precisione 10 > velocità 1").
-   - Sposta in Radar qualsiasi titolo passato a noleggio a pagamento.
-   - Promuove in catalogo flat qualsiasi titolo della Top 250 o del Radar che entra in streaming incluso/gratuito.
-   - Esegue sincronizzazione file e commit/push automatico su GitHub Pages.
+2. **Verifica live della disponibilità (TMDB, dati JustWatch) — dalla V64**:
+   - ⚠️ L'"audit autonomo del giovedì" (`task-1897`) descritto in precedenza **non è mai esistito**, e lo script
+     `scripts/weekly_cinestudio_updater.py` non verifica nulla online (aggiunge film scritti a mano).
+     Il suo avvio automatico su GitHub Actions è disattivato dalla V63.
+   - Ora è l'app stessa a verificare: con la chiave TMDB impostata (link "Collega TMDB" sotto "Le Tue 3 Opzioni"),
+     ogni 24 ore interroga TMDB per catalogo e Radar, salvando l'esito in `cinestudio_tmdb_cache`.
+   - Film non incluso in nessun abbonamento → escluso dalle proposte (elenco cliccabile "N non più inclusi").
+     Film su un'altra piattaforma → mostrato su quella reale. Film del Radar diventato incluso → "Ora incluso su …".
+   - Le schede mostrano "Verificato gg/mm" oppure "Non verificato". I canali Amazon a pagamento NON contano come Prime.
+   - JustWatch/TMDB non tracciano La7: i film La7 risultano sempre non verificabili.
+   - Chiave salvata in `cinestudio_tmdb_key`, solo sul dispositivo (mai nel codice).
 
 ---
 

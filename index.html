@@ -327,6 +327,7 @@
                 <h2 class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
                     <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> Le Tue 3 Opzioni per Stasera
                 </h2>
+                <div id="live-status" class="w-full order-last text-[10px] text-slate-400 flex items-center gap-1 flex-wrap"></div>
                 <div class="flex items-center gap-2 w-full sm:w-auto">
                     <!-- Barra di Ricerca Rapida Globale -->
                     <div class="relative flex-1 sm:w-64">
@@ -2349,7 +2350,7 @@
         }
 
         function findCatalogMatchForTop250(topMovie) {
-            const all = getAllMovies();
+            const all = getAllMovies().filter(m => !m.liveUnavailable);
             const tTitle = normalizeForMatch(topMovie.title);
             const tOrig = normalizeForMatch(topMovie.originalTitle);
             const tDir = normalizeForMatch(topMovie.director);
@@ -3025,6 +3026,200 @@
             return matches;
         }
 
+        const PLATFORM_HOME = {
+            netflix: 'https://www.netflix.com',
+            prime: 'https://www.primevideo.com',
+            raiplay: 'https://www.raiplay.it',
+            disney: 'https://www.disneyplus.com',
+            la7: 'https://www.la7.it',
+            discovery: 'https://www.discoveryplus.com/it'
+        };
+
+        /* =========================================================================================
+         * VERIFICA LIVE DISPONIBILITÀ (TMDB, dati JustWatch Italia)
+         * Fonte di verità per "dove si vede oggi": il catalogo qui sopra è solo il punto di partenza.
+         * Con la chiave TMDB impostata, un film non incluso in nessun abbonamento esce dalle proposte
+         * e un film cambiato di piattaforma viene mostrato su quella reale. Senza chiave l'app
+         * funziona come prima, ma le schede risultano "non verificate".
+         * ========================================================================================= */
+        const TMDB_KEY_STORAGE = 'cinestudio_tmdb_key';
+        const TMDB_CACHE_STORAGE = 'cinestudio_tmdb_cache';
+        const TMDB_REFRESH_MS = 24 * 60 * 60 * 1000;     // ricontrollo ogni 24 ore
+        const TMDB_VALID_MS = 7 * 24 * 60 * 60 * 1000;   // oltre 7 giorni un esito non viene più usato
+        // Provider TMDB (Italia) -> piattaforme CineStudio. I canali Amazon a pagamento ("... Amazon Channel") non contano.
+        const TMDB_PROVIDER_RULES = [
+            { plat: 'netflix', re: /^netflix/i },
+            { plat: 'prime', re: /^amazon prime video/i },
+            { plat: 'disney', re: /^disney\s?plus/i },
+            { plat: 'raiplay', re: /^rai\s?play/i },
+            { plat: 'discovery', re: /^discovery\s?\+/i },
+            { plat: 'la7', re: /^la7/i }
+        ];
+
+        let tmdbCache = {};
+        try { tmdbCache = JSON.parse(localStorage.getItem(TMDB_CACHE_STORAGE) || '{}'); } catch (e) { tmdbCache = {}; }
+        const tmdbStatus = { running: false, done: 0, total: 0, error: '' };
+
+        function getTmdbKey() {
+            try { return (localStorage.getItem(TMDB_KEY_STORAGE) || '').trim(); } catch (e) { return ''; }
+        }
+
+        function saveTmdbCache() {
+            try { localStorage.setItem(TMDB_CACHE_STORAGE, JSON.stringify(tmdbCache)); } catch (e) { /* spazio pieno: resta in memoria */ }
+        }
+
+        // Esito live di un film o di una voce Radar, solo se abbastanza recente
+        function getLiveInfo(id) {
+            const info = tmdbCache[id];
+            if (!info || info.notFound || Date.now() - info.checkedAt > TMDB_VALID_MS) return null;
+            return info;
+        }
+
+        async function tmdbFetch(path, params = {}) {
+            const key = getTmdbKey();
+            const url = new URL('https://api.themoviedb.org/3' + path);
+            Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+            const headers = { accept: 'application/json' };
+            // Read Access Token (inizia con "eyJ") nell'header, chiave API v3 come parametro
+            if (key.startsWith('eyJ')) headers.Authorization = 'Bearer ' + key;
+            else url.searchParams.set('api_key', key);
+            const res = await fetch(url, { headers });
+            if (res.status === 401) throw new Error('Chiave TMDB non valida');
+            if (!res.ok) throw new Error('TMDB ha risposto ' + res.status);
+            return res.json();
+        }
+
+        async function tmdbFindId(movie) {
+            const variants = [movie.title.replace(/\s*\(.*?\)\s*/g, ' ').trim()];
+            const inParens = movie.title.match(/\(([^)]+)\)/);
+            if (inParens) variants.push(inParens[1]);
+            if (movie.title.includes(' - ')) variants.push(...movie.title.split(' - ').map(s => s.trim()));
+            for (const query of variants) {
+                const data = await tmdbFetch('/search/movie', { query, language: 'it-IT' });
+                const hit = (data.results || []).find(r => r.release_date && Math.abs(parseInt(r.release_date, 10) - movie.year) <= 1);
+                if (hit) return hit.id;
+            }
+            return null;
+        }
+
+        async function tmdbCheck(item) {
+            const tmdbId = tmdbCache[item.id]?.tmdbId || await tmdbFindId(item);
+            if (!tmdbId) {
+                tmdbCache[item.id] = { notFound: true, checkedAt: Date.now() };
+                return;
+            }
+            const d = await tmdbFetch(`/movie/${tmdbId}`, { language: 'it-IT', append_to_response: 'watch/providers' });
+            const it = d['watch/providers']?.results?.IT || {};
+            const included = [...(it.flatrate || []), ...(it.free || []), ...(it.ads || [])];
+            const platOf = name => TMDB_PROVIDER_RULES.find(r => r.re.test(name))?.plat;
+            tmdbCache[item.id] = {
+                tmdbId,
+                checkedAt: Date.now(),
+                platforms: [...new Set(included.map(p => platOf(p.provider_name)).filter(Boolean))],
+                others: [...new Set(included.map(p => p.provider_name).filter(n => !platOf(n)))],
+                rentOrBuy: (it.rent || []).length + (it.buy || []).length > 0,
+                poster: d.poster_path ? 'https://image.tmdb.org/t/p/w342' + d.poster_path : null,
+                link: it.link || `https://www.themoviedb.org/movie/${tmdbId}/watch?locale=IT`
+            };
+        }
+
+        async function refreshLiveAvailability(force = false) {
+            if (!getTmdbKey() || tmdbStatus.running) return;
+            const userCustom = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
+            const targets = [...INITIAL_CATALOG, ...userCustom, ...radarItems.filter(r => r.year)];
+            const todo = targets.filter(t => force || !tmdbCache[t.id] || Date.now() - tmdbCache[t.id].checkedAt > TMDB_REFRESH_MS);
+            if (todo.length === 0) { updateLiveStatus(); return; }
+
+            Object.assign(tmdbStatus, { running: true, done: 0, total: todo.length, error: '' });
+            updateLiveStatus();
+            const queue = [...todo];
+            const worker = async () => {
+                while (queue.length && !tmdbStatus.error) {
+                    const item = queue.shift();
+                    try {
+                        await tmdbCheck(item);
+                    } catch (e) {
+                        // Chiave errata o rete assente: si ferma tutto e resta l'ultimo esito valido
+                        if (/non valida|Failed to fetch|NetworkError/i.test(e.message)) tmdbStatus.error = e.message;
+                    }
+                    tmdbStatus.done++;
+                    if (tmdbStatus.done % 10 === 0) updateLiveStatus();
+                }
+            };
+            await Promise.all([worker(), worker(), worker(), worker()]);
+            tmdbStatus.running = false;
+            saveTmdbCache();
+            generateRecommendations(false, false);
+            renderAllMatchingMovies();
+            renderRadarItems();
+            updateLiveStatus();
+        }
+
+        function setTmdbKey() {
+            const current = getTmdbKey();
+            const value = prompt(
+                "Incolla la tua chiave API TMDB (v3) oppure il Read Access Token.\n" +
+                "Resta salvata solo su questo dispositivo. Lascia vuoto per scollegare.",
+                current ? '(chiave già impostata: incolla una nuova chiave per sostituirla)' : ''
+            );
+            if (value === null || value.startsWith('(chiave già impostata')) return;
+            try {
+                if (value.trim()) localStorage.setItem(TMDB_KEY_STORAGE, value.trim());
+                else localStorage.removeItem(TMDB_KEY_STORAGE);
+            } catch (e) { alert('Impossibile salvare la chiave su questo dispositivo.'); return; }
+            tmdbStatus.error = '';
+            updateLiveStatus();
+            refreshLiveAvailability(true);
+        }
+
+        function getUnavailableLiveMovies() {
+            return getAllMovies().filter(m => m.liveUnavailable);
+        }
+
+        function showUnavailableLiveMovies() {
+            const list = getUnavailableLiveMovies();
+            if (list.length === 0) return;
+            alert("Non più inclusi nei tuoi abbonamenti (esclusi dalle proposte):\n\n" + list.map(m => {
+                const where = m.liveInfo.others.length ? 'ora su ' + m.liveInfo.others.join(', ') : (m.liveInfo.rentOrBuy ? 'solo noleggio/acquisto' : 'non in streaming');
+                return `• ${m.title} (${m.year}): ${where}`;
+            }).join('\n'));
+        }
+
+        function updateLiveStatus() {
+            const el = document.getElementById('live-status');
+            if (!el) return;
+            const btn = (label, action) => `<button type="button" onclick="${action}" class="underline text-sky-400 hover:text-sky-300 cursor-pointer">${label}</button>`;
+            if (!getTmdbKey()) {
+                el.innerHTML = `<i class="fa-solid fa-circle-exclamation text-amber-400"></i> Disponibilità <b>non verificata</b> (dati statici). ${btn('Collega TMDB', 'setTmdbKey()')}`;
+                return;
+            }
+            if (tmdbStatus.running) {
+                el.innerHTML = `<i class="fa-solid fa-rotate fa-spin text-sky-400"></i> Verifica disponibilità in corso… ${tmdbStatus.done}/${tmdbStatus.total}`;
+                return;
+            }
+            const all = getAllMovies();
+            const verified = all.filter(m => m.liveInfo).length;
+            const gone = all.filter(m => m.liveUnavailable).length;
+            const times = all.map(m => m.liveInfo?.checkedAt).filter(Boolean);
+            const last = times.length ? new Date(Math.min(...times)).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
+            el.innerHTML = `
+                <i class="fa-solid fa-circle-check text-emerald-400"></i> Verificati live <b>${verified}/${all.length}</b> (dal ${last})
+                ${gone ? ` · ${btn(`${gone} non più inclusi`, 'showUnavailableLiveMovies()')}` : ''}
+                ${tmdbStatus.error ? ` · <span class="text-rose-400">${escapeHtml(tmdbStatus.error)}</span>` : ''}
+                · ${btn('Aggiorna', 'refreshLiveAvailability(true)')} · ${btn('Chiave', 'setTmdbKey()')}
+                <span class="text-slate-500">· Dati JustWatch via TMDB</span>`;
+        }
+
+        // Badge di verifica sulle schede
+        function getLiveBadge(movie) {
+            const jw = `https://www.justwatch.com/it/cerca?q=${encodeURIComponent(movie.title)}`;
+            if (movie.liveInfo && !movie.liveUnavailable) {
+                const day = new Date(movie.liveInfo.checkedAt).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
+                return `<a href="${movie.liveInfo.link}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-emerald-400 hover:text-emerald-300 font-mono flex items-center gap-1" title="Incluso su: ${movie.livePlatforms.map(getPlatformName).join(', ')}"><i class="fa-solid fa-circle-check text-[9px]"></i> Verificato ${day}</a>`;
+            }
+            return `<a href="${jw}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-amber-400 hover:text-amber-300 font-mono flex items-center gap-1" title="Disponibilità non verificata: controlla su JustWatch"><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> Non verificato</a>`;
+        }
+
         function getAllMovies() {
             const userCustom = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
             const demotedIds = new Set(JSON.parse(localStorage.getItem('cinestudio_demoted_ids') || '[]'));
@@ -3032,17 +3227,25 @@
             const all = [...INITIAL_CATALOG, ...userCustom];
             return all.filter(m => !demotedIds.has(m.id)).map(m => {
                 const overridePlat = platformOverrides[m.id] || platformOverrides[m.title.toLowerCase().trim()];
-                if (overridePlat) {
-                    let newLink = m.link;
-                    if (overridePlat === 'netflix') newLink = 'https://www.netflix.com';
-                    else if (overridePlat === 'prime') newLink = 'https://www.primevideo.com';
-                    else if (overridePlat === 'raiplay') newLink = 'https://www.raiplay.it';
-                    else if (overridePlat === 'disney') newLink = 'https://www.disneyplus.com';
-                    else if (overridePlat === 'la7') newLink = 'https://www.la7.it';
-                    else if (overridePlat === 'discovery') newLink = 'https://www.discoveryplus.com/it';
-                    return { ...m, platform: overridePlat, link: newLink };
+                const movie = overridePlat ? { ...m, platform: overridePlat, link: PLATFORM_HOME[overridePlat] || m.link } : m;
+
+                const live = getLiveInfo(m.id);
+                if (!live) return movie;
+                if (live.platforms.length === 0) {
+                    return { ...movie, liveInfo: live, liveUnavailable: true, poster: live.poster || movie.poster };
                 }
-                return m;
+                // Piattaforma mostrata: quella attuale se confermata e attiva, altrimenti la prima reale tra quelle attive
+                const plat = (live.platforms.includes(movie.platform) && activePlatforms.has(movie.platform))
+                    ? movie.platform
+                    : (live.platforms.find(p => activePlatforms.has(p)) || live.platforms[0]);
+                return {
+                    ...movie,
+                    platform: plat,
+                    link: plat === movie.platform ? movie.link : PLATFORM_HOME[plat],
+                    poster: live.poster || movie.poster,
+                    liveInfo: live,
+                    livePlatforms: live.platforms
+                };
             });
         }
 
@@ -3072,6 +3275,8 @@
             renderCustomDnaTags();
             generateRecommendations(false);
             renderAllMatchingMovies();
+            updateLiveStatus();
+            refreshLiveAvailability();
         });
 
         function togglePlatform(plat) {
@@ -3175,6 +3380,9 @@
             return getAllMovies().filter(movie => {
                 // Escludi film a noleggio a pagamento (Regola Zero Noleggi)
                 if (movie.rentalOnly) return false;
+
+                // Verifica live: non incluso oggi in nessun abbonamento
+                if (movie.liveUnavailable) return false;
 
                 // Ricerca globale rapida: se l'utente cerca esplicitamente un film (es. Oppenheimer), bypassa i filtri restrittivi per trovarlo all'istante!
                 if (globalSearch) {
@@ -3348,9 +3556,7 @@
                         <!-- Riga Tono Emotivo & Verifica JustWatch -->
                         <div class="px-4 pb-1.5 flex items-center justify-between gap-1 flex-wrap">
                             ${getToneBadge(movie.emotionalTone)}
-                            <a href="https://www.justwatch.com/it/cerca?q=${encodeURIComponent(movie.title)}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-sky-400 hover:text-sky-300 flex items-center gap-1 font-mono font-medium transition" title="Verifica istantanea streaming su JustWatch">
-                                <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> JustWatch Live
-                            </a>
+                            ${getLiveBadge(movie)}
                         </div>
                             </span>
                         </div>
@@ -4340,9 +4546,16 @@
                 container.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">Nessun film nel Radar. Aggiungi qui i titoli che cerchi per tenerli sotto controllo!</p>`;
                 return;
             }
-            container.innerHTML = radarItems.map(item => `
-                <div class="p-3.5 rounded-xl bg-slate-900 border border-slate-800 flex items-start justify-between gap-3 text-xs">
+            // I film appena diventati inclusi in un abbonamento salgono in cima
+            const nowIncluded = item => (getLiveInfo(item.id)?.platforms || []).length > 0;
+            const sorted = [...radarItems].sort((a, b) => nowIncluded(b) - nowIncluded(a));
+            container.innerHTML = sorted.map(item => `
+                <div class="p-3.5 rounded-xl bg-slate-900 border ${nowIncluded(item) ? 'border-emerald-500/60' : 'border-slate-800'} flex items-start justify-between gap-3 text-xs">
                     <div class="space-y-1 flex-1">
+                        ${nowIncluded(item) ? `
+                            <a href="${getLiveInfo(item.id).link}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-600/60 text-[10px] font-black uppercase">
+                                <i class="fa-solid fa-circle-check"></i> Ora incluso su ${getLiveInfo(item.id).platforms.map(getPlatformName).join(', ')}
+                            </a>` : ''}
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-black uppercase flex items-center gap-1">
                                 <i class="fa-solid fa-tag"></i> ${escapeHtml(item.status || 'Solo a Noleggio')}
