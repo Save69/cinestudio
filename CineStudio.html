@@ -115,7 +115,7 @@
                 <h1 class="text-lg sm:text-2xl font-black tracking-tight text-white flex items-center gap-1.5 sm:gap-2">
                     CineStudio <span class="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold tracking-normal">Bussola Serale</span>
                 </h1>
-                <p class="text-[11px] sm:text-xs text-slate-400 hidden sm:block">Zero scrolling infinito: solo film calibrati sui tuoi gusti con guardrail IMDb & MyMovies.</p>
+                <p class="text-[11px] sm:text-xs text-slate-400 hidden sm:block">Zero scrolling infinito: solo film calibrati sui tuoi gusti inclusi nei tuoi abbonamenti, verificati ogni giorno.</p>
             </div>
         </div>
 
@@ -286,13 +286,13 @@
 
                     <!-- Preset Rapidi a 1-Tap -->
                     <div class="inline-flex items-center gap-1 bg-slate-900/90 border border-slate-700/80 p-0.5 rounded-xl">
-                        <button type="button" onclick="applyRatingPreset('capolavori')" id="btn-preset-capolavori" class="px-2 py-1 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition cursor-pointer" title="I capolavori imperdibili con punteggi altissimi (IMDb ≥ 7.7 / MYmovies ≥ 4.0)">
+                        <button type="button" onclick="applyRatingPreset('capolavori')" id="btn-preset-capolavori" class="px-2 py-1 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition cursor-pointer" title="I capolavori imperdibili con punteggi altissimi (voto ≥ 7.7)">
                             🌟 Capolavori (7.7+)
                         </button>
-                        <button type="button" onclick="applyRatingPreset('standard')" id="btn-preset-standard" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 transition cursor-pointer" title="Alta qualità cinefila (IMDb ≥ 7.2 / MYmovies ≥ 3.6)">
+                        <button type="button" onclick="applyRatingPreset('standard')" id="btn-preset-standard" class="px-2 py-1 rounded-lg text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 transition cursor-pointer" title="Alta qualità cinefila (voto ≥ 7.2)">
                             🎯 Alta Qualità (7.2+)
                         </button>
-                        <button type="button" onclick="applyRatingPreset('ampia')" id="btn-preset-ampia" class="px-2 py-1 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition cursor-pointer" title="Scelta più ampia per serate rilassate (IMDb ≥ 6.8 / MYmovies ≥ 3.3)">
+                        <button type="button" onclick="applyRatingPreset('ampia')" id="btn-preset-ampia" class="px-2 py-1 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition cursor-pointer" title="Scelta più ampia per serate rilassate (voto ≥ 6.8)">
                             🌐 Scelta Ampia (6.8+)
                         </button>
                         <button type="button" onclick="applyRatingPreset('tutti')" id="btn-preset-tutti" class="px-2 py-1 rounded-lg text-[10px] font-bold text-slate-400 hover:text-white transition cursor-pointer" title="Tutti i film verificati e selezionati nel catalogo">
@@ -300,13 +300,13 @@
                         </button>
                     </div>
 
-                    <!-- Input Stepper Diretti IMDb & MYmovies -->
+                    <!-- Input Stepper Diretti voto unico (TMDB) -->
                     <div class="flex items-center gap-1.5 flex-wrap">
-                        <div class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 font-mono text-[11px]" title="Regola voto minimo IMDb">
-                            <span class="text-[#f5c518] font-black">IMDb &ge;</span>
+                        <div class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 font-mono text-[11px]" title="Voto minimo: TMDB per i film verificati, altrimenti IMDb del catalogo">
+                            <span class="text-[#f5c518] font-black">Voto &ge;</span>
                             <input type="number" id="quick-imdb-val" step="0.1" min="0.0" max="9.5" value="7.2" onchange="setQuickRating('imdb', this.value)" class="w-10 bg-transparent text-amber-300 font-black text-center focus:outline-none focus:border-b border-amber-400 p-0 text-xs">
                         </div>
-                        <div class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 font-mono text-[11px]" title="Regola voto minimo MYmovies">
+                        <div class="hidden items-center gap-1 px-2 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-200 font-mono text-[11px]" title="Regola voto minimo MYmovies">
                             <span class="text-rose-400 font-black">MYmovies &ge;</span>
                             <input type="number" id="quick-mymovies-val" step="0.1" min="0.0" max="5.0" value="3.6" onchange="setQuickRating('mymovies', this.value)" class="w-10 bg-transparent text-rose-300 font-black text-center focus:outline-none focus:border-b border-rose-400 p-0 text-xs">
                         </div>
@@ -489,10 +489,11 @@
                 <!-- Taratura Soglie -->
                 <div class="pt-3 border-t border-slate-800 grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-300 mb-1">Soglia Minima IMDb</label>
+                        <label class="block text-[11px] font-bold text-slate-300 mb-1">Voto minimo (TMDB)</label>
                         <input type="number" id="cfg-imdb-min" step="0.1" min="5.0" max="9.0" value="7.2" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200" onchange="updateGuardrailSettings()">
                     </div>
-                    <div>
+                    <!-- MYmovies non è più un filtro dalla V73: campo nascosto, tenuto per compatibilità -->
+                    <div class="hidden">
                         <label class="block text-[11px] font-bold text-slate-300 mb-1">Soglia Minima MYmovies</label>
                         <input type="number" id="cfg-mymovies-min" step="0.1" min="2.5" max="4.8" value="3.6" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200" onchange="updateGuardrailSettings()">
                     </div>
@@ -4387,7 +4388,9 @@
                 poster: d.poster_path ? 'https://image.tmdb.org/t/p/w342' + d.poster_path : null,
                 link: it.link || `https://www.themoviedb.org/movie/${tmdbId}/watch?locale=IT`,
                 runtime: d.runtime || null,
-                overview: d.overview || ''
+                overview: d.overview || '',
+                voteAverage: d.vote_average || 0,
+                voteCount: d.vote_count || 0
             };
         }
 
@@ -4396,7 +4399,9 @@
             const userCustom = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
             const cardinals = PUNTI_CARDINALI.map(p => ({ id: p.id, title: p.search || p.title, year: p.year }));
             const targets = [...INITIAL_CATALOG, ...userCustom, ...radarItems, ...cardinals];
-            const todo = targets.filter(t => force || !tmdbCache[t.id] || Date.now() - tmdbCache[t.id].checkedAt > TMDB_REFRESH_MS);
+            // Da ricontrollare: mai verificati, verificati da più di 24 ore, o verificati prima della V73 (senza voto TMDB)
+            const todo = targets.filter(t => force || !tmdbCache[t.id] || Date.now() - tmdbCache[t.id].checkedAt > TMDB_REFRESH_MS
+                || (tmdbCache[t.id].tmdbId && tmdbCache[t.id].voteAverage === undefined));
             const discoveryDue = isDiscoveryOn() && (force || Date.now() - (discovery.runAt || 0) > DISCOVERY_REFRESH_MS);
             if (todo.length === 0 && !discoveryDue) { updateLiveStatus(); return; }
 
@@ -4797,11 +4802,14 @@
                 const plat = (live.platforms.includes(movie.platform) && activePlatforms.has(movie.platform))
                     ? movie.platform
                     : (live.platforms.find(p => activePlatforms.has(p)) || live.platforms[0]);
+                // Voto unico (V73): TMDB per tutti, se basato su almeno 50 voti; altrimenti resta il voto del catalogo
+                const tmdbScore = live.voteCount >= 50 ? Math.round(live.voteAverage * 10) / 10 : null;
                 return {
                     ...movie,
                     platform: plat,
                     link: plat === movie.platform ? movie.link : PLATFORM_HOME[plat],
                     poster: live.poster || movie.poster,
+                    ...(tmdbScore ? { imdb: tmdbScore, scoreSource: 'TMDB' } : {}),
                     liveInfo: live,
                     livePlatforms: live.platforms
                 };
@@ -4963,10 +4971,8 @@
                 // Filtro Confort Serale: i film aggiunti a mano senza tono restano ammessi
                 if (comfortMode && movie.emotionalTone && !COMFORT_TONES.has(movie.emotionalTone)) return false;
 
-                // Guardrail: Voto IMDb >= soglia OPPURE MYmovies >= soglia
-                const passesImdb = (movie.imdb >= minImdb);
-                const passesMymovies = (movie.mymovies >= minMymovies);
-                if (!passesImdb && !passesMymovies) return false;
+                // Guardrail di qualità (V73): un solo voto, TMDB dove verificato, altrimenti IMDb del catalogo
+                if (!(movie.imdb >= minImdb)) return false;
 
                 // Filtro Durata
                 if (maxDuration > 0) {
@@ -5057,7 +5063,7 @@
                 // Calcolo peso di estrazione (voto IMDb + MYmovies + affinità DNA)
                 const scoredPool = candidatePool.map(movie => {
                     const dnaMatches = calculateDnaMatch(movie);
-                    let weight = (movie.imdb * 6) + ((movie.mymovies ?? movie.imdb / 2) * 8);   // senza MYmovies si usa IMDb in quinti
+                    let weight = movie.imdb * 10;   // un solo voto (V73)
                     if (dnaMatches.length > 0) {
                         weight += (dnaMatches.length * 16) + 12;
                     } else if (movie.discovered) {
@@ -5145,10 +5151,10 @@
                                 <span class="bg-[#f5c518] text-slate-950 font-black text-[10px] px-1 rounded font-mono">${scoreLabel(movie)}</span>
                                 <span class="text-amber-300 font-black text-xs">${movie.imdb.toFixed(1)}</span>
                             </div>
-                            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30">
+                            ${movie.mymovies > 0 ? `<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30" title="Informativo: non è un filtro">
                                 <span class="text-rose-400 font-black text-[10px] uppercase font-mono">MYmovies</span>
                                 <span class="text-rose-300 font-black text-xs">${fmtMym(movie.mymovies)} <i class="fa-solid fa-star text-[9px]"></i></span>
-                            </div>
+                            </div>` : ''}
                         </div>
 
                         <!-- Perché fa per te (Motivazione DNA) -->
