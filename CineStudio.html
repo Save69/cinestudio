@@ -326,21 +326,12 @@
                     <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> Le Tue 3 Opzioni per Stasera
                 </h2>
                 <div id="live-status" class="w-full order-last text-[10px] text-slate-400 flex items-center gap-1 flex-wrap"></div>
-                <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <!-- Barra di Ricerca Rapida Globale -->
-                    <div class="relative flex-1 sm:w-64">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
-                        <input type="text" id="input-global-search" placeholder="Cerca film, regista, attore (es. Salvatores, Servillo)..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-7 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500" oninput="handleGlobalSearch(this.value)">
-                        <button type="button" id="btn-clear-global-search" onclick="clearGlobalSearch()" class="hidden absolute right-2.5 top-2 text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
+                <div class="flex items-center gap-2">
                     <button onclick="generateRecommendations(true); scrollToCards();" class="md:hidden px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1 active:scale-95 transition shrink-0">
                         <i class="fa-solid fa-dice text-[11px]"></i> <span>Cambia</span>
                     </button>
                 </div>
             </div>
-
-            <!-- Risultati della ricerca (V77): riquadro separato, la terna resta ferma -->
-            <div id="search-results" class="hidden glass-panel rounded-2xl p-3 border border-sky-800/60 space-y-2"></div>
 
             <!-- Hint Swipe su Mobile -->
             <div class="flex items-center justify-between text-[11px] text-slate-400 md:hidden px-1">
@@ -363,18 +354,27 @@
 
         <!-- Sezione Esplora Tutto il Catalogo Filtrato -->
         <section class="mt-8 pt-6 border-t border-slate-800">
-            <details class="group">
-                <summary class="flex items-center justify-between cursor-pointer list-none p-3 rounded-xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 text-slate-300 text-xs font-bold">
-                    <span class="flex items-center gap-2">
-                        <i class="fa-solid fa-list-ul text-sky-400"></i>
-                        <span>Sfoglia tutti i film disponibili conformi ai tuoi parametri (<span id="all-matching-count">0</span>)</span>
-                    </span>
-                    <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
-                </summary>
-                <div id="all-movies-table" class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    <!-- Film list completo -->
+            <!-- Riga unica (V78): ricerca + "Sfoglia" -->
+            <div class="flex items-center gap-2">
+                <!-- Barra di Ricerca Rapida Globale -->
+                <div class="relative flex-1 min-w-0">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                    <input type="text" id="input-global-search" placeholder="Cerca film, regista, attore..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-7 py-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500" oninput="handleGlobalSearch(this.value)">
+                    <button type="button" id="btn-clear-global-search" onclick="clearGlobalSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
                 </div>
-            </details>
+                <button type="button" id="btn-toggle-browse" onclick="toggleBrowseList()" aria-expanded="false" class="shrink-0 flex items-center gap-2 cursor-pointer p-3 rounded-xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 text-slate-300 text-xs font-bold">
+                    <i class="fa-solid fa-list-ul text-sky-400"></i>
+                    <span>Sfoglia tutti (<span id="all-matching-count">0</span>)</span>
+                    <i id="browse-chevron" class="fa-solid fa-chevron-down transition-transform"></i>
+                </button>
+            </div>
+
+            <!-- Risultati della ricerca: riquadro separato, terna e lista restano ferme -->
+            <div id="search-results" class="hidden mt-3 glass-panel rounded-2xl p-3 border border-sky-800/60 space-y-2"></div>
+
+            <div id="all-movies-table" class="hidden mt-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <!-- Film list completo -->
+            </div>
         </section>
 
     </main>
@@ -5460,6 +5460,15 @@
             localStorage.setItem('cinestudio_radar_movies', JSON.stringify(radarItems));
             updateRadarCount();
             alert(`"${title}" aggiunto al Radar: te lo segnalo quando arriva su una delle tue piattaforme.`);
+        }
+
+        function toggleBrowseList() {
+            const table = document.getElementById('all-movies-table');
+            const open = table.classList.contains('hidden');
+            table.classList.toggle('hidden', !open);
+            table.classList.toggle('grid', open);
+            document.getElementById('browse-chevron')?.classList.toggle('rotate-180', open);
+            document.getElementById('btn-toggle-browse')?.setAttribute('aria-expanded', String(open));
         }
 
         function renderAllMatchingMovies() {
