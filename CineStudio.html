@@ -208,12 +208,10 @@
                         <button type="button" onclick="togglePlatform('raiplay')" id="btn-plat-raiplay" class="btn-platform active px-2.5 py-1.5 rounded-xl badge-raiplay text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
                             <i class="fa-solid fa-play"></i> RaiPlay
                         </button>
-                        <button type="button" onclick="togglePlatform('discovery')" id="btn-plat-discovery" class="btn-platform active px-2.5 py-1.5 rounded-xl badge-discovery text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
-                            <i class="fa-solid fa-compass"></i> Discovery+
-                        </button>
-                        <button type="button" onclick="togglePlatform('la7')" id="btn-plat-la7" class="btn-platform active px-2.5 py-1.5 rounded-xl badge-la7 text-xs font-black shadow cursor-pointer flex items-center gap-1.5">
-                            <i class="fa-solid fa-tower-broadcast"></i> La7
-                        </button>
+                        <!-- Discovery+ e La7 nascosti (V69): Discovery+ in Italia non ha film (JustWatch 08/10/2026),
+                             La7 non è tracciata da JustWatch/TMDB. Restano attive in activePlatforms: se la verifica
+                             live trovasse un film incluso lì, verrebbe comunque proposto. -->
+
                     </div>
                 </div>
 
