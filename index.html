@@ -354,19 +354,21 @@
 
         <!-- Sezione Esplora Tutto il Catalogo Filtrato -->
         <section class="mt-8 pt-6 border-t border-slate-800">
-            <!-- Riga unica (V78): ricerca + "Sfoglia" -->
-            <div class="flex items-center gap-2">
+            <!-- Riga unica (V79): prima "Sfoglia", poi la ricerca, stessa larghezza -->
+            <div class="grid grid-cols-2 gap-2 items-center">
+                <button type="button" id="btn-toggle-browse" onclick="toggleBrowseList()" aria-expanded="false" class="w-full min-w-0 flex items-center justify-between gap-2 cursor-pointer px-3 py-3 rounded-xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 text-slate-300 text-xs font-bold">
+                    <span class="flex items-center gap-2 min-w-0 truncate">
+                        <i class="fa-solid fa-list-ul text-sky-400"></i>
+                        <span class="truncate">Sfoglia tutti (<span id="all-matching-count">0</span>)</span>
+                    </span>
+                    <i id="browse-chevron" class="fa-solid fa-chevron-down transition-transform shrink-0"></i>
+                </button>
                 <!-- Barra di Ricerca Rapida Globale -->
-                <div class="relative flex-1 min-w-0">
+                <div class="relative w-full min-w-0">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
                     <input type="text" id="input-global-search" placeholder="Cerca film, regista, attore..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-7 py-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500" oninput="handleGlobalSearch(this.value)">
                     <button type="button" id="btn-clear-global-search" onclick="clearGlobalSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
                 </div>
-                <button type="button" id="btn-toggle-browse" onclick="toggleBrowseList()" aria-expanded="false" class="shrink-0 flex items-center gap-2 cursor-pointer p-3 rounded-xl bg-slate-900/60 hover:bg-slate-900 border border-slate-800 text-slate-300 text-xs font-bold">
-                    <i class="fa-solid fa-list-ul text-sky-400"></i>
-                    <span>Sfoglia tutti (<span id="all-matching-count">0</span>)</span>
-                    <i id="browse-chevron" class="fa-solid fa-chevron-down transition-transform"></i>
-                </button>
             </div>
 
             <!-- Risultati della ricerca: riquadro separato, terna e lista restano ferme -->
