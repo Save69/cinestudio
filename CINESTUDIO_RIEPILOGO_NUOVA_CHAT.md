@@ -33,6 +33,11 @@ L'utente la sera vuole aprire l'app, indicare il tempo a disposizione e il mood 
 9. *Vita di Pi* (Ang Lee)
 10. *Limitless* (Neil Burger)
 11. *La La Land* (Damien Chazelle)
+12. *La ricerca della felicità* (Gabriele Muccino) — aggiunto l'08/10/2026
+13. *Sette anime* (Gabriele Muccino) — aggiunto l'08/10/2026
+
+*(L'elenco completo usato dall'app è `PUNTI_CARDINALI` in `CineStudio.html`: comprende anche Mediterraneo, Whiplash,
+Così parlò Bellavista, L'attimo fuggente, Il favoloso mondo di Amélie, Inside Out.)*
 
 ### B. Maestri e Registi di Riferimento
 - Steven Spielberg
