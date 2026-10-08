@@ -339,6 +339,9 @@
                 </div>
             </div>
 
+            <!-- Risultati della ricerca (V77): riquadro separato, la terna resta ferma -->
+            <div id="search-results" class="hidden glass-panel rounded-2xl p-3 border border-sky-800/60 space-y-2"></div>
+
             <!-- Hint Swipe su Mobile -->
             <div class="flex items-center justify-between text-[11px] text-slate-400 md:hidden px-1">
                 <span class="flex items-center gap-1.5 text-amber-400 font-bold"><i class="fa-solid fa-arrows-left-right text-xs"></i> Scorri con il dito tra le 3 schede</span>
@@ -5075,7 +5078,6 @@
         function getFilteredPool() {
             const mood = document.getElementById('select-mood').value;
             const maxDuration = parseInt(document.getElementById('select-duration').value, 10);
-            const globalSearch = (document.getElementById('input-global-search')?.value || '').toLowerCase().trim();
             const comfortMode = document.getElementById('check-comfort-mode')?.checked ?? true;
             const seenTitleSet = getSeenTitleSet();
             // Toni ammessi in Confort Serale (whitelist: un tono sconosciuto o nuovo viene escluso)
@@ -5088,11 +5090,7 @@
                 // Verifica live: non incluso oggi in nessun abbonamento
                 if (movie.liveUnavailable) return false;
 
-                // Ricerca globale rapida: se l'utente cerca esplicitamente un film (es. Oppenheimer), bypassa i filtri restrittivi per trovarlo all'istante!
-                if (globalSearch) {
-                    // Confronto senza punteggiatura né accenti: "mr ove" trova "Mr. Ove"
-                    return movieMatchesQuery(movie, normalizeForMatch(globalSearch)) || normalizeForMatch(getPlatformName(movie.platform)).includes(normalizeForMatch(globalSearch));
-                }
+                // (V77) La ricerca non entra più qui: ha il suo riquadro (renderSearchResults) e non tocca terna e lista
 
                 // Punti Cardinali: già visti, mai proposti per la serata (si trovano comunque cercandoli per nome)
                 if (isPuntoCardinale(movie.title)) return false;
@@ -5156,16 +5154,6 @@
             grid.innerHTML = '';
 
             if (pool.length === 0) {
-                // Ricerca senza risultati: spiega cosa sa del film (escluso e perché, nel Radar, o sconosciuto → dove si vede)
-                const searchRaw = (document.getElementById('input-global-search')?.value || '').trim();
-                if (searchRaw) {
-                    grid.innerHTML = `
-                        <div class="col-span-3 w-full max-w-2xl mx-auto space-y-2">
-                            <p class="text-xs text-slate-400"><i class="fa-solid fa-circle-info text-amber-400 mr-1"></i>«${escapeHtml(searchRaw)}» non è tra i film che posso proporti. Ecco cosa so:</p>
-                            ${renderListSearchMiss(normalizeForMatch(searchRaw), searchRaw)}
-                        </div>`;
-                    return;
-                }
                 grid.innerHTML = `
                     <div class="col-span-3 text-center py-12 glass-panel rounded-2xl p-6 text-slate-400">
                         <i class="fa-solid fa-film-slash text-3xl mb-3 text-slate-500"></i>
@@ -5175,8 +5163,6 @@
                 `;
                 return;
             }
-
-            const globalSearch = (document.getElementById('input-global-search')?.value || '').trim();
 
             // DETERMINA SE È NECESSARIO ESTRARRE UNA NUOVA TERNA
             let shouldPickNew = forceRoll || !currentRecommendations || currentRecommendations.length === 0;
@@ -5194,9 +5180,7 @@
                 }
             }
 
-            if (globalSearch) {
-                currentRecommendations = pool.slice(0, 3);
-            } else if (shouldPickNew) {
+            if (shouldPickNew) {
                 // Escludi i film appena mostrati negli ultimi lanci per garantire rotazione costante
                 if (typeof window.recentRecommendedIds === 'undefined') {
                     window.recentRecommendedIds = [];
@@ -5371,38 +5355,64 @@
             return `è su ${where}, ma è escluso dai filtri di durata o di mood`;
         }
 
-        function renderListSearchMiss(query, rawQuery) {
-            const known = getAllMovies().filter(m => movieMatchesQuery(m, query)).slice(0, 4);
-            const radar = radarItems.filter(r => normalizeForMatch(r.title).includes(query)).slice(0, 3);
-            const jw = `https://www.justwatch.com/it/cerca?q=${encodeURIComponent(rawQuery)}`;
-            const card = inner => `<div class="p-3 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-1.5">${inner}</div>`;
-            let html = '';
-            known.forEach(m => {
-                html += card(`
-                    <div class="flex items-center gap-1.5 flex-wrap">${getPlatformBadge(m.platform, true)}<span class="font-bold text-white">${escapeHtml(m.title)}</span><span class="text-slate-500">(${m.year})</span></div>
-                    <p class="text-amber-300"><i class="fa-solid fa-circle-info mr-1"></i>Non è nella lista: ${escapeHtml(whyNotInList(m))}.</p>
-                    <div class="flex gap-2 flex-wrap">
+        // Riquadro dei risultati della ricerca (V77): non tocca la terna né la lista
+        function renderSearchResults(rawValue) {
+            const panel = document.getElementById('search-results');
+            if (!panel) return;
+            const rawQuery = (rawValue || '').trim();
+            const query = normalizeForMatch(rawQuery);
+            if (query.length < 2) {
+                panel.classList.add('hidden');
+                panel.innerHTML = '';
+                return;
+            }
+            const poolIds = new Set(getFilteredPool().map(m => m.id));
+            const known = getAllMovies().filter(m => movieMatchesQuery(m, query));
+            const knownTitles = new Set(known.map(m => normalizeForMatch(m.title)));
+            const radar = radarItems.filter(r => normalizeForMatch(r.title).includes(query) && !knownTitles.has(normalizeForMatch(r.title)));
+            // Prima i film che ti propongo, poi gli altri
+            known.sort((a, b) => (poolIds.has(b.id) - poolIds.has(a.id)) || a.title.localeCompare(b.title, 'it', { sensitivity: 'base' }));
+            const row = inner => `<div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs flex items-center justify-between gap-2 flex-wrap">${inner}</div>`;
+            let html = `<div class="flex items-center justify-between text-[11px] text-slate-400">
+                    <span><i class="fa-solid fa-magnifying-glass text-sky-400 mr-1"></i>Risultati per «${escapeHtml(rawQuery)}»${known.length > 8 ? ` · i primi 8 di ${known.length}` : ''}</span>
+                    <button type="button" onclick="clearGlobalSearch()" class="text-slate-400 hover:text-white cursor-pointer" title="Chiudi la ricerca"><i class="fa-solid fa-xmark"></i></button>
+                </div>`;
+            known.slice(0, 8).forEach(m => {
+                const verdict = poolIds.has(m.id)
+                    ? '<span class="text-emerald-300 font-bold">✓ Te lo propongo</span>'
+                    : `<span class="text-amber-300">Non te lo propongo: ${escapeHtml(whyNotInList(m))}</span>`;
+                html += row(`
+                    <div class="min-w-0 flex-1 space-y-0.5">
+                        <div class="flex items-center gap-1.5 flex-wrap">${getPlatformBadge(m.platform, true)}<span class="font-bold text-white">${escapeHtml(m.title)}</span><span class="text-slate-500">(${m.year}${m.director ? ` · ${escapeHtml(m.director)}` : ''})</span></div>
+                        <div>${verdict}</div>
+                    </div>
+                    <div class="flex gap-1.5 shrink-0">
                         <button type="button" onclick="openMovieDetailsModal('${m.id}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold cursor-pointer">Scheda</button>
-                        ${m.liveUnavailable ? '' : `<a href="${getWatchUrl(m)}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold">Guarda su ${getPlatformName(m.platform)}</a>`}
+                        ${m.liveUnavailable ? '' : `<a href="${getWatchUrl(m)}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold">Guarda</a>`}
                     </div>`);
             });
-            radar.forEach(r => {
+            radar.slice(0, 4).forEach(r => {
                 const live = getLiveInfo(r.id);
                 const status = live?.platforms?.length ? `ora incluso su ${live.platforms.map(getPlatformName).join(', ')}` : (r.status || 'in attesa di streaming incluso');
-                html += card(`
-                    <div class="flex items-center gap-1.5 flex-wrap"><span class="px-1.5 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800 text-[10px] font-bold"><i class="fa-solid fa-satellite-dish"></i> Radar</span><span class="font-bold text-white">${escapeHtml(r.title)}</span><span class="text-slate-500">(${r.year || ''})</span></div>
-                    <p class="text-sky-300">${escapeHtml(status)}.</p>`);
+                html += row(`
+                    <div class="min-w-0 flex-1 space-y-0.5">
+                        <div class="flex items-center gap-1.5 flex-wrap"><span class="px-1.5 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800 text-[10px] font-bold"><i class="fa-solid fa-satellite-dish"></i> Radar</span><span class="font-bold text-white">${escapeHtml(r.title)}</span><span class="text-slate-500">(${r.year || ''})</span></div>
+                        <div class="text-sky-300">${escapeHtml(status)}</div>
+                    </div>`);
             });
             if (!known.length && !radar.length) {
-                html += card(`
+                const jw = `https://www.justwatch.com/it/cerca?q=${encodeURIComponent(rawQuery)}`;
+                html += `<div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-2">
                     <p class="text-slate-300">«${escapeHtml(rawQuery)}» non è tra i film che CineStudio conosce.</p>
                     <div class="flex gap-2 flex-wrap">
                         ${getTmdbKey() ? `<button type="button" onclick="lookupWhereToWatch()" class="px-2.5 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold cursor-pointer"><i class="fa-solid fa-magnifying-glass-location mr-1"></i>Cerca dove si vede</button>` : ''}
                         <a href="${jw}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold">Apri JustWatch</a>
                     </div>
-                    <div id="where-to-watch-result" class="space-y-1.5"></div>`);
+                    <div id="where-to-watch-result" class="space-y-1.5"></div>
+                </div>`;
             }
-            return html;
+            panel.innerHTML = html;
+            panel.classList.remove('hidden');
         }
 
         // Film sconosciuto: chiede a TMDB dove si vede oggi in Italia
@@ -5457,37 +5467,12 @@
             const container = document.getElementById('all-movies-table');
             document.getElementById('all-matching-count').textContent = pool.length;
 
-            const searchInputVal = (document.getElementById('input-global-search')?.value || '').trim();
-            let scoutBanner = '';
-            if (searchInputVal) {
-                const safeQuery = escapeHtml(searchInputVal).replace(/'/g, "\\'");
-                scoutBanner = `
-                <div class="p-3 mb-3 rounded-xl bg-gradient-to-r from-purple-950/80 via-slate-900 to-purple-950/80 border border-purple-500/40 flex items-center justify-between gap-3 text-xs shadow-lg">
-                    <div class="flex items-center gap-2.5 min-w-0">
-                        <div class="w-8 h-8 rounded-lg bg-purple-600/30 border border-purple-500/50 flex items-center justify-center text-purple-300 shrink-0">
-                            <i class="fa-solid fa-binoculars text-sm"></i>
-                        </div>
-                        <div class="min-w-0">
-                            <p class="font-bold text-white text-xs truncate">Filmografie complete o piattaforme per <span class="text-purple-300">"${escapeHtml(searchInputVal)}"</span>?</p>
-                            <p class="text-[11px] text-slate-400 truncate">Verifica licenze su Netflix, Prime, Disney+, RaiPlay e JustWatch</p>
-                        </div>
-                    </div>
-                    <button type="button" onclick="openScoutWithQuery('${safeQuery}')" class="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1.5 shrink-0 transition active:scale-95 shadow cursor-pointer">
-                        <i class="fa-solid fa-compass"></i> <span>Apri Esploratore</span>
-                    </button>
-                </div>`;
-            }
-
             if (pool.length === 0) {
-                if (searchInputVal) {
-                    container.innerHTML = `<div class="p-4 text-center text-slate-500 text-xs">Nessun film in lista per «${escapeHtml(searchInputVal)}»: trovi cosa so di questo titolo nel riquadro «Le Tue 3 Opzioni per Stasera» qui sopra.</div>`;
-                } else {
-                    container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">Nessun film corrisponde ai filtri selezionati.</div>`;
-                }
+                container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">Nessun film corrisponde ai filtri selezionati.</div>`;
                 return;
             }
 
-            container.innerHTML = scoutBanner + pool.map(m => {
+            container.innerHTML = pool.map(m => {
                 const inWatchlist = watchlistIds.has(m.id);
                 return `
                 <div class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800/80 border ${inWatchlist ? 'border-amber-500/40 bg-slate-900/90' : 'border-slate-800'} hover:border-amber-500/50 flex items-start justify-between gap-2 text-xs transition group">
@@ -6814,8 +6799,9 @@
             } else {
                 clearBtn.classList.add('hidden');
             }
-            generateRecommendations(false);
-            renderAllMatchingMovies();
+            // La ricerca non tocca la terna: mostra i risultati nel riquadro sotto la barra (con una breve attesa mentre scrivi)
+            clearTimeout(window.__searchTimer);
+            window.__searchTimer = setTimeout(() => renderSearchResults(val), 200);
         }
 
         function clearGlobalSearch() {
@@ -6823,8 +6809,7 @@
             if (input) input.value = '';
             const clearBtn = document.getElementById('btn-clear-global-search');
             if (clearBtn) clearBtn.classList.add('hidden');
-            generateRecommendations(false);
-            renderAllMatchingMovies();
+            renderSearchResults('');
         }
 
 
