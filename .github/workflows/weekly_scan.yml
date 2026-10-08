@@ -1,9 +1,10 @@
 name: Weekly CineStudio Auto-Scan
 
 on:
-  schedule:
-    # Ogni giovedì alle 17:00 UTC (18:00 o 19:00 ora italiana)
-    - cron: '0 17 * * 4'
+  # Avvio automatico del giovedì DISATTIVATO (V63, 08/10/2026): lo script non verifica la
+  # disponibilità su JustWatch e reinseriva film già presenti con piattaforme errate.
+  # schedule:
+  #   - cron: '0 17 * * 4'
   workflow_dispatch: # Permette anche di avviarlo manualmente con un click da GitHub
 
 permissions:
