@@ -368,13 +368,7 @@
                     </span>
                     <i class="fa-solid fa-chevron-down group-open:rotate-180 transition-transform"></i>
                 </summary>
-                <!-- Ricerca nella lista (V75): c'è? dove si vede? perché non c'è? -->
-                <div class="mt-4 relative">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                    <input type="search" id="input-list-search" oninput="renderAllMatchingMovies()" placeholder="Cerca un titolo, un regista o un attore: ti dico se c'è e dove si vede" class="w-full bg-slate-950 border border-slate-700 focus:border-sky-500 rounded-xl pl-8 pr-3 py-2 text-xs text-white focus:outline-none">
-                </div>
-                <div id="list-search-info" class="hidden mt-2 text-[11px] text-slate-400"></div>
-                <div id="all-movies-table" class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div id="all-movies-table" class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     <!-- Film list completo -->
                 </div>
             </details>
@@ -5096,8 +5090,8 @@
 
                 // Ricerca globale rapida: se l'utente cerca esplicitamente un film (es. Oppenheimer), bypassa i filtri restrittivi per trovarlo all'istante!
                 if (globalSearch) {
-                    const text = `${movie.title} ${movie.director} ${movie.cast} ${movie.platform}`.toLowerCase();
-                    return text.includes(globalSearch);
+                    // Confronto senza punteggiatura né accenti: "mr ove" trova "Mr. Ove"
+                    return movieMatchesQuery(movie, normalizeForMatch(globalSearch)) || normalizeForMatch(getPlatformName(movie.platform)).includes(normalizeForMatch(globalSearch));
                 }
 
                 // Punti Cardinali: già visti, mai proposti per la serata (si trovano comunque cercandoli per nome)
@@ -5162,6 +5156,16 @@
             grid.innerHTML = '';
 
             if (pool.length === 0) {
+                // Ricerca senza risultati: spiega cosa sa del film (escluso e perché, nel Radar, o sconosciuto → dove si vede)
+                const searchRaw = (document.getElementById('input-global-search')?.value || '').trim();
+                if (searchRaw) {
+                    grid.innerHTML = `
+                        <div class="col-span-3 w-full max-w-2xl mx-auto space-y-2">
+                            <p class="text-xs text-slate-400"><i class="fa-solid fa-circle-info text-amber-400 mr-1"></i>«${escapeHtml(searchRaw)}» non è tra i film che posso proporti. Ecco cosa so:</p>
+                            ${renderListSearchMiss(normalizeForMatch(searchRaw), searchRaw)}
+                        </div>`;
+                    return;
+                }
                 grid.innerHTML = `
                     <div class="col-span-3 text-center py-12 glass-panel rounded-2xl p-6 text-slate-400">
                         <i class="fa-solid fa-film-slash text-3xl mb-3 text-slate-500"></i>
@@ -5403,7 +5407,7 @@
 
         // Film sconosciuto: chiede a TMDB dove si vede oggi in Italia
         async function lookupWhereToWatch() {
-            const rawQuery = (document.getElementById('input-list-search')?.value || '').trim();
+            const rawQuery = (document.getElementById('input-global-search')?.value || '').trim();
             const box = document.getElementById('where-to-watch-result');
             if (!rawQuery || !box) return;
             box.innerHTML = '<p class="text-slate-400"><i class="fa-solid fa-rotate fa-spin mr-1"></i>Cerco su TMDB…</p>';
@@ -5453,26 +5457,6 @@
             const container = document.getElementById('all-movies-table');
             document.getElementById('all-matching-count').textContent = pool.length;
 
-            // Ricerca nella lista: filtra mentre scrivi; se il film non c'è, spiega perché e dove si vede
-            const listRaw = (document.getElementById('input-list-search')?.value || '').trim();
-            const listQuery = normalizeForMatch(listRaw);
-            const listInfo = document.getElementById('list-search-info');
-            if (listQuery.length >= 2) {
-                pool = pool.filter(m => movieMatchesQuery(m, listQuery));
-                if (listInfo) {
-                    listInfo.classList.remove('hidden');
-                    listInfo.innerHTML = pool.length
-                        ? `<i class="fa-solid fa-circle-check text-emerald-400"></i> ${pool.length === 1 ? 'Trovato 1 film' : `Trovati ${pool.length} film`} nella lista per «${escapeHtml(listRaw)}».`
-                        : `<i class="fa-solid fa-circle-info text-amber-400"></i> «${escapeHtml(listRaw)}» non è nella lista dei film proposti. Ecco cosa so:`;
-                }
-                if (!pool.length) {
-                    container.innerHTML = renderListSearchMiss(listQuery, listRaw);
-                    return;
-                }
-            } else if (listInfo) {
-                listInfo.classList.add('hidden');
-            }
-
             const searchInputVal = (document.getElementById('input-global-search')?.value || '').trim();
             let scoutBanner = '';
             if (searchInputVal) {
@@ -5496,15 +5480,7 @@
 
             if (pool.length === 0) {
                 if (searchInputVal) {
-                    const safeQuery = escapeHtml(searchInputVal).replace(/'/g, "\\'");
-                    container.innerHTML = scoutBanner + `
-                    <div class="p-8 text-center rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3">
-                        <p class="text-slate-300 text-sm font-medium">Nessun film trovato nel catalogo attivo per <span class="text-amber-400 font-bold">"${escapeHtml(searchInputVal)}"</span>.</p>
-                        <p class="text-slate-500 text-xs">Potrebbe trovarsi su altre piattaforme (RaiPlay, Disney+, noleggio) o in attesa di licenza flat.</p>
-                        <button type="button" onclick="openScoutWithQuery('${safeQuery}')" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs inline-flex items-center gap-2 transition active:scale-95 shadow cursor-pointer">
-                            <i class="fa-solid fa-binoculars"></i> <span>Verifica in Esploratore Registi & Attori</span>
-                        </button>
-                    </div>`;
+                    container.innerHTML = `<div class="p-4 text-center text-slate-500 text-xs">Nessun film in lista per «${escapeHtml(searchInputVal)}»: trovi cosa so di questo titolo nel riquadro «Le Tue 3 Opzioni per Stasera» qui sopra.</div>`;
                 } else {
                     container.innerHTML = `<div class="p-8 text-center text-slate-500 text-xs">Nessun film corrisponde ai filtri selezionati.</div>`;
                 }
