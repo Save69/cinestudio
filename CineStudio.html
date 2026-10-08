@@ -442,25 +442,8 @@
                     <h4 class="font-bold text-emerald-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                         <i class="fa-solid fa-gem"></i> I Tuoi Punti Cardinali
                     </h4>
-                    <div class="flex flex-wrap gap-1.5" id="dna-milestones">
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">C'era una volta in America</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Nuovo Cinema Paradiso</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Le ali della libertà</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Il signore degli anelli</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Il cammino per Santiago</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Hereafter</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Hugo Cabret</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">The Wolf of Wall Street</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Vita di Pi</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Limitless</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">La La Land</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Mediterraneo</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Whiplash</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Così parlò Bellavista</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">L'attimo fuggente</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Il favoloso mondo di Amélie</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/60">Inside Out</span>
-                    </div>
+                    <p class="text-[11px] text-slate-400 mb-1.5">Già visti: non te li propongo per la serata. Il badge dice dove puoi rivederli oggi; toccalo per aprire la piattaforma.</p>
+                    <div class="flex flex-wrap gap-1.5" id="dna-milestones"></div>
                 </div>
 
                 <!-- Elementi Aggiunti dall'Utente al DNA -->
@@ -2235,13 +2218,28 @@
             'disney-walle',                 // WALL-E (Disney+ - capolavoro poetico)
             'prime-sound-of-metal',         // Sound of Metal (Prime Video - Amazon Original flat)
             'prime-air',                    // Air - La storia del grande salto (Prime Video - flat)
-            'netflix-ce-ancora-domani',     // C'è ancora domani (Netflix - riscatto ed emozione)
-            'raiplay-1',                    // Nuovo Cinema Paradiso (RaiPlay - amore per il cinema)
-            'disney-attimo-fuggente'        // L'attimo fuggente (Disney+ - ispirazione)
+            'netflix-ce-ancora-domani'      // C'è ancora domani (Netflix - riscatto ed emozione)
         ];
+        // Ogni film predefinito viene aggiunto una sola volta: se l'utente lo toglie, non ricompare
+        let watchlistDefaultsGiven = new Set(JSON.parse(localStorage.getItem('cinestudio_watchlist_defaults_given') || '[]'));
+        if (watchlistDefaultsGiven.size === 0 && localStorage.getItem('cinestudio_watchlist')) {
+            // Dispositivo già in uso: i predefiniti attuali sono già stati dati in passato
+            ['disney-walle', 'prime-sound-of-metal', 'prime-air', 'netflix-ce-ancora-domani', 'raiplay-1', 'disney-attimo-fuggente'].forEach(id => watchlistDefaultsGiven.add(id));
+        }
         defaultWatchlist.forEach(id => {
-            watchlistIds.add(id);
+            if (!watchlistDefaultsGiven.has(id)) {
+                watchlistIds.add(id);
+                watchlistDefaultsGiven.add(id);
+            }
         });
+        localStorage.setItem('cinestudio_watchlist_defaults_given', JSON.stringify(Array.from(watchlistDefaultsGiven)));
+
+        // Punti Cardinali tolti dalla Watchlist predefinita (V68): già visti. Una sola volta, così l'utente può rimetterli
+        if (!localStorage.getItem('cinestudio_v68_cardinali_rimossi')) {
+            watchlistIds.delete('raiplay-1');
+            watchlistIds.delete('disney-attimo-fuggente');
+            localStorage.setItem('cinestudio_v68_cardinali_rimossi', '1');
+        }
 
         // Rimuovi esplicitamente titoli a noleggio / a pagamento da sessioni precedenti
         watchlistIds.delete('netflix-6');
@@ -3385,7 +3383,8 @@
         async function refreshLiveAvailability(force = false) {
             if (!getTmdbKey() || tmdbStatus.running) return;
             const userCustom = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
-            const targets = [...INITIAL_CATALOG, ...userCustom, ...radarItems];
+            const cardinals = PUNTI_CARDINALI.map(p => ({ id: p.id, title: p.search || p.title, year: p.year }));
+            const targets = [...INITIAL_CATALOG, ...userCustom, ...radarItems, ...cardinals];
             const todo = targets.filter(t => force || !tmdbCache[t.id] || Date.now() - tmdbCache[t.id].checkedAt > TMDB_REFRESH_MS);
             if (todo.length === 0) { updateLiveStatus(); return; }
 
@@ -3411,6 +3410,7 @@
             generateRecommendations(false, false);
             renderAllMatchingMovies();
             renderRadarItems();
+            renderMilestones();
             updateLiveStatus();
         }
 
@@ -3481,15 +3481,46 @@
 
         // Punti Cardinali: film già visti e amati, mai riproposti dal Radar
         const PUNTI_CARDINALI = [
-            "C'era una volta in America", 'Nuovo Cinema Paradiso', 'Le ali della libertà', 'Il signore degli anelli',
-            'Il cammino per Santiago', 'Hereafter', 'Hugo Cabret', 'The Wolf of Wall Street', 'Vita di Pi', 'Limitless',
-            'La La Land', 'Mediterraneo', 'Whiplash', 'Così parlò Bellavista', "L'attimo fuggente",
-            'Il favoloso mondo di Amélie', 'Inside Out'
-        ];
+            { title: "C'era una volta in America", year: 1984 },
+            { title: 'Nuovo Cinema Paradiso', year: 1988 },
+            { title: 'Le ali della libertà', year: 1994 },
+            { title: 'Il signore degli anelli', year: 2001, search: "Il Signore degli Anelli - La compagnia dell'anello" },
+            { title: 'Il cammino per Santiago', year: 2010 },
+            { title: 'Hereafter', year: 2010 },
+            { title: 'Hugo Cabret', year: 2011 },
+            { title: 'The Wolf of Wall Street', year: 2013 },
+            { title: 'Vita di Pi', year: 2012 },
+            { title: 'Limitless', year: 2011 },
+            { title: 'La La Land', year: 2016 },
+            { title: 'Mediterraneo', year: 1991 },
+            { title: 'Whiplash', year: 2014 },
+            { title: 'Così parlò Bellavista', year: 1984 },
+            { title: "L'attimo fuggente", year: 1989 },
+            { title: 'Il favoloso mondo di Amélie', year: 2001 },
+            { title: 'Inside Out', year: 2015 }
+        ].map(p => ({ ...p, id: 'cardinal-' + normalizeForMatch(p.title).replace(/ /g, '-') }));
 
         function isPuntoCardinale(title) {
             const t = normalizeForMatch(title.replace(/\s*\(.*?\)\s*/g, ' '));
-            return PUNTI_CARDINALI.some(p => normalizeForMatch(p) === t);
+            return PUNTI_CARDINALI.some(p => normalizeForMatch(p.title) === t);
+        }
+
+        // Finestra DNA: dove rivedere oggi ogni Punto Cardinale (verifica live con TMDB)
+        function renderMilestones() {
+            const box = document.getElementById('dna-milestones');
+            if (!box) return;
+            const hasKey = !!getTmdbKey();
+            box.innerHTML = PUNTI_CARDINALI.map(p => {
+                const live = getLiveInfo(p.id);
+                const plats = live?.platforms || [];
+                const base = 'px-2.5 py-1 rounded-lg border inline-flex items-center gap-1.5';
+                if (plats.length) {
+                    const url = getWatchUrl({ title: p.title, platform: plats[0], liveInfo: live });
+                    return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="${base} bg-emerald-950/60 text-emerald-300 border-emerald-700/70 hover:border-emerald-400" title="Rivedilo stasera">${escapeHtml(p.title)} <span class="text-[10px] font-bold text-emerald-200">▶ ${plats.map(getPlatformName).join(', ')}</span></a>`;
+                }
+                const note = !hasKey ? '' : live ? 'non incluso ora' : 'non ancora verificato';
+                return `<span class="${base} bg-slate-900 text-slate-300 border-slate-700">${escapeHtml(p.title)}${note ? ` <span class="text-[10px] text-slate-500">${note}</span>` : ''}</span>`;
+            }).join('');
         }
 
         // Film del Radar che la verifica live trova inclusi in un abbonamento: entrano nelle proposte
@@ -3692,6 +3723,9 @@
                     const text = `${movie.title} ${movie.director} ${movie.cast} ${movie.platform}`.toLowerCase();
                     return text.includes(globalSearch);
                 }
+
+                // Punti Cardinali: già visti, mai proposti per la serata (si trovano comunque cercandoli per nome)
+                if (isPuntoCardinale(movie.title)) return false;
 
                 // Piattaforma attiva
                 if (!activePlatforms.has(movie.platform)) return false;
@@ -5171,7 +5205,7 @@
             renderRadarItems();
         }
 
-        function openDnaModal() { document.getElementById('modal-dna').classList.remove('hidden'); }
+        function openDnaModal() { renderMilestones(); document.getElementById('modal-dna').classList.remove('hidden'); }
         function closeDnaModal() { document.getElementById('modal-dna').classList.add('hidden'); }
 
         function toggleWatchlistModal() {
