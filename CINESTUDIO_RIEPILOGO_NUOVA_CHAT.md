@@ -35,6 +35,8 @@ L'utente la sera vuole aprire l'app, indicare il tempo a disposizione e il mood 
 11. *La La Land* (Damien Chazelle)
 12. *La ricerca della felicità* (Gabriele Muccino) — aggiunto l'08/10/2026
 13. *Sette anime* (Gabriele Muccino) — aggiunto l'08/10/2026
+14. *Che vita da cani!* (Mel Brooks) — aggiunto l'08/10/2026
+15. *Una poltrona per due* (John Landis) — aggiunto l'08/10/2026
 
 *(L'elenco completo usato dall'app è `PUNTI_CARDINALI` in `CineStudio.html`: comprende anche Mediterraneo, Whiplash,
 Così parlò Bellavista, L'attimo fuggente, Il favoloso mondo di Amélie, Inside Out.)*
@@ -50,11 +52,18 @@ Così parlò Bellavista, L'attimo fuggente, Il favoloso mondo di Amélie, Inside
 - Roberto Benigni
 - Nanni Moretti
 - Quentin Tarantino *(aggiunto l'08/10/2026: "mi piace molto"; i suoi film sono violenti → proposti con Filtro Confort spento)*
+- Mel Brooks, Gabriele Muccino, John Landis *(aggiunti l'08/10/2026)*
 
 ### C. Attori Feticcio
 - **Leonardo DiCaprio**
 - **Matt Damon**
 - **Robin Williams**
+- **Gene Wilder** *(aggiunto l'08/10/2026: "mi piace molto")*
+- *(Eddie Murphy e Dan Aykroyd, protagonisti di Una poltrona per due, non sono stati aggiunti al DNA: chiedere all'utente)*
+- **Will Smith** *(aggiunto l'08/10/2026, da La ricerca della felicità e Sette anime)*
+
+> Dalla V82 i film con affinità DNA (registi/attori qui sopra) passano anche con voto ≥ 6.0, sotto la soglia del preset
+> (`DNA_SCORE_FLOOR`): il legame con l'autore conta più del voto medio del pubblico.
 
 ### D. Interessi d'Autore & Festival Internazionali
 - Vincitori della **Mostra Internazionale d'Arte Cinematografica di Venezia** (Leone d'Oro, Orizzonti, Settimana della Critica)
@@ -65,7 +74,8 @@ Così parlò Bellavista, L'attimo fuggente, Il favoloso mondo di Amélie, Inside
 ### E. I Blacklistati (Cosa ESCLUDERE CATEGORICAMENTE)
 - ❌ **Horror & Splatter** *(precisato l'08/10/2026: escluso lo splatter e l'horror di demoni/possessioni; la suspense
   soprannaturale d'atmosfera come The Others o Il sesto senso è gradita. Regole in `classifyContent()` dalla V81)*
-- ❌ **Commedie demenziali / trash**
+- ❌ **Commedie demenziali / trash** *(precisato l'08/10/2026: la comicità volgare o trash. Le commedie classiche di
+  Mel Brooks, Gene Wilder e John Landis — parodie e slapstick d'autore — sono amatissime)*
 - ❌ **Dialetti regionali stretti privi di sottotitoli chiari** *(es. Margini: lo sforzo d'ascolto continuo infastidisce la visione serale)*
 - ❌ **Film incentrati su sottoculture punk/hardcore o musica sguaiata/aggressiva** *(l'utente ama le partiture liriche ed emotive di Morricone, Piovani, il pianoforte, non il punk rumoroso)*
 - ❌ **Musical canzonettistici commerciali**  
