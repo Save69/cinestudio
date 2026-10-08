@@ -5430,8 +5430,14 @@
                 const platOf = name => TMDB_PROVIDER_RULES.find(r => r.re.test(name))?.plat;
                 const rows = [];
                 for (const r of results) {
-                    const d = await tmdbFetch(`/movie/${r.id}/watch/providers`);
-                    const it = d.results?.IT || {};
+                    // Una sola chiamata per film: disponibilità + crediti (regia e attori servono a distinguere titoli uguali)
+                    const d = await tmdbFetch(`/movie/${r.id}`, { language: 'it-IT', append_to_response: 'credits,watch/providers' });
+                    const it = d['watch/providers']?.results?.IT || {};
+                    const director = (d.credits?.crew || []).filter(c => c.job === 'Director').map(c => c.name).slice(0, 2).join(', ');
+                    const actors = (d.credits?.cast || []).slice(0, 2).map(c => c.name).join(', ');
+                    const genreIds = (d.genres || []).map(g => g.id);
+                    const blacklistWarning = genreIds.includes(27) ? ' <span class="px-1.5 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 text-[10px] font-bold">⚠️ Horror: nella tua lista nera</span>' : '';
+                    const poster = d.poster_path ? `<img src="https://image.tmdb.org/t/p/w92${d.poster_path}" alt="" class="w-9 h-[52px] object-cover rounded shrink-0 border border-slate-800">` : '<div class="w-9 h-[52px] rounded bg-slate-800 shrink-0"></div>';
                     const included = [...(it.flatrate || []), ...(it.free || []), ...(it.ads || [])];
                     const mine = [...new Set(included.map(p => platOf(p.provider_name)).filter(p => ['netflix', 'prime', 'disney', 'raiplay'].includes(p)))];
                     const others = [...new Set(included.map(p => p.provider_name).filter(n => !platOf(n)))];
@@ -5444,7 +5450,14 @@
                         : '<span class="text-slate-400">Non disponibile in streaming in Italia</span>';
                     const safeTitle = escapeHtml(r.title).replace(/'/g, "\\'");
                     rows.push(`<div class="flex items-center justify-between gap-2 flex-wrap p-2 rounded-lg bg-slate-950 border border-slate-800">
-                        <span><b class="text-white">${escapeHtml(r.title)}</b> <span class="text-slate-500">(${year})</span> · ${verdict}</span>
+                        <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                            ${poster}
+                            <div class="min-w-0 space-y-0.5">
+                                <div><b class="text-white">${escapeHtml(r.title)}</b> <span class="text-slate-500">(${year})</span>${blacklistWarning}</div>
+                                ${director || actors ? `<div class="text-[11px] text-slate-400 truncate">${director ? `Regia di ${escapeHtml(director)}` : ''}${director && actors ? ' · ' : ''}${actors ? `con ${escapeHtml(actors)}` : ''}</div>` : ''}
+                                <div>${verdict}</div>
+                            </div>
+                        </div>
                         ${mine.length ? `<a href="${getWatchUrl({ title: r.title, platform: mine[0], liveInfo: { link: it.link } })}" target="_blank" rel="noopener noreferrer" class="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-bold">Guarda</a>`
                             : `<button type="button" onclick="addLookupToRadar('${safeTitle}', ${year || 'null'})" class="px-2 py-0.5 rounded bg-sky-700 hover:bg-sky-600 text-white font-bold cursor-pointer">+ Radar</button>`}
                     </div>`);
