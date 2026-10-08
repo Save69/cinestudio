@@ -1013,7 +1013,7 @@
                 <!-- Voti Guardrail -->
                 <div class="flex items-center gap-3">
                     <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30">
-                        <span class="bg-[#f5c518] text-slate-950 font-black text-[10px] px-1 rounded font-mono">IMDb</span>
+                        <span id="detail-score-label" class="bg-[#f5c518] text-slate-950 font-black text-[10px] px-1 rounded font-mono">IMDb</span>
                         <span id="detail-imdb" class="text-amber-300 font-black text-xs"></span>
                     </div>
                     <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30">
@@ -4397,7 +4397,8 @@
             const cardinals = PUNTI_CARDINALI.map(p => ({ id: p.id, title: p.search || p.title, year: p.year }));
             const targets = [...INITIAL_CATALOG, ...userCustom, ...radarItems, ...cardinals];
             const todo = targets.filter(t => force || !tmdbCache[t.id] || Date.now() - tmdbCache[t.id].checkedAt > TMDB_REFRESH_MS);
-            if (todo.length === 0) { updateLiveStatus(); return; }
+            const discoveryDue = isDiscoveryOn() && (force || Date.now() - (discovery.runAt || 0) > DISCOVERY_REFRESH_MS);
+            if (todo.length === 0 && !discoveryDue) { updateLiveStatus(); return; }
 
             Object.assign(tmdbStatus, { running: true, done: 0, total: todo.length, error: '' });
             updateLiveStatus();
@@ -4416,8 +4417,10 @@
                 }
             };
             await Promise.all([worker(), worker(), worker(), worker()]);
-            tmdbStatus.running = false;
             saveTmdbCache();
+            // Dopo la verifica del catalogo (che fornisce gli id TMDB per evitare doppioni): scoperta automatica
+            if (!tmdbStatus.error) await runDiscovery(force);
+            tmdbStatus.running = false;
             generateRecommendations(false, false);
             renderAllMatchingMovies();
             renderRadarItems();
@@ -4464,17 +4467,25 @@
                 return;
             }
             if (tmdbStatus.running) {
-                el.innerHTML = `<i class="fa-solid fa-rotate fa-spin text-sky-400"></i> Verifica disponibilità in corso… ${tmdbStatus.done}/${tmdbStatus.total}`;
+                el.innerHTML = discoveryStatus.running
+                    ? `<i class="fa-solid fa-wand-magic-sparkles fa-beat text-purple-400"></i> Cerco nuovi film per te sulle tue piattaforme… ${discoveryStatus.total ? `${discoveryStatus.done}/${discoveryStatus.total}` : ''}`
+                    : `<i class="fa-solid fa-rotate fa-spin text-sky-400"></i> Verifica disponibilità in corso… ${tmdbStatus.done}/${tmdbStatus.total}`;
                 return;
             }
             const all = getAllMovies();
-            const verified = all.filter(m => m.liveInfo).length;
+            const discoveredCount = all.filter(m => m.discovered).length;
+            const curated = all.filter(m => !m.discovered);
+            const verified = curated.filter(m => m.liveInfo).length;
             const gone = all.filter(m => m.liveUnavailable).length;
-            const times = all.map(m => m.liveInfo?.checkedAt).filter(Boolean);
+            const discoveryHtml = isDiscoveryOn()
+                ? ` · <span class="text-purple-300">✨ ${discoveredCount} scoperti per te</span> (${btn('disattiva', 'toggleDiscovery()')})`
+                : ` · ${btn('✨ attiva la scoperta automatica', 'toggleDiscovery()')}`;
+            const times = curated.map(m => m.liveInfo?.checkedAt).filter(Boolean);
             const last = times.length ? new Date(Math.min(...times)).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
             el.innerHTML = `
-                <i class="fa-solid fa-circle-check text-emerald-400"></i> Verificati live <b>${verified}/${all.length}</b> (dal ${last})
+                <i class="fa-solid fa-circle-check text-emerald-400"></i> Verificati live <b>${verified}/${curated.length}</b> (dal ${last})
                 ${gone ? ` · ${btn(`${gone} non più inclusi`, 'showUnavailableLiveMovies()')}` : ''}
+                ${discoveryHtml}
                 ${tmdbStatus.error ? ` · <span class="text-rose-400">${escapeHtml(tmdbStatus.error)}</span>` : ''}
                 · ${btn('Aggiorna', 'refreshLiveAvailability(true)')} · ${btn('Chiave', 'setTmdbKey()')}
                 <span class="text-slate-500">· Dati JustWatch via TMDB</span>`;
@@ -4488,6 +4499,206 @@
                 return `<a href="${movie.liveInfo.link}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-emerald-400 hover:text-emerald-300 font-mono flex items-center gap-1" title="Incluso su: ${movie.livePlatforms.map(getPlatformName).join(', ')}"><i class="fa-solid fa-circle-check text-[9px]"></i> Verificato ${day}</a>`;
             }
             return `<a href="${jw}" target="_blank" rel="noopener noreferrer" class="text-[10px] text-amber-400 hover:text-amber-300 font-mono flex items-center gap-1" title="Disponibilità non verificata: controlla su JustWatch"><i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i> Non verificato</a>`;
+        }
+
+        /* =========================================================================================
+         * SCOPERTA AUTOMATICA (V72): film inclusi OGGI su Netflix, Prime Video, Disney+ o RaiPlay in Italia,
+         * trovati con TMDB "discover" (dati JustWatch). Il catalogo curato resta in primo piano: i film
+         * scoperti hanno tono e mood STIMATI dai generi (con criteri prudenti: nel dubbio "demanding")
+         * e pesano meno nelle estrazioni, salvo affinità con il DNA. Si possono disattivare.
+         * ========================================================================================= */
+        const DISCOVERY_STORAGE = 'cinestudio_tmdb_discovery';
+        const DISCOVERY_OFF_STORAGE = 'cinestudio_discovery_off';
+        const DISCOVERY_REFRESH_MS = 24 * 60 * 60 * 1000;       // nuova ricerca ogni 24 ore
+        const DISCOVERY_DETAILS_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // durata/cast/piattaforma riletti ogni 7 giorni
+        const DISCOVERY_MAX_FILMS = 320;
+        // Lingue del cinema europeo (OR): così entrano film come Mr. Ove (svedese) o Petrunya (macedone)
+        const EUROPEAN_LANGUAGES = 'it|fr|es|de|sv|da|no|fi|is|nl|pt|pl|cs|hu|el|mk|ro|hr|sr|bs|sl|ca';
+        const DISCOVERY_QUERIES = [
+            { pages: 8, params: { 'vote_average.gte': 7.3, 'vote_count.gte': 3000, sort_by: 'vote_count.desc' } },
+            { pages: 8, params: { with_original_language: EUROPEAN_LANGUAGES, 'vote_average.gte': 6.8, 'vote_count.gte': 80, sort_by: 'popularity.desc' } },
+            { pages: 3, params: { 'primary_release_date.gte': '2022-01-01', 'vote_average.gte': 7.0, 'vote_count.gte': 300, sort_by: 'popularity.desc' } }
+        ];
+        // Generi TMDB
+        const TMDB_GENRES = {
+            28: 'Azione', 12: 'Avventura', 16: 'Animazione', 35: 'Commedia', 80: 'Crimine', 99: 'Documentario',
+            18: 'Dramma', 10751: 'Famiglia', 14: 'Fantasy', 36: 'Storia', 27: 'Horror', 10402: 'Musica',
+            9648: 'Mistero', 10749: 'Romantico', 878: 'Fantascienza', 10770: 'Film TV', 53: 'Thriller',
+            10752: 'Guerra', 37: 'Western'
+        };
+
+        let discovery = { runAt: 0, ids: [], films: {}, providerIds: null };
+        try { discovery = { ...discovery, ...JSON.parse(localStorage.getItem(DISCOVERY_STORAGE) || '{}') }; } catch (e) { /* si riparte da zero */ }
+        const discoveryStatus = { running: false, done: 0, total: 0 };
+
+        function isDiscoveryOn() {
+            try { return localStorage.getItem(DISCOVERY_OFF_STORAGE) !== '1'; } catch (e) { return true; }
+        }
+
+        function toggleDiscovery() {
+            try { localStorage.setItem(DISCOVERY_OFF_STORAGE, isDiscoveryOn() ? '1' : '0'); } catch (e) { /* ignora */ }
+            generateRecommendations(false, false);
+            renderAllMatchingMovies();
+            updateLiveStatus();
+            if (isDiscoveryOn()) refreshLiveAvailability();
+        }
+
+        function saveDiscovery() {
+            try { localStorage.setItem(DISCOVERY_STORAGE, JSON.stringify(discovery)); } catch (e) { /* spazio pieno: resta in memoria */ }
+        }
+
+        // Tono stimato dai generi, prudente: ciò che non è chiaramente leggero va tra i "Cupi & Impegnativi"
+        function estimateTone(genreIds) {
+            const g = new Set(genreIds);
+            if (g.has(10752) || g.has(27)) return 'demanding';
+            if (g.has(16) || g.has(10751)) return 'uplifting';
+            if (g.has(35)) return (g.has(80) && g.has(53)) ? 'engaging' : 'uplifting';
+            if (g.has(99)) return g.has(10402) ? 'engaging' : 'demanding';
+            if (g.has(80) && g.has(18)) return 'demanding';
+            if (g.has(53) || g.has(9648) || g.has(80)) return 'engaging';
+            if (g.has(28) || g.has(12) || g.has(878) || g.has(14) || g.has(37)) return 'engaging';
+            return 'demanding';
+        }
+
+        function estimateMood(genreIds, originalLanguage) {
+            const g = new Set(genreIds);
+            if (g.has(16) || g.has(14) || g.has(10751) || g.has(878)) return 'meraviglia';
+            if (g.has(35) || g.has(10749)) return 'cuore';
+            if (g.has(53) || g.has(9648) || g.has(80)) return 'mente';
+            if (g.has(10752) || g.has(36) || g.has(37) || g.has(12) || g.has(28)) return 'epica';
+            if (g.has(99)) return 'autore';
+            return originalLanguage && originalLanguage !== 'en' ? 'autore' : 'anima';
+        }
+
+        async function getDiscoveryProviderIds() {
+            if (discovery.providerIds?.length) return discovery.providerIds;
+            const data = await tmdbFetch('/watch/providers/movie', { watch_region: 'IT', language: 'it-IT' });
+            const mine = ['netflix', 'prime', 'disney', 'raiplay'];
+            discovery.providerIds = (data.results || [])
+                .filter(p => mine.includes(TMDB_PROVIDER_RULES.find(r => r.re.test(p.provider_name))?.plat))
+                .map(p => p.provider_id);
+            return discovery.providerIds;
+        }
+
+        async function fetchDiscoveredDetails(tmdbId) {
+            const d = await tmdbFetch(`/movie/${tmdbId}`, { language: 'it-IT', append_to_response: 'credits,watch/providers' });
+            const it = d['watch/providers']?.results?.IT || {};
+            const included = [...(it.flatrate || []), ...(it.free || []), ...(it.ads || [])];
+            const platOf = name => TMDB_PROVIDER_RULES.find(r => r.re.test(name))?.plat;
+            const crew = d.credits?.crew || [];
+            return {
+                tmdbId,
+                title: d.title || d.original_title,
+                originalTitle: d.original_title || '',
+                originalLanguage: d.original_language || '',
+                year: parseInt(d.release_date, 10) || null,
+                runtime: d.runtime || null,
+                overview: d.overview || '',
+                genres: (d.genres || []).map(x => x.id),
+                voteAverage: d.vote_average || 0,
+                voteCount: d.vote_count || 0,
+                director: crew.filter(c => c.job === 'Director').map(c => c.name).slice(0, 2).join(', '),
+                cast: (d.credits?.cast || []).slice(0, 3).map(c => c.name).join(', '),
+                platforms: [...new Set(included.map(p => platOf(p.provider_name)).filter(p => ['netflix', 'prime', 'disney', 'raiplay'].includes(p)))],
+                poster: d.poster_path ? 'https://image.tmdb.org/t/p/w342' + d.poster_path : null,
+                link: it.link || `https://www.themoviedb.org/movie/${tmdbId}/watch?locale=IT`,
+                fetchedAt: Date.now()
+            };
+        }
+
+        async function runDiscovery(force = false) {
+            if (!getTmdbKey() || !isDiscoveryOn() || discoveryStatus.running) return;
+            if (!force && Date.now() - (discovery.runAt || 0) < DISCOVERY_REFRESH_MS) return;
+            discoveryStatus.running = true;
+            try {
+                const providerIds = await getDiscoveryProviderIds();
+                if (!providerIds.length) throw new Error('piattaforme TMDB non trovate');
+                const common = {
+                    watch_region: 'IT', with_watch_providers: providerIds.join('|'),
+                    with_watch_monetization_types: 'flatrate|free|ads', without_genres: '27|10770',
+                    include_adult: 'false', language: 'it-IT'
+                };
+                // 1. Cosa è incluso oggi (l'esito della ricerca vale come verifica di disponibilità)
+                const found = new Map();
+                for (const q of DISCOVERY_QUERIES) {
+                    for (let page = 1; page <= q.pages; page++) {
+                        const data = await tmdbFetch('/discover/movie', { ...common, ...q.params, page });
+                        (data.results || []).forEach(r => { if (!found.has(r.id)) found.set(r.id, r); });
+                        if (page >= (data.total_pages || 0)) break;
+                    }
+                }
+                // 2. Escludi ciò che l'app conosce già (catalogo, film aggiunti, Radar, Punti Cardinali, bocciati)
+                const userCustom = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
+                const knownIds = new Set([...INITIAL_CATALOG, ...userCustom, ...radarItems].map(m => tmdbCache[m.id]?.tmdbId).filter(Boolean));
+                const knownTitles = new Set([...INITIAL_CATALOG, ...userCustom, ...radarItems, ...dislikedMovies].map(m => normalizeForMatch(m.title)));
+                const ids = [...found.values()]
+                    .filter(r => !knownIds.has(r.id) && !knownTitles.has(normalizeForMatch(r.title)) && !isPuntoCardinale(r.title))
+                    .slice(0, DISCOVERY_MAX_FILMS)
+                    .map(r => r.id);
+                // 3. Dettagli (durata, regia, cast, piattaforma) solo per i film nuovi o vecchi di 7 giorni
+                const todo = ids.filter(id => !discovery.films[id] || Date.now() - discovery.films[id].fetchedAt > DISCOVERY_DETAILS_MAX_AGE);
+                Object.assign(discoveryStatus, { done: 0, total: todo.length });
+                updateLiveStatus();
+                const queue = [...todo];
+                const worker = async () => {
+                    while (queue.length) {
+                        const id = queue.shift();
+                        try { discovery.films[id] = await fetchDiscoveredDetails(id); } catch (e) { /* riprovato al prossimo giro */ }
+                        discoveryStatus.done++;
+                        if (discoveryStatus.done % 20 === 0) updateLiveStatus();
+                    }
+                };
+                await Promise.all([worker(), worker(), worker(), worker()]);
+                // Tieni solo i film trovati oggi: ciò che non è più incluso sparisce da solo
+                const keep = new Set(ids.map(String));
+                Object.keys(discovery.films).forEach(id => { if (!keep.has(id)) delete discovery.films[id]; });
+                discovery.ids = ids;
+                discovery.runAt = Date.now();
+                saveDiscovery();
+            } catch (e) {
+                if (/non valida/i.test(e.message)) tmdbStatus.error = e.message;
+            } finally {
+                discoveryStatus.running = false;
+            }
+        }
+
+        // Film scoperti, nella forma usata dal resto dell'app
+        function getDiscoveredMovies(knownTitles) {
+            if (!isDiscoveryOn() || !getTmdbKey()) return [];
+            return (discovery.ids || []).map(id => discovery.films[id]).filter(f => {
+                return f && f.platforms?.length && f.year && !knownTitles.has(normalizeForMatch(f.title));
+            }).map(f => {
+                const plat = f.platforms.find(p => activePlatforms.has(p)) || f.platforms[0];
+                const genreNames = f.genres.map(g => TMDB_GENRES[g]).filter(Boolean).slice(0, 3).join(', ');
+                return {
+                    id: 'tmdb-' + f.tmdbId,
+                    title: f.title,
+                    originalTitle: f.originalTitle,
+                    year: f.year,
+                    duration: f.runtime || 100,
+                    isShort: !!f.runtime && f.runtime <= 40,
+                    director: f.director || '',
+                    cast: f.cast || '',
+                    platform: plat,
+                    link: PLATFORM_HOME[plat],
+                    imdb: Math.round(f.voteAverage * 10) / 10,
+                    scoreSource: 'TMDB',
+                    mymovies: null,
+                    mood: estimateMood(f.genres, f.originalLanguage),
+                    emotionalTone: estimateTone(f.genres),
+                    why: `Scoperto per te su ${getPlatformName(plat)}${genreNames ? ` · ${genreNames}` : ''} · voto TMDB ${f.voteAverage.toFixed(1)} su ${f.voteCount.toLocaleString('it-IT')} voti.`,
+                    synopsis: f.overview || 'Trama non disponibile in italiano.',
+                    poster: f.poster,
+                    discovered: true,
+                    liveInfo: { platforms: f.platforms, others: [], checkedAt: discovery.runAt, link: f.link },
+                    livePlatforms: f.platforms
+                };
+            });
+        }
+
+        // Etichetta del voto: i film scoperti hanno il voto TMDB, non IMDb
+        function scoreLabel(movie) {
+            return movie?.scoreSource === 'TMDB' ? 'TMDB' : 'IMDb';
         }
 
         // Punti Cardinali: film già visti e amati, mai riproposti dal Radar
@@ -4570,7 +4781,9 @@
             const demotedIds = new Set(JSON.parse(localStorage.getItem('cinestudio_demoted_ids') || '[]'));
             const platformOverrides = JSON.parse(localStorage.getItem('cinestudio_platform_overrides') || '{}');
             const base = [...INITIAL_CATALOG, ...userCustom];
-            const all = [...base, ...getPromotedRadarMovies(new Set(base.map(m => normalizeForMatch(m.title))))];
+            const promoted = getPromotedRadarMovies(new Set(base.map(m => normalizeForMatch(m.title))));
+            const knownTitles = new Set([...base, ...promoted].map(m => normalizeForMatch(m.title)));
+            const all = [...base, ...promoted, ...getDiscoveredMovies(knownTitles)];
             return all.filter(m => !demotedIds.has(m.id)).map(m => {
                 const overridePlat = platformOverrides[m.id] || platformOverrides[m.title.toLowerCase().trim()];
                 const movie = overridePlat ? { ...m, platform: overridePlat, link: PLATFORM_HOME[overridePlat] || m.link } : m;
@@ -4847,6 +5060,8 @@
                     let weight = (movie.imdb * 6) + ((movie.mymovies ?? movie.imdb / 2) * 8);   // senza MYmovies si usa IMDb in quinti
                     if (dnaMatches.length > 0) {
                         weight += (dnaMatches.length * 16) + 12;
+                    } else if (movie.discovered) {
+                        weight *= 0.7;   // il catalogo curato resta in primo piano sui film scoperti senza affinità DNA
                     }
                     weight = Math.max(10, weight);
                     return { movie, weight };
@@ -4896,6 +5111,7 @@
                         <div class="p-4 pb-2 flex items-center justify-between">
                             ${platformBadge}
                             <span class="text-xs text-slate-400 font-mono flex items-center gap-1.5 flex-wrap justify-end">
+                                ${movie.discovered ? `<span class="bg-purple-950/80 text-purple-300 border border-purple-700/60 text-[10px] px-2 py-0.5 rounded-lg font-bold flex items-center gap-1" title="Trovato automaticamente sulle tue piattaforme: tono e mood stimati dai generi">✨ Scoperto per te</span>` : ''}
                                 ${isWatchlisted ? `<span class="bg-amber-500/20 text-amber-300 border border-amber-500/50 text-[10px] px-2 py-0.5 rounded-lg font-bold flex items-center gap-1 shadow-sm"><i class="fa-solid fa-bookmark text-amber-400"></i> In Watchlist</span>` : ''}
                                 ${isImdbTop250(movie) ? `<span class="bg-amber-950/80 text-amber-300 border border-amber-600/70 text-[10px] px-2 py-0.5 rounded-lg font-black uppercase flex items-center gap-1 shadow-sm" title="Presente nella prestigiosa Top 250 di IMDb"><i class="fa-solid fa-trophy text-amber-400"></i> Top 250${getTop250Rank(movie) ? ' (#' + getTop250Rank(movie) + ')' : ''}</span>` : ''}
                                 ${movie.isShort || movie.duration <= 40 ? '<span class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase"><i class="fa-solid fa-bolt"></i> Corto</span>' : ''}
@@ -4926,7 +5142,7 @@
                         <!-- Voti Guardrail (IMDb & MYmovies) -->
                         <div class="px-4 py-2 flex items-center gap-3">
                             <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30">
-                                <span class="bg-[#f5c518] text-slate-950 font-black text-[10px] px-1 rounded font-mono">IMDb</span>
+                                <span class="bg-[#f5c518] text-slate-950 font-black text-[10px] px-1 rounded font-mono">${scoreLabel(movie)}</span>
                                 <span class="text-amber-300 font-black text-xs">${movie.imdb.toFixed(1)}</span>
                             </div>
                             <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-rose-500/10 border border-rose-500/30">
@@ -5036,7 +5252,7 @@
                         </div>
                         <p class="text-slate-400 text-[11px] truncate"><i class="fa-solid fa-clapperboard text-slate-500 mr-1"></i>${escapeHtml(m.director)} &bull; ${m.year} &bull; ${formatDuration(m.duration)}</p>
                         <div class="flex items-center gap-3 mt-1.5 font-mono text-[10px]">
-                            <span class="text-[#f5c518] font-bold">IMDb ${m.imdb.toFixed(1)}</span>
+                            <span class="text-[#f5c518] font-bold">${scoreLabel(m)} ${m.imdb.toFixed(1)}</span>
                             <span class="text-rose-400 font-bold">MYmovies ${fmtMym(m.mymovies)}</span>
                         </div>
                     </div>
@@ -5288,6 +5504,7 @@
             document.getElementById('detail-title').textContent = movie.title;
             document.getElementById('detail-director').innerHTML = `<i class="fa-solid fa-clapperboard text-slate-500 mr-1"></i> Regia di <strong>${escapeHtml(movie.director)}</strong>`;
             document.getElementById('detail-imdb').textContent = movie.imdb.toFixed(1);
+            document.getElementById('detail-score-label').textContent = scoreLabel(movie);
             document.getElementById('detail-mymovies').innerHTML = `${fmtMym(movie.mymovies)} <i class="fa-solid fa-star text-[9px]"></i>`;
             document.getElementById('detail-cast').textContent = movie.cast || 'Non specificato';
             document.getElementById('detail-synopsis').textContent = movie.synopsis || 'Nessuna trama disponibile.';
@@ -6660,7 +6877,7 @@
                     </div>
                     <p class="text-xs text-slate-400"><i class="fa-solid fa-clapperboard text-slate-500 mr-1"></i> ${escapeHtml(movie.director)} &bull; ${formatDuration(movie.duration)}</p>
                     <div class="flex items-center gap-3 mt-1 font-mono text-[11px]">
-                        <span class="text-[#f5c518] font-black">IMDb ${movie.imdb.toFixed(1)}</span>
+                        <span class="text-[#f5c518] font-black">${scoreLabel(movie)} ${movie.imdb.toFixed(1)}</span>
                         <span class="text-rose-400 font-black">MYmovies ${fmtMym(movie.mymovies)}</span>
                     </div>
                 </div>
@@ -6739,7 +6956,7 @@
                         `*${m.title}* (${m.year})\n` +
                         `📺 *Piattaforma:* ${m.platform.toUpperCase()}\n` +
                         `⏱️ *Durata:* ${formatDuration(m.duration)}\n` +
-                        `⭐ *IMDb:* ${m.imdb.toFixed(1)} | 🎬 *MYmovies:* ${fmtMym(m.mymovies)}/5\n` +
+                        `⭐ *${scoreLabel(m)}:* ${m.imdb.toFixed(1)} | 🎬 *MYmovies:* ${fmtMym(m.mymovies)}/5\n` +
                         `🎥 *Regia:* ${m.director}\n\n` +
                         `💡 *Perché vederlo:* ${m.why}\n\n` +
                         `⏰ *In programma per:* ${when}\n` +
@@ -6759,7 +6976,7 @@
             const formatGCal = d => `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
 
             const title = `🎬 Film: ${m.title} (${m.year}) su ${m.platform.toUpperCase()}`;
-            const details = `Piattaforma: ${m.platform.toUpperCase()}\nRegia: ${m.director}\nCast: ${m.cast}\nDurata: ${formatDuration(m.duration)}\n\n⭐ IMDb: ${m.imdb.toFixed(1)} | 🎬 MYmovies: ${fmtMym(m.mymovies)}/5\n\n💡 Perché vederlo:\n${m.why}\n\n📖 Sinossi:\n${m.synopsis}\n\n🔗 Guarda ora: ${m.link}`;
+            const details = `Piattaforma: ${m.platform.toUpperCase()}\nRegia: ${m.director}\nCast: ${m.cast}\nDurata: ${formatDuration(m.duration)}\n\n⭐ ${scoreLabel(m)}: ${m.imdb.toFixed(1)} | 🎬 MYmovies: ${fmtMym(m.mymovies)}/5\n\n💡 Perché vederlo:\n${m.why}\n\n📖 Sinossi:\n${m.synopsis}\n\n🔗 Guarda ora: ${getWatchUrl(m)}`;
             const location = `${m.platform.toUpperCase()} Streaming`;
             const dates = `${formatGCal(start)}/${formatGCal(end)}`;
 

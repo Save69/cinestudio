@@ -142,6 +142,11 @@ Nessun database remoto necessario:
      Il controllo manuale del giovedì descritto in `REGOLE_LAVORO.md` resta valido come verifica a campione.
    - Film del Radar diventati inclusi entrano da soli nelle proposte (V66), esclusi i Punti Cardinali.
    - "Guarda Ora" apre la ricerca del titolo su Netflix, Prime Video e RaiPlay; per Disney+ la pagina TMDB "dove guardarlo" (V67).
+   - Catalogo curato: 122 film (V71: +60 film verificati su JustWatch; MYmovies assente mostrato come "—", mai inventato).
+   - **Scoperta automatica (V72)**: ogni 24 ore TMDB "discover" trova i film inclusi oggi sulle 4 piattaforme
+     (qualità alta, cinema europeo per lingua originale, novità dal 2022; horror escluso). Fino a 320 film,
+     badge "✨ Scoperto per te", voto **TMDB** (non IMDb), tono e mood **stimati dai generi** (nel dubbio "demanding"),
+     peso ridotto del 30% senza affinità DNA. Si attiva/disattiva dalla riga di stato. Dati in `cinestudio_tmdb_discovery`.
    - Ora è l'app stessa a verificare: con la chiave TMDB impostata (link "Collega TMDB" sotto "Le Tue 3 Opzioni"),
      ogni 24 ore interroga TMDB per catalogo e Radar, salvando l'esito in `cinestudio_tmdb_cache`.
    - Film non incluso in nessun abbonamento → escluso dalle proposte (elenco cliccabile "N non più inclusi").
