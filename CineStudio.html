@@ -3471,6 +3471,10 @@
                 const allStillValid = currentRecommendations.every(m => poolIds.has(m.id));
                 if (!allStillValid) {
                     shouldPickNew = true;
+                } else {
+                    // Stessa terna, ma con i dati aggiornati (verifica live, piattaforma, locandina)
+                    const poolById = new Map(pool.map(m => [m.id, m]));
+                    currentRecommendations = currentRecommendations.map(m => poolById.get(m.id));
                 }
             }
 

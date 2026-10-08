@@ -44,3 +44,8 @@
 git checkout pre-v64-tmdb -- CineStudio.html index.html CINESTUDIO_RIEPILOGO_NUOVA_CHAT.md
 ```
 poi ricopiare `CineStudio.html` nelle due copie sul Desktop.
+
+## Correzione successiva (stessa sessione)
+- Primo uso reale con chiave dell'utente: "Verificati live 64/64", 2 non più inclusi.
+- Bug: a verifica finita la terna già mostrata restava con i dati vecchi ("Non verificato" sulle schede).
+  `generateRecommendations()` ora, quando conserva la terna, la ricostruisce dal pool aggiornato.
