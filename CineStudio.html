@@ -5649,6 +5649,15 @@
                         : rent.length ? `<span class="text-amber-300">Solo noleggio o acquisto (${escapeHtml(rent.slice(0, 3).join(', '))})</span>`
                         : '<span class="text-slate-400">Non disponibile in streaming in Italia</span>';
                     const safeTitle = escapeHtml(r.title).replace(/'/g, "\\'");
+                    window.__lookupFilms = window.__lookupFilms || {};
+                    window.__lookupFilms[r.id] = {
+                        tmdbId: r.id, title: d.title || r.title, originalTitle: d.original_title || '', year: year || null,
+                        runtime: d.runtime || null, overview: d.overview || '', director, cast: (d.credits?.cast || []).slice(0, 3).map(c => c.name).join(', '),
+                        genres: genreIds, originalLanguage: d.original_language || '', voteAverage: d.vote_average || 0, voteCount: d.vote_count || 0,
+                        poster: d.poster_path ? 'https://image.tmdb.org/t/p/w342' + d.poster_path : null,
+                        platforms: mine, others, link: it.link || '', content
+                    };
+                    const btn = (label, action, cls) => `<button type="button" id="lookup-${action}-${r.id}" onclick="${action}(${r.id})" class="px-2 py-0.5 rounded ${cls} font-bold cursor-pointer">${label}</button>`;
                     rows.push(`<div class="flex items-center justify-between gap-2 flex-wrap p-2 rounded-lg bg-slate-950 border border-slate-800">
                         <div class="flex items-center gap-2.5 min-w-0 flex-1">
                             ${poster}
@@ -5658,14 +5667,68 @@
                                 <div>${verdict}</div>
                             </div>
                         </div>
-                        ${mine.length ? `<a href="${getWatchUrl({ title: r.title, platform: mine[0], liveInfo: { link: it.link } })}" target="_blank" rel="noopener noreferrer" class="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-bold">Guarda</a>`
-                            : `<button type="button" onclick="addLookupToRadar('${safeTitle}', ${year || 'null'})" class="px-2 py-0.5 rounded bg-sky-700 hover:bg-sky-600 text-white font-bold cursor-pointer">+ Radar</button>`}
+                        <div class="flex gap-1.5 flex-wrap shrink-0">
+                            ${mine.length ? `<a href="${getWatchUrl({ title: r.title, platform: mine[0], liveInfo: { link: it.link } })}" target="_blank" rel="noopener noreferrer" class="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-bold">Guarda</a>
+                                ${btn('+ Aggiungi', 'addLookupToCatalog', 'bg-emerald-700 hover:bg-emerald-600 text-white')}`
+                                : `<button type="button" onclick="addLookupToRadar('${safeTitle}', ${year || 'null'})" class="px-2 py-0.5 rounded bg-sky-700 hover:bg-sky-600 text-white font-bold cursor-pointer">+ Radar</button>`}
+                            ${btn('✓ Già visto', 'markLookupSeen', 'bg-slate-800 hover:bg-slate-700 text-slate-200')}
+                        </div>
                     </div>`);
                 }
                 box.innerHTML = rows.join('');
             } catch (e) {
                 box.innerHTML = `<p class="text-rose-400">Ricerca non riuscita (${escapeHtml(e.message)}).</p>`;
             }
+        }
+
+        // Aggiunge un film trovato su TMDB alle proposte (film aggiunti da te) e alla Watchlist
+        function addLookupToCatalog(tmdbId) {
+            const f = window.__lookupFilms?.[tmdbId];
+            if (!f || !f.platforms.length) return;
+            const id = 'user-tmdb-' + tmdbId;
+            const userMovies = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
+            if (!userMovies.some(m => m.id === id) && !getAllMovies().some(m => normalizeForMatch(m.title) === normalizeForMatch(f.title) && m.year === f.year)) {
+                const plat = f.platforms[0];
+                userMovies.push({
+                    id, title: f.title, originalTitle: f.originalTitle, year: f.year, duration: f.runtime || 100,
+                    director: f.director || '', cast: f.cast || '', platform: plat, link: PLATFORM_HOME[plat],
+                    imdb: Math.round(f.voteAverage * 10) / 10, scoreSource: 'TMDB', mymovies: null,
+                    mood: estimateMood(f.genres, f.originalLanguage), emotionalTone: f.content.tone,
+                    why: `Aggiunto da te dalla ricerca${f.content.note ? ` · ⚠️ ${f.content.note}` : ''}.`,
+                    synopsis: f.overview || 'Trama non disponibile in italiano.', poster: f.poster
+                });
+                localStorage.setItem('cinestudio_user_movies', JSON.stringify(userMovies));
+                // Già verificato oggi: la verifica giornaliera lo seguirà da qui in avanti
+                tmdbCache[id] = { tmdbId, checkedAt: Date.now(), platforms: f.platforms, others: f.others, rentOrBuy: false,
+                    poster: f.poster, link: f.link || `https://www.themoviedb.org/movie/${tmdbId}/watch?locale=IT`,
+                    runtime: f.runtime, overview: f.overview, voteAverage: f.voteAverage, voteCount: f.voteCount };
+                saveTmdbCache();
+            }
+            const target = getAllMovies().find(m => m.id === id) || getAllMovies().find(m => normalizeForMatch(m.title) === normalizeForMatch(f.title) && m.year === f.year);
+            if (target && !watchlistIds.has(target.id)) {
+                watchlistIds.add(target.id);
+                localStorage.setItem('cinestudio_watchlist', JSON.stringify(Array.from(watchlistIds)));
+                updateWatchlistCount();
+            }
+            const b = document.getElementById('lookup-addLookupToCatalog-' + tmdbId);
+            if (b) { b.textContent = '✓ Aggiunto e in Watchlist'; b.disabled = true; b.classList.add('opacity-70'); }
+            renderAllMatchingMovies();
+        }
+
+        // Registra come già visto un film trovato su TMDB (anche se non è nel catalogo)
+        function markLookupSeen(tmdbId) {
+            const f = window.__lookupFilms?.[tmdbId];
+            if (!f) return;
+            const id = 'tmdb-' + tmdbId;
+            seenIds.add(id);
+            localStorage.setItem('cinestudio_seen', JSON.stringify(Array.from(seenIds)));
+            seenTitles[id] = { title: f.title, originalTitle: f.originalTitle, year: f.year, director: f.director || '' };
+            try { localStorage.setItem(SEEN_TITLES_STORAGE, JSON.stringify(seenTitles)); } catch (e) { /* ignora */ }
+            const b = document.getElementById('lookup-markLookupSeen-' + tmdbId);
+            if (b) { b.textContent = '✓ Segnato come visto'; b.disabled = true; b.classList.add('opacity-70'); }
+            updateSeenCounts();
+            generateRecommendations(false, false);
+            renderAllMatchingMovies();
         }
 
         function addLookupToRadar(title, year) {
