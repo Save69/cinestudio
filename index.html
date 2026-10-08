@@ -474,22 +474,16 @@
                     </div>
                 </div>
 
-                <!-- Protocollo di Controllo Settimanale (Giovedì) -->
+                <!-- Verifica live della disponibilità (sostituisce il vecchio "controllo del giovedì") -->
                 <div class="pt-3 border-t border-slate-800 space-y-2">
-                    <div class="flex items-center justify-between">
-                        <h4 class="font-bold text-emerald-400 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                            <i class="fa-solid fa-circle-check text-emerald-400"></i> Aggiornamento Settimanale Autonomo Attivo (Ogni Giovedì)
-                        </h4>
-                        <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
-                            🤖 Task Programmato
-                        </span>
+                    <h4 class="font-bold text-emerald-400 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                        <i class="fa-solid fa-shield-halved text-emerald-400"></i> Zero Noleggi: verifica automatica ogni 24 ore
+                    </h4>
+                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 font-sans leading-relaxed space-y-1">
+                        <p>Ogni giorno, all'apertura, l'app chiede a TMDB (dati JustWatch Italia) dove sono inclusi oggi i film del catalogo, del Radar e i tuoi Punti Cardinali.</p>
+                        <p>Un film non più incluso nei tuoi abbonamenti esce da solo dalle proposte; un film del Radar che diventa incluso entra da solo. I canali Amazon a pagamento non contano come Prime Video.</p>
+                        <p class="text-slate-400">Serve la chiave TMDB su ogni dispositivo. Stato e pulsante «Aggiorna» sono sotto «Le Tue 3 Opzioni per Stasera».</p>
                     </div>
-                    <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-700/80 text-[11px] text-slate-300 italic font-sans leading-relaxed">
-                        &ldquo;Esegui il controllo settimanale autonomo di CineStudio sui 6 cataloghi (Netflix, Prime, Disney+, RaiPlay, La7, Discovery+). Procedi con calma e verifica live su JustWatch Italia ogni singolo titolo. Se un film non è incluso al 100% in abbonamento flat gratuito, eliminalo o spostalo nel Radar. Sincronizza i file e fai git commit e push su GitHub Pages. Preferisco avere 10 film in meno ma la certezza assoluta di zero costi extra.&rdquo;
-                    </div>
-                    <p class="text-[10px] text-slate-400 flex items-center gap-1">
-                        <i class="fa-solid fa-shield-halved text-emerald-400"></i> <strong class="text-white">Precisione (Voto 10) &gt; Velocità (Voto 1)</strong>: Esecuzione autonoma in background senza bisogno di interventi manuali.
-                    </p>
                 </div>
 
                 <!-- Taratura Soglie -->
@@ -1115,22 +1109,16 @@
     <!-- Database Cinefilo Curato -->
     <script>
         /* =========================================================================================
-         * PROTOCOLLO DI CONTROLLO SETTIMANALE CINESTUDIO (GIOVEDÌ) - REGOLA MANDATORIA
-         * 
-         * PROMPT OPERATIVO UFFICIALE:
-         * "Esegui il controllo settimanale di CineStudio sui 6 cataloghi (Netflix, Prime, Disney+, 
-         *  RaiPlay, La7, Discovery+). Procedi con calma e verifica live su JustWatch Italia ogni 
-         *  singolo titolo. Se un film non è incluso al 100% in abbonamento flat gratuito, eliminalo 
-         *  o spostalo nel Radar. Preferisco avere 10 film in meno ma la certezza assoluta di zero costi extra."
-         * 
-         * LINEE GUIDA PER QUALSIASI AGENTE O ASSISTENTE AI:
-         * 1. PRECISIONE (VOTO 10) > VELOCITÀ (VOTO 1): Vietata qualunque risposta frettolosa o da memoria.
-         * 2. VERIFICA LIVE PUNTUALE: Ogni singolo titolo proposto o inserito DEVE essere verificato
-         *    su JustWatch Italia per il mercato streaming italiano odierno.
-         * 3. TOLLERANZA ZERO PER NOLEGGI: Se un titolo richiede noleggio o acquisto nello Store (€ extra),
-         *    NON DEVE MAI figurare nel catalogo attivo come disponibile. Va eliminato o spostato nel Radar.
-         * 4. AGGIORNAMENTO GIOVEDÌ: Ogni giovedì eseguire audit completo dei 6 cataloghi verificando
-         *    scadenze e rotazioni mensili dei diritti streaming.
+         * REGOLE PER QUALSIASI AGENTE O ASSISTENTE AI CHE MODIFICA QUESTO FILE
+         *
+         * 1. ZERO NOLEGGI: la disponibilità reale la decide la verifica live TMDB (vedi "VERIFICA LIVE
+         *    DISPONIBILITÀ" più sotto), non questo catalogo. Il catalogo è solo il punto di partenza.
+         * 2. NON scrivere piattaforme "a memoria": ogni film aggiunto al catalogo va verificato prima su
+         *    JustWatch Italia (streaming incluso, non noleggio/acquisto, non canali Amazon a pagamento).
+         * 3. NON ricreare script o "audit del giovedì" automatici: quelli vecchi non verificavano nulla e
+         *    sono stati eliminati (V67). Il controllo manuale settimanale è facoltativo, a campione.
+         * 4. Precisione (voto 10) > velocità (voto 1). Dopo ogni modifica: provare l'app, aggiornare le copie,
+         *    scrivere il file gladiator_Ripristino_Vnn.md (vedi REGOLE_LAVORO.md).
          * ========================================================================================= */
         const INITIAL_CATALOG = [
         {

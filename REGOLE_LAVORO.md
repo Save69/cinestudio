@@ -60,15 +60,22 @@ Prima di lavorare su Agente Studio, verifica che la cartella sia
 sovrascrivere modifiche non committate, crea un punto di ripristino prima di
 editare e riepiloga i file che intendi modificare.
 
-## Protocollo Controllo Settimanale CineStudio (Ogni Giovedì)
+## Disponibilità dei film CineStudio (Zero Noleggi)
 
-Ogni giovedì, o ogni volta che viene richiesto l'aggiornamento o il controllo dei film, l'agente deve applicare rigorosamente questo protocollo:
+Dalla V64 (ottobre 2026) la disponibilità la verifica **l'app stessa**, ogni 24 ore, tramite TMDB (dati JustWatch Italia):
+i film non più inclusi escono da soli dalle proposte, quelli del Radar che diventano inclusi entrano da soli.
+Il vecchio "controllo settimanale autonomo" e lo script del giovedì non verificavano nulla e sono stati eliminati (V67):
+**non ricrearli**.
 
-**Prompt Operativo Mandatorio:**
-> "Esegui il controllo settimanale di CineStudio sui 6 cataloghi (Netflix, Prime, Disney+, RaiPlay, La7, Discovery+). Procedi con calma e verifica live su JustWatch Italia ogni singolo titolo. Se un film non è incluso al 100% in abbonamento flat gratuito, eliminalo o spostalo nel Radar. Preferisco avere 10 film in meno ma la certezza assoluta di zero costi extra."
+**Controllo a campione (facoltativo, ad esempio il giovedì o quando richiesto):**
+> "Apri CineStudio, controlla che la riga sotto «Le Tue 3 Opzioni per Stasera» dica «Verificati live» con la data di oggi,
+> poi verifica su JustWatch Italia 5 film a caso tra quelli proposti. Se qualcosa non torna, segnalalo con il titolo e la piattaforma."
 
 **Linee guida assolute:**
-1. **Precisione (Voto 10) > Velocità (Voto 1)**: Vietata qualsiasi fretta o assunzione da memoria.
-2. **Verifica Live Puntuale**: Controllare JustWatch Italia in tempo reale per ciascun titolo sui 6 cataloghi.
-3. **Tolleranza Zero Noleggi**: Se un titolo richiede noleggio o acquisto nello Store digitale (€ extra), NON deve mai comparire come disponibile: va rimosso o spostato nel Radar.
+1. **Precisione (Voto 10) > Velocità (Voto 1)**: vietata qualsiasi fretta o assunzione da memoria.
+2. **Mai piattaforme a memoria**: ogni film aggiunto al catalogo va verificato prima su JustWatch Italia
+   (streaming incluso, non noleggio/acquisto, non canali Amazon a pagamento come CineAutore o MGM+).
+3. **Tolleranza Zero Noleggi**: un titolo a noleggio o acquisto (€ extra) non deve mai comparire come disponibile:
+   va nel Radar, dove la verifica live lo terrà d'occhio.
+4. **Piattaforme**: Netflix, Prime Video, Disney+, RaiPlay. Discovery+ (0 film) e La7 (non verificabile) sono nascoste dalla V69.
 

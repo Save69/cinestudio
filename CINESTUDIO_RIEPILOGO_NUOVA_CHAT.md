@@ -168,7 +168,7 @@ Nessun database remoto necessario:
 Quando apri una nuova chat, puoi incollare questo messaggio:
 
 ```text
-Ciao! Continuiamo a lavorare su CineStudio (assistente film serale per Netflix, Prime, Disney, RaiPlay, Discovery+ e La7).
+Ciao! Continuiamo a lavorare su CineStudio (assistente film serale per Netflix, Prime Video, Disney+ e RaiPlay).
 Fai riferimento al file di documentazione ufficiale "CINESTUDIO_RIEPILOGO_NUOVA_CHAT.md" e alle "REGOLE_LAVORO.md" nella cartella C:\Users\Utente\Documents\Agente studio.
-Ricorda la regola Zero Noleggi (solo streaming incluso o gratuito) e il rispetto rigoroso dei miei Punti Cardinali del DNA.
+Ricorda la regola Zero Noleggi (solo streaming incluso o gratuito) e il rispetto rigoroso dei miei Punti Cardinali del DNA. La disponibilità la verifica l'app con TMDB: non inserire piattaforme a memoria e non ricreare script del giovedì.
 ```
