@@ -31,7 +31,7 @@
 - `C:\Users\Utente\Desktop\CineStudio.html`
 - `C:\Users\Utente\Desktop\CineStudio_Web\index.html`
 
-## Non fatto
+## Pubblicazione
 - Pubblicato su GitHub Pages il 08/10/2026 (push 5eb57c6..c32aa57, dopo sostituzione del token GitHub).
 
 ## Come tornare indietro
