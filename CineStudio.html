@@ -4264,6 +4264,7 @@
                 { term: 'chazelle', label: 'Damien Chazelle' },
                 { term: 'sorrentino', label: 'Paolo Sorrentino' },
                 { term: 'scorsese', label: 'Martin Scorsese' },
+                { term: 'tarantino', label: 'Quentin Tarantino' },
                 { term: 'hanks', label: 'Tom Hanks' },
                 { term: 'servillo', label: 'Toni Servillo' },
                 { term: 'germano', label: 'Elio Germano' },
@@ -4570,12 +4571,51 @@
             try { localStorage.setItem(DISCOVERY_STORAGE, JSON.stringify(discovery)); } catch (e) { /* spazio pieno: resta in memoria */ }
         }
 
+        /* Crudezza (V81): i generi dicono di che storia si tratta, non quanto è cruda. Si usano le parole chiave
+         * TMDB e il divieto ai minori. Regole decise dall'utente:
+         * - horror d'atmosfera (anche Mistero/Thriller/Dramma, voto ≥ 7.3, niente splatter né VM18) → ammesso,
+         *   "Teso & Avvincente" (es. The Others);
+         * - horror splatter (gore, slasher, zombie, tortura... o VM18) → escluso sempre (DNA: "Horror & Splatter");
+         * - film non horror con violenza esplicita (es. Tarantino) → ammesso ma "Cupo" (fuori dal Filtro Confort). */
+        const GORE_KEYWORDS = /\b(gore|gory|splatter|slasher|zombie|zombies|torture porn|body horror|cannibal|cannibalism|dismemberment|disembowelment|snuff|grindhouse horror|extreme gore)\b/i;
+        // Horror di demoni/possessioni: spaventoso anche senza sangue (es. Hereditary, The Conjuring) → escluso
+        const DEMONIC_KEYWORDS = /\b(possession|demonic|demon|demons|exorcism|satanic|satanism|occult|demonology|evil spirit|malevolent spirit|ritual murder)\b/i;
+        // Temi molto duri senza violenza dichiarata (es. Django) → "Cupo"
+        const HEAVY_KEYWORDS = /\b(slavery|slave trade|ku klux klan|white supremacy|genocide|holocaust|rape|sexual violence|war crimes?)\b/i;
+        const VIOLENCE_KEYWORDS = /\b(violence|graphic violence|extreme violence|brutality|brutal|bloodbath|massacre|torture|decapitation|bloody|carnage)\b/i;
+
+        function getCertification(releaseDates, country) {
+            const entry = (releaseDates?.results || []).find(r => r.iso_3166_1 === country);
+            return (entry?.release_dates || []).map(d => d.certification).find(Boolean) || '';
+        }
+
+        // Ritorna { exclude, tone, note } a partire dai dettagli TMDB (generi, parole chiave, divieti, voto)
+        function classifyContent({ genres = [], keywords = [], certIT = '', certUS = '', voteAverage = 0 }) {
+            const g = new Set(genres);
+            const kw = keywords.join(' | ');
+            const gore = GORE_KEYWORDS.test(kw);
+            const vm18 = certIT === 'VM18' || certUS === 'NC-17';
+            if (g.has(27)) {
+                const atmospheric = !gore && !vm18 && !DEMONIC_KEYWORDS.test(kw) && (g.has(9648) || g.has(53) || g.has(18)) && voteAverage >= 7.3;
+                return atmospheric
+                    ? { exclude: false, tone: 'engaging', note: 'Suspense soprannaturale, senza splatter' }
+                    : { exclude: true, tone: 'demanding', note: 'Horror/splatter: nella tua lista nera' };
+            }
+            if (gore || vm18 || VIOLENCE_KEYWORDS.test(kw)) {
+                return { exclude: false, tone: 'demanding', note: 'Violenza esplicita' };
+            }
+            if (HEAVY_KEYWORDS.test(kw)) {
+                return { exclude: false, tone: 'demanding', note: 'Temi molto duri' };
+            }
+            return { exclude: false, tone: estimateTone(genres), note: '' };
+        }
+
         // Tono stimato dai generi, prudente: ciò che non è chiaramente leggero va tra i "Cupi & Impegnativi"
         function estimateTone(genreIds) {
             const g = new Set(genreIds);
             if (g.has(10752) || g.has(27)) return 'demanding';
             if (g.has(16) || g.has(10751)) return 'uplifting';
-            if (g.has(35)) return (g.has(80) && g.has(53)) ? 'engaging' : 'uplifting';
+            if (g.has(35)) return (g.has(80) || g.has(53)) ? 'engaging' : 'uplifting';   // commedia con crimine o thriller: Teso, non Caldo
             if (g.has(99)) return g.has(10402) ? 'engaging' : 'demanding';
             if (g.has(80) && g.has(18)) return 'demanding';
             if (g.has(53) || g.has(9648) || g.has(80)) return 'engaging';
@@ -4604,7 +4644,7 @@
         }
 
         async function fetchDiscoveredDetails(tmdbId) {
-            const d = await tmdbFetch(`/movie/${tmdbId}`, { language: 'it-IT', append_to_response: 'credits,watch/providers' });
+            const d = await tmdbFetch(`/movie/${tmdbId}`, { language: 'it-IT', append_to_response: 'credits,watch/providers,keywords,release_dates' });
             const it = d['watch/providers']?.results?.IT || {};
             const included = [...(it.flatrate || []), ...(it.free || []), ...(it.ads || [])];
             const platOf = name => TMDB_PROVIDER_RULES.find(r => r.re.test(name))?.plat;
@@ -4625,6 +4665,9 @@
                 platforms: [...new Set(included.map(p => platOf(p.provider_name)).filter(p => ['netflix', 'prime', 'disney', 'raiplay'].includes(p)))],
                 poster: d.poster_path ? 'https://image.tmdb.org/t/p/w342' + d.poster_path : null,
                 link: it.link || `https://www.themoviedb.org/movie/${tmdbId}/watch?locale=IT`,
+                keywords: (d.keywords?.keywords || []).map(k => k.name),
+                certIT: getCertification(d.release_dates, 'IT'),
+                certUS: getCertification(d.release_dates, 'US'),
                 fetchedAt: Date.now()
             };
         }
@@ -4638,7 +4681,7 @@
                 if (!providerIds.length) throw new Error('piattaforme TMDB non trovate');
                 const common = {
                     watch_region: 'IT', with_watch_providers: providerIds.join('|'),
-                    with_watch_monetization_types: 'flatrate|free|ads', without_genres: '27|10770',
+                    with_watch_monetization_types: 'flatrate|free|ads', without_genres: '10770',   // horror valutato film per film (V81)
                     include_adult: 'false', language: 'it-IT'
                 };
                 // 1. Cosa è incluso oggi (l'esito della ricerca vale come verifica di disponibilità)
@@ -4659,7 +4702,8 @@
                     .slice(0, DISCOVERY_MAX_FILMS)
                     .map(r => r.id);
                 // 3. Dettagli (durata, regia, cast, piattaforma) solo per i film nuovi o vecchi di 7 giorni
-                const todo = ids.filter(id => !discovery.films[id] || Date.now() - discovery.films[id].fetchedAt > DISCOVERY_DETAILS_MAX_AGE);
+                const todo = ids.filter(id => !discovery.films[id] || Date.now() - discovery.films[id].fetchedAt > DISCOVERY_DETAILS_MAX_AGE
+                    || discovery.films[id].keywords === undefined);   // film letti prima della V81: servono parole chiave e divieti
                 Object.assign(discoveryStatus, { done: 0, total: todo.length });
                 updateLiveStatus();
                 const queue = [...todo];
@@ -4689,8 +4733,12 @@
         function getDiscoveredMovies(knownTitles) {
             if (!isDiscoveryOn() || !getTmdbKey()) return [];
             return (discovery.ids || []).map(id => discovery.films[id]).filter(f => {
-                return f && f.platforms?.length && f.year && !knownTitles.has(normalizeForMatch(f.title));
+                // Horror splatter escluso sempre; senza parole chiave (letti prima della V81) l'horror resta fuori per prudenza
+                if (!f || !f.platforms?.length || !f.year || knownTitles.has(normalizeForMatch(f.title))) return false;
+                if (f.keywords === undefined) return !f.genres.includes(27);
+                return !classifyContent(f).exclude;
             }).map(f => {
+                const content = f.keywords === undefined ? { tone: estimateTone(f.genres), note: '' } : classifyContent(f);
                 const plat = f.platforms.find(p => activePlatforms.has(p)) || f.platforms[0];
                 const genreNames = f.genres.map(g => TMDB_GENRES[g]).filter(Boolean).slice(0, 3).join(', ');
                 return {
@@ -4708,8 +4756,9 @@
                     scoreSource: 'TMDB',
                     mymovies: null,
                     mood: estimateMood(f.genres, f.originalLanguage),
-                    emotionalTone: estimateTone(f.genres),
-                    why: `Scoperto per te su ${getPlatformName(plat)}${genreNames ? ` · ${genreNames}` : ''} · voto TMDB ${f.voteAverage.toFixed(1)} su ${f.voteCount.toLocaleString('it-IT')} voti.`,
+                    emotionalTone: content.tone,
+                    contentNote: content.note,
+                    why: `Scoperto per te su ${getPlatformName(plat)}${genreNames ? ` · ${genreNames}` : ''} · voto TMDB ${f.voteAverage.toFixed(1)} su ${f.voteCount.toLocaleString('it-IT')} voti.${content.note ? ` ⚠️ ${content.note}.` : ''}`,
                     synopsis: f.overview || 'Trama non disponibile in italiano.',
                     poster: f.poster,
                     discovered: true,
@@ -5431,12 +5480,13 @@
                 const rows = [];
                 for (const r of results) {
                     // Una sola chiamata per film: disponibilità + crediti (regia e attori servono a distinguere titoli uguali)
-                    const d = await tmdbFetch(`/movie/${r.id}`, { language: 'it-IT', append_to_response: 'credits,watch/providers' });
+                    const d = await tmdbFetch(`/movie/${r.id}`, { language: 'it-IT', append_to_response: 'credits,watch/providers,keywords,release_dates' });
                     const it = d['watch/providers']?.results?.IT || {};
                     const director = (d.credits?.crew || []).filter(c => c.job === 'Director').map(c => c.name).slice(0, 2).join(', ');
                     const actors = (d.credits?.cast || []).slice(0, 2).map(c => c.name).join(', ');
                     const genreIds = (d.genres || []).map(g => g.id);
-                    const blacklistWarning = genreIds.includes(27) ? ' <span class="px-1.5 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 text-[10px] font-bold">⚠️ Horror: nella tua lista nera</span>' : '';
+                    const content = classifyContent({ genres: genreIds, keywords: (d.keywords?.keywords || []).map(k => k.name), certIT: getCertification(d.release_dates, 'IT'), certUS: getCertification(d.release_dates, 'US'), voteAverage: d.vote_average || 0 });
+                    const blacklistWarning = content.note ? ` <span class="px-1.5 py-0.5 rounded ${content.exclude ? 'bg-rose-950 text-rose-300 border-rose-800' : 'bg-slate-800 text-amber-300 border-slate-700'} border text-[10px] font-bold">${content.exclude ? '⚠️ ' : ''}${escapeHtml(content.note)}</span>` : '';
                     const poster = d.poster_path ? `<img src="https://image.tmdb.org/t/p/w92${d.poster_path}" alt="" class="w-9 h-[52px] object-cover rounded shrink-0 border border-slate-800">` : '<div class="w-9 h-[52px] rounded bg-slate-800 shrink-0"></div>';
                     const included = [...(it.flatrate || []), ...(it.free || []), ...(it.ads || [])];
                     const mine = [...new Set(included.map(p => platOf(p.provider_name)).filter(p => ['netflix', 'prime', 'disney', 'raiplay'].includes(p)))];

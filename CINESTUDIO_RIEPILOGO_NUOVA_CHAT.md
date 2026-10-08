@@ -44,6 +44,7 @@ L'utente la sera vuole aprire l'app, indicare il tempo a disposizione e il mood 
 - Massimo Troisi
 - Roberto Benigni
 - Nanni Moretti
+- Quentin Tarantino *(aggiunto l'08/10/2026: "mi piace molto"; i suoi film sono violenti → proposti con Filtro Confort spento)*
 
 ### C. Attori Feticcio
 - **Leonardo DiCaprio**
@@ -57,7 +58,8 @@ L'utente la sera vuole aprire l'app, indicare il tempo a disposizione e il mood 
 - Produzioni **Fandango** (Domenico Procacci)
 
 ### E. I Blacklistati (Cosa ESCLUDERE CATEGORICAMENTE)
-- ❌ **Horror & Splatter**
+- ❌ **Horror & Splatter** *(precisato l'08/10/2026: escluso lo splatter e l'horror di demoni/possessioni; la suspense
+  soprannaturale d'atmosfera come The Others o Il sesto senso è gradita. Regole in `classifyContent()` dalla V81)*
 - ❌ **Commedie demenziali / trash**
 - ❌ **Dialetti regionali stretti privi di sottotitoli chiari** *(es. Margini: lo sforzo d'ascolto continuo infastidisce la visione serale)*
 - ❌ **Film incentrati su sottoculture punk/hardcore o musica sguaiata/aggressiva** *(l'utente ama le partiture liriche ed emotive di Morricone, Piovani, il pianoforte, non il punk rumoroso)*
