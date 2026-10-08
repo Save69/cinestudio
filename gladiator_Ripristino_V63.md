@@ -43,7 +43,7 @@ Suburra → RaiPlay · Nessuno mi può giudicare → Netflix · Good Night, and 
 - Eventuali correzioni piattaforma salvate a mano sul dispositivo (`cinestudio_platform_overrides`) hanno la precedenza.
 
 ## File sincronizzati
-`CineStudio.html`, `index.html`, `Desktop\CineStudio.html`, `Desktop\CineStudio_Web\index.html`. **Nessun push.**
+`CineStudio.html`, `index.html`, `Desktop\CineStudio.html`, `Desktop\CineStudio_Web\index.html`. Pubblicato su GitHub Pages il 08/10/2026 (push 5eb57c6..c32aa57, dopo sostituzione del token GitHub).
 
 ## Come tornare indietro
 ```
