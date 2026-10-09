@@ -6999,13 +6999,31 @@
             }
             // Film arrivati in streaming incluso: fuori dall'attesa, in una sezione a parte
             const arrivedPlatforms = item => getLiveInfo(item.id)?.platforms || [];
+            // V85: per i film arrivati, dove si vede (con data della verifica), se è tra le proposte e perché era nel Radar
+            const poolIds = new Set(getFilteredPool().map(m => m.id));
             const arrivedBadge = item => {
                 const plats = arrivedPlatforms(item);
                 if (!plats.length) return '';
-                const label = isPuntoCardinale(item.title)
-                    ? `Incluso su ${plats.map(getPlatformName).join(', ')} · Punto Cardinale (già visto)`
-                    : `Incluso su ${plats.map(getPlatformName).join(', ')} · già nelle tue proposte`;
-                return `<a href="${getLiveInfo(item.id).link}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-600/60 text-[10px] font-black uppercase"><i class="fa-solid fa-circle-check"></i> ${escapeHtml(label)}</a>`;
+                const live = getLiveInfo(item.id);
+                const checked = new Date(live.checkedAt).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit' });
+                const label = `Incluso su ${plats.map(getPlatformName).join(', ')} · verificato il ${checked}`;
+                const movie = radarMovieFor(item);
+                const status = isPuntoCardinale(item.title)
+                    ? '<span class="text-emerald-300">Punto Cardinale: già visto e amato, non entra nelle proposte, ma puoi rivederlo quando vuoi.</span>'
+                    : movie && poolIds.has(movie.id) ? '<span class="text-emerald-300 font-bold">✓ È tra i film che ti propongo</span>'
+                    : movie ? `<span class="text-amber-300">Non te lo propongo stasera: ${escapeHtml(whyNotInList(movie))}</span>` : '';
+                return `<a href="${live.link}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-600/60 text-[10px] font-black uppercase"><i class="fa-solid fa-circle-check"></i> ${escapeHtml(label)}</a>
+                    ${status ? `<p class="text-[11px]">${status}</p>` : ''}`;
+            };
+            const arrivedActions = item => {
+                const plats = arrivedPlatforms(item);
+                if (!plats.length) return '';
+                const movie = radarMovieFor(item);
+                const inWatchlist = movie && watchlistIds.has(movie.id);
+                const watchUrl = movie ? getWatchUrl(movie) : getWatchUrl({ title: item.title, platform: plats[0], liveInfo: getLiveInfo(item.id) });
+                return `<a href="${watchUrl}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[11px] text-center whitespace-nowrap"><i class="fa-solid fa-play mr-1"></i>${isPuntoCardinale(item.title) ? 'Rivedi' : 'Guarda'}</a>
+                    <button onclick="radarToWatchlist('${item.id}')" class="px-2.5 py-1.5 rounded-xl ${inWatchlist ? 'bg-slate-900 text-slate-300 border border-slate-700' : 'bg-emerald-700 hover:bg-emerald-600 text-white'} font-bold text-[11px] whitespace-nowrap cursor-pointer" title="${inWatchlist ? 'Togli dalla Watchlist' : 'Aggiungi alla Watchlist'}">${inWatchlist ? '★ In Watchlist' : '+ Watchlist'}</button>
+                    ${movie ? `<button onclick="toggleRadarModal(); openMovieDetailsModal('${movie.id}')" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-[11px] whitespace-nowrap cursor-pointer">Scheda</button>` : ''}`;
             };
             const renderItem = item => `
                 <div class="p-3.5 rounded-xl bg-slate-900 border ${arrivedPlatforms(item).length ? 'border-emerald-500/60' : 'border-slate-800'} flex items-start justify-between gap-3 text-xs">
@@ -7019,9 +7037,10 @@
                             <span class="text-slate-400 text-[11px]">(${item.year || 'Anno n.d.'})</span>
                         </div>
                         <p class="text-slate-400 text-[11px]"><i class="fa-solid fa-clapperboard text-slate-500 mr-1"></i>${escapeHtml(item.director || '')} &bull; ${escapeHtml(item.cast || '')}</p>
-                        <p class="text-sky-300 text-[11px] mt-1 bg-sky-950/40 border border-sky-900/40 p-2 rounded-lg leading-relaxed"><i class="fa-solid fa-satellite-dish mr-1 text-sky-400"></i> ${escapeHtml(item.note || 'In attesa che diventi disponibile gratuitamente o in abbonamento.')}</p>
+                        <p class="text-sky-300 text-[11px] mt-1 bg-sky-950/40 border border-sky-900/40 p-2 rounded-lg leading-relaxed"><i class="fa-solid fa-satellite-dish mr-1 text-sky-400"></i> ${arrivedPlatforms(item).length ? '<b>Era nel Radar perché:</b> ' : ''}${escapeHtml(item.note || 'In attesa che diventi disponibile gratuitamente o in abbonamento.')}</p>
                     </div>
-                    <div class="flex items-center gap-1.5 shrink-0">
+                    <div class="flex flex-col items-stretch gap-1.5 shrink-0">
+                        ${arrivedActions(item)}
                         <button onclick="removeRadarItem('${item.id}')" class="p-2 rounded-xl bg-slate-800 hover:bg-rose-950 hover:text-rose-400 text-slate-400 border border-slate-700 transition cursor-pointer" title="Rimuovi dal Radar">
                             <i class="fa-solid fa-trash text-xs"></i>
                         </button>
@@ -7306,6 +7325,26 @@
                     .then(() => { saveTmdbCache(); renderRadarItems(); generateRecommendations(false, false); renderAllMatchingMovies(); updateLiveStatus(); })
                     .catch(() => { /* resta in attesa: verrà ricontrollato al prossimo aggiornamento */ });
             }
+        }
+
+        // Il film corrispondente a una voce del Radar arrivata (promossa nelle proposte, o già nel catalogo con lo stesso titolo)
+        function radarMovieFor(item) {
+            const all = getAllMovies();
+            const t = normalizeForMatch(item.title);
+            return all.find(m => m.id === item.id) || all.find(m => normalizeForMatch(m.title) === t) || null;
+        }
+
+        // Radar → Watchlist (anche per i Punti Cardinali, che non entrano nelle proposte ma si possono rivedere)
+        async function radarToWatchlist(id) {
+            const item = radarItems.find(r => r.id === id);
+            if (!item) return;
+            const movie = radarMovieFor(item);
+            if (movie) {
+                toggleWatchlist(movie.id);
+            } else if (tmdbCache[id]?.tmdbId) {
+                await addLookupToCatalog(tmdbCache[id].tmdbId);
+            }
+            renderRadarItems();
         }
 
         function removeRadarItem(id) {
