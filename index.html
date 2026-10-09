@@ -366,7 +366,7 @@
                 <!-- Barra di Ricerca Rapida Globale -->
                 <div class="relative w-full min-w-0">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                    <input type="text" id="input-global-search" placeholder="Cerca film, regista, attore..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-7 py-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500" oninput="handleGlobalSearch(this.value)">
+                    <input type="text" id="input-global-search" placeholder="Cerca film, saga, attore, regista..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-7 py-3 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500" oninput="handleGlobalSearch(this.value)">
                     <button type="button" id="btn-clear-global-search" onclick="clearGlobalSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             </div>
@@ -5543,6 +5543,162 @@
             return `è su ${where}, ma è escluso dai filtri di durata o di mood`;
         }
 
+        /* =========================================================================================
+         * RICERCA CHE FA AGIRE (V84): ogni riga ha i suoi pulsanti (Guarda, Watchlist, Radar, Già visto)
+         * e, in automatico, TMDB cerca anche film fuori catalogo, saghe e filmografie di attori e registi.
+         * La Watchlist è una tua scelta: un film resta lì anche se è sotto la soglia di voto delle proposte.
+         * ========================================================================================= */
+        const tmdbSearch = { cache: {}, timer: null, view: null, refreshTimer: null };
+        window.__lookupFilms = window.__lookupFilms || {};
+
+        function currentSearchQuery() {
+            return (document.getElementById('input-global-search')?.value || '').trim();
+        }
+
+        // Ridisegna il riquadro dopo un'azione, senza ripetere le chiamate a TMDB (usa i dati già scaricati)
+        function refreshSearchPanel() {
+            renderSearchResults(currentSearchQuery());
+        }
+
+        const SEARCH_BTN = {
+            watch: 'bg-amber-500 hover:bg-amber-400 text-slate-950',
+            watchlist: 'bg-emerald-700 hover:bg-emerald-600 text-white',
+            radar: 'bg-sky-700 hover:bg-sky-600 text-white',
+            plain: 'bg-slate-800 hover:bg-slate-700 text-slate-200',
+            done: 'bg-slate-900 text-slate-400 border border-slate-700'
+        };
+        const searchBtn = (label, onclick, kind, title = '') =>
+            `<button type="button" onclick="${onclick}"${title ? ` title="${title}"` : ''} class="px-2 py-1 rounded-lg ${SEARCH_BTN[kind]} font-bold cursor-pointer whitespace-nowrap">${label}</button>`;
+        const searchTag = label => `<span class="px-2 py-1 rounded-lg ${SEARCH_BTN.done} font-bold whitespace-nowrap">${label}</span>`;
+        const searchLink = (label, href) => `<a href="${href}" target="_blank" rel="noopener noreferrer" class="px-2 py-1 rounded-lg ${SEARCH_BTN.watch} font-bold whitespace-nowrap">${label}</a>`;
+
+        // Dati comuni a tutte le righe di un riquadro (calcolati una volta sola)
+        function searchContext() {
+            const all = getAllMovies();
+            const byTmdb = new Map();
+            const byTitle = new Map();
+            all.forEach(m => {
+                const tid = tmdbCache[m.id]?.tmdbId || (m.id.startsWith('tmdb-') ? +m.id.slice(5) : m.id.startsWith('user-tmdb-') ? +m.id.slice(10) : null);
+                if (tid && !byTmdb.has(tid)) byTmdb.set(tid, m);
+                [m.title, m.originalTitle].forEach(x => {
+                    const k = normalizeForMatch(x || '');
+                    if (!k) return;
+                    if (!byTitle.has(k)) byTitle.set(k, []);
+                    byTitle.get(k).push(m);
+                });
+            });
+            return { all, byTmdb, byTitle, seenSet: getSeenTitleSet(), radarSet: new Set(radarItems.map(r => normalizeForMatch(r.title))) };
+        }
+
+        // Il film trovato su TMDB è già nell'app? (stesso codice TMDB, oppure stesso titolo e anno)
+        function findKnownMovie(f, ctx) {
+            if (ctx.byTmdb.has(f.tmdbId)) return ctx.byTmdb.get(f.tmdbId);
+            for (const t of [f.title, f.originalTitle]) {
+                const hit = (ctx.byTitle.get(normalizeForMatch(t || '')) || []).find(m => !f.year || Math.abs((m.year || 0) - f.year) <= 1);
+                if (hit) return hit;
+            }
+            return null;
+        }
+
+        function lookupState(f, ctx) {
+            const known = findKnownMovie(f, ctx);
+            const seen = seenIds.has('tmdb-' + f.tmdbId) || (known && seenIds.has(known.id)) || isPuntoCardinale(f.title)
+                || ctx.seenSet.has(normalizeForMatch(f.title)) || (!!f.originalTitle && ctx.seenSet.has(normalizeForMatch(f.originalTitle)));
+            return {
+                known, seen,
+                inWatchlist: !!known && watchlistIds.has(known.id),
+                inRadar: ctx.radarSet.has(normalizeForMatch(f.title)),
+                upcoming: !!f.releaseDate && f.releaseDate > new Date().toISOString().slice(0, 10)
+            };
+        }
+
+        // Una sola chiamata per film: disponibilità in Italia, regia, attori, parole chiave e divieti
+        async function fetchLookupFilm(tmdbId) {
+            if (window.__lookupFilms[tmdbId]) return window.__lookupFilms[tmdbId];
+            const d = await tmdbFetch(`/movie/${tmdbId}`, { language: 'it-IT', append_to_response: 'credits,watch/providers,keywords,release_dates' });
+            const it = d['watch/providers']?.results?.IT || {};
+            const platOf = name => TMDB_PROVIDER_RULES.find(r => r.re.test(name))?.plat;
+            const included = [...(it.flatrate || []), ...(it.free || []), ...(it.ads || [])];
+            const genreIds = (d.genres || []).map(g => g.id);
+            const f = {
+                tmdbId, title: d.title || d.original_title || '', originalTitle: d.original_title || '',
+                year: parseInt(d.release_date, 10) || null, releaseDate: d.release_date || '',
+                runtime: d.runtime || null, overview: d.overview || '',
+                director: (d.credits?.crew || []).filter(c => c.job === 'Director').map(c => c.name).slice(0, 2).join(', '),
+                cast: (d.credits?.cast || []).slice(0, 3).map(c => c.name).join(', '),
+                genres: genreIds, originalLanguage: d.original_language || '',
+                voteAverage: d.vote_average || 0, voteCount: d.vote_count || 0,
+                poster: d.poster_path ? 'https://image.tmdb.org/t/p/w342' + d.poster_path : null,
+                thumb: d.poster_path ? 'https://image.tmdb.org/t/p/w92' + d.poster_path : null,
+                platforms: [...new Set(included.map(p => platOf(p.provider_name)).filter(p => ['netflix', 'prime', 'disney', 'raiplay'].includes(p)))],
+                others: [...new Set(included.map(p => p.provider_name).filter(n => !platOf(n)))],
+                rent: [...new Set([...(it.rent || []), ...(it.buy || [])].map(p => p.provider_name))],
+                link: it.link || '',
+                content: classifyContent({ genres: genreIds, keywords: (d.keywords?.keywords || []).map(k => k.name), certIT: getCertification(d.release_dates, 'IT'), certUS: getCertification(d.release_dates, 'US'), voteAverage: d.vote_average || 0 })
+            };
+            window.__lookupFilms[tmdbId] = f;
+            return f;
+        }
+
+        // Riga di un film trovato su TMDB (fuori catalogo, in una saga o in una filmografia)
+        function lookupRowHtml(f, ctx, role = '') {
+            const s = lookupState(f, ctx);
+            const verdict = f.platforms.length ? `<span class="text-emerald-300 font-bold">✓ Incluso su ${f.platforms.map(getPlatformName).join(', ')}</span>`
+                : s.upcoming ? '<span class="text-slate-400">Non ancora uscito</span>'
+                : f.others.length ? `<span class="text-amber-300">Non nei tuoi abbonamenti: su ${escapeHtml(f.others.slice(0, 3).join(', '))}</span>`
+                : f.rent.length ? `<span class="text-amber-300">Solo noleggio o acquisto (${escapeHtml(f.rent.slice(0, 3).join(', '))})</span>`
+                : '<span class="text-slate-400">Non disponibile in streaming in Italia</span>';
+            const note = f.content.note ? `<span class="px-1.5 py-0.5 rounded ${f.content.exclude ? 'bg-rose-950 text-rose-300 border-rose-800' : 'bg-slate-800 text-amber-300 border-slate-700'} border text-[10px] font-bold">${f.content.exclude ? '⚠️ ' : ''}${escapeHtml(f.content.note)}</span>` : '';
+            const actions = [];
+            if (f.platforms.length) {
+                actions.push(searchLink('Guarda', getWatchUrl({ title: f.title, platform: f.platforms[0], liveInfo: { link: f.link } })));
+                actions.push(s.inWatchlist ? searchBtn('★ In Watchlist', `toggleWatchlistFromSearch('${s.known.id}')`, 'done', 'Togli dalla Watchlist')
+                    : searchBtn('+ Watchlist', `addLookupToCatalog(${f.tmdbId})`, 'watchlist'));
+            } else {
+                actions.push(s.inRadar ? searchTag('📡 Nel Radar')
+                    : searchBtn('+ Radar', `addLookupFilmToRadar(${f.tmdbId})`, 'radar', 'Te lo segnalo quando arriva su una delle tue piattaforme'));
+            }
+            actions.push(s.seen ? searchTag('✓ Visto') : searchBtn('✓ Già visto', `markLookupSeen(${f.tmdbId})`, 'plain'));
+            const people = [f.director ? `Regia di ${escapeHtml(f.director)}` : '', f.cast ? `con ${escapeHtml(f.cast)}` : ''].filter(Boolean).join(' · ');
+            return `<div class="flex items-center justify-between gap-2 flex-wrap p-2 rounded-xl bg-slate-900 border border-slate-800 text-xs${s.seen ? ' opacity-60' : ''}">
+                    <div class="flex items-center gap-2.5 min-w-[15rem] flex-1">
+                        ${f.thumb ? `<img src="${f.thumb}" alt="" loading="lazy" class="w-9 h-[52px] object-cover rounded shrink-0 border border-slate-800">` : '<div class="w-9 h-[52px] rounded bg-slate-800 shrink-0"></div>'}
+                        <div class="min-w-0 space-y-0.5">
+                            <div class="flex items-center gap-1.5 flex-wrap"><b class="text-white">${escapeHtml(f.title)}</b><span class="text-slate-500">(${f.year || 'n.d.'}${f.voteCount >= 20 ? ` · TMDB ${f.voteAverage.toFixed(1)}` : ''})</span>${role ? `<span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] font-bold">${escapeHtml(role)}</span>` : ''}${note}</div>
+                            ${people ? `<div class="text-[11px] text-slate-400 truncate">${people}</div>` : ''}
+                            <div>${verdict}</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-1.5 flex-wrap shrink-0">${actions.join('')}</div>
+                </div>`;
+        }
+
+        // Riga di un film che l'app conosce già (catalogo, scoperti, Radar arrivati, aggiunti da te)
+        function knownRowHtml(m, inPool, ctx) {
+            const verdict = inPool
+                ? '<span class="text-emerald-300 font-bold">✓ Te lo propongo</span>'
+                : `<span class="text-amber-300">Non te lo propongo: ${escapeHtml(whyNotInList(m))}</span>`;
+            const seen = seenIds.has(m.id) || isPuntoCardinale(m.title) || ctx.seenSet.has(normalizeForMatch(m.title))
+                || (!!m.originalTitle && ctx.seenSet.has(normalizeForMatch(m.originalTitle)));
+            const actions = [searchBtn('Scheda', `openMovieDetailsModal('${m.id}')`, 'plain')];
+            if (!m.liveUnavailable) {
+                actions.push(searchLink('Guarda', getWatchUrl(m)));
+                actions.push(watchlistIds.has(m.id) ? searchBtn('★ In Watchlist', `toggleWatchlistFromSearch('${m.id}')`, 'done', 'Togli dalla Watchlist')
+                    : searchBtn('+ Watchlist', `toggleWatchlistFromSearch('${m.id}')`, 'watchlist'));
+            } else {
+                actions.push(ctx.radarSet.has(normalizeForMatch(m.title)) ? searchTag('📡 Nel Radar')
+                    : searchBtn('+ Radar', `addMovieToRadarFromSearch('${m.id}')`, 'radar', 'Te lo segnalo quando torna su una delle tue piattaforme'));
+            }
+            if (!seen) actions.push(searchBtn('✓ Già visto', `markSeenFromSearch('${m.id}')`, 'plain'));
+            return `<div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs flex items-center justify-between gap-2 flex-wrap">
+                    <div class="min-w-[15rem] flex-1 space-y-0.5">
+                        <div class="flex items-center gap-1.5 flex-wrap">${getPlatformBadge(m.platform, true)}<span class="font-bold text-white">${escapeHtml(m.title)}</span><span class="text-slate-500">(${m.year}${m.director ? ` · ${escapeHtml(m.director)}` : ''})</span></div>
+                        <div>${verdict}</div>
+                    </div>
+                    <div class="flex gap-1.5 flex-wrap shrink-0">${actions.join('')}</div>
+                </div>`;
+        }
+
         // Riquadro dei risultati della ricerca (V77): non tocca la terna né la lista
         function renderSearchResults(rawValue) {
             const panel = document.getElementById('search-results');
@@ -5550,12 +5706,21 @@
             const rawQuery = (rawValue || '').trim();
             const query = normalizeForMatch(rawQuery);
             if (query.length < 2) {
+                tmdbSearch.view = null;
                 panel.classList.add('hidden');
                 panel.innerHTML = '';
                 return;
             }
+            // Saga o filmografia aperta: resta finché non torni ai risultati o cambi ricerca
+            if (tmdbSearch.view && tmdbSearch.view.query === query) {
+                panel.innerHTML = renderSearchView(tmdbSearch.view);
+                panel.classList.remove('hidden');
+                return;
+            }
+            tmdbSearch.view = null;
+            const ctx = searchContext();
             const poolIds = new Set(getFilteredPool().map(m => m.id));
-            const known = getAllMovies().filter(m => movieMatchesQuery(m, query));
+            const known = ctx.all.filter(m => movieMatchesQuery(m, query));
             const knownTitles = new Set(known.map(m => normalizeForMatch(m.title)));
             const radar = radarItems.filter(r => normalizeForMatch(r.title).includes(query) && !knownTitles.has(normalizeForMatch(r.title)));
             // Punti Cardinali non presenti nel catalogo (es. Una poltrona per due): già visti, con "dove rivederlo"
@@ -5568,176 +5733,364 @@
                     <span><i class="fa-solid fa-magnifying-glass text-sky-400 mr-1"></i>Risultati per «${escapeHtml(rawQuery)}»${known.length > 8 ? ` · i primi 8 di ${known.length}` : ''}</span>
                     <button type="button" onclick="clearGlobalSearch()" class="text-slate-400 hover:text-white cursor-pointer" title="Chiudi la ricerca"><i class="fa-solid fa-xmark"></i></button>
                 </div>`;
-            known.slice(0, 8).forEach(m => {
-                const verdict = poolIds.has(m.id)
-                    ? '<span class="text-emerald-300 font-bold">✓ Te lo propongo</span>'
-                    : `<span class="text-amber-300">Non te lo propongo: ${escapeHtml(whyNotInList(m))}</span>`;
-                html += row(`
-                    <div class="min-w-0 flex-1 space-y-0.5">
-                        <div class="flex items-center gap-1.5 flex-wrap">${getPlatformBadge(m.platform, true)}<span class="font-bold text-white">${escapeHtml(m.title)}</span><span class="text-slate-500">(${m.year}${m.director ? ` · ${escapeHtml(m.director)}` : ''})</span></div>
-                        <div>${verdict}</div>
-                    </div>
-                    <div class="flex gap-1.5 shrink-0">
-                        <button type="button" onclick="openMovieDetailsModal('${m.id}')" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold cursor-pointer">Scheda</button>
-                        ${m.liveUnavailable ? '' : `<a href="${getWatchUrl(m)}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold">Guarda</a>`}
-                    </div>`);
-            });
+            known.slice(0, 8).forEach(m => { html += knownRowHtml(m, poolIds.has(m.id), ctx); });
             radar.slice(0, 4).forEach(r => {
                 const live = getLiveInfo(r.id);
                 const status = live?.platforms?.length ? `ora incluso su ${live.platforms.map(getPlatformName).join(', ')}` : (r.status || 'in attesa di streaming incluso');
                 html += row(`
-                    <div class="min-w-0 flex-1 space-y-0.5">
-                        <div class="flex items-center gap-1.5 flex-wrap"><span class="px-1.5 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800 text-[10px] font-bold"><i class="fa-solid fa-satellite-dish"></i> Radar</span><span class="font-bold text-white">${escapeHtml(r.title)}</span><span class="text-slate-500">(${r.year || ''})</span></div>
+                    <div class="min-w-[15rem] flex-1 space-y-0.5">
+                        <div class="flex items-center gap-1.5 flex-wrap">${isPuntoCardinale(r.title) ? '<span class="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-bold"><i class="fa-solid fa-gem"></i> Punto Cardinale</span>' : ''}<span class="px-1.5 py-0.5 rounded bg-sky-950 text-sky-300 border border-sky-800 text-[10px] font-bold"><i class="fa-solid fa-satellite-dish"></i> Radar</span><span class="font-bold text-white">${escapeHtml(r.title)}</span><span class="text-slate-500">(${r.year || ''})</span></div>
                         <div class="text-sky-300">${escapeHtml(status)}</div>
-                    </div>`);
+                    </div>
+                    ${searchTag('📡 Nel Radar')}`);
             });
             cardinals.slice(0, 3).forEach(p => {
                 const live = getLiveInfo(p.id);
+                const tmdbId = tmdbCache[p.id]?.tmdbId;
                 const where = live?.platforms?.length ? `da rivedere su ${live.platforms.map(getPlatformName).join(', ')}` : live ? 'oggi non incluso nei tuoi abbonamenti' : 'disponibilità non ancora verificata';
+                const actions = [];
+                if (live?.platforms?.length) {
+                    actions.push(searchLink('Rivedi', getWatchUrl({ title: p.title, platform: live.platforms[0], liveInfo: live })));
+                    if (tmdbId) actions.push(searchBtn('+ Watchlist', `addLookupToCatalog(${tmdbId})`, 'watchlist'));
+                } else {
+                    actions.push(ctx.radarSet.has(normalizeForMatch(p.title)) ? searchTag('📡 Nel Radar')
+                        : searchBtn('+ Radar', `addCardinalToRadar('${p.id}')`, 'radar', 'Te lo segnalo quando arriva su una delle tue piattaforme'));
+                }
                 html += row(`
-                    <div class="min-w-0 flex-1 space-y-0.5">
+                    <div class="min-w-[15rem] flex-1 space-y-0.5">
                         <div class="flex items-center gap-1.5 flex-wrap"><span class="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-bold"><i class="fa-solid fa-gem"></i> Punto Cardinale</span><span class="font-bold text-white">${escapeHtml(p.title)}</span><span class="text-slate-500">(${p.year})</span></div>
                         <div class="text-emerald-300">Già visto e amato: non te lo propongo per la serata · ${escapeHtml(where)}</div>
                     </div>
-                    ${live?.platforms?.length ? `<a href="${getWatchUrl({ title: p.title, platform: live.platforms[0], liveInfo: live })}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold">Rivedi</a>` : ''}`);
+                    <div class="flex gap-1.5 flex-wrap shrink-0">${actions.join('')}</div>`);
             });
-            if (!known.length && !radar.length && !cardinals.length) {
-                const jw = `https://www.justwatch.com/it/cerca?q=${encodeURIComponent(rawQuery)}`;
+            const tmdbHtml = tmdbSectionHtml(query, ctx);
+            html += tmdbHtml;
+            const entry = tmdbSearch.cache[query];
+            const tmdbDone = !getTmdbKey() || query.length < 3 || entry?.status === 'done' || entry?.status === 'error';
+            if (!known.length && !radar.length && !cardinals.length && tmdbDone && !(entry?.collections?.length || entry?.people?.length || entry?.films?.length)) {
                 html += `<div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs space-y-2">
-                    <p class="text-slate-300">«${escapeHtml(rawQuery)}» non è tra i film che CineStudio conosce.</p>
-                    <div class="flex gap-2 flex-wrap">
-                        ${getTmdbKey() ? `<button type="button" onclick="lookupWhereToWatch()" class="px-2.5 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold cursor-pointer"><i class="fa-solid fa-magnifying-glass-location mr-1"></i>Cerca dove si vede</button>` : ''}
-                        <a href="${jw}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold">Apri JustWatch</a>
-                    </div>
-                    <div id="where-to-watch-result" class="space-y-1.5"></div>
+                    <p class="text-slate-300">«${escapeHtml(rawQuery)}» non è tra i film che CineStudio conosce${getTmdbKey() ? ' e TMDB non trova film con questo nome' : ''}.</p>
+                    ${getTmdbKey() ? '' : '<p class="text-slate-400"><button type="button" onclick="setTmdbKey()" class="text-sky-300 hover:text-white font-bold underline cursor-pointer">Collega TMDB</button> per cercare anche film fuori catalogo, saghe e filmografie.</p>'}
+                    <a href="https://www.justwatch.com/it/cerca?q=${encodeURIComponent(rawQuery)}" target="_blank" rel="noopener noreferrer" class="inline-block px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold">Apri JustWatch</a>
                 </div>`;
             }
             panel.innerHTML = html;
             panel.classList.remove('hidden');
+            scheduleTmdbSearch(rawQuery, query);
         }
 
-        // Film sconosciuto: chiede a TMDB dove si vede oggi in Italia
-        async function lookupWhereToWatch() {
-            const rawQuery = (document.getElementById('input-global-search')?.value || '').trim();
-            const box = document.getElementById('where-to-watch-result');
-            if (!rawQuery || !box) return;
-            box.innerHTML = '<p class="text-slate-400"><i class="fa-solid fa-rotate fa-spin mr-1"></i>Cerco su TMDB…</p>';
+        // Sezione "Su TMDB": saghe, persone e altri film (compare da sola, dopo una breve pausa nella scrittura)
+        function tmdbSectionHtml(query, ctx) {
+            if (!getTmdbKey() || query.length < 3) return '';
+            const entry = tmdbSearch.cache[query];
+            const heading = `<div class="pt-1 text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5"><i class="fa-solid fa-globe text-sky-400"></i> Anche su TMDB</div>`;
+            if (!entry || entry.status === 'loading') return heading + '<p class="text-xs text-slate-400"><i class="fa-solid fa-rotate fa-spin mr-1"></i>Cerco anche saghe, attori, registi e altri film…</p>';
+            if (entry.status === 'error') return heading + `<p class="text-xs text-rose-400">Ricerca su TMDB non riuscita (${escapeHtml(entry.error || '')}).</p>`;
+            let html = '';
+            entry.collections.forEach(c => {
+                html += `<button type="button" onclick="openSearchView('saga', ${c.id})" class="w-full text-left p-2.5 rounded-xl bg-slate-900 border border-violet-800/60 hover:border-violet-500 text-xs flex items-center justify-between gap-2 cursor-pointer">
+                        <span class="min-w-0"><span class="px-1.5 py-0.5 rounded bg-violet-950 text-violet-300 border border-violet-800 text-[10px] font-bold mr-1.5"><i class="fa-solid fa-film"></i> Saga</span><b class="text-white">${escapeHtml(c.name)}</b> <span class="text-slate-500">· ${c.parts.length} film</span></span>
+                        <span class="text-violet-300 font-bold whitespace-nowrap">Vedi tutti <i class="fa-solid fa-chevron-right"></i></span>
+                    </button>`;
+            });
+            entry.people.forEach(p => {
+                const role = p.dept === 'Directing' ? 'Regista' : (p.gender === 1 ? 'Attrice' : 'Attore');
+                html += `<button type="button" onclick="openSearchView('person', ${p.id})" class="w-full text-left p-2.5 rounded-xl bg-slate-900 border border-violet-800/60 hover:border-violet-500 text-xs flex items-center justify-between gap-2 cursor-pointer">
+                        <span class="min-w-0"><span class="px-1.5 py-0.5 rounded bg-violet-950 text-violet-300 border border-violet-800 text-[10px] font-bold mr-1.5"><i class="fa-solid fa-user"></i> ${role}</span><b class="text-white">${escapeHtml(p.name)}</b>${p.knownFor.length ? ` <span class="text-slate-500">· ${escapeHtml(p.knownFor.join(', '))}</span>` : ''}</span>
+                        <span class="text-violet-300 font-bold whitespace-nowrap">Filmografia <i class="fa-solid fa-chevron-right"></i></span>
+                    </button>`;
+            });
+            if (entry.films.length) html += entry.films.map(f => lookupRowHtml(f, ctx)).join('');
+            return html ? heading + html : '';
+        }
+
+        function scheduleTmdbSearch(rawQuery, query) {
+            if (!getTmdbKey() || query.length < 3 || tmdbSearch.cache[query]) return;
+            clearTimeout(tmdbSearch.timer);
+            tmdbSearch.timer = setTimeout(() => runTmdbSearch(rawQuery, query), 400);
+        }
+
+        async function runTmdbSearch(rawQuery, query) {
+            if (tmdbSearch.cache[query] || normalizeForMatch(currentSearchQuery()) !== query) return;
+            const entry = tmdbSearch.cache[query] = { status: 'loading', films: [], collections: [], people: [] };
             try {
-                const data = await tmdbFetch('/search/movie', { query: rawQuery, language: 'it-IT' });
-                const results = (data.results || []).slice(0, 3);
-                if (!results.length) { box.innerHTML = '<p class="text-slate-400">Nessun film trovato con questo titolo.</p>'; return; }
-                const platOf = name => TMDB_PROVIDER_RULES.find(r => r.re.test(name))?.plat;
-                const rows = [];
-                for (const r of results) {
-                    // Una sola chiamata per film: disponibilità + crediti (regia e attori servono a distinguere titoli uguali)
-                    const d = await tmdbFetch(`/movie/${r.id}`, { language: 'it-IT', append_to_response: 'credits,watch/providers,keywords,release_dates' });
-                    const it = d['watch/providers']?.results?.IT || {};
-                    const director = (d.credits?.crew || []).filter(c => c.job === 'Director').map(c => c.name).slice(0, 2).join(', ');
-                    const actors = (d.credits?.cast || []).slice(0, 2).map(c => c.name).join(', ');
-                    const genreIds = (d.genres || []).map(g => g.id);
-                    const content = classifyContent({ genres: genreIds, keywords: (d.keywords?.keywords || []).map(k => k.name), certIT: getCertification(d.release_dates, 'IT'), certUS: getCertification(d.release_dates, 'US'), voteAverage: d.vote_average || 0 });
-                    const blacklistWarning = content.note ? ` <span class="px-1.5 py-0.5 rounded ${content.exclude ? 'bg-rose-950 text-rose-300 border-rose-800' : 'bg-slate-800 text-amber-300 border-slate-700'} border text-[10px] font-bold">${content.exclude ? '⚠️ ' : ''}${escapeHtml(content.note)}</span>` : '';
-                    const poster = d.poster_path ? `<img src="https://image.tmdb.org/t/p/w92${d.poster_path}" alt="" class="w-9 h-[52px] object-cover rounded shrink-0 border border-slate-800">` : '<div class="w-9 h-[52px] rounded bg-slate-800 shrink-0"></div>';
-                    const included = [...(it.flatrate || []), ...(it.free || []), ...(it.ads || [])];
-                    const mine = [...new Set(included.map(p => platOf(p.provider_name)).filter(p => ['netflix', 'prime', 'disney', 'raiplay'].includes(p)))];
-                    const others = [...new Set(included.map(p => p.provider_name).filter(n => !platOf(n)))];
-                    const rent = [...new Set([...(it.rent || []), ...(it.buy || [])].map(p => p.provider_name))];
-                    const year = parseInt(r.release_date, 10) || '';
-                    const verdict = mine.length
-                        ? `<span class="text-emerald-300 font-bold">✓ Incluso su ${mine.map(getPlatformName).join(', ')}</span>`
-                        : others.length ? `<span class="text-amber-300">Non nei tuoi abbonamenti: su ${escapeHtml(others.slice(0, 3).join(', '))}</span>`
-                        : rent.length ? `<span class="text-amber-300">Solo noleggio o acquisto (${escapeHtml(rent.slice(0, 3).join(', '))})</span>`
-                        : '<span class="text-slate-400">Non disponibile in streaming in Italia</span>';
-                    const safeTitle = escapeHtml(r.title).replace(/'/g, "\\'");
-                    window.__lookupFilms = window.__lookupFilms || {};
-                    window.__lookupFilms[r.id] = {
-                        tmdbId: r.id, title: d.title || r.title, originalTitle: d.original_title || '', year: year || null,
-                        runtime: d.runtime || null, overview: d.overview || '', director, cast: (d.credits?.cast || []).slice(0, 3).map(c => c.name).join(', '),
-                        genres: genreIds, originalLanguage: d.original_language || '', voteAverage: d.vote_average || 0, voteCount: d.vote_count || 0,
-                        poster: d.poster_path ? 'https://image.tmdb.org/t/p/w342' + d.poster_path : null,
-                        platforms: mine, others, link: it.link || '', content
-                    };
-                    const btn = (label, action, cls) => `<button type="button" id="lookup-${action}-${r.id}" onclick="${action}(${r.id})" class="px-2 py-0.5 rounded ${cls} font-bold cursor-pointer">${label}</button>`;
-                    rows.push(`<div class="flex items-center justify-between gap-2 flex-wrap p-2 rounded-lg bg-slate-950 border border-slate-800">
-                        <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                            ${poster}
-                            <div class="min-w-0 space-y-0.5">
-                                <div><b class="text-white">${escapeHtml(r.title)}</b> <span class="text-slate-500">(${year})</span>${blacklistWarning}</div>
-                                ${director || actors ? `<div class="text-[11px] text-slate-400 truncate">${director ? `Regia di ${escapeHtml(director)}` : ''}${director && actors ? ' · ' : ''}${actors ? `con ${escapeHtml(actors)}` : ''}</div>` : ''}
-                                <div>${verdict}</div>
-                            </div>
-                        </div>
-                        <div class="flex gap-1.5 flex-wrap shrink-0">
-                            ${mine.length ? `<a href="${getWatchUrl({ title: r.title, platform: mine[0], liveInfo: { link: it.link } })}" target="_blank" rel="noopener noreferrer" class="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-bold">Guarda</a>
-                                ${btn('+ Aggiungi', 'addLookupToCatalog', 'bg-emerald-700 hover:bg-emerald-600 text-white')}`
-                                : `<button type="button" onclick="addLookupToRadar('${safeTitle}', ${year || 'null'})" class="px-2 py-0.5 rounded bg-sky-700 hover:bg-sky-600 text-white font-bold cursor-pointer">+ Radar</button>`}
-                            ${btn('✓ Già visto', 'markLookupSeen', 'bg-slate-800 hover:bg-slate-700 text-slate-200')}
-                        </div>
-                    </div>`);
-                }
-                box.innerHTML = rows.join('');
+                const [movies, cols, people] = await Promise.all([
+                    tmdbFetch('/search/movie', { query: rawQuery, language: 'it-IT' }),
+                    tmdbFetch('/search/collection', { query: rawQuery, language: 'it-IT' }),
+                    tmdbFetch('/search/person', { query: rawQuery, language: 'it-IT' })
+                ]);
+                // Saghe: solo quelle il cui nome contiene la ricerca, con l'elenco dei film (serve a contarli)
+                const colHits = (cols.results || []).filter(c => [c.name, c.original_name].some(n => normalizeForMatch(n || '').includes(query))).slice(0, 2);
+                entry.collections = (await Promise.all(colHits.map(c => tmdbFetch(`/collection/${c.id}`, { language: 'it-IT' }).catch(() => null))))
+                    .filter(c => c && (c.parts || []).length >= 2)
+                    .map(c => ({ id: c.id, name: c.name, parts: c.parts }));
+                // Persone: attori e registi il cui nome corrisponde alla ricerca
+                entry.people = (people.results || [])
+                    .filter(p => ['Acting', 'Directing'].includes(p.known_for_department) && normalizeForMatch(p.name).includes(query))
+                    .slice(0, 2)
+                    .map(p => ({ id: p.id, name: p.name, dept: p.known_for_department, gender: p.gender,
+                        knownFor: (p.known_for || []).filter(k => k.media_type === 'movie' && k.title).map(k => k.title).slice(0, 3) }))
+                    .filter(p => p.knownFor.length);   // senza film noti è quasi sempre un omonimo minore
+                // Altri film (i primi 3 per pertinenza): non quelli già mostrati sopra, né quelli delle saghe trovate.
+                // Se cerchi una persona per nome, i film "omonimi" (documentari su di lei) sono solo rumore.
+                const searchingPerson = entry.people.some(p => normalizeForMatch(p.name) === query);
+                const inSagas = new Set(entry.collections.flatMap(c => c.parts.map(p => p.id)));
+                const ctx = searchContext();
+                const fresh = searchingPerson ? [] : (movies.results || [])
+                    .filter(r => r.release_date && !inSagas.has(r.id) && !findKnownMovie({ tmdbId: r.id, title: r.title, originalTitle: r.original_title, year: parseInt(r.release_date, 10) }, ctx)
+                        && !isPuntoCardinale(r.title) && !ctx.radarSet.has(normalizeForMatch(r.title)))
+                    .slice(0, 3);
+                entry.films = (await Promise.all(fresh.map(r => fetchLookupFilm(r.id).catch(() => null)))).filter(Boolean);
+                entry.status = 'done';
             } catch (e) {
-                box.innerHTML = `<p class="text-rose-400">Ricerca non riuscita (${escapeHtml(e.message)}).</p>`;
+                entry.status = 'error';
+                entry.error = e.message;
+                delete tmdbSearch.cache[query];   // si riprova alla prossima ricerca
             }
+            if (normalizeForMatch(currentSearchQuery()) === query) {
+                if (entry.status === 'error') {
+                    const panel = document.getElementById('search-results');
+                    panel?.insertAdjacentHTML('beforeend', `<p class="text-xs text-rose-400">Ricerca su TMDB non riuscita (${escapeHtml(entry.error || '')}).</p>`);
+                    panel?.querySelectorAll('.fa-rotate.fa-spin').forEach(el => el.closest('p')?.remove());
+                } else {
+                    refreshSearchPanel();
+                }
+            }
+        }
+
+        /* ---------- Saga e filmografia: elenco completo con disponibilità e pulsanti ---------- */
+        async function openSearchView(type, id) {
+            const query = normalizeForMatch(currentSearchQuery());
+            const entry = tmdbSearch.cache[query];
+            const view = tmdbSearch.view = { type, id, query, status: 'loading', items: null, done: 0, total: 0, title: '' };
+            try {
+                if (type === 'saga') {
+                    const c = entry?.collections.find(x => x.id === id);
+                    view.title = c?.name || 'Saga';
+                    view.items = [...(c?.parts || [])]
+                        .sort((a, b) => (a.release_date || '9999').localeCompare(b.release_date || '9999'))
+                        .map(p => ({ tmdbId: p.id }));
+                } else {
+                    const p = entry?.people.find(x => x.id === id);
+                    view.title = p?.name || 'Filmografia';
+                    view.gender = p?.gender;
+                    refreshSearchPanel();
+                    const credits = await tmdbFetch(`/person/${id}/movie_credits`, { language: 'it-IT' });
+                    if (tmdbSearch.view !== view) return;
+                    view.items = buildFilmography(credits, view.gender);
+                }
+                view.total = view.items.length;
+                refreshSearchPanel();
+                document.getElementById('search-results')?.scrollIntoView({ block: 'nearest' });
+                await loadViewFilms(view);
+            } catch (e) {
+                view.status = 'error';
+                view.error = e.message;
+                if (tmdbSearch.view === view) refreshSearchPanel();
+            }
+        }
+
+        // Filmografia: film da attore e da regista, senza documentari, film TV e apparizioni nei panni di sé stessi
+        function buildFilmography(credits, gender) {
+            const byId = new Map();
+            const add = (m, role) => {
+                if (!m.release_date || (m.genre_ids || []).some(g => g === 99 || g === 10770) || (m.vote_count || 0) < 3) return;
+                if (role !== 'regia' && /^(himself|herself|self|themselves|s[eé] stess)/i.test((m.character || '').trim())) return;
+                const e = byId.get(m.id) || { tmdbId: m.id, date: m.release_date, votes: m.vote_count || 0, roles: new Set() };
+                e.roles.add(role);
+                byId.set(m.id, e);
+            };
+            (credits.cast || []).forEach(m => add(m, gender === 1 ? 'attrice' : 'attore'));
+            (credits.crew || []).filter(m => m.job === 'Director').forEach(m => add(m, 'regia'));
+            let list = [...byId.values()];
+            // Filmografie molto lunghe: i 40 film più votati (via comparsate e titoli minori)
+            if (list.length > 40) list = list.sort((a, b) => b.votes - a.votes).slice(0, 40);
+            return list.sort((a, b) => a.date.localeCompare(b.date))
+                .map(e => ({ tmdbId: e.tmdbId, role: [...e.roles].join(' e ').replace(/^./, c => c.toUpperCase()) }));
+        }
+
+        // Scarica i dettagli dei film (4 alla volta) e ridisegna man mano
+        async function loadViewFilms(view) {
+            const queue = [...view.items];
+            const worker = async () => {
+                while (queue.length && tmdbSearch.view === view) {
+                    const item = queue.shift();
+                    item.film = await fetchLookupFilm(item.tmdbId).catch(() => null);
+                    view.done++;
+                    if (!tmdbSearch.refreshTimer) {
+                        tmdbSearch.refreshTimer = setTimeout(() => {
+                            tmdbSearch.refreshTimer = null;
+                            if (tmdbSearch.view === view) refreshSearchPanel();
+                        }, 250);
+                    }
+                }
+            };
+            await Promise.all([worker(), worker(), worker(), worker()]);
+            if (tmdbSearch.view !== view) return;
+            view.status = 'done';
+            refreshSearchPanel();
+        }
+
+        // Film che "+ Radar per tutti" aggiunge: non inclusi, non visti, non già nel Radar, non nella lista nera
+        function bulkRadarCandidates(view, ctx) {
+            return (view.items || []).filter(i => {
+                if (!i.film || i.film.platforms.length || i.film.content.exclude) return false;
+                const s = lookupState(i.film, ctx);
+                return !s.seen && !s.inRadar && !(s.known && !s.known.liveUnavailable);
+            });
+        }
+
+        function renderSearchView(view) {
+            const ctx = searchContext();
+            const isSaga = view.type === 'saga';
+            let html = `<div class="flex items-center justify-between text-[11px] text-slate-400 gap-2">
+                    <button type="button" onclick="closeSearchView()" class="text-sky-300 hover:text-white font-bold cursor-pointer"><i class="fa-solid fa-arrow-left mr-1"></i>Torna ai risultati</button>
+                    <button type="button" onclick="clearGlobalSearch()" class="text-slate-400 hover:text-white cursor-pointer" title="Chiudi la ricerca"><i class="fa-solid fa-xmark"></i></button>
+                </div>`;
+            const loaded = (view.items || []).filter(i => i.film);
+            const available = loaded.filter(i => i.film.platforms.length).length;
+            const seen = loaded.filter(i => lookupState(i.film, ctx).seen).length;
+            const candidates = view.status === 'done' ? bulkRadarCandidates(view, ctx) : [];
+            html += `<div class="flex items-center justify-between gap-2 flex-wrap">
+                    <div class="text-xs"><span class="text-[11px] font-bold uppercase tracking-wider text-violet-300">${isSaga ? '<i class="fa-solid fa-film"></i> Saga' : '<i class="fa-solid fa-user"></i> Filmografia'}</span>
+                        <b class="text-white text-sm ml-1">${escapeHtml(view.title)}</b>
+                        ${view.total ? `<span class="text-slate-400"> · ${view.total} film${view.status === 'done' ? ` · ${available} sulle tue piattaforme · ${seen} ${seen === 1 ? 'già visto' : 'già visti'}` : ''}</span>` : ''}</div>
+                    ${candidates.length ? searchBtn(candidates.length === 1 ? '+ Radar per il film non disponibile' : `+ Radar per i ${candidates.length} non disponibili`, 'bulkRadarFromView()', 'radar', 'Esclusi i film già visti, già nel Radar e quelli della tua lista nera') : ''}
+                </div>`;
+            if (view.status === 'error') return html + `<p class="text-xs text-rose-400">Caricamento non riuscito (${escapeHtml(view.error || '')}).</p>`;
+            if (!view.items) return html + '<p class="text-xs text-slate-400"><i class="fa-solid fa-rotate fa-spin mr-1"></i>Carico la filmografia…</p>';
+            if (!view.items.length) return html + '<p class="text-xs text-slate-400">Nessun film trovato.</p>';
+            if (view.status !== 'done') html += `<p class="text-xs text-slate-400"><i class="fa-solid fa-rotate fa-spin mr-1"></i>Verifico dove si vede ogni film… ${view.done}/${view.total}</p>`;
+            html += loaded.map(i => lookupRowHtml(i.film, ctx, isSaga ? '' : i.role)).join('');
+            return html;
+        }
+
+        function closeSearchView() {
+            tmdbSearch.view = null;
+            refreshSearchPanel();
+        }
+
+        function bulkRadarFromView() {
+            const view = tmdbSearch.view;
+            if (!view) return;
+            const candidates = bulkRadarCandidates(view, searchContext());
+            if (!candidates.length) return;
+            const list = candidates.map(i => `• ${i.film.title} (${i.film.year || 'n.d.'})`).join('\n');
+            if (!confirm(`Aggiungo al Radar ${candidates.length} film non disponibili sulle tue piattaforme?\n\n${list}`)) return;
+            candidates.forEach(i => addLookupFilmToRadar(i.tmdbId, true));
+            refreshSearchPanel();
+        }
+
+        /* ---------- Azioni dei pulsanti ---------- */
+        function toggleWatchlistFromSearch(id) {
+            toggleWatchlist(id);
+            refreshSearchPanel();
+        }
+
+        function markSeenFromSearch(id) {
+            markAsSeen(id);
+            refreshSearchPanel();
         }
 
         // Aggiunge un film trovato su TMDB alle proposte (film aggiunti da te) e alla Watchlist
-        function addLookupToCatalog(tmdbId) {
-            const f = window.__lookupFilms?.[tmdbId];
-            if (!f || !f.platforms.length) return;
-            const id = 'user-tmdb-' + tmdbId;
-            const userMovies = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
-            if (!userMovies.some(m => m.id === id) && !getAllMovies().some(m => normalizeForMatch(m.title) === normalizeForMatch(f.title) && m.year === f.year)) {
-                const plat = f.platforms[0];
-                userMovies.push({
-                    id, title: f.title, originalTitle: f.originalTitle, year: f.year, duration: f.runtime || 100,
-                    director: f.director || '', cast: f.cast || '', platform: plat, link: PLATFORM_HOME[plat],
-                    imdb: Math.round(f.voteAverage * 10) / 10, scoreSource: 'TMDB', mymovies: null,
-                    mood: estimateMood(f.genres, f.originalLanguage), emotionalTone: f.content.tone,
-                    why: `Aggiunto da te dalla ricerca${f.content.note ? ` · ⚠️ ${f.content.note}` : ''}.`,
-                    synopsis: f.overview || 'Trama non disponibile in italiano.', poster: f.poster
-                });
-                localStorage.setItem('cinestudio_user_movies', JSON.stringify(userMovies));
+        async function addLookupToCatalog(tmdbId) {
+            const f = window.__lookupFilms[tmdbId] || await fetchLookupFilm(tmdbId).catch(() => null);
+            if (!f) return;
+            let target = findKnownMovie(f, searchContext());
+            if (!target) {
+                const plat = f.platforms[0] || 'prime';
+                const id = 'user-tmdb-' + tmdbId;
+                const userMovies = JSON.parse(localStorage.getItem('cinestudio_user_movies') || '[]');
+                if (!userMovies.some(m => m.id === id)) {
+                    userMovies.push({
+                        id, title: f.title, originalTitle: f.originalTitle, year: f.year, duration: f.runtime || 100,
+                        director: f.director || '', cast: f.cast || '', platform: plat, link: PLATFORM_HOME[plat],
+                        imdb: Math.round(f.voteAverage * 10) / 10, scoreSource: 'TMDB', mymovies: null,
+                        mood: estimateMood(f.genres, f.originalLanguage), emotionalTone: f.content.tone,
+                        why: `Aggiunto da te dalla ricerca${f.content.note ? ` · ⚠️ ${f.content.note}` : ''}.`,
+                        synopsis: f.overview || 'Trama non disponibile in italiano.', poster: f.poster
+                    });
+                    localStorage.setItem('cinestudio_user_movies', JSON.stringify(userMovies));
+                }
                 // Già verificato oggi: la verifica giornaliera lo seguirà da qui in avanti
-                tmdbCache[id] = { tmdbId, checkedAt: Date.now(), platforms: f.platforms, others: f.others, rentOrBuy: false,
+                tmdbCache[id] = { tmdbId, checkedAt: Date.now(), platforms: f.platforms, others: f.others, rentOrBuy: f.rent.length > 0,
                     poster: f.poster, link: f.link || `https://www.themoviedb.org/movie/${tmdbId}/watch?locale=IT`,
                     runtime: f.runtime, overview: f.overview, voteAverage: f.voteAverage, voteCount: f.voteCount };
                 saveTmdbCache();
+                target = getAllMovies().find(m => m.id === id);
             }
-            const target = getAllMovies().find(m => m.id === id) || getAllMovies().find(m => normalizeForMatch(m.title) === normalizeForMatch(f.title) && m.year === f.year);
             if (target && !watchlistIds.has(target.id)) {
                 watchlistIds.add(target.id);
                 localStorage.setItem('cinestudio_watchlist', JSON.stringify(Array.from(watchlistIds)));
                 updateWatchlistCount();
             }
-            const b = document.getElementById('lookup-addLookupToCatalog-' + tmdbId);
-            if (b) { b.textContent = '✓ Aggiunto e in Watchlist'; b.disabled = true; b.classList.add('opacity-70'); }
             renderAllMatchingMovies();
+            refreshSearchPanel();
         }
 
         // Registra come già visto un film trovato su TMDB (anche se non è nel catalogo)
         function markLookupSeen(tmdbId) {
-            const f = window.__lookupFilms?.[tmdbId];
+            const f = window.__lookupFilms[tmdbId];
             if (!f) return;
             const id = 'tmdb-' + tmdbId;
             seenIds.add(id);
             localStorage.setItem('cinestudio_seen', JSON.stringify(Array.from(seenIds)));
             seenTitles[id] = { title: f.title, originalTitle: f.originalTitle, year: f.year, director: f.director || '' };
             try { localStorage.setItem(SEEN_TITLES_STORAGE, JSON.stringify(seenTitles)); } catch (e) { /* ignora */ }
-            const b = document.getElementById('lookup-markLookupSeen-' + tmdbId);
-            if (b) { b.textContent = '✓ Segnato come visto'; b.disabled = true; b.classList.add('opacity-70'); }
             updateSeenCounts();
             generateRecommendations(false, false);
             renderAllMatchingMovies();
+            refreshSearchPanel();
         }
 
-        function addLookupToRadar(title, year) {
-            if (radarItems.some(r => normalizeForMatch(r.title) === normalizeForMatch(title))) { alert(`"${title}" è già nel Radar.`); return; }
-            const item = { id: 'radar-' + Date.now(), title, year, director: 'Segnalato da te', cast: '', status: 'In ricerca streaming free / incluso', note: 'Aggiunto dalla ricerca: in attesa di disponibilità senza noleggio a pagamento.' };
+        function saveRadarItem(item) {
             radarItems.push(item);
             localStorage.setItem('cinestudio_radar_movies', JSON.stringify(radarItems));
             updateRadarCount();
-            alert(`"${title}" aggiunto al Radar: te lo segnalo quando arriva su una delle tue piattaforme.`);
+        }
+
+        // Film trovato su TMDB → Radar, già collegato al film giusto (niente omonimi nella verifica giornaliera)
+        async function addLookupFilmToRadar(tmdbId, quiet = false) {
+            const f = window.__lookupFilms[tmdbId] || await fetchLookupFilm(tmdbId).catch(() => null);
+            if (!f || isInRadar(f.title)) return;
+            const id = `radar-${Date.now()}-${tmdbId}`;
+            saveRadarItem({
+                id, title: f.title, year: f.year, duration: f.runtime || 100, director: f.director || '', cast: f.cast || '',
+                imdb: Math.round(f.voteAverage * 10) / 10, mood: estimateMood(f.genres, f.originalLanguage), emotionalTone: f.content.tone,
+                synopsis: f.overview || '', status: f.rent.length ? 'Solo noleggio o acquisto' : 'In attesa di streaming incluso',
+                note: 'Aggiunto dalla ricerca: te lo segnalo quando arriva su Netflix, Prime Video, Disney+ o RaiPlay.'
+            });
+            tmdbCache[id] = { tmdbId, checkedAt: Date.now(), platforms: f.platforms, others: f.others, rentOrBuy: f.rent.length > 0,
+                poster: f.poster, link: f.link || `https://www.themoviedb.org/movie/${tmdbId}/watch?locale=IT`,
+                runtime: f.runtime, overview: f.overview, voteAverage: f.voteAverage, voteCount: f.voteCount };
+            saveTmdbCache();
+            if (!quiet) refreshSearchPanel();
+        }
+
+        function isInRadar(title) {
+            const t = normalizeForMatch(title);
+            return radarItems.some(r => normalizeForMatch(r.title) === t);
+        }
+
+        // Film conosciuto (catalogo o Punto Cardinale) oggi non incluso → Radar
+        function addKnownTitleToRadar(src, cacheId) {
+            const tmdbId = tmdbCache[cacheId]?.tmdbId;
+            if (tmdbId) { addLookupFilmToRadar(tmdbId); return; }
+            if (isInRadar(src.title)) return;
+            saveRadarItem({ id: 'radar-' + Date.now(), title: src.title, year: src.year, director: src.director || '', cast: src.cast || '',
+                imdb: src.imdb || 0, mood: src.mood, emotionalTone: src.emotionalTone, synopsis: src.synopsis || '',
+                status: 'In attesa di streaming incluso', note: 'Aggiunto dalla ricerca: te lo segnalo quando arriva su una delle tue piattaforme.' });
+            refreshSearchPanel();
+        }
+
+        function addMovieToRadarFromSearch(id) {
+            const m = getAllMovies().find(x => x.id === id);
+            if (m) addKnownTitleToRadar(m, id);
+        }
+
+        function addCardinalToRadar(id) {
+            const p = PUNTI_CARDINALI.find(x => x.id === id);
+            if (p) addKnownTitleToRadar({ title: p.title, year: p.year, director: 'Punto Cardinale' }, id);
         }
 
         function toggleBrowseList() {

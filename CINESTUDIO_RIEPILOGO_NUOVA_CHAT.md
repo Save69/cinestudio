@@ -171,6 +171,13 @@ Nessun database remoto necessario:
    - Le schede mostrano "Verificato gg/mm" oppure "Non verificato". I canali Amazon a pagamento NON contano come Prime.
    - JustWatch/TMDB non tracciano La7: i film La7 risultano sempre non verificabili.
    - Chiave salvata in `cinestudio_tmdb_key`, solo sul dispositivo (mai nel codice).
+   - **Barra di ricerca (V84)**: risultati in un riquadro separato (la terna non cambia). Ogni riga ha i suoi pulsanti:
+     incluso → Guarda, + Watchlist, ✓ Già visto; non incluso → + Radar (collegato al film TMDB giusto, niente omonimi).
+     Vale anche per i Punti Cardinali (es. Che vita da cani! → Radar). Con TMDB collegato compaiono da soli, sotto
+     "Anche su TMDB": **saghe** (collezioni TMDB, elenco completo con "+ Radar per i non disponibili"), **filmografie**
+     di attori e registi (senza documentari, film TV e apparizioni come sé stessi; max 40 film più votati) e fino a 3
+     altri film fuori catalogo. La Watchlist è una scelta dell'utente: un film resta lì anche sotto la soglia di voto.
+     Le serie TV non sono gestite, per scelta dell'utente.
 
 ---
 
