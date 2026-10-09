@@ -1,10 +1,10 @@
 # CineStudio - Documento di Riepilogo & Handover per Nuova Chat
 
 > **Scopo di questo documento**: Fornire all'utente e a qualsiasi nuovo agente AI (in una nuova chat) il quadro completo, le regole operative, il DNA cinefilo dell'utente e l'architettura tecnica della web-app **CineStudio**.
-> **Data ultimo aggiornamento**: 9 ottobre 2026  
+> **Data ultimo aggiornamento**: 1 ottobre 2026  
 > **Cartella ufficiale di lavoro**: `C:\Users\Utente\Documents\Agente studio`  
-> **App online (unica versione in uso)**: https://save69.github.io/cinestudio/ (GitHub Pages; `index.html` = copia di `CineStudio.html`)  
-> **Copie sul Desktop**: eliminate il 09/10/2026 su richiesta dell'utente (CineStudio.html, avvia_cinestudio.bat, CineStudio_Web). Non ricrearle.
+> **File principale sincronizzato sul Desktop**: `C:\Users\Utente\Desktop\CineStudio.html`  
+> **Script rapido di avvio su Desktop**: `C:\Users\Utente\Desktop\avvia_cinestudio.bat`
 
 ---
 
@@ -188,7 +188,7 @@ Nessun database remoto necessario:
 2. **Verifica Streaming in Tempo Reale**:
    - Quando l'utente chiede: *"Cercami questo film"*, l'agente verifica tramite ricerca live se è disponibile **gratis o incluso** (senza costi di noleggio).
 3. **Aggiornamento del Codice**:
-   - Qualsiasi modifica a `CineStudio.html` deve mantenere la validità JavaScript pura, preservare le chiavi di LocalStorage, copiare `CineStudio.html` in `index.html` (nessuna copia sul Desktop) ed essere committata su Git secondo `REGOLE_LAVORO.md`.
+   - Qualsiasi modifica a `CineStudio.html` deve mantenere la validità JavaScript pura, preservare le chiavi di LocalStorage, sincronizzare la copia sul Desktop ed essere committata su Git secondo `REGOLE_LAVORO.md`.
 
 ---
 
