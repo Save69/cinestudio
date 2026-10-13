@@ -449,6 +449,15 @@
                     <div class="flex flex-wrap gap-1.5" id="dna-milestones"></div>
                 </div>
 
+                <!-- Filoni evitati (V86) -->
+                <div>
+                    <h4 class="font-bold text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-arrow-trend-down"></i> Filoni che preferisci evitare
+                    </h4>
+                    <p class="text-[11px] text-slate-400 mb-1.5">Non esclusi: te li propongo di rado (mai due insieme) e in Sfoglia tutti stanno in fondo. I film dei tuoi registi e attori del DNA restano normali. Si aggiungono con 👎 "Non fa per me".</p>
+                    <div class="flex flex-wrap gap-1.5" id="dna-avoided"></div>
+                </div>
+
                 <!-- Elementi Aggiunti dall'Utente al DNA -->
                 <div class="pt-2 border-t border-slate-800">
                     <h4 class="font-bold text-purple-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
@@ -847,7 +856,7 @@
                     </div>
                     <div>
                         <h3 class="text-base font-black text-white" id="dislike-modal-title">Segna Esperienza Negativa</h3>
-                        <p class="text-[11px] text-slate-400">Questo film verrà escluso per sempre dalle tue proposte serali.</p>
+                        <p class="text-[11px] text-slate-400">Puoi vedere meno film come questo, oppure escludere solo questo film per sempre.</p>
                     </div>
                 </div>
                 <button onclick="closeDislikeModal()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
@@ -856,6 +865,8 @@
             </div>
 
             <input type="hidden" id="dislike-movie-id">
+
+            <div id="dislike-filoni" class="text-xs"></div>
 
             <div class="space-y-3 text-xs">
                 <div>
@@ -4394,6 +4405,17 @@
                 { term: 'muccino', label: 'Gabriele Muccino' },
                 { term: 'will smith', label: 'Will Smith' },
                 { term: 'john landis', label: 'John Landis' },
+                // V86: maestri e attori mostrati nella finestra DNA ma finora mai usati nel calcolo
+                { term: 'spielberg', label: 'Steven Spielberg' },
+                { term: 'nolan', label: 'Christopher Nolan' },
+                { term: 'miyazaki', label: 'Hayao Miyazaki' },
+                { term: 'sergio leone', label: 'Sergio Leone' },
+                { term: 'tornatore', label: 'Giuseppe Tornatore' },
+                { term: 'troisi', label: 'Massimo Troisi' },
+                { term: 'benigni', label: 'Roberto Benigni' },
+                { term: 'nanni moretti', label: 'Nanni Moretti' },
+                { term: 'dicaprio', label: 'Leonardo DiCaprio' },
+                { term: 'matt damon', label: 'Matt Damon' },
                 { term: 'hanks', label: 'Tom Hanks' },
                 { term: 'servillo', label: 'Toni Servillo' },
                 { term: 'germano', label: 'Elio Germano' },
@@ -4523,7 +4545,7 @@
                 tmdbCache[item.id] = { notFound: true, checkedAt: Date.now() };
                 return;
             }
-            const d = await tmdbFetch(`/movie/${tmdbId}`, { language: 'it-IT', append_to_response: 'watch/providers' });
+            const d = await tmdbFetch(`/movie/${tmdbId}`, { language: 'it-IT', append_to_response: 'watch/providers,keywords' });
             const it = d['watch/providers']?.results?.IT || {};
             const included = [...(it.flatrate || []), ...(it.free || []), ...(it.ads || [])];
             const platOf = name => TMDB_PROVIDER_RULES.find(r => r.re.test(name))?.plat;
@@ -4538,7 +4560,11 @@
                 runtime: d.runtime || null,
                 overview: d.overview || '',
                 voteAverage: d.vote_average || 0,
-                voteCount: d.vote_count || 0
+                voteCount: d.vote_count || 0,
+                // V86: per riconoscere il filone (supereroi, saga, genere)
+                keywords: (d.keywords?.keywords || []).map(k => k.name),
+                genres: (d.genres || []).map(g => g.id),
+                collection: d.belongs_to_collection ? { id: d.belongs_to_collection.id, name: d.belongs_to_collection.name } : null
             };
         }
 
@@ -4549,8 +4575,10 @@
             const targets = [...INITIAL_CATALOG, ...userCustom, ...radarItems, ...cardinals];
             // Da ricontrollare: mai verificati, verificati da più di 24 ore, o verificati prima della V73 (senza voto TMDB)
             const todo = targets.filter(t => force || !tmdbCache[t.id] || Date.now() - tmdbCache[t.id].checkedAt > TMDB_REFRESH_MS
-                || (tmdbCache[t.id].tmdbId && tmdbCache[t.id].voteAverage === undefined));
-            const discoveryDue = isDiscoveryOn() && (force || Date.now() - (discovery.runAt || 0) > DISCOVERY_REFRESH_MS);
+                || (tmdbCache[t.id].tmdbId && (tmdbCache[t.id].voteAverage === undefined || tmdbCache[t.id].keywords === undefined)));
+            // V86: i film scoperti letti prima della V86 non hanno la saga: si rileggono subito, senza aspettare le 24 ore
+            const discoveryStale = Object.values(discovery.films || {}).some(f => f && f.collection === undefined);
+            const discoveryDue = isDiscoveryOn() && (force || discoveryStale || Date.now() - (discovery.runAt || 0) > DISCOVERY_REFRESH_MS);
             if (todo.length === 0 && !discoveryDue) { updateLiveStatus(); return; }
 
             Object.assign(tmdbStatus, { running: true, done: 0, total: todo.length, error: '' });
@@ -4572,7 +4600,7 @@
             await Promise.all([worker(), worker(), worker(), worker()]);
             saveTmdbCache();
             // Dopo la verifica del catalogo (che fornisce gli id TMDB per evitare doppioni): scoperta automatica
-            if (!tmdbStatus.error) await runDiscovery(force);
+            if (!tmdbStatus.error) await runDiscovery(force || discoveryStale);
             tmdbStatus.running = false;
             generateRecommendations(false, false);
             renderAllMatchingMovies();
@@ -4795,6 +4823,7 @@
                 poster: d.poster_path ? 'https://image.tmdb.org/t/p/w342' + d.poster_path : null,
                 link: it.link || `https://www.themoviedb.org/movie/${tmdbId}/watch?locale=IT`,
                 keywords: (d.keywords?.keywords || []).map(k => k.name),
+                collection: d.belongs_to_collection ? { id: d.belongs_to_collection.id, name: d.belongs_to_collection.name } : null,
                 certIT: getCertification(d.release_dates, 'IT'),
                 certUS: getCertification(d.release_dates, 'US'),
                 fetchedAt: Date.now()
@@ -4832,7 +4861,8 @@
                     .map(r => r.id);
                 // 3. Dettagli (durata, regia, cast, piattaforma) solo per i film nuovi o vecchi di 7 giorni
                 const todo = ids.filter(id => !discovery.films[id] || Date.now() - discovery.films[id].fetchedAt > DISCOVERY_DETAILS_MAX_AGE
-                    || discovery.films[id].keywords === undefined);   // film letti prima della V81: servono parole chiave e divieti
+                    || discovery.films[id].keywords === undefined      // film letti prima della V81: servono parole chiave e divieti
+                    || discovery.films[id].collection === undefined);  // prima della V86: serve la saga
                 Object.assign(discoveryStatus, { done: 0, total: todo.length });
                 updateLiveStatus();
                 const queue = [...todo];
@@ -5050,7 +5080,7 @@
         // Trasferimento dati tra copie dell'app (Desktop / online / telefono): unione, mai sovrascrittura
         const TRANSFER_LISTS = ['cinestudio_seen', 'cinestudio_watchlist', 'cinestudio_top250_seen', 'cinestudio_custom_dna',
             'cinestudio_demoted_ids', 'cinestudio_watchlist_defaults_given'];
-        const TRANSFER_RECORDS = ['cinestudio_radar_movies', 'cinestudio_disliked_movies', 'cinestudio_user_movies'];
+        const TRANSFER_RECORDS = ['cinestudio_radar_movies', 'cinestudio_disliked_movies', 'cinestudio_user_movies', 'cinestudio_avoided_filoni'];
         const TRANSFER_MAPS = ['cinestudio_seen_titles', 'cinestudio_platform_overrides'];
 
         function exportUserData() {
@@ -5388,7 +5418,10 @@
                         weight *= 0.7;   // il catalogo curato resta in primo piano sui film scoperti senza affinità DNA
                     }
                     weight = Math.max(10, weight);
-                    return { movie, weight };
+                    // V86: filone che preferisci evitare → raro (i film del DNA restano normali, vedi getAvoidedFilone)
+                    const avoided = !!getAvoidedFilone(movie);
+                    if (avoided) weight *= AVOIDED_WEIGHT;
+                    return { movie, weight, avoided };
                 });
 
                 // Estrazione probabilistica senza reinserimento (Weighted Lottery Sampling)
@@ -5396,7 +5429,7 @@
                 const tempPool = [...scoredPool];
                 const countToPick = Math.min(3, tempPool.length);
 
-                for (let i = 0; i < countToPick; i++) {
+                for (let i = 0; i < countToPick && tempPool.length; i++) {
                     const totalWeight = tempPool.reduce((acc, item) => acc + item.weight, 0);
                     let randomVal = Math.random() * totalWeight;
                     let pickedIdx = 0;
@@ -5408,7 +5441,12 @@
                         }
                     }
                     newPicks.push(tempPool[pickedIdx].movie);
+                    const pickedAvoided = tempPool[pickedIdx].avoided;
                     tempPool.splice(pickedIdx, 1);
+                    // Al massimo un film di un filone evitato per terna
+                    if (pickedAvoided) {
+                        for (let k = tempPool.length - 1; k >= 0; k--) if (tempPool[k].avoided) tempPool.splice(k, 1);
+                    }
                 }
 
                 currentRecommendations = newPicks;
@@ -5634,6 +5672,8 @@
                 others: [...new Set(included.map(p => p.provider_name).filter(n => !platOf(n)))],
                 rent: [...new Set([...(it.rent || []), ...(it.buy || [])].map(p => p.provider_name))],
                 link: it.link || '',
+                keywords: (d.keywords?.keywords || []).map(k => k.name),
+                collection: d.belongs_to_collection ? { id: d.belongs_to_collection.id, name: d.belongs_to_collection.name } : null,
                 content: classifyContent({ genres: genreIds, keywords: (d.keywords?.keywords || []).map(k => k.name), certIT: getCertification(d.release_dates, 'IT'), certUS: getCertification(d.release_dates, 'US'), voteAverage: d.vote_average || 0 })
             };
             window.__lookupFilms[tmdbId] = f;
@@ -5675,7 +5715,10 @@
 
         // Riga di un film che l'app conosce già (catalogo, scoperti, Radar arrivati, aggiunti da te)
         function knownRowHtml(m, inPool, ctx) {
-            const verdict = inPool
+            const avoidedFil = inPool && getAvoidedFilone(m);
+            const verdict = avoidedFil
+                ? `<span class="text-emerald-300 font-bold">✓ Te lo propongo, ma di rado</span> <span class="text-slate-400">(filone «${escapeHtml(avoidedFil.title)}» che preferisci evitare)</span>`
+                : inPool
                 ? '<span class="text-emerald-300 font-bold">✓ Te lo propongo</span>'
                 : `<span class="text-amber-300">Non te lo propongo: ${escapeHtml(whyNotInList(m))}</span>`;
             const seen = seenIds.has(m.id) || isPuntoCardinale(m.title) || ctx.seenSet.has(normalizeForMatch(m.title))
@@ -6015,7 +6058,8 @@
                 // Già verificato oggi: la verifica giornaliera lo seguirà da qui in avanti
                 tmdbCache[id] = { tmdbId, checkedAt: Date.now(), platforms: f.platforms, others: f.others, rentOrBuy: f.rent.length > 0,
                     poster: f.poster, link: f.link || `https://www.themoviedb.org/movie/${tmdbId}/watch?locale=IT`,
-                    runtime: f.runtime, overview: f.overview, voteAverage: f.voteAverage, voteCount: f.voteCount };
+                    runtime: f.runtime, overview: f.overview, voteAverage: f.voteAverage, voteCount: f.voteCount,
+                    keywords: f.keywords, genres: f.genres, collection: f.collection };
                 saveTmdbCache();
                 target = getAllMovies().find(m => m.id === id);
             }
@@ -6062,7 +6106,8 @@
             });
             tmdbCache[id] = { tmdbId, checkedAt: Date.now(), platforms: f.platforms, others: f.others, rentOrBuy: f.rent.length > 0,
                 poster: f.poster, link: f.link || `https://www.themoviedb.org/movie/${tmdbId}/watch?locale=IT`,
-                runtime: f.runtime, overview: f.overview, voteAverage: f.voteAverage, voteCount: f.voteCount };
+                runtime: f.runtime, overview: f.overview, voteAverage: f.voteAverage, voteCount: f.voteCount,
+                    keywords: f.keywords, genres: f.genres, collection: f.collection };
             saveTmdbCache();
             if (!quiet) refreshSearchPanel();
         }
@@ -6112,8 +6157,12 @@
                 return;
             }
 
+            // V86: i film dei filoni che eviti vanno in fondo
+            const avoidedOf = new Map(pool.map(m => [m.id, getAvoidedFilone(m)]));
+            pool = [...pool.filter(m => !avoidedOf.get(m.id)), ...pool.filter(m => avoidedOf.get(m.id))];
             container.innerHTML = pool.map(m => {
                 const inWatchlist = watchlistIds.has(m.id);
+                const avoidedFil = avoidedOf.get(m.id);
                 return `
                 <div class="p-3 rounded-xl bg-slate-900 hover:bg-slate-800/80 border ${inWatchlist ? 'border-amber-500/40 bg-slate-900/90' : 'border-slate-800'} hover:border-amber-500/50 flex items-start justify-between gap-2 text-xs transition group">
                     <div class="flex-1 min-w-0 cursor-pointer" onclick="openMovieDetailsModal('${m.id}')" title="Clicca per leggere la trama e i dettagli di ${escapeHtml(m.title)}">
@@ -6122,6 +6171,7 @@
                             <span class="font-bold text-white group-hover:text-amber-300 transition text-[13px]">${escapeHtml(m.title)}</span>
                             ${inWatchlist ? '<span class="bg-amber-500/20 text-amber-300 border border-amber-500/50 text-[9px] px-1.5 py-0.2 rounded font-black flex items-center gap-1 shadow-sm"><i class="fa-solid fa-bookmark text-amber-400 text-[8px]"></i> Watchlist</span>' : ''}
                             ${isImdbTop250(m) ? '<span class="bg-amber-950/80 text-amber-300 border border-amber-600/70 text-[9px] px-1.5 py-0.2 rounded font-black flex items-center gap-1" title="Presente nella Top 250 di IMDb"><i class="fa-solid fa-trophy text-[8px] text-amber-400"></i> Top 250' + (getTop250Rank(m) ? ' (#' + getTop250Rank(m) + ')' : '') + '</span>' : ''}
+                            ${avoidedFil ? `<span class="bg-slate-800 text-slate-400 border border-slate-700 text-[9px] px-1.5 py-0.2 rounded font-bold flex items-center gap-1" title="Filone che preferisci evitare: te lo propongo di rado"><i class="fa-solid fa-arrow-trend-down text-[8px]"></i> ${escapeHtml(avoidedFil.title)}</span>` : ''}
                             ${m.isShort || m.duration <= 40 ? '<span class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[9px] px-1.5 py-0.2 rounded font-bold uppercase">Corto</span>' : ''}
                             ${m.mood === 'motivazionali' ? '<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[9px] px-1.5 py-0.2 rounded font-bold uppercase">Riscatto</span>' : ''}
                             ${calculateDnaMatch(m).length > 0 ? `<span class="bg-purple-950/80 text-purple-300 border border-purple-700/60 text-[9px] px-1.5 py-0.2 rounded font-bold flex items-center gap-1" title="In sintonia con il tuo DNA"><i class="fa-solid fa-dna text-purple-400 text-[8px]"></i> DNA: ${escapeHtml(calculateDnaMatch(m)[0])}</span>` : ''}
@@ -6143,6 +6193,9 @@
                         </button>
                         <button onclick="markAsSeen('${m.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:bg-emerald-950 hover:text-emerald-400 text-slate-400 transition cursor-pointer" title="Segna come Già Visto">
                             <i class="fa-solid fa-check"></i>
+                        </button>
+                        <button onclick="openDislikeModal('${m.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-950 text-slate-400 transition cursor-pointer" title="Non fa per me: meno film come questo, oppure escludilo">
+                            <i class="fa-solid fa-thumbs-down text-rose-400"></i>
                         </button>
                     </div>
                 </div>
@@ -7353,7 +7406,7 @@
             renderRadarItems();
         }
 
-        function openDnaModal() { renderMilestones(); document.getElementById('modal-dna').classList.remove('hidden'); }
+        function openDnaModal() { renderMilestones(); renderAvoidedFiloni(); document.getElementById('modal-dna').classList.remove('hidden'); }
         function closeDnaModal() { document.getElementById('modal-dna').classList.add('hidden'); }
 
         function toggleWatchlistModal() {
@@ -7537,9 +7590,123 @@
             document.getElementById('dislike-modal-title').textContent = `Non fa per te: "${movie.title}"`;
             document.getElementById('dislike-note').value = '';
             document.querySelectorAll('input[name="dislike-reason"]').forEach(cb => cb.checked = false);
+            renderDislikeFiloni(movie);
 
             document.getElementById('modal-dislike').classList.remove('hidden');
         }
+
+        /* =========================================================================================
+         * FILONI EVITATI (V86): "Non fa per me" non deve per forza escludere. Puoi chiedere meno film
+         * di un filone (supereroi, una saga, un genere): restano possibili ma rari, mai due nella stessa
+         * terna, in fondo a Sfoglia tutti. I film dei tuoi registi e attori del DNA non ne risentono.
+         * ========================================================================================= */
+        const AVOIDED_STORAGE = 'cinestudio_avoided_filoni';
+        const AVOIDED_WEIGHT = 0.2;   // peso nell'estrazione della terna: un quinto del normale
+        let avoidedFiloni = [];
+        try { avoidedFiloni = JSON.parse(localStorage.getItem(AVOIDED_STORAGE) || '[]'); } catch (e) { avoidedFiloni = []; }
+
+        // Filoni riconosciuti dalle parole chiave TMDB (in inglese)
+        const KEYWORD_FILONI = [
+            { id: 'kw:supereroi', title: 'Supereroi e cinecomic', re: /superhero|super hero|marvel cinematic universe|dc extended universe|dc universe|based on comic|superhero team|super power|superpower/i },
+            { id: 'kw:catastrofici', title: 'Film catastrofici', re: /disaster movie|natural disaster|disaster film/i },
+            { id: 'kw:spionaggio', title: 'Spionaggio', re: /\bspy\b|espionage|secret agent/i },
+            { id: 'kw:mostri', title: 'Mostri giganti', re: /kaiju|giant monster/i },
+            { id: 'kw:videogiochi', title: 'Tratti da videogiochi', re: /based on video game/i }
+        ];
+
+        function getMovieTmdbMeta(movie) {
+            if (movie.id.startsWith('tmdb-')) return discovery.films[movie.id.slice(5)] || null;
+            return tmdbCache[movie.id] || null;
+        }
+
+        // Filoni a cui appartiene un film: prima quelli tematici, poi la saga, poi i generi principali
+        function getMovieFiloni(movie) {
+            const meta = getMovieTmdbMeta(movie);
+            if (!meta) return [];
+            const out = [];
+            const kw = (meta.keywords || []).join(' | ');
+            if (kw) KEYWORD_FILONI.forEach(f => { if (f.re.test(kw)) out.push({ id: f.id, title: f.title }); });
+            if (meta.collection?.id) {
+                const name = meta.collection.name.replace(/\s*[-–]\s*(collezione|la saga|saga|collection)\s*$/i, '').trim();
+                out.push({ id: 'col:' + meta.collection.id, title: 'Saga: ' + name });
+            }
+            (meta.genres || []).slice(0, 3).forEach(g => { if (TMDB_GENRES[g]) out.push({ id: 'genre:' + g, title: 'Genere: ' + TMDB_GENRES[g] }); });
+            return out;
+        }
+
+        // Il filone evitato a cui appartiene il film; null se nessuno o se il film è nel tuo DNA
+        function getAvoidedFilone(movie) {
+            if (!avoidedFiloni.length) return null;
+            const ids = new Set(avoidedFiloni.map(a => a.id));
+            const hit = getMovieFiloni(movie).find(f => ids.has(f.id));
+            if (!hit || calculateDnaMatch(movie).length > 0) return null;
+            return avoidedFiloni.find(a => a.id === hit.id) || null;
+        }
+
+        function saveAvoidedFiloni() {
+            localStorage.setItem(AVOIDED_STORAGE, JSON.stringify(avoidedFiloni));
+        }
+
+        function renderDislikeFiloni(movie) {
+            const box = document.getElementById('dislike-filoni');
+            if (!box) return;
+            const cands = getMovieFiloni(movie);
+            window.__dislikeFiloni = cands;
+            const already = new Set(avoidedFiloni.map(a => a.id));
+            if (!cands.length) {
+                box.innerHTML = `<p class="text-[11px] text-slate-500 pb-3 border-b border-slate-800">${getTmdbKey()
+                    ? 'Il filone di questo film non è ancora riconosciuto: lo sarà dopo la prossima verifica TMDB.'
+                    : 'Collega TMDB per poter vedere meno film di un intero filone (es. supereroi).'}</p>`;
+                return;
+            }
+            box.innerHTML = `<p class="text-slate-300 font-bold mb-1.5">Non ti piace il genere? Vedine meno, senza escluderli:</p>
+                <div class="flex flex-wrap gap-1.5">${cands.map((f, i) => already.has(f.id)
+                    ? `<span class="px-2.5 py-1.5 rounded-xl bg-slate-900 text-slate-400 border border-slate-700 font-bold">✓ ${escapeHtml(f.title)} (già evitato)</span>`
+                    : `<button type="button" onclick="avoidFilone(${i})" class="px-2.5 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 font-bold cursor-pointer"><i class="fa-solid fa-arrow-trend-down mr-1"></i>Meno «${escapeHtml(f.title)}»</button>`).join('')}</div>
+                <p class="text-[11px] text-slate-500 mt-1.5">Te li propongo di rado e mai due insieme; i film dei tuoi registi e attori del DNA restano normali. Puoi cambiare idea dalla finestra DNA.</p>
+                <p class="text-slate-300 font-bold pt-3 mt-3 border-t border-slate-800">Oppure escludi solo questo film, per sempre:</p>`;
+        }
+
+        function avoidFilone(index) {
+            const f = window.__dislikeFiloni?.[index];
+            if (!f) return;
+            if (!avoidedFiloni.some(a => a.id === f.id)) {
+                avoidedFiloni.push({ id: f.id, title: f.title, date: new Date().toISOString().split('T')[0] });
+                saveAvoidedFiloni();
+            }
+            closeDislikeModal();
+            closeMovieDetailsModal();
+            // Nella terna di stasera i film del filone appena evitato lasciano il posto ad altri
+            if (currentRecommendations?.some(m => getAvoidedFilone(m))) {
+                const reserve = getFilteredPool().filter(m => !getAvoidedFilone(m) && !currentRecommendations.some(c => c.id === m.id));
+                currentRecommendations = currentRecommendations.map(m => {
+                    if (!getAvoidedFilone(m)) return m;
+                    return reserve.length ? reserve.splice(Math.floor(Math.random() * reserve.length), 1)[0] : null;
+                }).filter(Boolean);
+                generateRecommendations(false, false);   // ridisegna la terna aggiornata
+            }
+            renderAllMatchingMovies();
+            alert(`D'ora in poi i film del filone «${f.title}» te li propongo di rado, mai due insieme.\nI film dei tuoi registi e attori del DNA restano normali. Puoi cambiare idea dalla finestra DNA.`);
+        }
+
+        function removeAvoidedFilone(id) {
+            avoidedFiloni = avoidedFiloni.filter(a => a.id !== id);
+            saveAvoidedFiloni();
+            renderAvoidedFiloni();
+            renderAllMatchingMovies();
+        }
+
+        function renderAvoidedFiloni() {
+            const box = document.getElementById('dna-avoided');
+            if (!box) return;
+            box.innerHTML = avoidedFiloni.length
+                ? avoidedFiloni.map(a => `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-200 border border-amber-500/40">
+                        <i class="fa-solid fa-arrow-trend-down text-[10px]"></i>${escapeHtml(a.title)}
+                        <button type="button" onclick="removeAvoidedFilone('${a.id}')" class="text-amber-300/70 hover:text-white cursor-pointer" title="Torna a proporli normalmente"><i class="fa-solid fa-xmark"></i></button>
+                    </span>`).join('')
+                : '<span class="text-[11px] text-slate-500">Nessuno per ora.</span>';
+        }
+
 
         function closeDislikeModal() {
             document.getElementById('modal-dislike').classList.add('hidden');
@@ -7594,7 +7761,7 @@
                 } else {
                     currentRecommendations = currentRecommendations.filter(m => m.id !== movie.id);
                 }
-                renderRecommendations();
+                generateRecommendations(false, false);   // ridisegna la terna aggiornata
             }
 
             updateSeenCounts();
