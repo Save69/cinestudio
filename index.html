@@ -5543,6 +5543,7 @@
                         <div class="p-4 pb-2 flex items-center justify-between">
                             ${platformBadge}
                             <span class="text-xs text-slate-400 font-mono flex items-center gap-1.5 flex-wrap justify-end">
+                                ${animationBadge(movie)}
                                 ${movie.discovered ? `<span class="bg-purple-950/80 text-purple-300 border border-purple-700/60 text-[10px] px-2 py-0.5 rounded-lg font-bold flex items-center gap-1" title="Trovato automaticamente sulle tue piattaforme: tono e mood stimati dai generi">✨ Scoperto per te</span>` : ''}
                                 ${isWatchlisted ? `<span class="bg-amber-500/20 text-amber-300 border border-amber-500/50 text-[10px] px-2 py-0.5 rounded-lg font-bold flex items-center gap-1 shadow-sm"><i class="fa-solid fa-bookmark text-amber-400"></i> ${watchlistFirst ? 'Dalla tua Watchlist' : 'In Watchlist'}</span>` : ''}
                                 ${isImdbTop250(movie) ? `<span class="bg-amber-950/80 text-amber-300 border border-amber-600/70 text-[10px] px-2 py-0.5 rounded-lg font-black uppercase flex items-center gap-1 shadow-sm" title="Presente nella prestigiosa Top 250 di IMDb"><i class="fa-solid fa-trophy text-amber-400"></i> Top 250${getTop250Rank(movie) ? ' (#' + getTop250Rank(movie) + ')' : ''}</span>` : ''}
@@ -5774,7 +5775,7 @@
                     <div class="flex items-center gap-2.5 min-w-[15rem] flex-1">
                         ${f.thumb ? `<img src="${f.thumb}" alt="" loading="lazy" class="w-9 h-[52px] object-cover rounded shrink-0 border border-slate-800">` : '<div class="w-9 h-[52px] rounded bg-slate-800 shrink-0"></div>'}
                         <div class="min-w-0 space-y-0.5">
-                            <div class="flex items-center gap-1.5 flex-wrap"><b class="text-white">${escapeHtml(f.title)}</b><span class="text-slate-500">(${f.year || 'n.d.'}${f.voteCount >= 20 ? ` · TMDB ${f.voteAverage.toFixed(1)}` : ''})</span>${role ? `<span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] font-bold">${escapeHtml(role)}</span>` : ''}${note}</div>
+                            <div class="flex items-center gap-1.5 flex-wrap"><b class="text-white">${escapeHtml(f.title)}</b><span class="text-slate-500">(${f.year || 'n.d.'}${f.voteCount >= 20 ? ` · TMDB ${f.voteAverage.toFixed(1)}` : ''})</span>${role ? `<span class="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] font-bold">${escapeHtml(role)}</span>` : ''}${animationBadge(f, 'xs')}${note}</div>
                             ${people ? `<div class="text-[11px] text-slate-400 truncate">${people}</div>` : ''}
                             <div>${verdict}</div>
                         </div>
@@ -5805,7 +5806,7 @@
             if (!seen) actions.push(searchBtn('✓ Già visto', `markSeenFromSearch('${m.id}')`, 'plain'));
             return `<div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs flex items-center justify-between gap-2 flex-wrap">
                     <div class="min-w-[15rem] flex-1 space-y-0.5">
-                        <div class="flex items-center gap-1.5 flex-wrap">${getPlatformBadge(m.platform, true)}<span class="font-bold text-white">${escapeHtml(m.title)}</span><span class="text-slate-500">(${m.year}${m.director ? ` · ${escapeHtml(m.director)}` : ''})</span></div>
+                        <div class="flex items-center gap-1.5 flex-wrap">${getPlatformBadge(m.platform, true)}<span class="font-bold text-white">${escapeHtml(m.title)}</span><span class="text-slate-500">(${m.year}${m.director ? ` · ${escapeHtml(m.director)}` : ''})</span>${animationBadge(m, 'xs')}</div>
                         <div>${verdict}</div>
                     </div>
                     <div class="flex gap-1.5 flex-wrap shrink-0">${actions.join('')}</div>
@@ -6241,6 +6242,7 @@
                             <span class="font-bold text-white group-hover:text-amber-300 transition text-[13px]">${escapeHtml(m.title)}</span>
                             ${inWatchlist ? '<span class="bg-amber-500/20 text-amber-300 border border-amber-500/50 text-[9px] px-1.5 py-0.2 rounded font-black flex items-center gap-1 shadow-sm"><i class="fa-solid fa-bookmark text-amber-400 text-[8px]"></i> Watchlist</span>' : ''}
                             ${isImdbTop250(m) ? '<span class="bg-amber-950/80 text-amber-300 border border-amber-600/70 text-[9px] px-1.5 py-0.2 rounded font-black flex items-center gap-1" title="Presente nella Top 250 di IMDb"><i class="fa-solid fa-trophy text-[8px] text-amber-400"></i> Top 250' + (getTop250Rank(m) ? ' (#' + getTop250Rank(m) + ')' : '') + '</span>' : ''}
+                            ${animationBadge(m, 'xs')}
                             ${avoidedFil ? `<span class="bg-slate-800 text-slate-400 border border-slate-700 text-[9px] px-1.5 py-0.2 rounded font-bold flex items-center gap-1" title="Filone che preferisci evitare: te lo propongo di rado"><i class="fa-solid fa-arrow-trend-down text-[8px]"></i> ${escapeHtml(avoidedFil.title)}</span>` : ''}
                             ${m.isShort || m.duration <= 40 ? '<span class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[9px] px-1.5 py-0.2 rounded font-bold uppercase">Corto</span>' : ''}
                             ${m.mood === 'motivazionali' ? '<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[9px] px-1.5 py-0.2 rounded font-bold uppercase">Riscatto</span>' : ''}
@@ -7663,6 +7665,24 @@
             renderDislikeFiloni(movie);
 
             document.getElementById('modal-dislike').classList.remove('hidden');
+        }
+
+        /* =========================================================================================
+         * ANIMAZIONE (V88): etichetta "Animazione" su schede, Sfoglia tutti e ricerca. Fonte: genere TMDB 16
+         * (catalogo dopo la verifica live, film scoperti e trovati). Senza dati TMDB: registi e parole tipiche.
+         * ========================================================================================= */
+        const ANIMATION_HINTS = /pixar|ghibli|miyazaki|takahata|dreamworks|animazion|cartone animato|stop[- ]motion|andrew stanton|pete docter|brad bird|lee unkrich|makoto shinkai|sylvain chomet|nick park/i;
+
+        function isAnimated(movie) {
+            const genres = movie.genres || (movie.id ? getMovieTmdbMeta(movie)?.genres : null);
+            if (Array.isArray(genres) && genres.length) return genres.includes(16);
+            return ANIMATION_HINTS.test(`${movie.director || ''} ${movie.why || ''} ${movie.synopsis || ''}`);
+        }
+
+        function animationBadge(movie, size = 'sm') {
+            if (!isAnimated(movie)) return '';
+            const cls = size === 'xs' ? 'text-[9px] px-1.5 py-0.2' : 'text-[10px] px-2 py-0.5';
+            return `<span class="bg-pink-950/70 text-pink-300 border border-pink-700/60 ${cls} rounded-lg font-bold flex items-center gap-1" title="Film d'animazione"><i class="fa-solid fa-palette text-pink-400"></i> Animazione</span>`;
         }
 
         /* =========================================================================================
