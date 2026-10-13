@@ -327,6 +327,9 @@
                 </h2>
                 <div id="live-status" class="w-full order-last text-[10px] text-slate-400 flex items-center gap-1 flex-wrap"></div>
                 <div class="flex items-center gap-2">
+                    <button id="btn-watchlist-first" type="button" onclick="toggleWatchlistFirst()" class="px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition cursor-pointer active:scale-95 shrink-0" title="Acceso: la terna parte dai film della tua Watchlist adatti a stasera, poi gli altri">
+                        <i class="fa-solid fa-bookmark text-[11px]"></i> <span id="watchlist-first-label">Prima la Watchlist</span>
+                    </button>
                     <button onclick="generateRecommendations(true); scrollToCards();" class="md:hidden px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1 active:scale-95 transition shrink-0">
                         <i class="fa-solid fa-dice text-[11px]"></i> <span>Cambia</span>
                     </button>
@@ -342,6 +345,7 @@
             <div id="cards-grid" class="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 px-1 -mx-2 sm:mx-0 sm:px-0 md:grid md:grid-cols-3 md:gap-5 md:overflow-visible scrollbar-none">
                 <!-- Inserite dinamicamente via JS -->
             </div>
+            <div id="watchlist-first-note" class="hidden text-[11px] text-slate-400 px-1 -mt-2"></div>
 
             <!-- Pulsante mobile per cambiare terna dopo lo swipe -->
             <div class="md:hidden pt-1 pb-1">
@@ -5289,7 +5293,9 @@
             alert("\"" + movie.title + "\" è stato spostato nel Radar con successo!\nRimosso dai consigli streaming abbonamento.");
         }
 
-        function getFilteredPool() {
+        // options.ignoreScore (V87): per i film della Watchlist la soglia di voto non vale (sono una tua scelta)
+        function getFilteredPool(options = {}) {
+            const ignoreScore = options.ignoreScore === true;
             const mood = document.getElementById('select-mood').value;
             const maxDuration = parseInt(document.getElementById('select-duration').value, 10);
             const comfortMode = document.getElementById('check-comfort-mode')?.checked ?? true;
@@ -5324,7 +5330,7 @@
 
                 // Guardrail di qualità (V73): un solo voto, TMDB dove verificato, altrimenti IMDb del catalogo.
                 // V82: i film dei tuoi registi/attori del DNA passano anche con voto ≥ 6.0 (es. Mel Brooks, Gene Wilder)
-                if (!(movie.imdb >= minImdb) && !(movie.imdb >= DNA_SCORE_FLOOR && calculateDnaMatch(movie).length > 0)) return false;
+                if (!ignoreScore && !(movie.imdb >= minImdb) && !(movie.imdb >= DNA_SCORE_FLOOR && calculateDnaMatch(movie).length > 0)) return false;
 
                 // Filtro Durata
                 if (maxDuration > 0) {
@@ -5361,14 +5367,61 @@
             });
         }
 
+        /* =========================================================================================
+         * PRIMA LA WATCHLIST (V87, acceso di partenza): la terna parte dai film della Watchlist adatti a
+         * stasera (piattaforme, durata, mood, Filtro Confort; la soglia di voto non vale), poi gli altri.
+         * ========================================================================================= */
+        let watchlistFirst = localStorage.getItem('cinestudio_watchlist_first') !== 'off';
+
+        function toggleWatchlistFirst() {
+            watchlistFirst = !watchlistFirst;
+            localStorage.setItem('cinestudio_watchlist_first', watchlistFirst ? 'on' : 'off');
+            window.recentWatchlistIds = [];
+            generateRecommendations(true, true);
+        }
+
+        // Pulsante acceso/spento e riga "quanti film della Watchlist stasera"
+        function updateWatchlistFirstUi(wlPool) {
+            const btn = document.getElementById('btn-watchlist-first');
+            if (btn) {
+                btn.className = `px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition cursor-pointer active:scale-95 shrink-0 ${watchlistFirst
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/50' : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'}`;
+                btn.setAttribute('aria-pressed', String(watchlistFirst));
+                const label = document.getElementById('watchlist-first-label');
+                if (label) label.textContent = watchlistFirst ? 'Prima la Watchlist: sì' : 'Prima la Watchlist: no';
+            }
+            const note = document.getElementById('watchlist-first-note');
+            if (!note) return;
+            const seenSet = getSeenTitleSet();
+            const saved = getAllMovies().filter(m => watchlistIds.has(m.id) && !seenIds.has(m.id) && !isSeenByTitle(m, seenSet) && !isPuntoCardinale(m.title));
+            if (!watchlistFirst || !saved.length) { note.classList.add('hidden'); note.innerHTML = ''; return; }
+            const okIds = new Set(wlPool.map(m => m.id));
+            const out = saved.filter(m => !okIds.has(m.id));
+            const gone = out.filter(m => m.liveUnavailable).length;
+            const notTonight = out.length - gone;
+            const parts = [];
+            if (notTonight) parts.push(`${notTonight} ${notTonight === 1 ? 'non adatto' : 'non adatti'} a stasera (piattaforma, durata, mood o tono)`);
+            if (gone) parts.push(`${gone} non più ${gone === 1 ? 'incluso' : 'inclusi'} nei tuoi abbonamenti`);
+            note.innerHTML = `<i class="fa-solid fa-bookmark text-amber-400 mr-1"></i>Watchlist: ${wlPool.length} ${wlPool.length === 1 ? 'film adatto' : 'film adatti'} a stasera${parts.length ? ` · ${parts.join(' · ')}` : ''}.
+                <button type="button" onclick="toggleWatchlistModal()" class="text-amber-300 hover:text-white font-bold underline cursor-pointer">Apri la Watchlist</button>`;
+            note.classList.remove('hidden');
+        }
+
+        function isSeenByTitle(m, set) {
+            return set.has(normalizeForMatch(m.title)) || (!!m.originalTitle && set.has(normalizeForMatch(m.originalTitle)));
+        }
+
         function generateRecommendations(showAnimation = true, forceRoll = true) {
             const pool = getFilteredPool();
             document.getElementById('filtered-pool-count').textContent = pool.length;
+            // V87: film della Watchlist adatti a stasera (stessi filtri della serata, senza soglia di voto)
+            const wlPool = watchlistFirst ? getFilteredPool({ ignoreScore: true }).filter(m => watchlistIds.has(m.id)) : [];
+            updateWatchlistFirstUi(wlPool);
 
             const grid = document.getElementById('cards-grid');
             grid.innerHTML = '';
 
-            if (pool.length === 0) {
+            if (pool.length === 0 && wlPool.length === 0) {
                 grid.innerHTML = `
                     <div class="col-span-3 text-center py-12 glass-panel rounded-2xl p-6 text-slate-400">
                         <i class="fa-solid fa-film-slash text-3xl mb-3 text-slate-500"></i>
@@ -5384,13 +5437,13 @@
 
             if (!shouldPickNew) {
                 // Se non è forzato il roll, verifica se i film attualmente proposti sono ancora validi nei filtri
-                const poolIds = new Set(pool.map(m => m.id));
+                const poolIds = new Set([...pool, ...wlPool].map(m => m.id));
                 const allStillValid = currentRecommendations.every(m => poolIds.has(m.id));
                 if (!allStillValid) {
                     shouldPickNew = true;
                 } else {
                     // Stessa terna, ma con i dati aggiornati (verifica live, piattaforma, locandina)
-                    const poolById = new Map(pool.map(m => [m.id, m]));
+                    const poolById = new Map([...pool, ...wlPool].map(m => [m.id, m]));
                     currentRecommendations = currentRecommendations.map(m => poolById.get(m.id));
                 }
             }
@@ -5401,11 +5454,28 @@
                     window.recentRecommendedIds = [];
                 }
                 
-                let candidatePool = pool.filter(m => !window.recentRecommendedIds.includes(m.id));
-                if (candidatePool.length < 3) {
+                // V87 "Prima la Watchlist": i primi posti vanno ai film della Watchlist, a rotazione
+                // (a ogni lancio quelli non ancora mostrati). Finito il giro, un lancio tocca agli altri film,
+                // poi si ricomincia dalla Watchlist: tirando i dadi si esce sempre dalla stessa terna.
+                const wlPicks = [];
+                if (wlPool.length) {
+                    window.recentWatchlistIds = window.recentWatchlistIds || [];
+                    let wlCand = wlPool.filter(m => !window.recentWatchlistIds.includes(m.id));
+                    if (!wlCand.length) {
+                        window.recentWatchlistIds = [];
+                        const others = pool.some(m => !watchlistIds.has(m.id));
+                        if (!others) wlCand = [...wlPool];   // nessun altro film adatto: resta la Watchlist
+                    }
+                    while (wlPicks.length < 3 && wlCand.length) wlPicks.push(wlCand.splice(Math.floor(Math.random() * wlCand.length), 1)[0]);
+                    wlPicks.forEach(m => window.recentWatchlistIds.push(m.id));
+                }
+                const wlPickIds = new Set(wlPicks.map(m => m.id));
+
+                let candidatePool = pool.filter(m => !window.recentRecommendedIds.includes(m.id) && !wlPickIds.has(m.id));
+                if (candidatePool.length < 3 - wlPicks.length) {
                     // Riserva esaurita o pool piccolo: azzera la memoria recente e riparti dall'intero pool
                     window.recentRecommendedIds = [];
-                    candidatePool = [...pool];
+                    candidatePool = pool.filter(m => !wlPickIds.has(m.id));
                 }
 
                 // Calcolo peso di estrazione (voto IMDb + MYmovies + affinità DNA)
@@ -5425,9 +5495,9 @@
                 });
 
                 // Estrazione probabilistica senza reinserimento (Weighted Lottery Sampling)
-                const newPicks = [];
+                const newPicks = [...wlPicks];
                 const tempPool = [...scoredPool];
-                const countToPick = Math.min(3, tempPool.length);
+                const countToPick = Math.min(3 - wlPicks.length, tempPool.length);
 
                 for (let i = 0; i < countToPick && tempPool.length; i++) {
                     const totalWeight = tempPool.reduce((acc, item) => acc + item.weight, 0);
@@ -5474,7 +5544,7 @@
                             ${platformBadge}
                             <span class="text-xs text-slate-400 font-mono flex items-center gap-1.5 flex-wrap justify-end">
                                 ${movie.discovered ? `<span class="bg-purple-950/80 text-purple-300 border border-purple-700/60 text-[10px] px-2 py-0.5 rounded-lg font-bold flex items-center gap-1" title="Trovato automaticamente sulle tue piattaforme: tono e mood stimati dai generi">✨ Scoperto per te</span>` : ''}
-                                ${isWatchlisted ? `<span class="bg-amber-500/20 text-amber-300 border border-amber-500/50 text-[10px] px-2 py-0.5 rounded-lg font-bold flex items-center gap-1 shadow-sm"><i class="fa-solid fa-bookmark text-amber-400"></i> In Watchlist</span>` : ''}
+                                ${isWatchlisted ? `<span class="bg-amber-500/20 text-amber-300 border border-amber-500/50 text-[10px] px-2 py-0.5 rounded-lg font-bold flex items-center gap-1 shadow-sm"><i class="fa-solid fa-bookmark text-amber-400"></i> ${watchlistFirst ? 'Dalla tua Watchlist' : 'In Watchlist'}</span>` : ''}
                                 ${isImdbTop250(movie) ? `<span class="bg-amber-950/80 text-amber-300 border border-amber-600/70 text-[10px] px-2 py-0.5 rounded-lg font-black uppercase flex items-center gap-1 shadow-sm" title="Presente nella prestigiosa Top 250 di IMDb"><i class="fa-solid fa-trophy text-amber-400"></i> Top 250${getTop250Rank(movie) ? ' (#' + getTop250Rank(movie) + ')' : ''}</span>` : ''}
                                 ${movie.isShort || movie.duration <= 40 ? '<span class="bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase"><i class="fa-solid fa-bolt"></i> Corto</span>' : ''}
                                 ${movie.mood === 'motivazionali' ? '<span class="bg-rose-500/20 text-rose-300 border border-rose-500/40 text-[10px] px-1.5 py-0.5 rounded font-bold uppercase"><i class="fa-solid fa-fire"></i> Riscatto</span>' : ''}
