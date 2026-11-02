@@ -221,18 +221,16 @@
                         <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                             <i class="fa-solid fa-masks-theater text-amber-400"></i> Mood Serale
                         </label>
-                        <select id="select-mood" onchange="generateRecommendations()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-amber-500">
+                        <select id="select-mood" onchange="generateRecommendations(); renderAllMatchingMovies();" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-amber-500">
                             <option value="all">🌟 Qualsiasi (Ispirami)</option>
+                            <option value="fantascienza">🚀 Fantascienza</option>
+                            <option value="avventura">🧭 Avventura</option>
+                            <option value="anima">🌿 Anima e Spiritualità</option>
+                            <option value="motivazionali">🔥 Motivazionale</option>
+                            <option value="commedia">😊 Commedia & Leggerezza</option>
+                            <option value="thriller">🕵️ Thriller & Mistero</option>
                             <option value="top250">🏆 I Giganti della Storia (IMDb Top 250)</option>
                             <option value="novita">🆕 Novità & Gemme Recenti (2022-2026)</option>
-                            <option value="motivazionali">🥊 Fuoco & Riscatto (tipo Rocky, Whiplash, Air)</option>
-                            <option value="corti">🎬 Cortometraggi & Gioielli Brevi (Oscar & Festival)</option>
-                            <option value="autore">🏆 Festival, Autore & Premi (Venezia, Oscar, Moretti, Fandango)</option>
-                            <option value="cuore">🎭 Cuore, Emozione & Troisi/Benigni/La La Land</option>
-                            <option value="mente">🧠 Mente, Ritmo & Ingegno</option>
-                            <option value="anima">🚶 Viaggio, Spiritualità & Anima</option>
-                            <option value="epica">🎬 Grande Regia, Leone & Epica</option>
-                            <option value="meraviglia">✨ Meraviglia & Fantasia (Miyazaki/Hugo)</option>
                         </select>
                     </div>
 
@@ -240,7 +238,7 @@
                         <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                             <i class="fa-regular fa-clock text-emerald-400"></i> Durata Massima
                         </label>
-                        <select id="select-duration" onchange="generateRecommendations()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-amber-500">
+                        <select id="select-duration" onchange="generateRecommendations(); renderAllMatchingMovies();" class="w-full bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 font-medium focus:outline-none focus:border-amber-500">
                             <option value="0">Qualsiasi durata</option>
                             <option value="40">⏱️ Cortometraggi (≤ 40 min)</option>
                             <option value="105">⚡ Stasera sono stanco (≤ 1h 45m)</option>
@@ -250,17 +248,27 @@
                     </div>
                 </div>
 
-                <!-- Toggle Confort Serale (No Drammi Cupi) -->
+                <!-- Toggle Confort Serale & Escludi Animazione -->
                 <div class="md:col-span-12 flex items-center justify-between flex-wrap gap-2 pt-2 pb-1 border-t border-slate-800/80">
-                    <label class="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 cursor-pointer select-none transition">
-                        <input type="checkbox" id="check-comfort-mode" checked onchange="toggleComfortMode()" class="w-4 h-4 rounded text-amber-500 bg-slate-900 border-slate-700 cursor-pointer focus:ring-0">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                                <i class="fa-solid fa-mug-hot text-amber-400"></i> Filtro Confort Serale
-                            </span>
-                            <span class="text-[10px] text-slate-400 font-medium hidden sm:inline">(Esclude categoricamente drammi cupi, lenti, deprimenti o traumatici)</span>
-                        </div>
-                    </label>
+                    <div class="flex items-center flex-wrap gap-2">
+                        <label class="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 cursor-pointer select-none transition">
+                            <input type="checkbox" id="check-comfort-mode" checked onchange="toggleComfortMode()" class="w-4 h-4 rounded text-amber-500 bg-slate-900 border-slate-700 cursor-pointer focus:ring-0">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-mug-hot text-amber-400"></i> Filtro Confort Serale
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-medium hidden lg:inline">(No drammi cupi o traumatici)</span>
+                            </div>
+                        </label>
+                        <label class="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/30 cursor-pointer select-none transition" title="Esclude automaticamente tutti i film d'animazione (Pixar, Ghibli, cartoni, stop-motion) dalle proposte e dalla lista">
+                            <input type="checkbox" id="check-exclude-animation" checked onchange="toggleExcludeAnimation()" class="w-4 h-4 rounded text-pink-500 bg-slate-900 border-slate-700 cursor-pointer focus:ring-0">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold text-pink-300 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-ban text-pink-400"></i> Escludi Animazione
+                                </span>
+                            </div>
+                        </label>
+                    </div>
                     <span class="text-[11px] text-slate-400 flex items-center gap-1.5">
                         <i class="fa-solid fa-shield-halved text-emerald-400"></i> Zero Noleggi & Protezione Tono Emotivo
                     </span>
@@ -590,15 +598,13 @@
                     <div>
                         <label class="block text-slate-300 font-bold mb-1">Mood</label>
                         <select id="add-movie-mood" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-white font-bold">
+                            <option value="fantascienza">🚀 Fantascienza</option>
+                            <option value="avventura">🧭 Avventura</option>
+                            <option value="anima">🌿 Anima e Spiritualità</option>
+                            <option value="motivazionali">🔥 Motivazionale</option>
+                            <option value="commedia">😊 Commedia & Leggerezza</option>
+                            <option value="thriller">🕵️ Thriller & Mistero</option>
                             <option value="novita">🆕 Novità/Gemme</option>
-                            <option value="motivazionali">🥊 Motivazione & Riscatto</option>
-                            <option value="corti">🎬 Cortometraggio</option>
-                            <option value="autore">🏆 Festival/Autore</option>
-                            <option value="cuore">🎭 Cuore/Commedia</option>
-                            <option value="mente">🧠 Mente/Ritmo</option>
-                            <option value="anima">🚶 Anima/Viaggio</option>
-                            <option value="epica">🎬 Grande Epica</option>
-                            <option value="meraviglia">✨ Meraviglia</option>
                         </select>
                     </div>
                 </div>
@@ -4784,14 +4790,82 @@
             return 'demanding';
         }
 
-        function estimateMood(genreIds, originalLanguage) {
+        /* =========================================================================================
+         * MOOD SERALI (V89): ogni film può appartenere a più mood contemporaneamente (es. The Martian
+         * è sia Fantascienza, sia Avventura, sia Motivazionale; Vita di Pi è sia Avventura sia Anima).
+         * Fonti: generi e parole chiave TMDB (sia per il catalogo verificato sia per i film scoperti)
+         * + campo mood + testo della scheda per funzionare anche senza dati TMDB.
+         * ========================================================================================= */
+        const MOOD_RULES = {
+            fantascienza: {
+                genres: [878],
+                kw: /\b(sci-fi|science fiction|space|spacecraft|astronaut|mars\b|alien|extra-terrest|time travel|dystopia|cyberpunk|artificial intelligence|robot|android|clone|post-apocalyptic|multiverse|future|simulated reality)/i,
+                text: /\b(fantascienz|sci-fi|spazio|astronav|astronaut|pianet[ai]|marte\b|alien[oi]|extra[- ]?terrestr|viaggi[o]? nel tempo|macchina del tempo|distopi[ac]|intelligenza artificiale|dinosauri|cometa diretta|truman show)/i
+            },
+            avventura: {
+                genres: [12, 37],
+                kw: /\b(adventure|expedition|survival|shipwreck|ocean|jungle|desert|mountain|mountaineering|treasure|frontier|island|quest|explorer|wilderness|sea adventure|western)/i,
+                text: /\b(avventur|esplorazion|spedizion|sopravvivenz|naufrag|oceano|mare aperto|giungla|deserto|montagn[ae]|alpinism|tesoro|arca dell'alleanza|santo graal|terre selvagge|precipita sulle ande|grotta allagata|in mare aperto|pistolero|western|viaggio attraverso i balcani|lungo l'ovest|dinosauri|marte\b|apollo 13|ritorno al futuro)/i
+            },
+            anima: {
+                genres: [],
+                kw: /\b(spiritual|spirituality|philosophy|meaning of life|existential|faith|meditation|pilgrimage|afterlife|grief|healing|self-discovery|monk|monastery|zen\b|buddhism|prayer|miracle|destiny|soul\b|contemplative|inner journey|poetic|humanism|coming of age)/i,
+                text: /\b(spiritual|anima\b|senso della vita|esistenzial|fede\b|cammino interiore|rinascita|libert\u00e0 interiore|pellegrinagg|aldil\u00e0|lutto|perdita del figlio|memoria e nostalgia|memoria, l'umanit\u00e0|vocazione|poesia visiva|sguardo interiore|dimensione di pace|ascoltare il silenzio|frammenti della propria identit\u00e0|coscienza morale|fiaba italiana|romanzo di formazione|truman show|fabelmans|storia di un matrimonio|spiriti dell'isola|beautiful boy|la chimera|la vita \u00e8 bella)/i
+            },
+            motivazionali: {
+                genres: [],
+                kw: /\b(inspiring|inspirational|underdog|sport|sports|boxing|boxer|basketball|football|rowing|swimming|olympics|racing|formula 1|wrestling|coach|mentor|perseverance|triumph|against all odds|american dream|self-made|overcoming adversity|resilience|civil rights|journalism)/i,
+                text: /\b(motivazional|riscatto|rivalsa|contro ogni pronostico|determinazion|perseveran|resilienz|mentore|impresa titanica|pugil[ei]|boxe|basket|pallacanestro|football|canottaggio|olimpiad|campion[ei]|formula 1|24 ore di le mans|wrestler|allenatore|coach\b|genio ribelle|sfidando i pregiudizi|salvataggio|ammaraggio|libert\u00e0 di stampa|diritti civili|talento femminile|autodidatta|pionier[ei]|davide contro golia|gigante aziendale)/i
+            },
+            commedia: {
+                genres: [35],
+                kw: /\b(comedy|humor|humour|satire|parody|slapstick|feel-good|romantic comedy|rom-com|irony|witty|hilarious|funny)/i,
+                text: /\b(commedia|comic[oa]|comicit\u00e0|umorism|ironi[ac]|autoironia|satir[ac]|divertent|esilarant|risat[ae]|brillant|ladruncoli|coppia comica|in vespa|grand budapest|perfetti sconosciuti|henry sugar|willy wonka|quasi amici|scusate se esisto|good morning, vietnam)/i
+            },
+            thriller: {
+                genres: [53, 9648],
+                kw: /\b(thriller|mystery|detective|investigation|murder|assassin|plot twist|suspense|enigma|espionage|spy\b|conspiracy|whodunit|noir\b|heist|secret agent|mafia|organized crime|trial|courtroom|obsession)/i,
+                text: /\b(thriller|mistero|giallo|indagin|investigazion|detective|omicidio|colpo di scena|suspense|spionistic|agente segreto|intrigo|cospirazion|noir\b|cia\b|stasi\b|cosa nostra|mafios|criminalit|svaligiare|truffatori|processo|ossessione viscerale)/i
+            }
+        };
+
+        function getMovieMoods(movie) {
+            const out = new Set();
+            const rawMoods = Array.isArray(movie.mood) ? movie.mood : (movie.mood ? [movie.mood] : []);
+            rawMoods.forEach(m => {
+                if (MOOD_RULES[m]) out.add(m);
+                else if (m === 'leggerezza') out.add('commedia');
+            });
+            const meta = movie.id ? getMovieTmdbMeta(movie) : null;
+            const genres = movie.genres || meta?.genres || [];
+            const kwText = (movie.keywords || meta?.keywords || []).join(' | ');
+            const text = `${movie.title || ''} ${movie.why || ''} ${movie.synopsis || ''}`;
+            for (const [key, rule] of Object.entries(MOOD_RULES)) {
+                if (key === 'commedia' && movie.emotionalTone === 'demanding') continue;
+                if (rule.genres.some(g => genres.includes(g))) out.add(key);
+                else if (kwText && rule.kw.test(kwText)) out.add(key);
+                else if (rule.text.test(text)) out.add(key);
+            }
+            return [...out];
+        }
+
+        function movieMatchesMood(movie, mood) {
+            if (!mood || mood === 'all') return true;
+            if (mood === 'top250') return isImdbTop250(movie);
+            if (mood === 'novita') return movie.year >= 2022 || movie.mood === 'novita' || (Array.isArray(movie.mood) && movie.mood.includes('novita'));
+            return getMovieMoods(movie).includes(mood);
+        }
+
+        function estimateMood(genreIds = [], originalLanguage = '', keywords = []) {
             const g = new Set(genreIds);
-            if (g.has(16) || g.has(14) || g.has(10751) || g.has(878)) return 'meraviglia';
-            if (g.has(35) || g.has(10749)) return 'cuore';
-            if (g.has(53) || g.has(9648) || g.has(80)) return 'mente';
-            if (g.has(10752) || g.has(36) || g.has(37) || g.has(12) || g.has(28)) return 'epica';
-            if (g.has(99)) return 'autore';
-            return originalLanguage && originalLanguage !== 'en' ? 'autore' : 'anima';
+            const kw = (keywords || []).join(' | ');
+            if (kw && MOOD_RULES.motivazionali.kw.test(kw)) return 'motivazionali';
+            if (kw && MOOD_RULES.anima.kw.test(kw)) return 'anima';
+            if (g.has(878)) return 'fantascienza';
+            if (g.has(12) || g.has(37)) return 'avventura';
+            if (g.has(35)) return 'commedia';
+            if (g.has(53) || g.has(9648) || g.has(80)) return 'thriller';
+            return 'dramma';
         }
 
         async function getDiscoveryProviderIds() {
@@ -4918,7 +4992,7 @@
                     imdb: Math.round(f.voteAverage * 10) / 10,
                     scoreSource: 'TMDB',
                     mymovies: null,
-                    mood: estimateMood(f.genres, f.originalLanguage),
+                    mood: estimateMood(f.genres, f.originalLanguage, f.keywords),
                     emotionalTone: content.tone,
                     contentNote: content.note,
                     why: `Scoperto per te su ${getPlatformName(plat)}${genreNames ? ` · ${genreNames}` : ''} · voto TMDB ${f.voteAverage.toFixed(1)} su ${f.voteCount.toLocaleString('it-IT')} voti.${content.note ? ` ⚠️ ${content.note}.` : ''}`,
@@ -5193,6 +5267,11 @@
             if (comfortEl) {
                 comfortEl.checked = (savedComfort !== 'false');
             }
+            const savedExcludeAnim = localStorage.getItem('cinestudio_exclude_animation');
+            const excludeAnimEl = document.getElementById('check-exclude-animation');
+            if (excludeAnimEl) {
+                excludeAnimEl.checked = (savedExcludeAnim !== 'false');
+            }
             updateWatchlistCount();
             backfillSeenTitles();
             syncSeenWithTop250();
@@ -5240,6 +5319,14 @@
         function toggleComfortMode() {
             const isComfort = document.getElementById('check-comfort-mode').checked;
             localStorage.setItem('cinestudio_comfort_mode', isComfort ? 'true' : 'false');
+            generateRecommendations(false);
+            renderAllMatchingMovies();
+        }
+
+        // Toggle Escludi Animazione (V89, attivo di partenza)
+        function toggleExcludeAnimation() {
+            const isExcl = document.getElementById('check-exclude-animation').checked;
+            localStorage.setItem('cinestudio_exclude_animation', isExcl ? 'true' : 'false');
             generateRecommendations(false);
             renderAllMatchingMovies();
         }
@@ -5299,6 +5386,7 @@
             const mood = document.getElementById('select-mood').value;
             const maxDuration = parseInt(document.getElementById('select-duration').value, 10);
             const comfortMode = document.getElementById('check-comfort-mode')?.checked ?? true;
+            const excludeAnimation = document.getElementById('check-exclude-animation')?.checked ?? true;
             const seenTitleSet = getSeenTitleSet();
             // Toni ammessi in Confort Serale (whitelist: un tono sconosciuto o nuovo viene escluso)
             const COMFORT_TONES = new Set(['uplifting', 'engaging']);
@@ -5325,6 +5413,9 @@
                 // Escludi film bocciati (Esperienze Negative)
                 if (dislikedMovies.some(d => d.id === movie.id)) return false;
 
+                // Escludi film d'animazione (V89, attivo di partenza)
+                if (excludeAnimation && isAnimated(movie)) return false;
+
                 // Filtro Confort Serale: i film aggiunti a mano senza tono restano ammessi
                 if (comfortMode && movie.emotionalTone && !COMFORT_TONES.has(movie.emotionalTone)) return false;
 
@@ -5341,27 +5432,14 @@
                         // Kolossal: oltre 2 ore (> 120 min)
                         if (movie.duration <= 120) return false;
                     } else {
-                        // Film serale (≤ 1h45m o ≤ 2h): escludi cortometraggi inferiori a 40 min a meno di selezione esplicita
+                        // Film serale (≤ 1h45m o ≤ 2h): escludi cortometraggi inferiori a 40 min
                         if (movie.duration > maxDuration) return false;
-                        if ((movie.duration <= 40 || movie.isShort) && mood !== 'corti') return false;
+                        if (movie.duration <= 40 || movie.isShort) return false;
                     }
                 }
 
-                // Filtro Mood
-                if (mood !== 'all') {
-                    if (mood === 'top250') {
-                        if (!isImdbTop250(movie)) return false;
-                    } else if (mood === 'novita') {
-                        const isRecent = (movie.year >= 2022 || movie.mood === 'novita' || (Array.isArray(movie.mood) && movie.mood.includes('novita')));
-                        if (!isRecent) return false;
-                    } else if (mood === 'corti') {
-                        const isShort = (movie.isShort || movie.mood === 'corti' || (Array.isArray(movie.mood) && movie.mood.includes('corti')) || movie.duration <= 40);
-                        if (!isShort) return false;
-                    } else {
-                        const hasMood = (movie.mood === mood || (Array.isArray(movie.mood) && movie.mood.includes(mood)));
-                        if (!hasMood) return false;
-                    }
-                }
+                // Filtro Mood (V89: generi e parole chiave TMDB + mood e testo della scheda)
+                if (!movieMatchesMood(movie, mood)) return false;
 
                 return true;
             });
@@ -5646,6 +5724,8 @@
             const seenTitleSet = getSeenTitleSet();
             if (seenIds.has(movie.id) || seenTitleSet.has(normalizeForMatch(movie.title)) || (movie.originalTitle && seenTitleSet.has(normalizeForMatch(movie.originalTitle)))) return `è su ${where}, ma l'hai segnato come già visto`;
             if (dislikedMovies.some(d => d.id === movie.id)) return `è su ${where}, ma è tra i film bocciati`;
+            const excludeAnimation = document.getElementById('check-exclude-animation')?.checked ?? true;
+            if (excludeAnimation && isAnimated(movie)) return `è su ${where}, ma è un film d'animazione («Escludi Animazione» è attivo)`;
             const comfortMode = document.getElementById('check-comfort-mode')?.checked ?? true;
             if (comfortMode && movie.emotionalTone && !['uplifting', 'engaging'].includes(movie.emotionalTone)) return `è su ${where}, ma il Filtro Confort lo esclude (tono cupo o impegnativo)`;
             if (!(movie.imdb >= minImdb) && !(movie.imdb >= DNA_SCORE_FLOOR && calculateDnaMatch(movie).length > 0)) return `è su ${where}, ma il voto (${scoreLabel(movie)} ${movie.imdb.toFixed(1)}) è sotto la soglia ${minImdb.toFixed(1)}`;
@@ -6120,7 +6200,7 @@
                         id, title: f.title, originalTitle: f.originalTitle, year: f.year, duration: f.runtime || 100,
                         director: f.director || '', cast: f.cast || '', platform: plat, link: PLATFORM_HOME[plat],
                         imdb: Math.round(f.voteAverage * 10) / 10, scoreSource: 'TMDB', mymovies: null,
-                        mood: estimateMood(f.genres, f.originalLanguage), emotionalTone: f.content.tone,
+                        mood: estimateMood(f.genres, f.originalLanguage, f.keywords), emotionalTone: f.content.tone,
                         why: `Aggiunto da te dalla ricerca${f.content.note ? ` · ⚠️ ${f.content.note}` : ''}.`,
                         synopsis: f.overview || 'Trama non disponibile in italiano.', poster: f.poster
                     });
@@ -6171,7 +6251,7 @@
             const id = `radar-${Date.now()}-${tmdbId}`;
             saveRadarItem({
                 id, title: f.title, year: f.year, duration: f.runtime || 100, director: f.director || '', cast: f.cast || '',
-                imdb: Math.round(f.voteAverage * 10) / 10, mood: estimateMood(f.genres, f.originalLanguage), emotionalTone: f.content.tone,
+                imdb: Math.round(f.voteAverage * 10) / 10, mood: estimateMood(f.genres, f.originalLanguage, f.keywords), emotionalTone: f.content.tone,
                 synopsis: f.overview || '', status: f.rent.length ? 'Solo noleggio o acquisto' : 'In attesa di streaming incluso',
                 note: 'Aggiunto dalla ricerca: te lo segnalo quando arriva su Netflix, Prime Video, Disney+ o RaiPlay.'
             });
@@ -7668,15 +7748,16 @@
         }
 
         /* =========================================================================================
-         * ANIMAZIONE (V88): etichetta "Animazione" su schede, Sfoglia tutti e ricerca. Fonte: genere TMDB 16
-         * (catalogo dopo la verifica live, film scoperti e trovati). Senza dati TMDB: registi e parole tipiche.
+         * ANIMAZIONE (V88-V89): etichetta "Animazione" ed esclusione automatica ("Escludi Animazione" attivo
+         * di partenza). Fonte: genere TMDB 16 (catalogo dopo la verifica live, film scoperti e trovati).
+         * Senza dati TMDB: registi, studi e parole tipiche (32/32 film animati del catalogo riconosciuti).
          * ========================================================================================= */
-        const ANIMATION_HINTS = /pixar|ghibli|miyazaki|takahata|dreamworks|animazion|cartone animato|stop[- ]motion|andrew stanton|pete docter|brad bird|lee unkrich|makoto shinkai|sylvain chomet|nick park/i;
+        const ANIMATION_HINTS = /pixar|ghibli|miyazaki|takahata|dreamworks|animazion|cartone animato|stop[- ]motion|andrew stanton|pete docter|brad bird|lee unkrich|makoto shinkai|sylvain chomet|nick park|john lasseter|enrico casarosa|dean deblois|kelsey mann|roger allers|rob minkoff|ron clements|john musker|domee shi|rosana sullivan|alan barillaro/i;
 
         function isAnimated(movie) {
             const genres = movie.genres || (movie.id ? getMovieTmdbMeta(movie)?.genres : null);
             if (Array.isArray(genres) && genres.length) return genres.includes(16);
-            return ANIMATION_HINTS.test(`${movie.director || ''} ${movie.why || ''} ${movie.synopsis || ''}`);
+            return ANIMATION_HINTS.test(`${movie.director || ''} ${movie.cast || ''} ${movie.why || ''} ${movie.synopsis || ''}`);
         }
 
         function animationBadge(movie, size = 'sm') {
